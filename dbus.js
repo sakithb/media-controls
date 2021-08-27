@@ -77,7 +77,7 @@ const getPlayers = () => {
 };
 
 const getMetadata = (player) => {
-    log("Getting metadata");
+    // log("Getting metadata");
     return new Promise((resolve, reject) => {
         connection.call(
             player,
@@ -99,7 +99,7 @@ const getMetadata = (player) => {
                         .recursiveUnpack()[0];
                     let title = metaData["xesam:title"];
                     let artist = metaData["xesam:artist"];
-                    log("Got metadata");
+                    // log("Got metadata");
                     resolve([title, artist]);
                 } catch (e) {
                     reject(e);
@@ -110,7 +110,7 @@ const getMetadata = (player) => {
 };
 
 const getPlaybackStatus = (player) => {
-    log("Getting playback status");
+    // log("Getting playback status");
     return new Promise((resolve, reject) => {
         connection.call(
             player,
@@ -130,7 +130,7 @@ const getPlaybackStatus = (player) => {
                     let playbackStatus = connection
                         .call_finish(res)
                         .recursiveUnpack()[0];
-                    log("Getting metadata");
+                    // log("Getting metadata");
                     resolve(playbackStatus);
                 } catch (e) {
                     reject(e);
