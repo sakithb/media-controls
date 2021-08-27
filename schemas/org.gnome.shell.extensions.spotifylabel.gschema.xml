@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.mediacontrols" path="/org/gnome/shell/extensions/mediacontrols/">
+    <key name="max-display-length" type="i">
+      <default>40</default>
+    </key>
+    <key name="update-delay" type="i">
+      <default>1000</default>
+    </key>
+  </schema>
+</schemalist>

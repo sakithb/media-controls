@@ -1,0 +1,6 @@
+{
+    "name": "Media Controls",
+    "description": "Show controls for the current playing media in the panel",
+    "uuid": "mediacontrols@cliffniff.github.com",
+    "shell-version": ["3.38", "40"]
+}
