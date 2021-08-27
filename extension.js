@@ -5,6 +5,8 @@ const Main = imports.ui.main;
 const Mainloop = imports.mainloop;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
+const { getMetadata, getPlayers, getPlaybackStatus, playbackAction } =
+    Me.imports.dbus;
 
 // User-defined settings
 
@@ -12,7 +14,7 @@ let maxDisplayLength, updateDelay;
 
 // Global variables
 
-let currentPlayer, playerIcon, playersList, playerState, displayText;
+let currentPlayer, playerIcon, playerState, displayText;
 let onUpdateDelayChanged, onMaxLengthChanged;
 let mainLoop;
 let settings;
@@ -30,7 +32,7 @@ let lastPlayer,
 
 const playerIcons = {
     default: "",
-    chrome: "",
+    chrom: "",
     firefox: "",
     spotify: "",
 };
@@ -56,21 +58,15 @@ const _playerToggle = () => {
         buttonToggle.set_child(iconPlay);
         playerState = "Playing";
     }
-    execCmd(
-        `dbus-send --print-reply --dest=${currentPlayer} /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.PlayPause`
-    );
+    playbackAction("PlayPause", currentPlayer);
 };
 
 const _playerNext = () => {
-    execCmd(
-        `dbus-send --print-reply --dest=${currentPlayer} /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Next`
-    );
+    playbackAction("Next", currentPlayer);
 };
 
 const _playerPrev = () => {
-    execCmd(
-        `dbus-send --print-reply --dest=${currentPlayer} /org/mpris/MediaPlayer2 org.mpris.MediaPlayer2.Player.Previous`
-    );
+    playbackAction("Previous", currentPlayer);
 };
 
 // Housekeeping methods
@@ -91,40 +87,16 @@ const removeContent = () => {
 
 // Utility methods
 
-const execCmd = (cmd) => {
-    const [ok, out, err, code] = GLib.spawn_command_line_sync(
-        `/bin/bash -c "${cmd}"`
-    );
-    if (ok) {
-        return out.toString().trim();
-    } else {
-        throw new Error("Error while executing command.", err);
-    }
-};
-
-// Main utility methods
-
-const updatePlayers = () => {
-    // log("Updating players...");
-    const rawPlayersList = execCmd(
-        "dbus-send --print-reply --dest=org.freedesktop.DBus  /org/freedesktop/DBus org.freedesktop.DBus.ListNames"
-    );
-    playersList = rawPlayersList.match(/\"org\.mpris\.MediaPlayer2.*\"/g);
-
-    if (playersList !== null) {
-        playersList = playersList.map((player) => player.replaceAll('"', ""));
-    } else {
-        playersList = [];
-    }
-    // log(`${playersList.length} players found!`);
-};
-
 const updateData = (player, _playerState, _title, _artist) => {
     if (lastPlayer !== player) {
         currentPlayer = player;
-        playerIcon =
-            playerIcons[player.replace("org.mpris.MediaPlayer2.", "")] ||
-            playerIcons["default"];
+        playerIcon = playerIcons["default"];
+        for ([key, value] of Object.entries(playerIcons)) {
+            if (player.includes(key)) {
+                playerIcon = playerIcons[key];
+                break;
+            }
+        }
     }
     if (lastState !== _playerState) {
         playerState = _playerState;
@@ -140,74 +112,79 @@ const updateData = (player, _playerState, _title, _artist) => {
     }
 };
 
-const updatePlayer = () => {
-    // log("Determining current player");
-    if (playersList.length > 0) {
-        let playerStateMap = [];
-        let playerDataMap = {};
-        for (let i = 0; i <= playersList.length; i++) {
-            player = playersList[i];
-
-            _playerState = execCmd(
-                `dbus-send --print-reply --dest=${player} /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:'org.mpris.MediaPlayer2.Player' string:'PlaybackStatus'|egrep -A 1 \\"string\\"|cut -b 26-|cut -d '\\"' -f 1|egrep -v ^$`
-            );
-
-            _title = execCmd(
-                `dbus-send --print-reply --dest=${player} /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:'org.mpris.MediaPlayer2.Player' string:'Metadata'|egrep -A 1 \\"title\\"|egrep -v \\"title\\"|cut -b 44-|cut -d '\\"' -f 1|egrep -v ^$`
-            );
-
-            _artist = execCmd(
-                `dbus-send --print-reply --dest=${player} /org/mpris/MediaPlayer2 org.freedesktop.DBus.Properties.Get string:'org.mpris.MediaPlayer2.Player' string:'Metadata'|egrep -A 2 \\"artist\\"|egrep -v \\"artist\\"|egrep -v \\"array\\"|cut -b 27-|cut -d '\\"' -f 1|egrep -v ^$`
-            );
-
-            if (_title && _artist) {
-                playerStateMap.push([player, _playerState]);
-                playerDataMap[player] = {
-                    _title,
-                    _artist,
-                    _playerState,
-                };
+const updatePlayer = async () => {
+    try {
+        // log("Determining current player");
+        playersList = await getPlayers();
+        if (playersList.length > 0) {
+            let playerStateMap = [];
+            let playerDataMap = {};
+            // log("Starting for loop");
+            // log(`Player list - ${playersList}`);
+            for (let i = 0; i <= playersList.length; i++) {
+                player = playersList[i];
+                if (player) {
+                    _playerStatePromise = getPlaybackStatus(player);
+                    _metadataPromise = getMetadata(player);
+                    // log("Resolving promises");
+                    [_playerState, [_title, _artist]] = await Promise.all([
+                        _playerStatePromise,
+                        _metadataPromise,
+                    ]);
+                    // log("Promises resolved");
+                    if (_title && _artist) {
+                        playerStateMap.push([player, _playerState]);
+                        playerDataMap[player] = {
+                            _title,
+                            _artist,
+                            _playerState,
+                        };
+                    }
+                }
             }
-        }
-        // log(`${playerStateMap.length} eligible players found!`);
-        let playingPlayers = playerStateMap.filter(([player, state]) => {
-            if (state === "Playing") {
-                return true;
+
+            // log(`${playerStateMap.length} eligible players found!`);
+            let playingPlayers = playerStateMap.filter(([player, state]) => {
+                if (state === "Playing") {
+                    return true;
+                }
+                return false;
+            });
+            // log(`${playingPlayers.length} playing players found!`);
+            if (playingPlayers.length > 0) {
+                if (contentRemoved) {
+                    addContent();
+                    contentRemoved = false;
+                }
+                player = playingPlayers[0][0];
+                updateData(
+                    player,
+                    playerDataMap[player]._playerState,
+                    playerDataMap[player]._title,
+                    playerDataMap[player]._artist
+                );
+            } else if (playerStateMap.length > 0) {
+                if (contentRemoved) {
+                    addContent();
+                    contentRemoved = false;
+                }
+                player = playerStateMap[0][0];
+                updateData(
+                    player,
+                    playerDataMap[player]._playerState,
+                    playerDataMap[player]._title,
+                    playerDataMap[player]._artist
+                );
+            } else {
+                removeContent();
+                contentRemoved = true;
             }
-            return false;
-        });
-        // log(`${playingPlayers.length} playing players found!`);
-        if (playingPlayers.length > 0) {
-            if (contentRemoved) {
-                addContent();
-                contentRemoved = false;
-            }
-            player = playingPlayers[0][0];
-            updateData(
-                player,
-                playerDataMap[player]._playerState,
-                playerDataMap[player]._title,
-                playerDataMap[player]._artist
-            );
-        } else if (playerStateMap.length > 0) {
-            if (contentRemoved) {
-                addContent();
-                contentRemoved = false;
-            }
-            player = playerStateMap[0][0];
-            updateData(
-                player,
-                playerDataMap[player]._playerState,
-                playerDataMap[player]._title,
-                playerDataMap[player]._artist
-            );
         } else {
             removeContent();
             contentRemoved = true;
         }
-    } else {
-        removeContent();
-        contentRemoved = true;
+    } catch (e) {
+        // logError(e);
     }
 };
 
@@ -309,9 +286,9 @@ const enable = () => {
 
     // Start the main loop
     mainLoop = Mainloop.timeout_add(updateDelay, () => {
-        updatePlayers();
-        updatePlayer();
-        updateContent();
+        updatePlayer().then(() => {
+            updateContent();
+        });
         return true;
     });
 };
