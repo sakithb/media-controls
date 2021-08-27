@@ -13,7 +13,7 @@ Show controls and information of the currently playing media in the panel
 ## Notes
 
 -   Currently font awesome needs to be installed in the system for the icons to show up.
--   There will be small performance issues, a fix for this will be put up soon
+-   ~There will be small performance issues, a fix for this will be put up soon~ [FIXED]
 
 ---
 
