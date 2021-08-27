@@ -103,7 +103,7 @@ const updateData = (player, _playerState, _title, _artist) => {
         lastStateChanged = true;
     }
     if ([_title, _artist] !== lastMetadata) {
-        displayText = `${_title} - ${_artist}`;
+        displayText = `${_title}${_artist ? " - " + _artist : ""}`;
         displayText =
             displayText.length > maxDisplayLength
                 ? displayText.substring(0, maxDisplayLength - 3) + "..."
@@ -132,7 +132,7 @@ const updatePlayer = async () => {
                         _metadataPromise,
                     ]);
                     // log("Promises resolved");
-                    if (_title && _artist) {
+                    if (_title) {
                         playerStateMap.push([player, _playerState]);
                         playerDataMap[player] = {
                             _title,
