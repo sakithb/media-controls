@@ -27,3 +27,10 @@ Show controls and information of the currently playing media in the panel
 -   Rename the extracted folder to `mediacontrols@cliffniff.github.com`
 -   Move it to `~/.local/share/gnome-shell/extensions/`
 -   Enable the extension in the Extensions app or type `gnome-extensions enable mediacontrols@cliffniff.github.com` in the terminal
+
+## Upcoming features
+
+-  Support for video players
+-  Animated text
+-  Desaturated player icon
+-  Clickable title with actions
