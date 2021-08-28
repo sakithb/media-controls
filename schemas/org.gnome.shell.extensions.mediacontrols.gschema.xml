@@ -7,5 +7,20 @@
     <key name="update-delay" type="i">
       <default>1000</default>
     </key>
+    <key name="hide-track-name" type="b">
+      <default>false</default>
+    </key>
+    <key name="hide-player-icon" type="b">
+      <default>false</default>
+    </key>
+    <key name="hide-controls" type="b">
+      <default>false</default>
+    </key>
+    <key name="extension-position" type="s">
+      <default>'center'</default>
+    </key>
+    <key name="extension-index" type="i">
+      <default>0</default>
+    </key>
   </schema>
 </schemalist>

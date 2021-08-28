@@ -10,15 +10,27 @@ const { getMetadata, getPlayers, getPlaybackStatus, playbackAction } =
 
 // User-defined settings
 
-let maxDisplayLength, updateDelay;
+let maxDisplayLength,
+    updateDelay,
+    hideTrackName,
+    hidePlayerIcon,
+    hideControls,
+    extensionPosition,
+    extensionIndex;
 
 // Global variables
 
 let currentPlayer, playerIcon, playerState, displayText;
-let onUpdateDelayChanged, onMaxLengthChanged;
+let onUpdateDelayChanged,
+    onMaxLengthChanged,
+    onHideTrackNameChanged,
+    onHidePlayerIconChanged,
+    onHideControlsChanged,
+    onExtensionPositionChanged,
+    onExtensionIndexChanged;
+
 let mainLoop;
 let settings;
-
 // Tracking variables
 
 let lastPlayer,
@@ -31,10 +43,11 @@ let lastPlayer,
 // Constants
 
 const playerIcons = {
-    default: "",
-    chrom: "",
-    firefox: "",
-    spotify: "",
+    default: "audio-x-generic-symbolic",
+    chromium: "chromium",
+    firefox: "firefox",
+    rhythmbox: "rhythmbox",
+    spotify: "spotify",
 };
 
 // UI elements
@@ -46,6 +59,7 @@ let buttonNext,
     iconPause,
     iconPlay,
     iconPrev,
+    iconPlayer,
     labelText;
 
 // Button trigger methods
@@ -72,17 +86,145 @@ const _playerPrev = () => {
 // Housekeeping methods
 
 const addContent = () => {
-    Main.panel._centerBox.insert_child_at_index(buttonNext, 0);
-    Main.panel._centerBox.insert_child_at_index(buttonToggle, 0);
-    Main.panel._centerBox.insert_child_at_index(buttonPrev, 0);
-    Main.panel._centerBox.insert_child_at_index(labelText, 0);
+    let currentIndex;
+    log(`Adding to ${extensionPosition} box`);
+    switch (extensionPosition) {
+        case "left":
+            currentIndex = 0;
+            if (!hidePlayerIcon) {
+                Main.panel._leftBox.insert_child_at_index(
+                    iconPlayer,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+            }
+            if (!hideTrackName) {
+                Main.panel._leftBox.insert_child_at_index(
+                    labelText,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+            }
+            if (!hideControls) {
+                Main.panel._leftBox.insert_child_at_index(
+                    buttonPrev,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+
+                Main.panel._leftBox.insert_child_at_index(
+                    buttonToggle,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+                Main.panel._leftBox.insert_child_at_index(
+                    buttonNext,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+            }
+
+            break;
+        case "center":
+            currentIndex = 0;
+
+            if (!hidePlayerIcon) {
+                Main.panel._centerBox.insert_child_at_index(
+                    iconPlayer,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+            }
+            if (!hideTrackName) {
+                Main.panel._centerBox.insert_child_at_index(
+                    labelText,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+            }
+            if (!hideControls) {
+                Main.panel._centerBox.insert_child_at_index(
+                    buttonPrev,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+                Main.panel._centerBox.insert_child_at_index(
+                    buttonToggle,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+
+                Main.panel._centerBox.insert_child_at_index(
+                    buttonNext,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+            }
+
+            break;
+        default:
+            currentIndex = 0;
+            if (!hideTrackName) {
+                Main.panel._rightBox.insert_child_at_index(
+                    labelText,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+            }
+            if (!hidePlayerIcon) {
+                Main.panel._rightBox.insert_child_at_index(
+                    iconPlayer,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+            }
+            if (!hideControls) {
+                Main.panel._rightBox.insert_child_at_index(
+                    buttonPrev,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+                Main.panel._rightBox.insert_child_at_index(
+                    buttonToggle,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+                Main.panel._rightBox.insert_child_at_index(
+                    buttonNext,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+            }
+
+            break;
+    }
 };
 
 const removeContent = () => {
-    Main.panel._centerBox.remove_actor(buttonNext);
-    Main.panel._centerBox.remove_actor(buttonToggle);
-    Main.panel._centerBox.remove_actor(buttonPrev);
-    Main.panel._centerBox.remove_actor(labelText);
+    log(`Removing from ${extensionPosition} box`);
+    switch (extensionPosition) {
+        case "left":
+            Main.panel._leftBox.remove_actor(buttonNext);
+            Main.panel._leftBox.remove_actor(buttonToggle);
+            Main.panel._leftBox.remove_actor(buttonPrev);
+            Main.panel._leftBox.remove_actor(labelText);
+            Main.panel._leftBox.remove_actor(iconPlayer);
+            break;
+        case "center":
+            Main.panel._centerBox.remove_actor(buttonNext);
+            Main.panel._centerBox.remove_actor(buttonToggle);
+            Main.panel._centerBox.remove_actor(buttonPrev);
+            Main.panel._centerBox.remove_actor(labelText);
+            Main.panel._centerBox.remove_actor(iconPlayer);
+            break;
+        default:
+            Main.panel._rightBox.remove_actor(buttonNext);
+            Main.panel._rightBox.remove_actor(buttonToggle);
+            Main.panel._rightBox.remove_actor(buttonPrev);
+            Main.panel._rightBox.remove_actor(labelText);
+            Main.panel._rightBox.remove_actor(iconPlayer);
+            break;
+    }
 };
 
 // Utility methods
@@ -198,7 +340,8 @@ const updateContent = () => {
         lastStateChanged = false;
     }
     if (lastMetaDataChanged) {
-        labelText.set_text(`${playerIcon}  | ${displayText} |`);
+        iconPlayer.set_icon_name(playerIcon);
+        labelText.set_text(`| ${displayText} |`);
         lastMetaDataChanged = false;
     }
 };
@@ -229,8 +372,55 @@ const enable = () => {
         // log(`Updated setting "maxDisplayLength": ${maxDisplayLength}`);
     });
 
+    onHideTrackNameChanged = settings.connect(
+        "changed::hide-track-name",
+        () => {
+            hideTrackName = settings.get_boolean("hide-track-name");
+            removeContent();
+            addContent();
+        }
+    );
+
+    onHidePlayerIconChanged = settings.connect(
+        "changed::hide-player-icon",
+        () => {
+            hidePlayerIcon = settings.get_boolean("hide-player-icon");
+            removeContent();
+            addContent();
+        }
+    );
+
+    onExtensionIndexChanged = settings.connect(
+        "changed::extension-index",
+        () => {
+            extensionIndex = settings.get_int("extension-index");
+            removeContent();
+            addContent();
+        }
+    );
+
+    onExtensionPositionChanged = settings.connect(
+        "changed::extension-position",
+        () => {
+            removeContent();
+            extensionPosition = settings.get_string("extension-position");
+            addContent();
+        }
+    );
+
+    onHideControlsChanged = settings.connect("changed::hide-controls", () => {
+        hideControls = settings.get_boolean("hide-controls");
+        removeContent();
+        addContent();
+    });
+
     updateDelay = settings.get_int("update-delay");
     maxDisplayLength = settings.get_int("max-display-length");
+    hideTrackName = settings.get_boolean("hide-track-name");
+    hidePlayerIcon = settings.get_boolean("hide-player-icon");
+    hideControls = settings.get_boolean("hide-controls");
+    extensionIndex = settings.get_int("extension-index");
+    extensionPosition = settings.get_string("extension-position");
 
     // UI Elements
 
@@ -253,6 +443,11 @@ const enable = () => {
     iconPrev = new St.Icon({
         icon_name: "media-skip-backward-symbolic",
         style_class: "system-status-icon",
+    });
+    iconPlayer = new St.Icon({
+        icon_name: playerIcons.default,
+        icon_size: 16,
+        style: "padding-right: 5px;",
     });
 
     labelText = new St.Label({
@@ -288,6 +483,11 @@ const disable = () => {
 
     settings.disconnect(onMaxLengthChanged);
     settings.disconnect(onUpdateDelayChanged);
+    settings.disconnect(onHideControlsChanged);
+    settings.disconnect(onHidePlayerIconChanged);
+    settings.disconnect(onHideTrackNameChanged);
+    settings.disconnect(onExtensionIndexChanged);
+    settings.disconnect(onExtensionPositionChanged);
 
     buttonNext.destroy();
     buttonPrev.destroy();
