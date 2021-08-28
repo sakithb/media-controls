@@ -209,11 +209,16 @@ const init = () => {};
 
 const enable = () => {
     // Initialize settings
-    let gschema = Gio.SettingsSchemaSource.new_from_directory(
-        Me.dir.get_child("schemas").get_path(),
-        Gio.SettingsSchemaSource.get_default(),
-        false
-    );
+    let schemaDir = Me.dir.get_child("schemas");
+    if (schemaDir.query_exists(null)) {
+        let gschema = Gio.SettingsSchemaSource.new_from_directory(
+            schemaDir.get_path(),
+            Gio.SettingsSchemaSource.get_default(),
+            false
+        );
+    } else {
+        let gschema = Gio.SettingsSchemaSource.get_default();
+    }
 
     settings = new Gio.Settings({
         settings_schema: gschema.lookup(
