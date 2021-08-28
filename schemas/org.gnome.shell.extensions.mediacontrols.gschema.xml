@@ -1,20 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
   <schema id="org.gnome.shell.extensions.mediacontrols" path="/org/gnome/shell/extensions/mediacontrols/">
-    <key name="max-display-length" type="i">
+    <key name="max-text-length" type="i">
       <default>40</default>
     </key>
     <key name="update-delay" type="i">
       <default>1000</default>
     </key>
-    <key name="hide-track-name" type="b">
+    <key name="hide-text" type="b">
       <default>false</default>
     </key>
     <key name="hide-player-icon" type="b">
       <default>false</default>
     </key>
-    <key name="hide-controls" type="b">
+    <key name="hide-control-icons" type="b">
       <default>false</default>
+    </key>
+    <key name="colored-player-icon" type="b">
+      <default>false</default>
+    </key>
+    <key name="animate-text" type="b">
+      <default>true</default>
+    </key>
+
+    <key name="mouse-actions-left" type="s">
+      <default>'none'</default>
+    </key>
+
+    <key name="mouse-actions-right" type="s">
+      <default>'none'</default>
     </key>
     <key name="extension-position" type="s">
       <default>'center'</default>

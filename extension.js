@@ -16,7 +16,11 @@ let maxDisplayLength,
     hidePlayerIcon,
     hideControls,
     extensionPosition,
-    extensionIndex;
+    extensionIndex,
+    coloredPlayerIcon,
+    animateText,
+    mouseActionsLeftClick,
+    mouseActionsRightClick;
 
 // Global variables
 
@@ -27,7 +31,11 @@ let onUpdateDelayChanged,
     onHidePlayerIconChanged,
     onHideControlsChanged,
     onExtensionPositionChanged,
-    onExtensionIndexChanged;
+    onExtensionIndexChanged,
+    onColoredPlayerIconChanged,
+    onAnimateTextChanged,
+    onMouseActionsLeftClickChanged,
+    onMouseActionsRightClickChanged;
 
 let mainLoop;
 let settings;
@@ -36,8 +44,9 @@ let settings;
 let lastPlayer,
     lastMetadata,
     lastState,
-    lastMetaDataChanged,
+    lastPlayerChanged,
     lastStateChanged,
+    animateTextCount,
     contentRemoved;
 
 // Constants
@@ -50,11 +59,18 @@ const playerIcons = {
     spotify: "spotify",
 };
 
+const positions = {
+    left: "_leftBox",
+    center: "_centerBox",
+    right: "_rightBox",
+};
+
 // UI elements
 
 let buttonNext,
     buttonPrev,
     buttonToggle,
+    buttonLabel,
     iconNext,
     iconPause,
     iconPlay,
@@ -64,7 +80,7 @@ let buttonNext,
 
 // Button trigger methods
 
-const _playerToggle = () => {
+const _actionToggle = () => {
     if (playerState === "Playing") {
         buttonToggle.set_child(iconPause);
         playerState = "Paused";
@@ -75,163 +91,118 @@ const _playerToggle = () => {
     playbackAction("PlayPause", currentPlayer);
 };
 
-const _playerNext = () => {
+const _actionNext = () => {
     playbackAction("Next", currentPlayer);
 };
 
-const _playerPrev = () => {
+const _actionPrev = () => {
     playbackAction("Previous", currentPlayer);
+};
+
+const _mouseAction = (event) => {
+    if (event.pseudo_class === "active") {
+        mouseActions[mouseActionsLeftClick]();
+    } else {
+        mouseActions[mouseActionsRightClick]();
+    }
+};
+
+const mouseActions = {
+    none: () => {},
+    toggle_play: _actionToggle,
+    play: () => {
+        playbackAction("Play", currentPlayer);
+    },
+    pause: () => {
+        playbackAction("Pause", currentPlayer);
+    },
+    next: _actionNext,
+    prev: _actionPrev,
+};
+
+// Other utility methods
+
+const updatePlayerIconEffects = () => {
+    if (coloredPlayerIcon) {
+        iconPlayer.clear_effects();
+        iconPlayer.set_style("padding-right: 5px; -st-icon-style: requested");
+    } else {
+        iconPlayer.set_style("padding-right: 5px; -st-icon-style: symbolic");
+        iconPlayer.add_effect(new Clutter.DesaturateEffect());
+    }
+};
+
+const scrollText = () => {
+    // let difference = lastMetadata.length - maxDisplayLength;
+    // log("Animating text", difference, animateTextCount);
+    // if (difference <= 0) {
+    //     displayText = lastMetadata;
+    // }
+    // displayText = lastMetadata.substr(animateTextCount, difference);
+    // if (displayText.length < maxDisplayLength) {
+    //     displayText =
+    //         displayText + " ".repeat(maxDisplayLength - displayText.length);
+    // }
+    // animateTextCount++;
 };
 
 // Housekeeping methods
 
 const addContent = () => {
-    let currentIndex;
+    // let currentIndex;
     log(`Adding to ${extensionPosition} box`);
-    switch (extensionPosition) {
-        case "left":
-            currentIndex = 0;
-            if (!hidePlayerIcon) {
-                Main.panel._leftBox.insert_child_at_index(
-                    iconPlayer,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-            }
-            if (!hideTrackName) {
-                Main.panel._leftBox.insert_child_at_index(
-                    labelText,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-            }
-            if (!hideControls) {
-                Main.panel._leftBox.insert_child_at_index(
-                    buttonPrev,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
+    let currentIndex = 0;
+    if (!hidePlayerIcon) {
+        Main.panel[positions[extensionPosition]].insert_child_at_index(
+            iconPlayer,
+            extensionIndex + currentIndex
+        );
+        currentIndex++;
+    }
+    if (!hideTrackName) {
+        Main.panel[positions[extensionPosition]].insert_child_at_index(
+            buttonLabel,
+            extensionIndex + currentIndex
+        );
+        currentIndex++;
+    }
+    if (!hideControls) {
+        Main.panel[positions[extensionPosition]].insert_child_at_index(
+            buttonPrev,
+            extensionIndex + currentIndex
+        );
+        currentIndex++;
 
-                Main.panel._leftBox.insert_child_at_index(
-                    buttonToggle,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-                Main.panel._leftBox.insert_child_at_index(
-                    buttonNext,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-            }
-
-            break;
-        case "center":
-            currentIndex = 0;
-
-            if (!hidePlayerIcon) {
-                Main.panel._centerBox.insert_child_at_index(
-                    iconPlayer,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-            }
-            if (!hideTrackName) {
-                Main.panel._centerBox.insert_child_at_index(
-                    labelText,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-            }
-            if (!hideControls) {
-                Main.panel._centerBox.insert_child_at_index(
-                    buttonPrev,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-                Main.panel._centerBox.insert_child_at_index(
-                    buttonToggle,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-
-                Main.panel._centerBox.insert_child_at_index(
-                    buttonNext,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-            }
-
-            break;
-        default:
-            currentIndex = 0;
-            if (!hideTrackName) {
-                Main.panel._rightBox.insert_child_at_index(
-                    labelText,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-            }
-            if (!hidePlayerIcon) {
-                Main.panel._rightBox.insert_child_at_index(
-                    iconPlayer,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-            }
-            if (!hideControls) {
-                Main.panel._rightBox.insert_child_at_index(
-                    buttonPrev,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-                Main.panel._rightBox.insert_child_at_index(
-                    buttonToggle,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-                Main.panel._rightBox.insert_child_at_index(
-                    buttonNext,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-            }
-
-            break;
+        Main.panel[positions[extensionPosition]].insert_child_at_index(
+            buttonToggle,
+            extensionIndex + currentIndex
+        );
+        currentIndex++;
+        Main.panel[positions[extensionPosition]].insert_child_at_index(
+            buttonNext,
+            extensionIndex + currentIndex
+        );
+        currentIndex++;
     }
 };
 
 const removeContent = () => {
+    // extensionPosition, extensionPosition Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah
     log(`Removing from ${extensionPosition} box`);
-    switch (extensionPosition) {
-        case "left":
-            Main.panel._leftBox.remove_actor(buttonNext);
-            Main.panel._leftBox.remove_actor(buttonToggle);
-            Main.panel._leftBox.remove_actor(buttonPrev);
-            Main.panel._leftBox.remove_actor(labelText);
-            Main.panel._leftBox.remove_actor(iconPlayer);
-            break;
-        case "center":
-            Main.panel._centerBox.remove_actor(buttonNext);
-            Main.panel._centerBox.remove_actor(buttonToggle);
-            Main.panel._centerBox.remove_actor(buttonPrev);
-            Main.panel._centerBox.remove_actor(labelText);
-            Main.panel._centerBox.remove_actor(iconPlayer);
-            break;
-        default:
-            Main.panel._rightBox.remove_actor(buttonNext);
-            Main.panel._rightBox.remove_actor(buttonToggle);
-            Main.panel._rightBox.remove_actor(buttonPrev);
-            Main.panel._rightBox.remove_actor(labelText);
-            Main.panel._rightBox.remove_actor(iconPlayer);
-            break;
-    }
+    Main.panel[positions[extensionPosition]].remove_actor(buttonNext);
+    Main.panel[positions[extensionPosition]].remove_actor(buttonToggle);
+    Main.panel[positions[extensionPosition]].remove_actor(buttonPrev);
+    Main.panel[positions[extensionPosition]].remove_actor(buttonLabel);
+    Main.panel[positions[extensionPosition]].remove_actor(iconPlayer);
 };
 
 // Utility methods
 
 const updateData = (player, _playerState, _title, _artist) => {
     if (lastPlayer !== player) {
+        log("Updating player");
         currentPlayer = player;
+        lastPlayer = player;
         playerIcon = playerIcons["default"];
         for ([key, value] of Object.entries(playerIcons)) {
             if (player.includes(key)) {
@@ -239,22 +210,31 @@ const updateData = (player, _playerState, _title, _artist) => {
                 break;
             }
         }
+        lastPlayerChanged = true;
     }
     if (lastState !== _playerState) {
+        log("Updating State");
         playerState = _playerState;
+        lastState = _playerState;
         lastStateChanged = true;
     }
-    if ([_title, _artist] !== lastMetadata) {
+    if (_title + _artist !== lastMetadata) {
+        log("Updating Metadata");
+        lastMetadata = _title + _artist;
+        animateTextCount = 0;
         displayText = `${_title}${_artist ? " - " + _artist : ""}`;
-        displayText =
-            displayText.length > maxDisplayLength
-                ? displayText.substring(0, maxDisplayLength - 3) + "..."
-                : displayText;
-        lastMetaDataChanged = true;
+    }
+    if (lastMetadata.length > maxDisplayLength) {
+        log("Trimming text");
+        // if (animateText) {
+        //     scrollText();
+        // } else {
+        // }
+        displayText = displayText.substring(0, maxDisplayLength - 3) + "...";
     }
 };
 
-const updatePlayer = async () => {
+const updateMetadata = async () => {
     try {
         // log("Determining current player");
         playersList = await getPlayers();
@@ -326,12 +306,13 @@ const updatePlayer = async () => {
             contentRemoved = true;
         }
     } catch (e) {
-        // logError(e);
+        logError(e);
     }
 };
 
 const updateContent = () => {
     if (lastStateChanged) {
+        log("Updating state icon");
         if (playerState === "Playing") {
             buttonToggle.set_child(iconPause);
         } else {
@@ -339,11 +320,12 @@ const updateContent = () => {
         }
         lastStateChanged = false;
     }
-    if (lastMetaDataChanged) {
+    if (lastPlayerChanged) {
+        log("Updating player icon");
         iconPlayer.set_icon_name(playerIcon);
-        labelText.set_text(`| ${displayText} |`);
-        lastMetaDataChanged = false;
+        lastPlayerChanged = false;
     }
+    labelText.set_text(`| ${displayText} |`);
 };
 
 // Lifecycle methods
@@ -360,26 +342,23 @@ const enable = () => {
         Mainloop.source_remove(mainLoop);
         mainLoop = Mainloop.timeout_add(updateDelay, () => {
             updatePlayers();
-            updatePlayer();
+            updateMetadata();
             updateContent();
             return true;
         });
         // log(`Updated setting "updateDelay": ${updateDelay}`);
     });
 
-    onMaxLengthChanged = settings.connect("changed::max-display-length", () => {
-        maxDisplayLength = settings.get_int("max-display-length");
+    onMaxLengthChanged = settings.connect("changed::max-text-length", () => {
+        maxDisplayLength = settings.get_int("max-text-length");
         // log(`Updated setting "maxDisplayLength": ${maxDisplayLength}`);
     });
 
-    onHideTrackNameChanged = settings.connect(
-        "changed::hide-track-name",
-        () => {
-            hideTrackName = settings.get_boolean("hide-track-name");
-            removeContent();
-            addContent();
-        }
-    );
+    onHideTrackNameChanged = settings.connect("changed::hide-text", () => {
+        hideTrackName = settings.get_boolean("hide-text");
+        removeContent();
+        addContent();
+    });
 
     onHidePlayerIconChanged = settings.connect(
         "changed::hide-player-icon",
@@ -408,25 +387,57 @@ const enable = () => {
         }
     );
 
-    onHideControlsChanged = settings.connect("changed::hide-controls", () => {
-        hideControls = settings.get_boolean("hide-controls");
-        removeContent();
-        addContent();
+    onHideControlsChanged = settings.connect(
+        "changed::hide-control-icons",
+        () => {
+            hideControls = settings.get_boolean("hide-control-icons");
+            removeContent();
+            addContent();
+        }
+    );
+
+    onMouseActionsLeftClickChanged = settings.connect(
+        "changed::mouse-actions-left",
+        () => {
+            mouseActionsLeftClick = settings.get_string("mouse-actions-left");
+        }
+    );
+
+    onMouseActionsRightClickChanged = settings.connect(
+        "changed::mouse-actions-right",
+        () => {
+            mouseActionsRightClick = settings.get_string("mouse-actions-right");
+        }
+    );
+
+    onColoredPlayerIconChanged = settings.connect(
+        "changed::colored-player-icon",
+        () => {
+            coloredPlayerIcon = settings.get_boolean("colored-player-icon");
+            updatePlayerIconEffects();
+        }
+    );
+
+    onAnimateTextChanged = settings.connect("changed::animate-text", () => {
+        animateText = settings.get_boolean("animate-text");
     });
 
     updateDelay = settings.get_int("update-delay");
-    maxDisplayLength = settings.get_int("max-display-length");
-    hideTrackName = settings.get_boolean("hide-track-name");
+    maxDisplayLength = settings.get_int("max-text-length");
+    hideTrackName = settings.get_boolean("hide-text");
     hidePlayerIcon = settings.get_boolean("hide-player-icon");
-    hideControls = settings.get_boolean("hide-controls");
+    hideControls = settings.get_boolean("hide-control-icons");
     extensionIndex = settings.get_int("extension-index");
     extensionPosition = settings.get_string("extension-position");
+    coloredPlayerIcon = settings.get_boolean("colored-player-icon");
+    animateText = settings.get_boolean("animate-text");
 
     // UI Elements
 
     buttonToggle = new St.Button({ style_class: "panel-button" });
     buttonNext = new St.Button({ style_class: "panel-button" });
     buttonPrev = new St.Button({ style_class: "panel-button" });
+    buttonLabel = new St.Button({ track_hover: false });
 
     iconPlay = new St.Icon({
         icon_name: "media-playback-start-symbolic",
@@ -452,26 +463,32 @@ const enable = () => {
 
     labelText = new St.Label({
         text: "No player found",
+        // style: "font-family: monospace, monospace;",
         y_align: Clutter.ActorAlign.CENTER,
-        style_class: "system-status-icon",
     });
 
     // Set childs and bind methods
     buttonNext.set_child(iconNext);
-    buttonNext.connect("button-press-event", _playerNext);
+    buttonNext.connect("button-release-event", _actionNext);
 
     buttonPrev.set_child(iconPrev);
-    buttonPrev.connect("button-press-event", _playerPrev);
+    buttonPrev.connect("button-release-event", _actionPrev);
 
     buttonToggle.set_child(iconPlay);
-    buttonToggle.connect("button-press-event", _playerToggle);
+    buttonToggle.connect("button-release-event", _actionToggle);
+
+    buttonLabel.set_child(labelText);
+    buttonLabel.connect("button-release-event", _mouseAction);
+
+    // Initialize content
+    updatePlayerIconEffects();
 
     // Add content to the panel
     addContent();
 
     // Start the main loop
     mainLoop = Mainloop.timeout_add(updateDelay, () => {
-        updatePlayer().then(() => {
+        updateMetadata().then(() => {
             updateContent();
         });
         return true;
@@ -488,6 +505,10 @@ const disable = () => {
     settings.disconnect(onHideTrackNameChanged);
     settings.disconnect(onExtensionIndexChanged);
     settings.disconnect(onExtensionPositionChanged);
+    settings.disconnect(onMouseActionsLeftClickChanged);
+    settings.disconnect(onMouseActionsRightClickChanged);
+    settings.disconnect(onColoredPlayerIconChanged);
+    settings.disconnect(onAnimateTextChanged);
 
     buttonNext.destroy();
     buttonPrev.destroy();
@@ -497,6 +518,7 @@ const disable = () => {
     iconPlay.destroy();
     iconPrev.destroy();
     labelText.destroy();
+    buttonLabel.destroy();
 
     removeContent();
 };

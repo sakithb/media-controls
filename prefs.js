@@ -13,26 +13,29 @@ const Config = imports.misc.config;
 const [major] = Config.PACKAGE_VERSION.split(".");
 const shellVersion = Number.parseInt(major);
 
+const positions = ["left", "center", "right"];
+const mouseActions = ["none", "toggle_play", "play", "pause", "next", "prev"];
+
 function init() {}
 
 function buildPrefsWidget() {
     let settings = ExtensionUtils.getSettings();
 
-    let prefsWidget;
+    let widgetPrefs;
     if (shellVersion < 40) {
-        prefsWidget = new Gtk.Grid({
-            margin: 18,
+        widgetPrefs = new Gtk.Grid({
+            margin: 15,
             column_spacing: 12,
             row_spacing: 12,
             visible: true,
             column_homogeneous: true,
         });
     } else {
-        prefsWidget = new Gtk.Grid({
-            margin_top: 10,
-            margin_bottom: 10,
-            margin_start: 10,
-            margin_end: 10,
+        widgetPrefs = new Gtk.Grid({
+            margin_top: 15,
+            margin_bottom: 15,
+            margin_start: 15,
+            margin_end: 15,
             column_spacing: 12,
             row_spacing: 12,
             visible: true,
@@ -42,22 +45,24 @@ function buildPrefsWidget() {
 
     let index = 0;
 
-    let title = new Gtk.Label({
-        label: "<b>" + Me.metadata.name + " Extension Preferences</b>",
+    // First section - General
+    // SECTION START
+    let labelGeneral = new Gtk.Label({
+        label: "<b>General</b>",
         halign: Gtk.Align.START,
         use_markup: true,
         visible: true,
     });
-    prefsWidget.attach(title, 0, index, 1, 1);
+    widgetPrefs.attach(labelGeneral, 0, index, 1, 1);
 
-    /* max-string-length */
-    let maxDisplayLengthLabel = new Gtk.Label({
-        label: "Max display length:",
+    // Adjust maximum text length
+    let labelMaxDisplayLength = new Gtk.Label({
+        label: "Maximum text length:",
         halign: Gtk.Align.START,
         visible: true,
     });
 
-    let maxDisplayLengthEntry = new Gtk.SpinButton({
+    let entryMaxDisplayLength = new Gtk.SpinButton({
         adjustment: new Gtk.Adjustment({
             lower: 1,
             upper: 100,
@@ -67,17 +72,17 @@ function buildPrefsWidget() {
     });
 
     index++;
-    prefsWidget.attach(maxDisplayLengthLabel, 0, index, 1, 1);
-    prefsWidget.attach(maxDisplayLengthEntry, 1, index, 1, 1);
+    widgetPrefs.attach(labelMaxDisplayLength, 0, index, 1, 1);
+    widgetPrefs.attach(entryMaxDisplayLength, 1, index, 1, 1);
 
-    /* Update delay */
-    let updateDelayLabel = new Gtk.Label({
+    // Adjust update delay
+    let labelUpdateDelay = new Gtk.Label({
         label: "Update delay (milliseconds):",
         halign: Gtk.Align.START,
         visible: true,
     });
 
-    let updateDelayEntry = new Gtk.SpinButton({
+    let entryUpdateDelay = new Gtk.SpinButton({
         adjustment: new Gtk.Adjustment({
             lower: 500,
             upper: 5000,
@@ -87,91 +92,151 @@ function buildPrefsWidget() {
     });
 
     index++;
-    prefsWidget.attach(updateDelayLabel, 0, index, 1, 1);
-    prefsWidget.attach(updateDelayEntry, 1, index, 1, 1);
+    widgetPrefs.attach(labelUpdateDelay, 0, index, 1, 1);
+    widgetPrefs.attach(entryUpdateDelay, 1, index, 1, 1);
 
-    /* Hide track name */
-    let hideTrackLabel = new Gtk.Label({
-        label: "Hide track name:",
+    // SECTION END
+    // Second section - Visibility
+
+    let labelVisibility = new Gtk.Label({
+        label: "<b>Visibility</b>",
+        halign: Gtk.Align.START,
+        use_markup: true,
+        visible: true,
+    });
+    index++;
+    widgetPrefs.attach(labelVisibility, 0, index, 1, 1);
+
+    // Hide text
+    let labelHideText = new Gtk.Label({
+        label: "Hide text:",
         halign: Gtk.Align.START,
         visible: true,
     });
 
-    let hideTrackSwitch = new Gtk.Switch({
+    let switchHideText = new Gtk.Switch({
         valign: Gtk.Align.END,
         halign: Gtk.Align.END,
         visible: true,
     });
 
     index++;
-    prefsWidget.attach(hideTrackLabel, 0, index, 1, 1);
-    prefsWidget.attach(hideTrackSwitch, 1, index, 1, 1);
+    widgetPrefs.attach(labelHideText, 0, index, 1, 1);
+    widgetPrefs.attach(switchHideText, 1, index, 1, 1);
 
-    /* Hide player icon */
-    let hidePlayerLabel = new Gtk.Label({
+    // Hide player icon
+    let labelHidePlayerIcon = new Gtk.Label({
         label: "Hide player icon:",
         halign: Gtk.Align.START,
         visible: true,
     });
 
-    let hidePlayerSwitch = new Gtk.Switch({
+    let switchHidePlayerIcon = new Gtk.Switch({
         valign: Gtk.Align.END,
         halign: Gtk.Align.END,
         visible: true,
     });
 
     index++;
-    prefsWidget.attach(hidePlayerLabel, 0, index, 1, 1);
-    prefsWidget.attach(hidePlayerSwitch, 1, index, 1, 1);
+    widgetPrefs.attach(labelHidePlayerIcon, 0, index, 1, 1);
+    widgetPrefs.attach(switchHidePlayerIcon, 1, index, 1, 1);
 
-    /* Hide controls */
-    let hideControlsLabel = new Gtk.Label({
+    /* Hide control icons */
+    let labelHideControlIcons = new Gtk.Label({
         label: "Hide controls:",
         halign: Gtk.Align.START,
         visible: true,
     });
 
-    let hideControlsSwitch = new Gtk.Switch({
+    let switchHideControlIcons = new Gtk.Switch({
         valign: Gtk.Align.END,
         halign: Gtk.Align.END,
         visible: true,
     });
 
     index++;
-    prefsWidget.attach(hideControlsLabel, 0, index, 1, 1);
-    prefsWidget.attach(hideControlsSwitch, 1, index, 1, 1);
+    widgetPrefs.attach(labelHideControlIcons, 0, index, 1, 1);
+    widgetPrefs.attach(switchHideControlIcons, 1, index, 1, 1);
 
-    /* extension-position */
-    let extensionPositionLabel = new Gtk.Label({
+    /* Colored player icon */
+    let labelColoredPlayerIcon = new Gtk.Label({
+        label: "Colored player icon:",
+        halign: Gtk.Align.START,
+        visible: true,
+    });
+
+    let switchColoredPlayerIcon = new Gtk.Switch({
+        valign: Gtk.Align.END,
+        halign: Gtk.Align.END,
+        visible: true,
+    });
+
+    index++;
+    widgetPrefs.attach(labelColoredPlayerIcon, 0, index, 1, 1);
+    widgetPrefs.attach(switchColoredPlayerIcon, 1, index, 1, 1);
+
+    /* Hide controls */
+    let labelAnimateText = new Gtk.Label({
+        label: "Animate text:",
+        halign: Gtk.Align.START,
+        visible: true,
+    });
+
+    let switchAnimateText = new Gtk.Switch({
+        valign: Gtk.Align.END,
+        halign: Gtk.Align.END,
+        visible: true,
+    });
+
+    index++;
+    widgetPrefs.attach(labelAnimateText, 0, index, 1, 1);
+    widgetPrefs.attach(switchAnimateText, 1, index, 1, 1);
+
+    // SECTION END
+
+    // Section - Position
+    // SECTION START
+    let labelPosition = new Gtk.Label({
+        label: "<b>Position</b>",
+        halign: Gtk.Align.START,
+        use_markup: true,
+        visible: true,
+    });
+    index++;
+    widgetPrefs.attach(labelPosition, 0, index, 1, 1);
+
+    /* Adjust extension position */
+    let labelExtensionPosition = new Gtk.Label({
         label: "Extension position:",
         halign: Gtk.Align.START,
         visible: true,
     });
 
-    let options = ["left", "center", "right"];
-    let extensionPositionComboBox = new Gtk.ComboBoxText({
+    let comboboxExtensionPosition = new Gtk.ComboBoxText({
         halign: Gtk.Align.END,
         visible: true,
     });
-    for (let i = 0; i < options.length; i++) {
-        extensionPositionComboBox.append(options[i], options[i]);
+
+    for (let i = 0; i < positions.length; i++) {
+        comboboxExtensionPosition.append(positions[i], positions[i]);
     }
-    extensionPositionComboBox.set_active(
-        options.indexOf(settings.get_string("extension-position"))
+
+    comboboxExtensionPosition.set_active(
+        positions.indexOf(settings.get_string("extension-position"))
     );
 
     index++;
-    prefsWidget.attach(extensionPositionLabel, 0, index, 1, 1);
-    prefsWidget.attach(extensionPositionComboBox, 1, index, 1, 1);
+    widgetPrefs.attach(labelExtensionPosition, 0, index, 1, 1);
+    widgetPrefs.attach(comboboxExtensionPosition, 1, index, 1, 1);
 
-    /* extension-index */
-    let extensionIndexLabel = new Gtk.Label({
+    /* Asjust extension index */
+    let labelExtensionIndex = new Gtk.Label({
         label: "Extension index:",
         halign: Gtk.Align.START,
         visible: true,
     });
 
-    let extensionIndexEntry = new Gtk.SpinButton({
+    let entryExtensionIndex = new Gtk.SpinButton({
         adjustment: new Gtk.Adjustment({
             lower: 0,
             upper: 20,
@@ -181,55 +246,144 @@ function buildPrefsWidget() {
     });
 
     index++;
-    prefsWidget.attach(extensionIndexLabel, 0, index, 1, 1);
-    prefsWidget.attach(extensionIndexEntry, 1, index, 1, 1);
+    widgetPrefs.attach(labelExtensionIndex, 0, index, 1, 1);
+    widgetPrefs.attach(entryExtensionIndex, 1, index, 1, 1);
+    // SECTION END
+
+    // Third section - Other
+    // SECTION START
+
+    let labelOther = new Gtk.Label({
+        label: "<b>Other</b>",
+        halign: Gtk.Align.START,
+        use_markup: true,
+        visible: true,
+    });
+    index++;
+    widgetPrefs.attach(labelOther, 0, index, 1, 1);
+
+    // Mouse actions
+    let labelMouseActions = new Gtk.Label({
+        label: "Mouse actions:",
+        halign: Gtk.Align.START,
+        visible: true,
+    });
+
+    let labelMouseActionsLeftClick = new Gtk.Label({
+        label: "Left click:",
+        halign: Gtk.Align.END,
+        visible: true,
+        margin_end: 130,
+    });
+
+    let labelMouseActionsRightClick = new Gtk.Label({
+        label: "Right click:",
+        halign: Gtk.Align.END,
+        visible: true,
+        margin_end: 130,
+    });
+
+    let comboboxMouseActionsLeftClick = new Gtk.ComboBoxText({
+        halign: Gtk.Align.END,
+        visible: true,
+    });
+
+    let comboboxMouseActionsRightClick = new Gtk.ComboBoxText({
+        halign: Gtk.Align.END,
+        visible: true,
+    });
+
+    for (let i = 0; i < mouseActions.length; i++) {
+        comboboxMouseActionsLeftClick.append(mouseActions[i], mouseActions[i]);
+        comboboxMouseActionsRightClick.append(mouseActions[i], mouseActions[i]);
+    }
+
+    comboboxMouseActionsLeftClick.set_active(
+        mouseActions.indexOf(settings.get_string("mouse-actions-left"))
+    );
+
+    comboboxMouseActionsRightClick.set_active(
+        mouseActions.indexOf(settings.get_string("mouse-actions-right"))
+    );
+
+    index++;
+    widgetPrefs.attach(labelMouseActions, 0, index, 1, 1);
+    widgetPrefs.attach(labelMouseActionsLeftClick, 1, index, 1, 1);
+    widgetPrefs.attach(comboboxMouseActionsLeftClick, 1, index, 1, 1);
+    index++;
+    widgetPrefs.attach(labelMouseActionsRightClick, 1, index, 1, 1);
+    widgetPrefs.attach(comboboxMouseActionsRightClick, 1, index, 1, 1);
+
+    // SECTION END
 
     //settings.bind('command', commandEntry, 'text', Gio.SettingsBindFlags.DEFAULT);
     settings.bind(
-        "max-display-length",
-        maxDisplayLengthEntry,
+        "max-text-length",
+        entryMaxDisplayLength,
         "value",
         Gio.SettingsBindFlags.DEFAULT
     );
     settings.bind(
         "update-delay",
-        updateDelayEntry,
+        entryUpdateDelay,
         "value",
         Gio.SettingsBindFlags.DEFAULT
     );
     settings.bind(
-        "hide-track-name",
-        hideTrackSwitch,
+        "hide-text",
+        switchHideText,
         "active",
         Gio.SettingsBindFlags.DEFAULT
     );
     settings.bind(
         "hide-player-icon",
-        hidePlayerSwitch,
+        switchHidePlayerIcon,
         "active",
         Gio.SettingsBindFlags.DEFAULT
     );
     settings.bind(
-        "hide-controls",
-        hideControlsSwitch,
+        "hide-control-icons",
+        switchHideControlIcons,
         "active",
         Gio.SettingsBindFlags.DEFAULT
     );
     settings.bind(
-        "hide-controls",
-        hideControlsSwitch,
+        "colored-player-icon",
+        switchColoredPlayerIcon,
         "active",
         Gio.SettingsBindFlags.DEFAULT
     );
-    extensionPositionComboBox.connect("changed", (widget) => {
-        settings.set_string("extension-position", options[widget.get_active()]);
+    settings.bind(
+        "animate-text",
+        switchAnimateText,
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    comboboxExtensionPosition.connect("changed", (widget) => {
+        settings.set_string(
+            "extension-position",
+            positions[widget.get_active()]
+        );
     });
     settings.bind(
         "extension-index",
-        extensionIndexEntry,
+        entryExtensionIndex,
         "value",
         Gio.SettingsBindFlags.DEFAULT
     );
 
-    return prefsWidget;
+    comboboxMouseActionsLeftClick.connect("changed", (widget) => {
+        settings.set_string(
+            "mouse-actions-left",
+            mouseActions[widget.get_active()]
+        );
+    });
+
+    comboboxMouseActionsRightClick.connect("changed", (widget) => {
+        settings.set_string(
+            "mouse-actions-right",
+            mouseActions[widget.get_active()]
+        );
+    });
+    return widgetPrefs;
 }
