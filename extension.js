@@ -76,7 +76,9 @@ let buttonNext,
     iconPlay,
     iconPrev,
     iconPlayer,
-    labelText;
+    labelText,
+    labelSeperatorStart,
+    labelSeperatorEnd;
 
 // Button trigger methods
 
@@ -161,7 +163,17 @@ const addContent = () => {
     }
     if (!hideTrackName) {
         Main.panel[positions[extensionPosition]].insert_child_at_index(
+            labelSeperatorStart,
+            extensionIndex + currentIndex
+        );
+        currentIndex++;
+        Main.panel[positions[extensionPosition]].insert_child_at_index(
             buttonLabel,
+            extensionIndex + currentIndex
+        );
+        currentIndex++;
+        Main.panel[positions[extensionPosition]].insert_child_at_index(
+            labelSeperatorEnd,
             extensionIndex + currentIndex
         );
         currentIndex++;
@@ -325,7 +337,7 @@ const updateContent = () => {
         iconPlayer.set_icon_name(playerIcon);
         lastPlayerChanged = false;
     }
-    labelText.set_text(`| ${displayText} |`);
+    labelText.set_text(`${displayText}`);
 };
 
 // Lifecycle methods
@@ -351,6 +363,9 @@ const enable = () => {
 
     onMaxLengthChanged = settings.connect("changed::max-text-length", () => {
         maxDisplayLength = settings.get_int("max-text-length");
+        // buttonLabel.set_style(
+        //     `width: ${maxDisplayLength}px;text-overflow: clip;`
+        // );
         // log(`Updated setting "maxDisplayLength": ${maxDisplayLength}`);
     });
 
@@ -463,7 +478,18 @@ const enable = () => {
 
     labelText = new St.Label({
         text: "No player found",
-        // style: "font-family: monospace, monospace;",
+        y_align: Clutter.ActorAlign.CENTER,
+    });
+
+    labelSeperatorStart = new St.Label({
+        text: "|",
+        style: "padding-right: 2px;",
+        y_align: Clutter.ActorAlign.CENTER,
+    });
+
+    labelSeperatorEnd = new St.Label({
+        text: "|",
+        style: "padding-left: 2px;",
         y_align: Clutter.ActorAlign.CENTER,
     });
 
@@ -479,6 +505,8 @@ const enable = () => {
 
     buttonLabel.set_child(labelText);
     buttonLabel.connect("button-release-event", _mouseAction);
+
+    // buttonLabel.set_style(`width: ${maxDisplayLength}px;`);
 
     // Initialize content
     updatePlayerIconEffects();

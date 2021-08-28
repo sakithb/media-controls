@@ -65,7 +65,7 @@ function buildPrefsWidget() {
     let entryMaxDisplayLength = new Gtk.SpinButton({
         adjustment: new Gtk.Adjustment({
             lower: 1,
-            upper: 100,
+            upper: 300,
             step_increment: 1,
         }),
         visible: true,
