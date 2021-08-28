@@ -14,24 +14,7 @@ const shellVersion = Number.parseInt(major);
 function init() {}
 
 function buildPrefsWidget() {
-    let gschema;
-    let schemaDir = Me.dir.get_child("schemas");
-    if (schemaDir.query_exists(null)) {
-        gschema = Gio.SettingsSchemaSource.new_from_directory(
-            schemaDir.get_path(),
-            Gio.SettingsSchemaSource.get_default(),
-            false
-        );
-    } else {
-        gschema = Gio.SettingsSchemaSource.get_default();
-    }
-
-    let settings = new Gio.Settings({
-        settings_schema: gschema.lookup(
-            "org.gnome.shell.extensions.mediacontrols",
-            true
-        ),
-    });
+    let settings = ExtensionUtils.getSettings();
 
     let prefsWidget;
     if (shellVersion < 40) {
