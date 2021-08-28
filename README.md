@@ -37,7 +37,6 @@ Install from source
 
 ## Upcoming features
 
--  Support for video players
--  Animated text
--  Desaturated player icon
--  Clickable title with actions
+-  ~Support for video players~ [DONE]
+-  ~Desaturated player icon~ [DONE]
+-  ~Clickable title with actions~ [DONE]

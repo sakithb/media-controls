@@ -18,7 +18,7 @@ let maxDisplayLength,
     extensionPosition,
     extensionIndex,
     coloredPlayerIcon,
-    animateText,
+    showAllOnHover,
     mouseActionsLeftClick,
     mouseActionsRightClick;
 
@@ -33,9 +33,11 @@ let onUpdateDelayChanged,
     onExtensionPositionChanged,
     onExtensionIndexChanged,
     onColoredPlayerIconChanged,
-    onAnimateTextChanged,
+    onSepCharStartChanged,
+    onSepCharEndChanged,
     onMouseActionsLeftClickChanged,
-    onMouseActionsRightClickChanged;
+    onMouseActionsRightClickChanged,
+    onShowAllOnHoverChanged;
 
 let mainLoop;
 let settings;
@@ -46,7 +48,7 @@ let lastPlayer,
     lastState,
     lastPlayerChanged,
     lastStateChanged,
-    animateTextCount,
+    mouseHovered,
     contentRemoved;
 
 // Constants
@@ -57,6 +59,7 @@ const playerIcons = {
     firefox: "firefox",
     rhythmbox: "rhythmbox",
     spotify: "spotify",
+    vlc: "vlc",
 };
 
 const positions = {
@@ -76,7 +79,6 @@ let buttonNext,
     iconPlay,
     iconPrev,
     iconPlayer,
-    labelText,
     labelSeperatorStart,
     labelSeperatorEnd;
 
@@ -134,25 +136,11 @@ const updatePlayerIconEffects = () => {
     }
 };
 
-const scrollText = () => {
-    // let difference = lastMetadata.length - maxDisplayLength;
-    // log("Animating text", difference, animateTextCount);
-    // if (difference <= 0) {
-    //     displayText = lastMetadata;
-    // }
-    // displayText = lastMetadata.substr(animateTextCount, difference);
-    // if (displayText.length < maxDisplayLength) {
-    //     displayText =
-    //         displayText + " ".repeat(maxDisplayLength - displayText.length);
-    // }
-    // animateTextCount++;
-};
-
 // Housekeeping methods
 
 const addContent = () => {
     // let currentIndex;
-    log(`Adding to ${extensionPosition} box`);
+    // log(`Adding to ${extensionPosition} box`);
     let currentIndex = 0;
     if (!hidePlayerIcon) {
         Main.panel[positions[extensionPosition]].insert_child_at_index(
@@ -200,24 +188,31 @@ const addContent = () => {
 
 const removeContent = () => {
     // extensionPosition, extensionPosition Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah
-    log(`Removing from ${extensionPosition} box`);
+    // log(`Removing from ${extensionPosition} box`);
     Main.panel[positions[extensionPosition]].remove_actor(buttonNext);
     Main.panel[positions[extensionPosition]].remove_actor(buttonToggle);
     Main.panel[positions[extensionPosition]].remove_actor(buttonPrev);
     Main.panel[positions[extensionPosition]].remove_actor(buttonLabel);
+    Main.panel[positions[extensionPosition]].remove_actor(labelSeperatorEnd);
+    Main.panel[positions[extensionPosition]].remove_actor(labelSeperatorStart);
     Main.panel[positions[extensionPosition]].remove_actor(iconPlayer);
 };
 
 // Utility methods
 
 const updateData = (player, _playerState, _title, _artist) => {
+    // log(mouseHovered, showAllOnHover);
+    let currentMetadata = `${_title || ""}${_artist ? " - " + _artist : ""}`;
+    // log(currentMetadata);
+    let splittedPlayer = player.split(".");
+    // log(splittedPlayer, player);
     if (lastPlayer !== player) {
-        log("Updating player");
+        // log("Updating player");
         currentPlayer = player;
         lastPlayer = player;
         playerIcon = playerIcons["default"];
         for ([key, value] of Object.entries(playerIcons)) {
-            if (player.includes(key)) {
+            if (splittedPlayer.includes(key)) {
                 playerIcon = playerIcons[key];
                 break;
             }
@@ -225,48 +220,54 @@ const updateData = (player, _playerState, _title, _artist) => {
         lastPlayerChanged = true;
     }
     if (lastState !== _playerState) {
-        log("Updating State");
+        // log("Updating State");
         playerState = _playerState;
         lastState = _playerState;
         lastStateChanged = true;
     }
-    if (_title + _artist !== lastMetadata) {
-        log("Updating Metadata");
-        lastMetadata = _title + _artist;
-        animateTextCount = 0;
-        displayText = `${_title}${_artist ? " - " + _artist : ""}`;
+    if (currentMetadata === "" && splittedPlayer.includes("vlc")) {
+        currentMetadata = "Playing video";
+    }
+    if (currentMetadata !== lastMetadata) {
+        // log("Updating Metadata");
+        lastMetadata = currentMetadata;
+        displayText = currentMetadata;
     }
     if (lastMetadata.length > maxDisplayLength) {
-        log("Trimming text");
-        // if (animateText) {
-        //     scrollText();
-        // } else {
-        // }
-        displayText = displayText.substring(0, maxDisplayLength - 3) + "...";
+        // log("Trimming text", lastMetadata.length, maxDisplayLength);
+        if (mouseHovered && showAllOnHover) {
+            displayText = lastMetadata;
+        } else {
+            displayText =
+                lastMetadata.substring(0, maxDisplayLength - 3) + "...";
+        }
+    } else {
+        displayText = lastMetadata;
     }
 };
 
 const updateMetadata = async () => {
     try {
-        // log("Determining current player");
+        // // log("Determining current player");
         playersList = await getPlayers();
         if (playersList.length > 0) {
             let playerStateMap = [];
             let playerDataMap = {};
-            // log("Starting for loop");
-            // log(`Player list - ${playersList}`);
+            // // log("Starting for loop");
+            // // log(`Player list - ${playersList}`);
             for (let i = 0; i <= playersList.length; i++) {
                 player = playersList[i];
                 if (player) {
                     _playerStatePromise = getPlaybackStatus(player);
                     _metadataPromise = getMetadata(player);
-                    // log("Resolving promises");
-                    [_playerState, [_title, _artist]] = await Promise.all([
+                    // // log("Resolving promises");
+                    [_playerState, [_title, _artist, _id]] = await Promise.all([
                         _playerStatePromise,
                         _metadataPromise,
                     ]);
-                    // log("Promises resolved");
-                    if (_title) {
+                    // log(_id);
+                    // // log("Promises resolved");
+                    if (_id) {
                         playerStateMap.push([player, _playerState]);
                         playerDataMap[player] = {
                             _title,
@@ -277,14 +278,14 @@ const updateMetadata = async () => {
                 }
             }
 
-            // log(`${playerStateMap.length} eligible players found!`);
+            // // log(`${playerStateMap.length} eligible players found!`);
             let playingPlayers = playerStateMap.filter(([player, state]) => {
                 if (state === "Playing") {
                     return true;
                 }
                 return false;
             });
-            // log(`${playingPlayers.length} playing players found!`);
+            // // log(`${playingPlayers.length} playing players found!`);
             if (playingPlayers.length > 0) {
                 if (contentRemoved) {
                     addContent();
@@ -324,7 +325,7 @@ const updateMetadata = async () => {
 
 const updateContent = () => {
     if (lastStateChanged) {
-        log("Updating state icon");
+        // log("Updating state icon");
         if (playerState === "Playing") {
             buttonToggle.set_child(iconPause);
         } else {
@@ -333,11 +334,23 @@ const updateContent = () => {
         lastStateChanged = false;
     }
     if (lastPlayerChanged) {
-        log("Updating player icon");
+        // log("Updating player icon");
         iconPlayer.set_icon_name(playerIcon);
         lastPlayerChanged = false;
     }
-    labelText.set_text(`${displayText}`);
+    buttonLabel.set_label(`${displayText}`);
+};
+
+const startMainLoop = () => {
+    mainLoop = Mainloop.timeout_add(updateDelay, () => {
+        (async () => {
+            startTime = Date.now();
+            await updateMetadata();
+            updateContent();
+            // log(`Took ${Date.now() - startTime} milliseconds`);
+        })();
+        return true;
+    });
 };
 
 // Lifecycle methods
@@ -352,21 +365,12 @@ const enable = () => {
     onUpdateDelayChanged = settings.connect("changed::update-delay", () => {
         updateDelay = settings.get_int("update-delay");
         Mainloop.source_remove(mainLoop);
-        mainLoop = Mainloop.timeout_add(updateDelay, () => {
-            updatePlayers();
-            updateMetadata();
-            updateContent();
-            return true;
-        });
-        // log(`Updated setting "updateDelay": ${updateDelay}`);
+        startMainLoop();
+        // // log(`Updated setting "updateDelay": ${updateDelay}`);
     });
 
     onMaxLengthChanged = settings.connect("changed::max-text-length", () => {
         maxDisplayLength = settings.get_int("max-text-length");
-        // buttonLabel.set_style(
-        //     `width: ${maxDisplayLength}px;text-overflow: clip;`
-        // );
-        // log(`Updated setting "maxDisplayLength": ${maxDisplayLength}`);
     });
 
     onHideTrackNameChanged = settings.connect("changed::hide-text", () => {
@@ -433,9 +437,30 @@ const enable = () => {
         }
     );
 
-    onAnimateTextChanged = settings.connect("changed::animate-text", () => {
-        animateText = settings.get_boolean("animate-text");
-    });
+    onShowAllOnHoverChanged = settings.connect(
+        "changed::show-all-on-hover",
+        () => {
+            showAllOnHover = settings.get_boolean("show-all-on-hover");
+        }
+    );
+
+    onSepCharStartChanged = settings.connect(
+        "changed::seperator-char-start",
+        () => {
+            labelSeperatorStart.set_text(
+                settings.get_string("seperator-char-start")
+            );
+        }
+    );
+
+    onSepCharEndChanged = settings.connect(
+        "changed::seperator-char-end",
+        () => {
+            labelSeperatorEnd.set_text(
+                settings.get_string("seperator-char-end")
+            );
+        }
+    );
 
     updateDelay = settings.get_int("update-delay");
     maxDisplayLength = settings.get_int("max-text-length");
@@ -445,14 +470,17 @@ const enable = () => {
     extensionIndex = settings.get_int("extension-index");
     extensionPosition = settings.get_string("extension-position");
     coloredPlayerIcon = settings.get_boolean("colored-player-icon");
-    animateText = settings.get_boolean("animate-text");
+    showAllOnHover = settings.get_boolean("show-all-on-hover");
 
     // UI Elements
 
     buttonToggle = new St.Button({ style_class: "panel-button" });
     buttonNext = new St.Button({ style_class: "panel-button" });
     buttonPrev = new St.Button({ style_class: "panel-button" });
-    buttonLabel = new St.Button({ track_hover: false });
+    buttonLabel = new St.Button({
+        track_hover: false,
+        label: "No player found",
+    });
 
     iconPlay = new St.Icon({
         icon_name: "media-playback-start-symbolic",
@@ -476,20 +504,13 @@ const enable = () => {
         style: "padding-right: 5px;",
     });
 
-    labelText = new St.Label({
-        text: "No player found",
-        y_align: Clutter.ActorAlign.CENTER,
-    });
-
     labelSeperatorStart = new St.Label({
-        text: "|",
-        style: "padding-right: 2px;",
+        style: "padding-right: 4px;",
         y_align: Clutter.ActorAlign.CENTER,
     });
 
     labelSeperatorEnd = new St.Label({
-        text: "|",
-        style: "padding-left: 2px;",
+        style: "padding-left: 4px;",
         y_align: Clutter.ActorAlign.CENTER,
     });
 
@@ -503,8 +524,16 @@ const enable = () => {
     buttonToggle.set_child(iconPlay);
     buttonToggle.connect("button-release-event", _actionToggle);
 
-    buttonLabel.set_child(labelText);
     buttonLabel.connect("button-release-event", _mouseAction);
+    buttonLabel.connect("enter-event", () => {
+        mouseHovered = true;
+    });
+    buttonLabel.connect("leave-event", () => {
+        mouseHovered = false;
+    });
+
+    labelSeperatorStart.set_text(settings.get_string("seperator-char-start"));
+    labelSeperatorEnd.set_text(settings.get_string("seperator-char-end"));
 
     // buttonLabel.set_style(`width: ${maxDisplayLength}px;`);
 
@@ -515,12 +544,7 @@ const enable = () => {
     addContent();
 
     // Start the main loop
-    mainLoop = Mainloop.timeout_add(updateDelay, () => {
-        updateMetadata().then(() => {
-            updateContent();
-        });
-        return true;
-    });
+    startMainLoop();
 };
 
 const disable = () => {
@@ -536,7 +560,9 @@ const disable = () => {
     settings.disconnect(onMouseActionsLeftClickChanged);
     settings.disconnect(onMouseActionsRightClickChanged);
     settings.disconnect(onColoredPlayerIconChanged);
-    settings.disconnect(onAnimateTextChanged);
+    settings.disconnect(onSepCharEndChanged);
+    settings.disconnect(onSepCharStartChanged);
+    settings.disconnect(onShowAllOnHoverChanged);
 
     buttonNext.destroy();
     buttonPrev.destroy();
@@ -545,7 +571,8 @@ const disable = () => {
     iconPause.destroy();
     iconPlay.destroy();
     iconPrev.destroy();
-    labelText.destroy();
+    labelSeperatorEnd.destroy();
+    labelSeperatorStart.destroy();
     buttonLabel.destroy();
 
     removeContent();

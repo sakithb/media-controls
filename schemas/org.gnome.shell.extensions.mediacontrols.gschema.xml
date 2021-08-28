@@ -5,7 +5,7 @@
       <default>40</default>
     </key>
     <key name="update-delay" type="i">
-      <default>1000</default>
+      <default>100</default>
     </key>
     <key name="hide-text" type="b">
       <default>false</default>
@@ -19,8 +19,17 @@
     <key name="colored-player-icon" type="b">
       <default>false</default>
     </key>
-    <key name="animate-text" type="b">
+    <key name="show-all-on-hover" type="b">
       <default>true</default>
+    </key>
+
+    <key name="seperator-char-start" type="s">
+      <default>'|'</default>
+    </key>
+
+
+    <key name="seperator-char-end" type="s">
+      <default>'|'</default>
     </key>
 
     <key name="mouse-actions-left" type="s">

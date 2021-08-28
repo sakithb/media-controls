@@ -15,20 +15,37 @@ const shellVersion = Number.parseInt(major);
 
 const positions = ["left", "center", "right"];
 const mouseActions = ["none", "toggle_play", "play", "pause", "next", "prev"];
+const sepChars = [
+    "|...|",
+    "[...]",
+    "(...)",
+    "{...}",
+    "/...\\",
+    "\\.../",
+    ":...:",
+    "-...-",
+    "_..._",
+    "=...=",
+    "•...•",
+    "█...█",
+];
 
 function init() {}
 
 function buildPrefsWidget() {
     let settings = ExtensionUtils.getSettings();
-
+    let scrolledWindow = new Gtk.ScrolledWindow({
+        max_content_height: 600,
+    });
     let widgetPrefs;
     if (shellVersion < 40) {
         widgetPrefs = new Gtk.Grid({
             margin: 15,
-            column_spacing: 12,
-            row_spacing: 12,
+            column_spacing: 8,
+            row_spacing: 8,
             visible: true,
             column_homogeneous: true,
+            vexpand: true,
         });
     } else {
         widgetPrefs = new Gtk.Grid({
@@ -36,10 +53,11 @@ function buildPrefsWidget() {
             margin_bottom: 15,
             margin_start: 15,
             margin_end: 15,
-            column_spacing: 12,
-            row_spacing: 12,
+            column_spacing: 8,
+            row_spacing: 8,
             visible: true,
             column_homogeneous: true,
+            vexpand: true,
         });
     }
 
@@ -84,9 +102,9 @@ function buildPrefsWidget() {
 
     let entryUpdateDelay = new Gtk.SpinButton({
         adjustment: new Gtk.Adjustment({
-            lower: 500,
-            upper: 5000,
-            step_increment: 500,
+            lower: 0,
+            upper: 10000,
+            step_increment: 100,
         }),
         visible: true,
     });
@@ -176,21 +194,73 @@ function buildPrefsWidget() {
     widgetPrefs.attach(switchColoredPlayerIcon, 1, index, 1, 1);
 
     /* Hide controls */
-    let labelAnimateText = new Gtk.Label({
-        label: "Animate text:",
+    let labelShowAllOnHover = new Gtk.Label({
+        label: "Show hidden content on hover:",
         halign: Gtk.Align.START,
         visible: true,
     });
 
-    let switchAnimateText = new Gtk.Switch({
+    let switchShowAllOnHover = new Gtk.Switch({
         valign: Gtk.Align.END,
         halign: Gtk.Align.END,
         visible: true,
     });
 
     index++;
-    widgetPrefs.attach(labelAnimateText, 0, index, 1, 1);
-    widgetPrefs.attach(switchAnimateText, 1, index, 1, 1);
+    widgetPrefs.attach(labelShowAllOnHover, 0, index, 1, 1);
+    widgetPrefs.attach(switchShowAllOnHover, 1, index, 1, 1);
+
+    /* Change seperator character */
+    let labelSeperatorChar = new Gtk.Label({
+        label: "Change seperator characters:",
+        halign: Gtk.Align.START,
+        visible: true,
+    });
+
+    let labelSepCharPresets = new Gtk.Label({
+        label: "Presets:",
+        halign: Gtk.Align.END,
+        visible: true,
+    });
+
+    let labelSepCharCustom = new Gtk.Label({
+        label: "Custom:",
+        halign: Gtk.Align.END,
+        visible: true,
+    });
+
+    let comboboxSepCharPresets = new Gtk.ComboBoxText({
+        halign: Gtk.Align.END,
+        visible: true,
+    });
+
+    let entrySepCharCustom = new Gtk.Entry({
+        halign: Gtk.Align.END,
+        buffer: new Gtk.EntryBuffer(),
+        placeholder_text: "Ex - '<...>'",
+    });
+
+    for (let i = 0; i < sepChars.length; i++) {
+        comboboxSepCharPresets.append(sepChars[i], sepChars[i]);
+    }
+
+    comboboxSepCharPresets.set_active(
+        sepChars.indexOf(
+            settings.get_string("seperator-char-start") +
+                "..." +
+                settings.get_string("seperator-char-end")
+        )
+    );
+
+    index++;
+    widgetPrefs.attach(labelSeperatorChar, 0, index, 1, 1);
+    widgetPrefs.attach(labelSepCharPresets, 1, index, 1, 1);
+    index++;
+    widgetPrefs.attach(comboboxSepCharPresets, 1, index, 1, 1);
+    index++;
+    widgetPrefs.attach(labelSepCharCustom, 1, index, 1, 1);
+    index++;
+    widgetPrefs.attach(entrySepCharCustom, 1, index, 1, 1);
 
     // SECTION END
 
@@ -273,14 +343,12 @@ function buildPrefsWidget() {
         label: "Left click:",
         halign: Gtk.Align.END,
         visible: true,
-        margin_end: 130,
     });
 
     let labelMouseActionsRightClick = new Gtk.Label({
         label: "Right click:",
         halign: Gtk.Align.END,
         visible: true,
-        margin_end: 130,
     });
 
     let comboboxMouseActionsLeftClick = new Gtk.ComboBoxText({
@@ -309,9 +377,11 @@ function buildPrefsWidget() {
     index++;
     widgetPrefs.attach(labelMouseActions, 0, index, 1, 1);
     widgetPrefs.attach(labelMouseActionsLeftClick, 1, index, 1, 1);
+    index++;
     widgetPrefs.attach(comboboxMouseActionsLeftClick, 1, index, 1, 1);
     index++;
     widgetPrefs.attach(labelMouseActionsRightClick, 1, index, 1, 1);
+    index++;
     widgetPrefs.attach(comboboxMouseActionsRightClick, 1, index, 1, 1);
 
     // SECTION END
@@ -354,8 +424,8 @@ function buildPrefsWidget() {
         Gio.SettingsBindFlags.DEFAULT
     );
     settings.bind(
-        "animate-text",
-        switchAnimateText,
+        "show-all-on-hover",
+        switchShowAllOnHover,
         "active",
         Gio.SettingsBindFlags.DEFAULT
     );
@@ -372,6 +442,30 @@ function buildPrefsWidget() {
         Gio.SettingsBindFlags.DEFAULT
     );
 
+    settings.bind(
+        "seperator-char-start",
+        comboboxSepCharPresets,
+        "value",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+
+    comboboxSepCharPresets.connect("changed", (widget) => {
+        let presetValue = sepChars[widget.get_active()];
+        settings.set_string("seperator-char-start", presetValue.charAt(0));
+        settings.set_string(
+            "seperator-char-end",
+            presetValue.charAt(presetValue.length - 1)
+        );
+    });
+
+    entrySepCharCustom.connect("changed", (widget) => {
+        let customValues = widget.get_text().split("...");
+        if (customValues[0] && customValues[1]) {
+            settings.set_string("seperator-char-start", customValues[0]);
+            settings.set_string("seperator-char-end", customValues[1]);
+        }
+    });
+
     comboboxMouseActionsLeftClick.connect("changed", (widget) => {
         settings.set_string(
             "mouse-actions-left",
@@ -385,5 +479,6 @@ function buildPrefsWidget() {
             mouseActions[widget.get_active()]
         );
     });
-    return widgetPrefs;
+    scrolledWindow.set_child(widgetPrefs);
+    return scrolledWindow;
 }

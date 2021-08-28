@@ -99,8 +99,9 @@ const getMetadata = (player) => {
                         .recursiveUnpack()[0];
                     let title = metaData["xesam:title"];
                     let artist = metaData["xesam:artist"];
+                    let id = metaData["mpris:trackid"];
                     // log("Got metadata");
-                    resolve([title, artist]);
+                    resolve([title, artist, id]);
                 } catch (e) {
                     reject(e);
                 }
