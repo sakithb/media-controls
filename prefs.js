@@ -492,10 +492,18 @@ function buildPrefsWidget() {
     //     scrolledWindow.set_child(widgetPrefs);
     // }
 
-    let scrolledWindow = new Gtk.ScrolledWindow({
-        max_content_height: 600,
-        child: widgetPrefs,
-    });
+    // let scrolledWindow = new Gtk.ScrolledWindow({
+    //     max_content_height: 600,
+    //     child: widgetPrefs,
+    // });
 
-    return scrolledWindow;
+    if (shellVersion < 40) {
+        return widgetPrefs;
+    } else {
+        let scrolledWindow = new Gtk.ScrolledWindow({
+            max_content_height: 600,
+            child: widgetPrefs,
+        });
+        return scrolledWindow;
+    }
 }
