@@ -115,8 +115,10 @@ const playbackActions = {
 // Performs corresponding mouse action
 const _mouseAction = (event) => {
     if (event.pseudo_class === "active") {
+        // log(mouseActionsLeftClick);
         playbackActions[mouseActionsLeftClick]();
     } else {
+        // log(mouseActionsRightClick);
         playbackActions[mouseActionsRightClick]();
     }
 };
@@ -137,7 +139,7 @@ const updatePlayerIconEffects = () => {
 
 const addContent = () => {
     // let currentIndex;
-    // log(`Adding to ${extensionPosition} box`);
+    //// log(`Adding to ${extensionPosition} box`);
     let currentIndex = 0;
     if (!hidePlayerIcon) {
         Main.panel[positions[extensionPosition]].insert_child_at_index(
@@ -189,7 +191,7 @@ const addContent = () => {
 
 const removeContent = () => {
     // extensionPosition, extensionPosition Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah
-    // log(`Removing from ${extensionPosition} box`);
+    //// log(`Removing from ${extensionPosition} box`);
     Main.panel[positions[extensionPosition]].remove_actor(buttonNext);
     Main.panel[positions[extensionPosition]].remove_actor(buttonToggle);
     Main.panel[positions[extensionPosition]].remove_actor(buttonPrev);
@@ -202,7 +204,7 @@ const removeContent = () => {
 // Utility methods
 
 const updateMetadata = async () => {
-    // log("Updating metadata");
+    //// log("Updating metadata");
     try {
         playersList = await getPlayers();
         if (playersList.length > 0) {
@@ -272,11 +274,11 @@ const updateMetadata = async () => {
 };
 
 const updateData = (player, _playerState, _title, _artist) => {
-    // log("Updating data");
+    //// log("Updating data");
     let currentMetadata = `${_title}${_artist ? " - " + _artist : ""}`;
     let splittedPlayer = player.split(".");
     if (lastPlayer !== player) {
-        log("Updating player");
+        // log("Updating player");
         currentPlayer = player;
         lastPlayer = player;
         playerIcon = playerIcons["default"];
@@ -289,24 +291,31 @@ const updateData = (player, _playerState, _title, _artist) => {
         lastPlayerChanged = true;
     }
     if (lastState !== _playerState) {
-        log("Updating player state");
+        // log("Updating player state");
         playerState = _playerState;
         lastState = _playerState;
         lastStateChanged = true;
     }
     if (currentMetadata !== lastMetadata) {
-        log("Updating player metadata");
+        // log("Updating player metadata");
         lastMetadata = currentMetadata;
         displayText = currentMetadata;
         lastMetadataChanged = true;
     }
     if (lastMetadata.length > maxDisplayLength && maxDisplayLength !== 0) {
         if (mouseHovered && showAllOnHover) {
-            log("Mouse hovered...");
+            // log("Mouse hovered...");
             displayText = lastMetadata;
+            // let diff = lastMetadata.length - maxDisplayLength;
+            // displayText =
+            //     "..." +
+            //     lastMetadata.substr(lastMetadata.length - diff - 3) +
+            //     " ".repeat(maxDisplayLength - diff);
+            // log(displayText.length);
         } else {
             displayText =
                 lastMetadata.substring(0, maxDisplayLength - 3) + "...";
+            // log(displayText.length);
         }
     } else {
         displayText = lastMetadata;
@@ -332,6 +341,9 @@ const updateContent = () => {
 };
 
 const startMainLoop = () => {
+    if (updateDelay < 50) {
+        updateDelay = 50;
+    }
     mainLoop = Mainloop.timeout_add(updateDelay, () => {
         (async () => {
             startTime = Date.now();
@@ -415,6 +427,7 @@ const enable = () => {
     onMouseActionsLeftClickChanged = settings.connect(
         "changed::mouse-actions-left",
         () => {
+            // log("Shit changed");
             mouseActionsLeftClick = settings.get_string("mouse-actions-left");
         }
     );
@@ -423,6 +436,7 @@ const enable = () => {
         "changed::mouse-actions-right",
         () => {
             mouseActionsRightClick = settings.get_string("mouse-actions-right");
+            // log(mouseActionsRightClick);
         }
     );
 
@@ -468,6 +482,8 @@ const enable = () => {
     extensionPosition = settings.get_string("extension-position");
     coloredPlayerIcon = settings.get_boolean("colored-player-icon");
     showAllOnHover = settings.get_boolean("show-all-on-hover");
+    mouseActionsLeftClick = settings.get_string("mouse-actions-left");
+    mouseActionsRightClick = settings.get_string("mouse-actions-right");
     hideSeperators = settings.get_boolean("hide-seperators");
 
     // UI Elements

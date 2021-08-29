@@ -14,7 +14,7 @@ const [major] = Config.PACKAGE_VERSION.split(".");
 const shellVersion = Number.parseInt(major);
 
 const positions = ["left", "center", "right"];
-const playbackActions = {
+const playbackActionNames = {
     none: "None",
     toggle_play: "Toggle play/pause",
     play: "Play",
@@ -22,6 +22,9 @@ const playbackActions = {
     next: "Next",
     prev: "Previous",
 };
+
+let playbackActionNameKeys = Object.keys(playbackActionNames);
+
 const sepChars = [
     "|...|",
     "[...]",
@@ -104,9 +107,9 @@ function buildPrefsWidget() {
 
     let entryUpdateDelay = new Gtk.SpinButton({
         adjustment: new Gtk.Adjustment({
-            lower: 0,
+            lower: 50,
             upper: 10000,
-            step_increment: 100,
+            step_increment: 50,
         }),
         visible: true,
     });
@@ -384,19 +387,21 @@ function buildPrefsWidget() {
         visible: true,
     });
 
-    let playbackActionsKeys = Object.keys(playbackActions);
-
-    playbackActionsKeys.forEach((key) => {
-        comboboxMouseActionsLeftClick.append(key, playbackActions[key]);
-        comboboxMouseActionsRightClick.append(key, playbackActions[key]);
+    playbackActionNameKeys.forEach((key) => {
+        comboboxMouseActionsLeftClick.append(key, playbackActionNames[key]);
+        comboboxMouseActionsRightClick.append(key, playbackActionNames[key]);
     });
 
     comboboxMouseActionsLeftClick.set_active(
-        playbackActionsKeys.indexOf(settings.get_string("mouse-actions-left"))
+        playbackActionNameKeys.indexOf(
+            settings.get_string("mouse-actions-left")
+        )
     );
 
     comboboxMouseActionsRightClick.set_active(
-        playbackActionsKeys.indexOf(settings.get_string("mouse-actions-right"))
+        playbackActionNameKeys.indexOf(
+            settings.get_string("mouse-actions-right")
+        )
     );
 
     index++;
@@ -505,16 +510,17 @@ function buildPrefsWidget() {
     });
 
     comboboxMouseActionsLeftClick.connect("changed", (widget) => {
+        labelGeneral.set_label("Hi");
         settings.set_string(
             "mouse-actions-left",
-            playbackActions[widget.get_active()]
+            playbackActionNameKeys[widget.get_active()]
         );
     });
 
     comboboxMouseActionsRightClick.connect("changed", (widget) => {
         settings.set_string(
             "mouse-actions-right",
-            playbackActions[widget.get_active()]
+            playbackActionNameKeys[widget.get_active()]
         );
     });
     // if (shellVersion < 40) {
