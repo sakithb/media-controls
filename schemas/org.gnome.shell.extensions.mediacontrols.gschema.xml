@@ -16,6 +16,11 @@
     <key name="hide-control-icons" type="b">
       <default>false</default>
     </key>
+
+    <key name="hide-seperators" type="b">
+      <default>false</default>
+    </key>
+
     <key name="colored-player-icon" type="b">
       <default>false</default>
     </key>

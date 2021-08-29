@@ -178,6 +178,23 @@ function buildPrefsWidget() {
     widgetPrefs.attach(labelHideControlIcons, 0, index, 1, 1);
     widgetPrefs.attach(switchHideControlIcons, 1, index, 1, 1);
 
+    /* Hide seperators */
+    let labelHideSeperators = new Gtk.Label({
+        label: "Hide seperators:",
+        halign: Gtk.Align.START,
+        visible: true,
+    });
+
+    let switchHideSeperators = new Gtk.Switch({
+        valign: Gtk.Align.END,
+        halign: Gtk.Align.END,
+        visible: true,
+    });
+
+    index++;
+    widgetPrefs.attach(labelHideSeperators, 0, index, 1, 1);
+    widgetPrefs.attach(switchHideSeperators, 1, index, 1, 1);
+
     /* Colored player icon */
     let labelColoredPlayerIcon = new Gtk.Label({
         label: "Colored player icon:",
@@ -240,7 +257,7 @@ function buildPrefsWidget() {
         halign: Gtk.Align.END,
         buffer: new Gtk.EntryBuffer(),
         placeholder_text: "Ex - '<...>'",
-        max_length: 4,
+        max_length: 5,
         visible: true,
     });
 
@@ -422,6 +439,12 @@ function buildPrefsWidget() {
     settings.bind(
         "hide-control-icons",
         switchHideControlIcons,
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "hide-seperators",
+        switchHideSeperators,
         "active",
         Gio.SettingsBindFlags.DEFAULT
     );

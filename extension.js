@@ -15,6 +15,7 @@ let maxDisplayLength,
     hideTrackName,
     hidePlayerIcon,
     hideControls,
+    hideSeperators,
     extensionPosition,
     extensionIndex,
     coloredPlayerIcon,
@@ -30,6 +31,7 @@ let onUpdateDelayChanged,
     onHideTrackNameChanged,
     onHidePlayerIconChanged,
     onHideControlsChanged,
+    onHideSeperatorsChanged,
     onExtensionPositionChanged,
     onExtensionIndexChanged,
     onColoredPlayerIconChanged,
@@ -143,17 +145,21 @@ const addContent = () => {
         );
         currentIndex++;
     }
-    if (!hideTrackName) {
+    if (!hideSeperators) {
         Main.panel[positions[extensionPosition]].insert_child_at_index(
             labelSeperatorStart,
             extensionIndex + currentIndex
         );
         currentIndex++;
+    }
+    if (!hideTrackName) {
         Main.panel[positions[extensionPosition]].insert_child_at_index(
             buttonLabel,
             extensionIndex + currentIndex
         );
         currentIndex++;
+    }
+    if (!hideSeperators) {
         Main.panel[positions[extensionPosition]].insert_child_at_index(
             labelSeperatorEnd,
             extensionIndex + currentIndex
@@ -395,6 +401,15 @@ const enable = () => {
         }
     );
 
+    onHideSeperatorsChanged = settings.connect(
+        "changed::hide-seperators",
+        () => {
+            hideSeperators = settings.get_boolean("hide-seperators");
+            removeContent();
+            addContent();
+        }
+    );
+
     onMouseActionsLeftClickChanged = settings.connect(
         "changed::mouse-actions-left",
         () => {
@@ -451,6 +466,7 @@ const enable = () => {
     extensionPosition = settings.get_string("extension-position");
     coloredPlayerIcon = settings.get_boolean("colored-player-icon");
     showAllOnHover = settings.get_boolean("show-all-on-hover");
+    hideSeperators = settings.get_boolean("hide-seperators");
 
     // UI Elements
 
@@ -533,6 +549,7 @@ const disable = () => {
     settings.disconnect(onHideControlsChanged);
     settings.disconnect(onHidePlayerIconChanged);
     settings.disconnect(onHideTrackNameChanged);
+    settings.disconnect(onHideSeperatorsChanged);
     settings.disconnect(onExtensionIndexChanged);
     settings.disconnect(onExtensionPositionChanged);
     settings.disconnect(onMouseActionsLeftClickChanged);
