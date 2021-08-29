@@ -51,6 +51,7 @@ let lastPlayer,
     lastState,
     lastPlayerChanged,
     lastStateChanged,
+    lastMetadataChanged,
     mouseHovered,
     contentRemoved;
 
@@ -200,50 +201,8 @@ const removeContent = () => {
 
 // Utility methods
 
-const updateData = (player, _playerState, _title, _artist) => {
-    // log(mouseHovered, showAllOnHover);
-    let currentMetadata = `${_title}${_artist ? " - " + _artist : ""}`;
-    // log(currentMetadata);
-    let splittedPlayer = player.split(".");
-    // log(splittedPlayer, player);
-    if (lastPlayer !== player) {
-        // log("Updating player");
-        currentPlayer = player;
-        lastPlayer = player;
-        playerIcon = playerIcons["default"];
-        for ([key, value] of Object.entries(playerIcons)) {
-            if (splittedPlayer.includes(key)) {
-                playerIcon = playerIcons[key];
-                break;
-            }
-        }
-        lastPlayerChanged = true;
-    }
-    if (lastState !== _playerState) {
-        // log("Updating State");
-        playerState = _playerState;
-        lastState = _playerState;
-        lastStateChanged = true;
-    }
-    if (currentMetadata !== lastMetadata) {
-        // log("Updating Metadata");
-        lastMetadata = currentMetadata;
-        displayText = currentMetadata;
-    }
-    if (lastMetadata.length > maxDisplayLength && maxDisplayLength !== 0) {
-        // log("Trimming text", lastMetadata.length, maxDisplayLength);
-        if (mouseHovered && showAllOnHover) {
-            displayText = lastMetadata;
-        } else {
-            displayText =
-                lastMetadata.substring(0, maxDisplayLength - 3) + "...";
-        }
-    } else {
-        displayText = lastMetadata;
-    }
-};
-
 const updateMetadata = async () => {
+    // log("Updating metadata");
     try {
         playersList = await getPlayers();
         if (playersList.length > 0) {
@@ -312,6 +271,48 @@ const updateMetadata = async () => {
     }
 };
 
+const updateData = (player, _playerState, _title, _artist) => {
+    // log("Updating data");
+    let currentMetadata = `${_title}${_artist ? " - " + _artist : ""}`;
+    let splittedPlayer = player.split(".");
+    if (lastPlayer !== player) {
+        log("Updating player");
+        currentPlayer = player;
+        lastPlayer = player;
+        playerIcon = playerIcons["default"];
+        for ([key, value] of Object.entries(playerIcons)) {
+            if (splittedPlayer.includes(key)) {
+                playerIcon = playerIcons[key];
+                break;
+            }
+        }
+        lastPlayerChanged = true;
+    }
+    if (lastState !== _playerState) {
+        log("Updating player state");
+        playerState = _playerState;
+        lastState = _playerState;
+        lastStateChanged = true;
+    }
+    if (currentMetadata !== lastMetadata) {
+        log("Updating player metadata");
+        lastMetadata = currentMetadata;
+        displayText = currentMetadata;
+        lastMetadataChanged = true;
+    }
+    if (lastMetadata.length > maxDisplayLength && maxDisplayLength !== 0) {
+        if (mouseHovered && showAllOnHover) {
+            log("Mouse hovered...");
+            displayText = lastMetadata;
+        } else {
+            displayText =
+                lastMetadata.substring(0, maxDisplayLength - 3) + "...";
+        }
+    } else {
+        displayText = lastMetadata;
+    }
+};
+
 const updateContent = () => {
     if (lastStateChanged) {
         if (playerState === "Playing") {
@@ -325,7 +326,9 @@ const updateContent = () => {
         iconPlayer.set_icon_name(playerIcon);
         lastPlayerChanged = false;
     }
-    buttonLabel.set_label(`${displayText}`);
+    if (lastMetadataChanged) {
+        buttonLabel.set_label(`${displayText}`);
+    }
 };
 
 const startMainLoop = () => {
