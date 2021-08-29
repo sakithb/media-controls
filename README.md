@@ -14,6 +14,7 @@ Show controls and information of the currently playing media in the panel
 
 -   ~Currently font awesome needs to be installed in the system for the icons to show up~ [FIXED].
 -   ~There will be small performance issues, a fix for this will be put up soon~ [FIXED]
+-   Setting update delay to 0 would cause the gnome shell to freeze
 
 ---
 
