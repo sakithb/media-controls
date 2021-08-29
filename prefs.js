@@ -49,7 +49,6 @@ function buildPrefsWidget() {
             row_spacing: 8,
             visible: true,
             column_homogeneous: true,
-            vexpand: true,
         });
     } else {
         widgetPrefs = new Gtk.Grid({
@@ -61,7 +60,6 @@ function buildPrefsWidget() {
             row_spacing: 8,
             visible: true,
             column_homogeneous: true,
-            vexpand: true,
         });
     }
 
@@ -228,7 +226,7 @@ function buildPrefsWidget() {
     });
 
     let labelSepCharCustom = new Gtk.Label({
-        label: "Custom:",
+        label: "Custom (Ex - '<...>'):",
         halign: Gtk.Align.END,
         visible: true,
     });
@@ -242,6 +240,7 @@ function buildPrefsWidget() {
         halign: Gtk.Align.END,
         buffer: new Gtk.EntryBuffer(),
         placeholder_text: "Ex - '<...>'",
+        max_length: 4,
         visible: true,
     });
 
@@ -472,6 +471,13 @@ function buildPrefsWidget() {
         if (customValues[0] && customValues[1]) {
             settings.set_string("seperator-char-start", customValues[0]);
             settings.set_string("seperator-char-end", customValues[1]);
+        } else {
+            let presetValue = sepChars[comboboxSepCharPresets.get_active()];
+            settings.set_string("seperator-char-start", presetValue.charAt(0));
+            settings.set_string(
+                "seperator-char-end",
+                presetValue.charAt(presetValue.length - 1)
+            );
         }
     });
 
