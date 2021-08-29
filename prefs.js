@@ -109,7 +109,7 @@ function buildPrefsWidget() {
         adjustment: new Gtk.Adjustment({
             lower: 50,
             upper: 10000,
-            step_increment: 100,
+            step_increment: 50,
         }),
         visible: true,
     });

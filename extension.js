@@ -306,9 +306,16 @@ const updateData = (player, _playerState, _title, _artist) => {
         if (mouseHovered && showAllOnHover) {
             // log("Mouse hovered...");
             displayText = lastMetadata;
+            // let diff = lastMetadata.length - maxDisplayLength;
+            // displayText =
+            //     "..." +
+            //     lastMetadata.substr(lastMetadata.length - diff - 3) +
+            //     " ".repeat(maxDisplayLength - diff);
+            // log(displayText.length);
         } else {
             displayText =
                 lastMetadata.substring(0, maxDisplayLength - 3) + "...";
+            // log(displayText.length);
         }
     } else {
         displayText = lastMetadata;
