@@ -242,6 +242,7 @@ function buildPrefsWidget() {
         halign: Gtk.Align.END,
         buffer: new Gtk.EntryBuffer(),
         placeholder_text: "Ex - '<...>'",
+        visible: true,
     });
 
     for (let i = 0; i < sepChars.length; i++) {}
