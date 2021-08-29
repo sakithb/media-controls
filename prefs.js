@@ -41,9 +41,6 @@ function init() {}
 
 function buildPrefsWidget() {
     let settings = ExtensionUtils.getSettings();
-    let scrolledWindow = new Gtk.ScrolledWindow({
-        max_content_height: 600,
-    });
     let widgetPrefs;
     if (shellVersion < 40) {
         widgetPrefs = new Gtk.Grid({
@@ -490,10 +487,15 @@ function buildPrefsWidget() {
             playbackActions[widget.get_active()]
         );
     });
-    if (shellVersion < 40) {
-        scrolledWindow.add(widgetPrefs);
-    } else {
-        scrolledWindow.set_child(widgetPrefs);
-    }
+    // if (shellVersion < 40) {
+    // } else {
+    //     scrolledWindow.set_child(widgetPrefs);
+    // }
+
+    let scrolledWindow = new Gtk.ScrolledWindow({
+        max_content_height: 600,
+        child: widgetPrefs,
+    });
+
     return scrolledWindow;
 }
