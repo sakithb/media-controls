@@ -230,7 +230,7 @@ const updateData = (player, _playerState, _title, _artist) => {
         lastMetadata = currentMetadata;
         displayText = currentMetadata;
     }
-    if (lastMetadata.length > maxDisplayLength) {
+    if (lastMetadata.length > maxDisplayLength && maxDisplayLength !== 0) {
         // log("Trimming text", lastMetadata.length, maxDisplayLength);
         if (mouseHovered && showAllOnHover) {
             displayText = lastMetadata;
@@ -352,7 +352,6 @@ const enable = () => {
         updateDelay = settings.get_int("update-delay");
         Mainloop.source_remove(mainLoop);
         startMainLoop();
-        // // log(`Updated setting "updateDelay": ${updateDelay}`);
     });
 
     onMaxLengthChanged = settings.connect("changed::max-text-length", () => {
@@ -475,6 +474,7 @@ const enable = () => {
     buttonPrev = new St.Button({ style_class: "panel-button" });
     buttonLabel = new St.Button({
         track_hover: false,
+        style: "padding: 0 5px;",
         label: "No player found",
     });
 
@@ -501,12 +501,10 @@ const enable = () => {
     });
 
     labelSeperatorStart = new St.Label({
-        style: "padding-right: 4px;",
         y_align: Clutter.ActorAlign.CENTER,
     });
 
     labelSeperatorEnd = new St.Label({
-        style: "padding-left: 4px;",
         y_align: Clutter.ActorAlign.CENTER,
     });
 

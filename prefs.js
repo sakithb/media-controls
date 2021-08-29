@@ -77,14 +77,14 @@ function buildPrefsWidget() {
 
     // Adjust maximum text length
     let labelMaxDisplayLength = new Gtk.Label({
-        label: "Maximum text length:",
+        label: "Maximum text length (0 to disable):",
         halign: Gtk.Align.START,
         visible: true,
     });
 
     let entryMaxDisplayLength = new Gtk.SpinButton({
         adjustment: new Gtk.Adjustment({
-            lower: 1,
+            lower: 0,
             upper: 300,
             step_increment: 1,
         }),
