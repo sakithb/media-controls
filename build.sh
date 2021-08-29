@@ -1,3 +1,4 @@
+#! /bin/bash
 # Use the -p flag to generate the zip file and the -r flag to restart the gnome shell
 
 echo "Copying files to the extensions directory"
