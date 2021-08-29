@@ -41,6 +41,7 @@ let onUpdateDelayChanged,
 
 let mainLoop;
 let settings;
+
 // Tracking variables
 
 let lastPlayer,
@@ -50,6 +51,20 @@ let lastPlayer,
     lastStateChanged,
     mouseHovered,
     contentRemoved;
+
+// UI elements
+
+let buttonNext,
+    buttonPrev,
+    buttonToggle,
+    buttonLabel,
+    iconNext,
+    iconPause,
+    iconPlay,
+    iconPrev,
+    iconPlayer,
+    labelSeperatorStart,
+    labelSeperatorEnd;
 
 // Constants
 
@@ -68,60 +83,39 @@ const positions = {
     right: "_rightBox",
 };
 
-// UI elements
-
-let buttonNext,
-    buttonPrev,
-    buttonToggle,
-    buttonLabel,
-    iconNext,
-    iconPause,
-    iconPlay,
-    iconPrev,
-    iconPlayer,
-    labelSeperatorStart,
-    labelSeperatorEnd;
-
-// Button trigger methods
-
-const _actionToggle = () => {
-    if (playerState === "Playing") {
-        buttonToggle.set_child(iconPause);
-        playerState = "Paused";
-    } else {
-        buttonToggle.set_child(iconPlay);
-        playerState = "Playing";
-    }
-    playbackAction("PlayPause", currentPlayer);
-};
-
-const _actionNext = () => {
-    playbackAction("Next", currentPlayer);
-};
-
-const _actionPrev = () => {
-    playbackAction("Previous", currentPlayer);
-};
-
-const _mouseAction = (event) => {
-    if (event.pseudo_class === "active") {
-        mouseActions[mouseActionsLeftClick]();
-    } else {
-        mouseActions[mouseActionsRightClick]();
-    }
-};
-
-const mouseActions = {
+const playbackActions = {
     none: () => {},
-    toggle_play: _actionToggle,
+    toggle_play: () => {
+        if (playerState === "Playing") {
+            buttonToggle.set_child(iconPause);
+            playerState = "Paused";
+        } else {
+            buttonToggle.set_child(iconPlay);
+            playerState = "Playing";
+        }
+        playbackAction("PlayPause", currentPlayer);
+    },
     play: () => {
         playbackAction("Play", currentPlayer);
     },
     pause: () => {
         playbackAction("Pause", currentPlayer);
     },
-    next: _actionNext,
-    prev: _actionPrev,
+    next: () => {
+        playbackAction("Next", currentPlayer);
+    },
+    prev: () => {
+        playbackAction("Previous", currentPlayer);
+    },
+};
+
+// Performs corresponding mouse action
+const _mouseAction = (event) => {
+    if (event.pseudo_class === "active") {
+        playbackActions[mouseActionsLeftClick]();
+    } else {
+        playbackActions[mouseActionsRightClick]();
+    }
 };
 
 // Other utility methods
@@ -202,7 +196,7 @@ const removeContent = () => {
 
 const updateData = (player, _playerState, _title, _artist) => {
     // log(mouseHovered, showAllOnHover);
-    let currentMetadata = `${_title || ""}${_artist ? " - " + _artist : ""}`;
+    let currentMetadata = `${_title}${_artist ? " - " + _artist : ""}`;
     // log(currentMetadata);
     let splittedPlayer = player.split(".");
     // log(splittedPlayer, player);
@@ -225,9 +219,6 @@ const updateData = (player, _playerState, _title, _artist) => {
         lastState = _playerState;
         lastStateChanged = true;
     }
-    if (currentMetadata === "" && splittedPlayer.includes("vlc")) {
-        currentMetadata = "Playing video";
-    }
     if (currentMetadata !== lastMetadata) {
         // log("Updating Metadata");
         lastMetadata = currentMetadata;
@@ -248,29 +239,22 @@ const updateData = (player, _playerState, _title, _artist) => {
 
 const updateMetadata = async () => {
     try {
-        // // log("Determining current player");
         playersList = await getPlayers();
         if (playersList.length > 0) {
             let playerStateMap = [];
             let playerDataMap = {};
-            // // log("Starting for loop");
-            // // log(`Player list - ${playersList}`);
             for (let i = 0; i <= playersList.length; i++) {
                 player = playersList[i];
                 if (player) {
                     _playerStatePromise = getPlaybackStatus(player);
                     _metadataPromise = getMetadata(player);
-                    // // log("Resolving promises");
-                    [_playerState, [_title, _artist, _id]] = await Promise.all([
-                        _playerStatePromise,
-                        _metadataPromise,
-                    ]);
-                    // log(_id);
-                    // // log("Promises resolved");
-                    if (_id) {
+                    [_playerState, [_title, _artist, _url]] = await Promise.all(
+                        [_playerStatePromise, _metadataPromise]
+                    );
+                    if (_title || _url) {
                         playerStateMap.push([player, _playerState]);
                         playerDataMap[player] = {
-                            _title,
+                            _title: _title || _url,
                             _artist,
                             _playerState,
                         };
@@ -278,14 +262,13 @@ const updateMetadata = async () => {
                 }
             }
 
-            // // log(`${playerStateMap.length} eligible players found!`);
             let playingPlayers = playerStateMap.filter(([player, state]) => {
                 if (state === "Playing") {
                     return true;
                 }
                 return false;
             });
-            // // log(`${playingPlayers.length} playing players found!`);
+
             if (playingPlayers.length > 0) {
                 if (contentRemoved) {
                     addContent();
@@ -325,7 +308,6 @@ const updateMetadata = async () => {
 
 const updateContent = () => {
     if (lastStateChanged) {
-        // log("Updating state icon");
         if (playerState === "Playing") {
             buttonToggle.set_child(iconPause);
         } else {
@@ -334,7 +316,6 @@ const updateContent = () => {
         lastStateChanged = false;
     }
     if (lastPlayerChanged) {
-        // log("Updating player icon");
         iconPlayer.set_icon_name(playerIcon);
         lastPlayerChanged = false;
     }
@@ -347,7 +328,6 @@ const startMainLoop = () => {
             startTime = Date.now();
             await updateMetadata();
             updateContent();
-            // log(`Took ${Date.now() - startTime} milliseconds`);
         })();
         return true;
     });
@@ -516,13 +496,13 @@ const enable = () => {
 
     // Set childs and bind methods
     buttonNext.set_child(iconNext);
-    buttonNext.connect("button-release-event", _actionNext);
+    buttonNext.connect("button-release-event", playbackActions.next);
 
     buttonPrev.set_child(iconPrev);
-    buttonPrev.connect("button-release-event", _actionPrev);
+    buttonPrev.connect("button-release-event", playbackActions.prev);
 
     buttonToggle.set_child(iconPlay);
-    buttonToggle.connect("button-release-event", _actionToggle);
+    buttonToggle.connect("button-release-event", playbackActions.toggle_play);
 
     buttonLabel.connect("button-release-event", _mouseAction);
     buttonLabel.connect("enter-event", () => {
@@ -534,8 +514,6 @@ const enable = () => {
 
     labelSeperatorStart.set_text(settings.get_string("seperator-char-start"));
     labelSeperatorEnd.set_text(settings.get_string("seperator-char-end"));
-
-    // buttonLabel.set_style(`width: ${maxDisplayLength}px;`);
 
     // Initialize content
     updatePlayerIconEffects();

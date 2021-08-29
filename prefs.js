@@ -14,7 +14,14 @@ const [major] = Config.PACKAGE_VERSION.split(".");
 const shellVersion = Number.parseInt(major);
 
 const positions = ["left", "center", "right"];
-const mouseActions = ["none", "toggle_play", "play", "pause", "next", "prev"];
+const playbackActions = {
+    none: "None",
+    toggle_play: "Toggle play/pause",
+    play: "Play",
+    pause: "Pause",
+    next: "Next",
+    prev: "Previous",
+};
 const sepChars = [
     "|...|",
     "[...]",
@@ -240,9 +247,11 @@ function buildPrefsWidget() {
         placeholder_text: "Ex - '<...>'",
     });
 
-    for (let i = 0; i < sepChars.length; i++) {
-        comboboxSepCharPresets.append(sepChars[i], sepChars[i]);
-    }
+    for (let i = 0; i < sepChars.length; i++) {}
+
+    sepChars.forEach((sepChar) => {
+        comboboxSepCharPresets.append(sepChar, sepChar);
+    });
 
     comboboxSepCharPresets.set_active(
         sepChars.indexOf(
@@ -287,9 +296,9 @@ function buildPrefsWidget() {
         visible: true,
     });
 
-    for (let i = 0; i < positions.length; i++) {
-        comboboxExtensionPosition.append(positions[i], positions[i]);
-    }
+    positions.forEach((position) => {
+        comboboxExtensionPosition.append(position, position);
+    });
 
     comboboxExtensionPosition.set_active(
         positions.indexOf(settings.get_string("extension-position"))
@@ -361,17 +370,19 @@ function buildPrefsWidget() {
         visible: true,
     });
 
-    for (let i = 0; i < mouseActions.length; i++) {
-        comboboxMouseActionsLeftClick.append(mouseActions[i], mouseActions[i]);
-        comboboxMouseActionsRightClick.append(mouseActions[i], mouseActions[i]);
-    }
+    let playbackActionsKeys = Object.keys(playbackActions);
+
+    playbackActionsKeys.forEach((key) => {
+        comboboxMouseActionsLeftClick.append(key, playbackActions[key]);
+        comboboxMouseActionsRightClick.append(key, playbackActions[key]);
+    });
 
     comboboxMouseActionsLeftClick.set_active(
-        mouseActions.indexOf(settings.get_string("mouse-actions-left"))
+        playbackActionsKeys.indexOf(settings.get_string("mouse-actions-left"))
     );
 
     comboboxMouseActionsRightClick.set_active(
-        mouseActions.indexOf(settings.get_string("mouse-actions-right"))
+        playbackActionsKeys.indexOf(settings.get_string("mouse-actions-right"))
     );
 
     index++;
@@ -469,16 +480,20 @@ function buildPrefsWidget() {
     comboboxMouseActionsLeftClick.connect("changed", (widget) => {
         settings.set_string(
             "mouse-actions-left",
-            mouseActions[widget.get_active()]
+            playbackActions[widget.get_active()]
         );
     });
 
     comboboxMouseActionsRightClick.connect("changed", (widget) => {
         settings.set_string(
             "mouse-actions-right",
-            mouseActions[widget.get_active()]
+            playbackActions[widget.get_active()]
         );
     });
-    scrolledWindow.set_child(widgetPrefs);
+    if (shellVersion < 40) {
+        scrolledWindow.add(widgetPrefs);
+    } else {
+        scrolledWindow.set_child(widgetPrefs);
+    }
     return scrolledWindow;
 }
