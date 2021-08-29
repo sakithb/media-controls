@@ -107,7 +107,7 @@ function buildPrefsWidget() {
 
     let entryUpdateDelay = new Gtk.SpinButton({
         adjustment: new Gtk.Adjustment({
-            lower: 0,
+            lower: 50,
             upper: 10000,
             step_increment: 100,
         }),

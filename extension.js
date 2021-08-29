@@ -334,6 +334,9 @@ const updateContent = () => {
 };
 
 const startMainLoop = () => {
+    if (updateDelay < 50) {
+        updateDelay = 50;
+    }
     mainLoop = Mainloop.timeout_add(updateDelay, () => {
         (async () => {
             startTime = Date.now();
