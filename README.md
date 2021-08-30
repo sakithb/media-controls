@@ -12,11 +12,7 @@ Show controls and information of the currently playing media in the panel
 
 ## Notes
 
--   Only support Gnome 3.38 and 40
--   ~Currently font awesome needs to be installed in the system for the icons to show up~ [FIXED].
--   ~There will be small performance issues, a fix for this will be put up soon~ [FIXED]
--   ~Setting update delay to 0 would cause the gnome shell to freeze~ [FIXED]
-
+-   Only supports GNOME 40+
 ---
 
 ## Screenshots
@@ -42,3 +38,6 @@ Install from source
 -  ~Support for video players~ [DONE]
 -  ~Desaturated player icon~ [DONE]
 -  ~Clickable title with actions~ [DONE]
+
+
+*This extension has been updated to be more compatible with JovarkOS. Updates have been made by @lucasburlingham*
