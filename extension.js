@@ -206,7 +206,7 @@ const addContent = () => {
 
 const removeContent = () => {
     // extensionPosition, extensionPosition Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah
-    //// log(`Removing from ${extensionPosition} box`);
+    // log(`Removing from ${extensionPosition} box`);
     Main.panel[positions[extensionPosition]].remove_actor(buttonNext);
     Main.panel[positions[extensionPosition]].remove_actor(buttonToggle);
     Main.panel[positions[extensionPosition]].remove_actor(buttonPrev);
@@ -219,7 +219,7 @@ const removeContent = () => {
 // Utility methods
 
 const updateMetadata = async () => {
-    //// log("Updating metadata");
+    // log("Updating metadata");
     try {
         playersList = await getPlayers();
         if (playersList.length > 0) {
@@ -289,7 +289,7 @@ const updateMetadata = async () => {
 };
 
 const updateData = (player, _playerState, _title, _artist) => {
-    //// log("Updating data");
+    // log("Updating data");
     let currentMetadata = `${_title}${_artist ? " - " + _artist : ""}`;
     let splittedPlayer = player.split(".");
     if (lastPlayer !== player) {
