@@ -4,7 +4,7 @@
   "settings-schema": "org.gnome.shell.extensions.mediacontrols",
   "original-author":"cliffniff"
   "shell-version": [
-    "40",
+    "40"
     "41"
   ],
   "url": "https://github.com/cliffniff/media-controls",
