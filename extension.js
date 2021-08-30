@@ -123,6 +123,21 @@ const _mouseAction = (event) => {
     }
 };
 
+// Reset variables variables
+
+const resetData = () => {
+    currentPlayer = undefined;
+    playerIcon = undefined;
+    playerState = undefined;
+    displayText = undefined;
+    lastPlayer = undefined;
+    lastMetadata = undefined;
+    lastState = undefined;
+    lastPlayerChanged = undefined;
+    lastStateChanged = undefined;
+    lastMetadataChanged = undefined;
+};
+
 // Other utility methods
 
 const updatePlayerIconEffects = () => {
@@ -346,7 +361,7 @@ const startMainLoop = () => {
     }
     mainLoop = Mainloop.timeout_add(updateDelay, () => {
         (async () => {
-            startTime = Date.now();
+            // startTime = Date.now();
             await updateMetadata();
             updateContent();
         })();
@@ -551,7 +566,8 @@ const enable = () => {
     // Initialize content
     updatePlayerIconEffects();
 
-    // Add content to the panel
+    // Reset data and add content to the panel
+    resetData();
     addContent();
 
     // Start the main loop
