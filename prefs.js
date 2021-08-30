@@ -16,7 +16,7 @@ const shellVersion = Number.parseInt(major);
 const positions = ["left", "center", "right"];
 const playbackActionNames = {
     none: "None",
-    toggle_play: "Toggle play/pause",
+    toggle_play: "Toggle Play/Pause",
     play: "Play",
     pause: "Pause",
     next: "Next",
@@ -26,18 +26,21 @@ const playbackActionNames = {
 let playbackActionNameKeys = Object.keys(playbackActionNames);
 
 const sepChars = [
-    "|...|",
+    "Playing: ...",
     "[...]",
+    "|...|",
+    "<...>",
     "(...)",
     "{...}",
-    "/...\\",
-    "\\.../",
+    "/...\",
+    "\.../",
     ":...:",
     "-...-",
     "_..._",
     "=...=",
-    "•...•",
-    "█...█",
+    "~/.../",
+    "...",
+    " ... ",
 ];
 
 function init() {}
@@ -71,7 +74,7 @@ function buildPrefsWidget() {
     // First section - General
     // SECTION START
     let labelGeneral = new Gtk.Label({
-        label: "<b>General</b>",
+        label: "<b>General Prefrences</b>",
         halign: Gtk.Align.START,
         use_markup: true,
         visible: true,
@@ -183,7 +186,7 @@ function buildPrefsWidget() {
 
     /* Hide seperators */
     let labelHideSeperators = new Gtk.Label({
-        label: "Hide seperators:",
+        label: "Hide Seperators:",
         halign: Gtk.Align.START,
         visible: true,
     });
