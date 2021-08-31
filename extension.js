@@ -121,7 +121,7 @@ const _mouseAction = (event) => {
         // log("Came here but upper case");
         playbackActions[mouseActionsLeftClick]();
     } else {
-        log("Doesn't include");
+        // log("Doesn't include");
         // log(mouseActionsRightClick);
         playbackActions[mouseActionsRightClick]();
     }
@@ -158,8 +158,9 @@ const updatePlayerIconEffects = () => {
 
 const addContent = () => {
     // let currentIndex;
-    //// log(`Adding to ${extensionPosition} box`);
+    // log(`Adding to ${extensionPosition} box`);
     let currentIndex = 0;
+    // Add player icon
     if (!hidePlayerIcon) {
         Main.panel[positions[extensionPosition]].insert_child_at_index(
             iconPlayer,
@@ -167,6 +168,7 @@ const addContent = () => {
         );
         currentIndex++;
     }
+    // Add opening seperator
     if (!hideSeperators) {
         Main.panel[positions[extensionPosition]].insert_child_at_index(
             labelSeperatorStart,
@@ -174,6 +176,7 @@ const addContent = () => {
         );
         currentIndex++;
     }
+    // Add track title
     if (!hideTrackName) {
         Main.panel[positions[extensionPosition]].insert_child_at_index(
             buttonLabel,
@@ -181,6 +184,7 @@ const addContent = () => {
         );
         currentIndex++;
     }
+    // Add closing seperator
     if (!hideSeperators) {
         Main.panel[positions[extensionPosition]].insert_child_at_index(
             labelSeperatorEnd,
@@ -188,6 +192,7 @@ const addContent = () => {
         );
         currentIndex++;
     }
+    // Add controls
     if (!hideControls) {
         Main.panel[positions[extensionPosition]].insert_child_at_index(
             buttonPrev,

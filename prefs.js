@@ -49,7 +49,7 @@ function buildPrefsWidget() {
         widgetPrefs = new Gtk.Grid({
             margin: 15,
             column_spacing: 8,
-            row_spacing: 8,
+            row_spacing: 12,
             visible: true,
             column_homogeneous: true,
         });
@@ -60,7 +60,7 @@ function buildPrefsWidget() {
             margin_start: 15,
             margin_end: 15,
             column_spacing: 8,
-            row_spacing: 8,
+            row_spacing: 12,
             visible: true,
             column_homogeneous: true,
         });
@@ -532,13 +532,11 @@ function buildPrefsWidget() {
     //     child: widgetPrefs,
     // });
 
+    let scrolledWindow = new Gtk.ScrolledWindow();
     if (shellVersion < 40) {
-        return widgetPrefs;
+        scrolledWindow.add(widgetPrefs);
     } else {
-        let scrolledWindow = new Gtk.ScrolledWindow({
-            max_content_height: 600,
-            child: widgetPrefs,
-        });
-        return scrolledWindow;
+        scrolledWindow.set_child(widgetPrefs);
     }
+    return scrolledWindow;
 }

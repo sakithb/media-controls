@@ -16,31 +16,24 @@
     <key name="hide-control-icons" type="b">
       <default>false</default>
     </key>
-
     <key name="hide-seperators" type="b">
       <default>false</default>
     </key>
-
     <key name="colored-player-icon" type="b">
       <default>false</default>
     </key>
     <key name="show-all-on-hover" type="b">
       <default>true</default>
     </key>
-
     <key name="seperator-char-start" type="s">
       <default>'|'</default>
     </key>
-
-
     <key name="seperator-char-end" type="s">
       <default>'|'</default>
     </key>
-
     <key name="mouse-actions-left" type="s">
       <default>'none'</default>
     </key>
-
     <key name="mouse-actions-right" type="s">
       <default>'none'</default>
     </key>
@@ -49,6 +42,9 @@
     </key>
     <key name="extension-index" type="i">
       <default>0</default>
+    </key>
+    <key name="element-order" type="ai">
+      <default>[0, 1, 2]</default>
     </key>
   </schema>
 </schemalist>
