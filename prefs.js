@@ -533,6 +533,6 @@ function buildPrefsWidget() {
     // });
 
     let scrolledWindow = new Gtk.ScrolledWindow();
-    widgetPrefs.set_parent(scrolledWindow);
-    return scrolledWindow;
+    widgetPrefs.add(scrolledWindow);
+    return widgetPrefs;
 }
