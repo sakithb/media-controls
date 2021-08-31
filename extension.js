@@ -116,11 +116,12 @@ const playbackActions = {
 const _mouseAction = (event) => {
     // log("came here");
     // log(event.pseudo_class);
-    if (event.pseudo_class.includes("active")) {
+    if (event.pseudo_class && event.pseudo_class.includes("active")) {
         // log(mouseActionsLeftClick);
         // log("Came here but upper case");
         playbackActions[mouseActionsLeftClick]();
     } else {
+        log("Doesn't include");
         // log(mouseActionsRightClick);
         playbackActions[mouseActionsRightClick]();
     }
