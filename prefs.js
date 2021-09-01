@@ -74,7 +74,7 @@ const buildPrefsWidget = () => {
     } else {
         builder.set_scope(new MediaControlsBuilderScope());
         builder.add_from_file(Me.dir.get_path() + "/prefs4.ui");
-        prefsWidget.set_child(builder.get_object("main_prefs"));
+        return builder.get_object("main_prefs");
     }
     return prefsWidget;
 };
