@@ -63,20 +63,17 @@ if (shellVersion >= 40) {
 
 const buildPrefsWidget = () => {
     const settings = ExtensionUtils.getSettings();
-    const prefsWidget = new Gtk.ScrolledWindow();
     const builder = new Gtk.Builder();
     if (shellVersion < 40) {
         builder.add_from_file(Me.dir.get_path() + "/prefs3.ui");
         builder.connect_signals_full((builder, object, signal, handler) => {
             object.connect(signal, signalHandler[handler].bind(this));
         });
-        prefsWidget.add(builder.get_object("main_prefs"));
     } else {
         builder.set_scope(new MediaControlsBuilderScope());
         builder.add_from_file(Me.dir.get_path() + "/prefs4.ui");
-        return builder.get_object("main_prefs");
     }
-    return prefsWidget;
+    return builder.get_object("main_prefs");
 };
 
 const on_max_text_length_changed = (widget) => {
