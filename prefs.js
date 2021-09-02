@@ -14,7 +14,7 @@ const [major] = Config.PACKAGE_VERSION.split(".");
 const shellVersion = Number.parseInt(major);
 
 const positions = ["left", "center", "right"];
-const playbackActionNames = {
+const playbackActionNamesMap = {
     none: "None",
     toggle_play: "Toggle play/pause",
     play: "Play",
@@ -22,10 +22,9 @@ const playbackActionNames = {
     next: "Next",
     prev: "Previous",
 };
+let playbackActionNameIds = Object.keys(playbackActionNamesMap);
 
-let playbackActionNameKeys = Object.keys(playbackActionNames);
-
-const sepChars = [
+const presetSepChars = [
     "|...|",
     "[...]",
     "(...)",
@@ -40,30 +39,269 @@ const sepChars = [
     "█...█",
 ];
 
-const init = () => {};
+const elements = {
+    icon: "Player icon",
+    title: "Track title",
+    controls: "Control icons",
+};
+const elementIds = Object.keys(elements);
 
-if (shellVersion >= 40) {
-    var MediaControlsBuilderScope = GObject.registerClass(
-        { Implements: [Gtk.BuilderScope] },
-        class MediaControlsBuilderScope extends GObject.Object {
-            vfunc_create_closure(builder, handlerName, flags, connectObject) {
-                if (flags & Gtk.BuilderClosureFlags.SWAPPED)
-                    throw new Error(
-                        'Unsupported template signal flag "swapped"'
-                    );
+let settings,
+    builder,
+    widgetElementOrderFirst,
+    widgetElementOrderSecond,
+    widgetElementOrderThird,
+    widgetPreset,
+    widgetCustom;
 
-                if (typeof signalHandler[handlerName] === "undefined")
-                    throw new Error(`${handlerName} is undefined`);
-
+let MediaControlsBuilderScope = GObject.registerClass(
+    { Implements: [Gtk.BuilderScope] },
+    class MediaControlsBuilderScope extends GObject.Object {
+        vfunc_create_closure(builder, handlerName, flags, connectObject) {
+            if (typeof signalHandler[handlerName] !== "undefined") {
                 return signalHandler[handlerName].bind(connectObject || this);
             }
         }
+    }
+);
+
+const signalHandler = {
+    on_seperator_character_group_changed: (widget) => {
+        let label = widget.get_label();
+        let active = widget.get_active();
+        if (label === "Preset" && active) {
+            widgetCustom.set_sensitive(false);
+            widgetPreset.set_sensitive(true);
+            signalHandler.on_seperator_preset_changed(widgetPreset);
+        } else if (label === "Custom" && active) {
+            widgetPreset.set_sensitive(false);
+            widgetCustom.set_sensitive(true);
+            signalHandler.on_seperator_custom_changed(widgetCustom);
+        }
+    },
+    on_seperator_preset_changed: (widget) => {
+        if (builder.get_object("preset-radio-btn").get_active()) {
+            let presetValue = presetSepChars[widget.get_active()];
+            settings.set_strv("seperator-chars", [
+                presetValue.charAt(0),
+                presetValue.charAt(presetValue.length - 1),
+            ]);
+        }
+        return "done";
+    },
+    on_seperator_custom_changed: (widget) => {
+        if (builder.get_object("custom-radio-btn").get_active()) {
+            let customValues = widget.get_text().split("...");
+            if (customValues[0] && customValues[1]) {
+                settings.set_strv("seperator-chars", [
+                    customValues[0],
+                    customValues[1],
+                ]);
+            }
+        }
+    },
+    on_element_order_first_changed: (widget) => {
+        let secondValue = elementIds[widgetElementOrderSecond.get_active()];
+        let thirdValue = elementIds[widgetElementOrderThird.get_active()];
+        let thisValue = elementIds[widget.get_active()];
+        if (thisValue === secondValue) {
+            elementIds.forEach((element, index) => {
+                if (!(element === thirdValue || element === thisValue)) {
+                    widgetElementOrderSecond.set_active(index);
+                }
+            });
+        } else if (thisValue === thirdValue) {
+            elementIds.forEach((element, index) => {
+                if (!(element === secondValue || element === thisValue)) {
+                    widgetElementOrderThird.set_active(index);
+                }
+            });
+        }
+        settings.set_strv("element-order", [
+            thisValue,
+            elementIds[widgetElementOrderSecond.get_active()],
+            elementIds[widgetElementOrderThird.get_active()],
+        ]);
+    },
+    on_element_order_second_changed: (widget) => {
+        let firstValue = elementIds[widgetElementOrderFirst.get_active()];
+        let thirdValue = elementIds[widgetElementOrderThird.get_active()];
+        let thisValue = elementIds[widget.get_active()];
+        if (thisValue === firstValue) {
+            elementIds.forEach((element, index) => {
+                if (!(element === thirdValue || element === thisValue)) {
+                    widgetElementOrderFirst.set_active(index);
+                }
+            });
+        } else if (thisValue === thirdValue) {
+            elementIds.forEach((element, index) => {
+                if (!(element === firstValue || element === thisValue)) {
+                    widgetElementOrderThird.set_active(index);
+                }
+            });
+        }
+        settings.set_strv("element-order", [
+            elementIds[widgetElementOrderFirst.get_active()],
+            thisValue,
+            elementIds[widgetElementOrderThird.get_active()],
+        ]);
+    },
+    on_element_order_third_changed: (widget) => {
+        let secondValue = elementIds[widgetElementOrderSecond.get_active()];
+        let firstValue = elementIds[widgetElementOrderFirst.get_active()];
+        let thisValue = elementIds[widget.get_active()];
+        if (thisValue === secondValue) {
+            elementIds.forEach((element, index) => {
+                if (!(element === firstValue || element === thisValue)) {
+                    widgetElementOrderSecond.set_active(index);
+                }
+            });
+        } else if (thisValue === firstValue) {
+            elementIds.forEach((element, index) => {
+                if (!(element === secondValue || element === thisValue)) {
+                    widgetElementOrderFirst.set_active(index);
+                }
+            });
+        }
+        settings.set_strv("element-order", [
+            elementIds[widgetElementOrderFirst.get_active()],
+            elementIds[widgetElementOrderSecond.get_active()],
+            thisValue,
+        ]);
+    },
+    on_mouse_actions_left_changed: (widget) => {
+        let currentMouseActions = settings.get_strv("mouse-actions");
+        currentMouseActions[0] = playbackActionNameIds[widget.get_active()];
+        settings.set_strv("mouse-actions", currentMouseActions);
+    },
+    on_mouse_actions_right_changed: (widget) => {
+        let currentMouseActions = settings.get_strv("mouse-actions");
+        currentMouseActions[1] = playbackActionNameIds[widget.get_active()];
+        settings.set_strv("mouse-actions", currentMouseActions);
+    },
+    on_extension_position_changed: (widget) => {
+        settings.set_string(
+            "extension-position",
+            positions[widget.get_active()]
+        );
+    },
+};
+
+const bindSettings = () => {
+    settings.bind(
+        "max-text-length",
+        builder.get_object("max-text-length"),
+        "value",
+        Gio.SettingsBindFlags.DEFAULT
     );
-}
+    settings.bind(
+        "update-delay",
+        builder.get_object("update-delay"),
+        "value",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "hide-text",
+        builder.get_object("hide-text"),
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "hide-player-icon",
+        builder.get_object("hide-player-icon"),
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "hide-control-icons",
+        builder.get_object("hide-control-icons"),
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "hide-seperators",
+        builder.get_object("hide-seperators"),
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "colored-player-icon",
+        builder.get_object("colored-player-icon"),
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "show-all-on-hover",
+        builder.get_object("show-all-on-hover"),
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "extension-index",
+        builder.get_object("extension-index"),
+        "value",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+};
+
+const initWidgets = () => {
+    // Init presets combobox
+    presetSepChars.forEach((preset) => {
+        widgetPreset.append(preset, preset);
+    });
+    let savedSepChars = settings.get_strv("seperator-chars");
+    let sepChars = `${savedSepChars[0]}...${savedSepChars[1]}`;
+    if (presetSepChars.includes(sepChars)) {
+        builder.get_object("preset-radio-btn").set_active(true);
+        widgetPreset.set_active(presetSepChars.indexOf(sepChars));
+    } else {
+        builder.get_object("custom-radio-btn").set_active(true);
+        widgetCustom.set_text(sepChars);
+        widgetPreset.set_active(0);
+    }
+
+    // Init extension position combobox
+    let widgetExtensionPos = builder.get_object("extension-position");
+    positions.forEach((position) => {
+        widgetExtensionPos.append(position, position);
+    });
+    widgetExtensionPos.set_active(
+        positions.indexOf(settings.get_string("extension-position"))
+    );
+
+    // Init element order comboboxes
+    elementIds.forEach((element) => {
+        widgetElementOrderFirst.append(element, elements[element]);
+        widgetElementOrderSecond.append(element, elements[element]);
+        widgetElementOrderThird.append(element, elements[element]);
+    });
+    let elementOrder = settings.get_strv("element-order");
+    widgetElementOrderFirst.set_active(elementIds.indexOf(elementOrder[0]));
+    widgetElementOrderSecond.set_active(elementIds.indexOf(elementOrder[1]));
+    widgetElementOrderThird.set_active(elementIds.indexOf(elementOrder[2]));
+
+    // Init mouse action comboboxes
+    let widgetMouseActionLeft = builder.get_object("mouse-actions-left");
+    let widgetMouseActionRight = builder.get_object("mouse-actions-right");
+    playbackActionNameIds.forEach((action) => {
+        widgetMouseActionLeft.append(action, playbackActionNamesMap[action]);
+        widgetMouseActionRight.append(action, playbackActionNamesMap[action]);
+    });
+    let mouseActions = settings.get_strv("mouse-actions");
+    widgetMouseActionLeft.set_active(
+        playbackActionNameIds.indexOf(mouseActions[0])
+    );
+    widgetMouseActionRight.set_active(
+        playbackActionNameIds.indexOf(mouseActions[1])
+    );
+};
+
+const init = () => {
+    settings = ExtensionUtils.getSettings();
+};
 
 const buildPrefsWidget = () => {
-    const settings = ExtensionUtils.getSettings();
-    const builder = new Gtk.Builder();
+    builder = new Gtk.Builder();
     if (shellVersion < 40) {
         builder.add_from_file(Me.dir.get_path() + "/prefs3.ui");
         builder.connect_signals_full((builder, object, signal, handler) => {
@@ -73,81 +311,12 @@ const buildPrefsWidget = () => {
         builder.set_scope(new MediaControlsBuilderScope());
         builder.add_from_file(Me.dir.get_path() + "/prefs4.ui");
     }
+    widgetElementOrderFirst = builder.get_object("element-order-first");
+    widgetElementOrderSecond = builder.get_object("element-order-second");
+    widgetElementOrderThird = builder.get_object("element-order-third");
+    widgetPreset = builder.get_object("sepchars-preset");
+    widgetCustom = builder.get_object("sepchars-custom");
+    initWidgets();
+    bindSettings();
     return builder.get_object("main_prefs");
-};
-
-const on_max_text_length_changed = (widget) => {
-    log(widget);
-};
-const on_update_delay_changed = (widget) => {
-    log(widget);
-};
-const on_hide_text_changed = () => {
-    log(widget);
-};
-const on_hide_player_icon_changed = (widget) => {
-    log(widget);
-};
-const on_hide_controls_changed = (widget) => {
-    log(widget);
-};
-const on_hide_seperators_changed = (widget) => {
-    log(widget);
-};
-const on_colored_player_icon_changed = (widget) => {
-    log(widget);
-};
-const on_show_hidden_content_changed = (widget) => {
-    log(widget);
-};
-const on_seperator_character_group_changed = (widget) => {
-    log(widget);
-};
-const on_seperator_preset_changed = (widget) => {
-    log(widget);
-};
-const on_seperator_custom_changed = (widget) => {
-    log(widget);
-};
-const on_extension_position_changed = (widget) => {
-    log(widget);
-};
-const on_extension_index_changed = (widget) => {
-    log(widget);
-};
-const on_element_order_first_changed = (widget) => {
-    log(widget);
-};
-const on_element_order_second_changed = (widget) => {
-    log(widget);
-};
-const on_element_order_third_changed = (widget) => {
-    log(widget);
-};
-const on_mouse_actions_left_changed = (widget) => {
-    log(widget);
-};
-const on_mouse_actions_right_changed = (widget) => {
-    log(widget);
-};
-
-const signalHandler = {
-    on_max_text_length_changed,
-    on_update_delay_changed,
-    on_hide_text_changed,
-    on_hide_player_icon_changed,
-    on_hide_controls_changed,
-    on_hide_seperators_changed,
-    on_colored_player_icon_changed,
-    on_show_hidden_content_changed,
-    on_seperator_character_group_changed,
-    on_seperator_preset_changed,
-    on_seperator_custom_changed,
-    on_extension_position_changed,
-    on_extension_index_changed,
-    on_element_order_first_changed,
-    on_element_order_second_changed,
-    on_element_order_third_changed,
-    on_mouse_actions_left_changed,
-    on_mouse_actions_right_changed,
 };

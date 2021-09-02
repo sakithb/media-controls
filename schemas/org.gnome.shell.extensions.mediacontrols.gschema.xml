@@ -25,17 +25,11 @@
     <key name="show-all-on-hover" type="b">
       <default>true</default>
     </key>
-    <key name="seperator-char-start" type="s">
-      <default>'|'</default>
+    <key name="seperator-chars" type="as">
+      <default>['|', '|']</default>
     </key>
-    <key name="seperator-char-end" type="s">
-      <default>'|'</default>
-    </key>
-    <key name="mouse-actions-left" type="s">
-      <default>'none'</default>
-    </key>
-    <key name="mouse-actions-right" type="s">
-      <default>'none'</default>
+    <key name="mouse-actions" type="as">
+      <default>['none', 'none']</default>
     </key>
     <key name="extension-position" type="s">
       <default>'center'</default>
@@ -43,8 +37,8 @@
     <key name="extension-index" type="i">
       <default>0</default>
     </key>
-    <key name="element-order" type="ai">
-      <default>[0, 1, 2]</default>
+    <key name="element-order" type="as">
+      <default>['icon', 'title', 'controls']</default>
     </key>
   </schema>
 </schemalist>

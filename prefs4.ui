@@ -6,6 +6,17 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
+  <object class="GtkAdjustment" id="max_text_length">
+    <property name="upper">500</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="update_delay">
+    <property name="lower">50</property>
+    <property name="upper">1000</property>
+    <property name="step-increment">50</property>
+    <property name="page-increment">10</property>
+  </object>
   <object class="GtkNotebook" id="main_prefs">
     <property name="focusable">1</property>
     <child>
@@ -36,12 +47,11 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkSpinButton">
+                      <object class="GtkSpinButton" id="max-text-length">
                         <property name="focusable">1</property>
                         <property name="halign">end</property>
                         <property name="text" translatable="yes">0</property>
                         <property name="adjustment">max_text_length</property>
-                        <signal name="value-changed" handler="on_max_text_length_changed" swapped="no"/>
                         <layout>
                           <property name="column">0</property>
                           <property name="row">0</property>
@@ -59,13 +69,12 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkSpinButton">
+                      <object class="GtkSpinButton" id="update-delay">
                         <property name="focusable">1</property>
                         <property name="halign">end</property>
                         <property name="text" translatable="yes">50</property>
                         <property name="adjustment">update_delay</property>
                         <property name="value">50</property>
-                        <signal name="value-changed" handler="on_update_delay_changed" swapped="no"/>
                         <layout>
                           <property name="column">0</property>
                           <property name="row">1</property>
@@ -104,10 +113,9 @@
                     <property name="row-spacing">10</property>
                     <property name="column-homogeneous">1</property>
                     <child>
-                      <object class="GtkSwitch">
+                      <object class="GtkSwitch" id="hide-text">
                         <property name="focusable">1</property>
                         <property name="halign">end</property>
-                        <signal name="state-set" handler="on_hide_text_changed" swapped="no"/>
                         <layout>
                           <property name="column">0</property>
                           <property name="row">0</property>
@@ -125,7 +133,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkSwitch">
+                      <object class="GtkSwitch" id="hide-player-icon">
                         <property name="focusable">1</property>
                         <property name="halign">end</property>
                         <layout>
@@ -145,7 +153,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkSwitch">
+                      <object class="GtkSwitch" id="hide-control-icons">
                         <property name="focusable">1</property>
                         <property name="halign">end</property>
                         <layout>
@@ -165,7 +173,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkSwitch">
+                      <object class="GtkSwitch" id="hide-seperators">
                         <property name="focusable">1</property>
                         <property name="halign">end</property>
                         <layout>
@@ -195,7 +203,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkSwitch">
+                      <object class="GtkSwitch" id="colored-player-icon">
                         <property name="focusable">1</property>
                         <property name="halign">end</property>
                         <layout>
@@ -215,7 +223,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkSwitch">
+                      <object class="GtkSwitch" id="show-all-on-hover">
                         <property name="focusable">1</property>
                         <property name="halign">end</property>
                         <layout>
@@ -225,10 +233,11 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkCheckButton" id="preset_radio_btn">
+                      <object class="GtkCheckButton" id="preset-radio-btn">
                         <property name="label" translatable="yes">Preset</property>
                         <property name="halign">start</property>
                         <property name="active">1</property>
+                        <signal name="toggled" handler="on_seperator_character_group_changed" swapped="no"/>
                         <layout>
                           <property name="column">0</property>
                           <property name="row">7</property>
@@ -236,10 +245,11 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkCheckButton" id="custom_radio_btn">
+                      <object class="GtkCheckButton" id="custom-radio-btn">
                         <property name="label" translatable="yes">Custom</property>
                         <property name="halign">start</property>
-                        <property name="group">preset_radio_btn</property>
+                        <property name="group">preset-radio-btn</property>
+                        <signal name="toggled" handler="on_seperator_character_group_changed" swapped="no"/>
                         <layout>
                           <property name="column">0</property>
                           <property name="row">8</property>
@@ -247,7 +257,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkComboBoxText">
+                      <object class="GtkComboBoxText" id="sepchars-preset">
                         <property name="halign">end</property>
                         <signal name="changed" handler="on_seperator_preset_changed" swapped="no"/>
                         <layout>
@@ -270,7 +280,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkEntry">
+                      <object class="GtkEntry" id="sepchars-custom">
                         <property name="focusable">1</property>
                         <property name="halign">end</property>
                         <property name="placeholder-text" translatable="yes">&lt;...&gt;</property>
@@ -323,18 +333,6 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkComboBoxText">
-                        <property name="halign">end</property>
-                        <items>
-                          <item translatable="yes">left</item>
-                        </items>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">0</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
                       <object class="GtkLabel">
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Extension index</property>
@@ -345,7 +343,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkSpinButton">
+                      <object class="GtkSpinButton" id="extension-index">
                         <property name="focusable">1</property>
                         <property name="halign">end</property>
                         <property name="text" translatable="yes">0</property>
@@ -368,29 +366,46 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkComboBoxText">
-                        <property name="halign">start</property>
-                        <signal name="changed" handler="on_element_order_first_changed" swapped="no"/>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">3</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkComboBoxText">
-                        <property name="halign">center</property>
-                        <signal name="changed" handler="on_element_order_second_changed" swapped="no"/>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">3</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkComboBoxText">
+                      <object class="GtkComboBoxText" id="extension-position">
                         <property name="halign">end</property>
-                        <signal name="changed" handler="on_element_order_third_changed" swapped="no"/>
+                        <signal name="changed" handler="on_extension_position_changed" swapped="no"/>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkGrid">
+                        <property name="column-spacing">5</property>
+                        <property name="column-homogeneous">1</property>
+                        <child>
+                          <object class="GtkComboBoxText" id="element-order-third">
+                            <signal name="changed" handler="on_element_order_third_changed" swapped="no"/>
+                            <layout>
+                              <property name="column">2</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkComboBoxText" id="element-order-first">
+                            <signal name="changed" handler="on_element_order_first_changed" swapped="no"/>
+                            <layout>
+                              <property name="column">0</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkComboBoxText" id="element-order-second">
+                            <signal name="changed" handler="on_element_order_second_changed" swapped="no"/>
+                            <layout>
+                              <property name="column">1</property>
+                              <property name="row">0</property>
+                            </layout>
+                          </object>
+                        </child>
                         <layout>
                           <property name="column">0</property>
                           <property name="row">3</property>
@@ -450,7 +465,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkComboBoxText">
+                      <object class="GtkComboBoxText" id="mouse-actions-left">
                         <property name="halign">end</property>
                         <signal name="changed" handler="on_mouse_actions_left_changed" swapped="no"/>
                         <layout>
@@ -470,7 +485,7 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkComboBoxText">
+                      <object class="GtkComboBoxText" id="mouse-actions-right">
                         <property name="halign">end</property>
                         <signal name="changed" handler="on_mouse_actions_right_changed" swapped="no"/>
                         <layout>
@@ -492,16 +507,5 @@
         </property>
       </object>
     </child>
-  </object>
-  <object class="GtkAdjustment" id="max_text_length">
-    <property name="upper">500</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="update_delay">
-    <property name="lower">50</property>
-    <property name="upper">1000</property>
-    <property name="step-increment">50</property>
-    <property name="page-increment">10</property>
   </object>
 </interface>

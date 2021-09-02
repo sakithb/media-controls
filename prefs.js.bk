@@ -23,7 +23,7 @@ const playbackActionNames = {
     prev: "Previous",
 };
 
-let playbackActionNameKeys = Object.keys(playbackActionNames);
+let playbackActionNameKeys = Object.keys(playbackActionNamesMap);
 
 const sepChars = [
     "|...|",
@@ -263,14 +263,14 @@ function buildPrefsWidget() {
         visible: true,
     });
 
-    for (let i = 0; i < sepChars.length; i++) {}
+    for (let i = 0; i < presetSepChars.length; i++) {}
 
-    sepChars.forEach((sepChar) => {
+    presetSepChars.forEach((sepChar) => {
         comboboxSepCharPresets.append(sepChar, sepChar);
     });
 
     comboboxSepCharPresets.set_active(
-        sepChars.indexOf(
+        presetSepChars.indexOf(
             settings.get_string("seperator-char-start") +
                 "..." +
                 settings.get_string("seperator-char-end")
@@ -386,19 +386,19 @@ function buildPrefsWidget() {
         visible: true,
     });
 
-    playbackActionNameKeys.forEach((key) => {
-        comboboxMouseActionsLeftClick.append(key, playbackActionNames[key]);
-        comboboxMouseActionsRightClick.append(key, playbackActionNames[key]);
+    playbackActionNameIds.forEach((key) => {
+        comboboxMouseActionsLeftClick.append(key, playbackActionNamesMap[key]);
+        comboboxMouseActionsRightClick.append(key, playbackActionNamesMap[key]);
     });
 
     comboboxMouseActionsLeftClick.set_active(
-        playbackActionNameKeys.indexOf(
+        playbackActionNameIds.indexOf(
             settings.get_string("mouse-actions-left")
         )
     );
 
     comboboxMouseActionsRightClick.set_active(
-        playbackActionNameKeys.indexOf(
+        playbackActionNameIds.indexOf(
             settings.get_string("mouse-actions-right")
         )
     );
@@ -485,7 +485,7 @@ function buildPrefsWidget() {
     );
 
     comboboxSepCharPresets.connect("changed", (widget) => {
-        let presetValue = sepChars[widget.get_active()];
+        let presetValue = presetSepChars[widget.get_active()];
         settings.set_string("seperator-char-start", presetValue.charAt(0));
         settings.set_string(
             "seperator-char-end",
@@ -499,7 +499,7 @@ function buildPrefsWidget() {
             settings.set_string("seperator-char-start", customValues[0]);
             settings.set_string("seperator-char-end", customValues[1]);
         } else {
-            let presetValue = sepChars[comboboxSepCharPresets.get_active()];
+            let presetValue = presetSepChars[comboboxSepCharPresets.get_active()];
             settings.set_string("seperator-char-start", presetValue.charAt(0));
             settings.set_string(
                 "seperator-char-end",
@@ -512,14 +512,14 @@ function buildPrefsWidget() {
         labelGeneral.set_label("Hi");
         settings.set_string(
             "mouse-actions-left",
-            playbackActionNameKeys[widget.get_active()]
+            playbackActionNameIds[widget.get_active()]
         );
     });
 
     comboboxMouseActionsRightClick.connect("changed", (widget) => {
         settings.set_string(
             "mouse-actions-right",
-            playbackActionNameKeys[widget.get_active()]
+            playbackActionNameIds[widget.get_active()]
         );
     });
     // if (shellVersion < 40) {

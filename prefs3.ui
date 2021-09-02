@@ -7,6 +7,17 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
+  <object class="GtkAdjustment" id="max_text_length">
+    <property name="upper">500</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="update_delay">
+    <property name="lower">50</property>
+    <property name="upper">1000</property>
+    <property name="step-increment">50</property>
+    <property name="page-increment">10</property>
+  </object>
   <object class="GtkNotebook" id="main_prefs">
     <property name="visible">True</property>
     <property name="can-focus">True</property>
@@ -44,13 +55,12 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSpinButton">
+                  <object class="GtkSpinButton" id="max-text-length">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="halign">end</property>
                     <property name="text" translatable="yes">0</property>
                     <property name="adjustment">max_text_length</property>
-                    <signal name="value-changed" handler="on_max_text_length_changed" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -70,14 +80,13 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSpinButton">
+                  <object class="GtkSpinButton" id="update-delay">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="halign">end</property>
                     <property name="text" translatable="yes">50</property>
                     <property name="adjustment">update_delay</property>
                     <property name="value">50</property>
-                    <signal name="value-changed" handler="on_update_delay_changed" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -122,11 +131,10 @@
                 <property name="row-spacing">10</property>
                 <property name="column-homogeneous">True</property>
                 <child>
-                  <object class="GtkSwitch">
+                  <object class="GtkSwitch" id="hide-text">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="halign">end</property>
-                    <signal name="state-set" handler="on_hide_text_changed" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -146,7 +154,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSwitch">
+                  <object class="GtkSwitch" id="hide-player-icon">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="halign">end</property>
@@ -169,7 +177,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSwitch">
+                  <object class="GtkSwitch" id="hide-control-icons">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="halign">end</property>
@@ -192,7 +200,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSwitch">
+                  <object class="GtkSwitch" id="hide-seperators">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="halign">end</property>
@@ -227,7 +235,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSwitch">
+                  <object class="GtkSwitch" id="colored-player-icon">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="halign">end</property>
@@ -250,7 +258,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSwitch">
+                  <object class="GtkSwitch" id="show-all-on-hover">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="halign">end</property>
@@ -261,7 +269,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkRadioButton" id="preset_radio_btn">
+                  <object class="GtkRadioButton" id="preset-radio-btn">
                     <property name="label" translatable="yes">Preset</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
@@ -269,6 +277,7 @@
                     <property name="halign">start</property>
                     <property name="active">True</property>
                     <property name="draw-indicator">True</property>
+                    <signal name="toggled" handler="on_seperator_character_group_changed" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -276,14 +285,15 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkRadioButton" id="custom_radio_btn">
+                  <object class="GtkRadioButton" id="custom-radio-btn">
                     <property name="label" translatable="yes">Custom</property>
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="receives-default">False</property>
                     <property name="halign">start</property>
                     <property name="draw-indicator">True</property>
-                    <property name="group">preset_radio_btn</property>
+                    <property name="group">preset-radio-btn</property>
+                    <signal name="toggled" handler="on_seperator_character_group_changed" swapped="no"/>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -291,7 +301,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxText">
+                  <object class="GtkComboBoxText" id="sepchars-preset">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">end</property>
@@ -318,7 +328,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry">
+                  <object class="GtkEntry" id="sepchars-custom">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="halign">end</property>
@@ -384,20 +394,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxText">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="halign">end</property>
-                    <items>
-                      <item translatable="yes">left</item>
-                    </items>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">0</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkLabel">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
@@ -410,7 +406,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkSpinButton">
+                  <object class="GtkSpinButton" id="extension-index">
                     <property name="visible">True</property>
                     <property name="can-focus">True</property>
                     <property name="halign">end</property>
@@ -436,35 +432,57 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxText">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="halign">start</property>
-                    <signal name="changed" handler="on_element_order_first_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBoxText">
-                    <property name="visible">True</property>
-                    <property name="can-focus">False</property>
-                    <property name="halign">center</property>
-                    <signal name="changed" handler="on_element_order_second_changed" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="left-attach">0</property>
-                    <property name="top-attach">3</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBoxText">
+                  <object class="GtkComboBoxText" id="extension-position">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">end</property>
-                    <signal name="changed" handler="on_element_order_third_changed" swapped="no"/>
+                    <signal name="changed" handler="on_extension_position_changed" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <!-- n-columns=3 n-rows=1 -->
+                  <object class="GtkGrid">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="column-spacing">5</property>
+                    <property name="column-homogeneous">True</property>
+                    <child>
+                      <object class="GtkComboBoxText" id="element-order-third">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <signal name="changed" handler="on_element_order_third_changed" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="left-attach">2</property>
+                        <property name="top-attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBoxText" id="element-order-first">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <signal name="changed" handler="on_element_order_first_changed" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="left-attach">0</property>
+                        <property name="top-attach">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkComboBoxText" id="element-order-second">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <signal name="changed" handler="on_element_order_second_changed" swapped="no"/>
+                      </object>
+                      <packing>
+                        <property name="left-attach">1</property>
+                        <property name="top-attach">0</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="left-attach">0</property>
@@ -538,7 +556,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxText">
+                  <object class="GtkComboBoxText" id="mouse-actions-left">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">end</property>
@@ -562,7 +580,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBoxText">
+                  <object class="GtkComboBoxText" id="mouse-actions-right">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="halign">end</property>
@@ -593,16 +611,5 @@
         <property name="tab-fill">False</property>
       </packing>
     </child>
-  </object>
-  <object class="GtkAdjustment" id="max_text_length">
-    <property name="upper">500</property>
-    <property name="step-increment">1</property>
-    <property name="page-increment">10</property>
-  </object>
-  <object class="GtkAdjustment" id="update_delay">
-    <property name="lower">50</property>
-    <property name="upper">1000</property>
-    <property name="step-increment">50</property>
-    <property name="page-increment">10</property>
   </object>
 </interface>

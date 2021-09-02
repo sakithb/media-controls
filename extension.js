@@ -20,8 +20,11 @@ let maxDisplayLength,
     extensionIndex,
     coloredPlayerIcon,
     showAllOnHover,
+    sepChars,
+    mouseActions,
     mouseActionsLeftClick,
-    mouseActionsRightClick;
+    mouseActionsRightClick,
+    elementOrder;
 
 // Global variables
 
@@ -35,11 +38,10 @@ let onUpdateDelayChanged,
     onExtensionPositionChanged,
     onExtensionIndexChanged,
     onColoredPlayerIconChanged,
-    onSepCharStartChanged,
-    onSepCharEndChanged,
-    onMouseActionsLeftClickChanged,
-    onMouseActionsRightClickChanged,
-    onShowAllOnHoverChanged;
+    onSepCharsChanged,
+    onMouseActionsChanged,
+    onShowAllOnHoverChanged,
+    onElementOrderChanged;
 
 let mainLoop;
 let settings;
@@ -61,6 +63,7 @@ let buttonNext,
     buttonPrev,
     buttonToggle,
     buttonLabel,
+    buttonPlayer,
     iconNext,
     iconPause,
     iconPlay,
@@ -147,9 +150,9 @@ const resetData = () => {
 const updatePlayerIconEffects = () => {
     if (coloredPlayerIcon) {
         iconPlayer.clear_effects();
-        iconPlayer.set_style("padding-right: 5px; -st-icon-style: requested");
+        iconPlayer.set_style("padding-right: 3px; -st-icon-style: requested");
     } else {
-        iconPlayer.set_style("padding-right: 5px; -st-icon-style: symbolic");
+        iconPlayer.set_style("padding-right: 3px; -st-icon-style: symbolic");
         iconPlayer.add_effect(new Clutter.DesaturateEffect());
     }
 };
@@ -160,57 +163,61 @@ const addContent = () => {
     // let currentIndex;
     // log(`Adding to ${extensionPosition} box`);
     let currentIndex = 0;
-    // Add player icon
-    if (!hidePlayerIcon) {
-        Main.panel[positions[extensionPosition]].insert_child_at_index(
-            iconPlayer,
-            extensionIndex + currentIndex
-        );
-        currentIndex++;
-    }
-    // Add opening seperator
-    if (!hideSeperators) {
-        Main.panel[positions[extensionPosition]].insert_child_at_index(
-            labelSeperatorStart,
-            extensionIndex + currentIndex
-        );
-        currentIndex++;
-    }
-    // Add track title
-    if (!hideTrackName) {
-        Main.panel[positions[extensionPosition]].insert_child_at_index(
-            buttonLabel,
-            extensionIndex + currentIndex
-        );
-        currentIndex++;
-    }
-    // Add closing seperator
-    if (!hideSeperators) {
-        Main.panel[positions[extensionPosition]].insert_child_at_index(
-            labelSeperatorEnd,
-            extensionIndex + currentIndex
-        );
-        currentIndex++;
-    }
-    // Add controls
-    if (!hideControls) {
-        Main.panel[positions[extensionPosition]].insert_child_at_index(
-            buttonPrev,
-            extensionIndex + currentIndex
-        );
-        currentIndex++;
+    elementOrder.forEach((element) => {
+        // Add player icon
+        if (element === "icon" && !hidePlayerIcon) {
+            Main.panel[positions[extensionPosition]].insert_child_at_index(
+                buttonPlayer,
+                extensionIndex + currentIndex
+            );
+            currentIndex++;
+        }
+        // Add opening seperator
+        if (element === "title" && !hideTrackName) {
+            if (!hideSeperators) {
+                Main.panel[positions[extensionPosition]].insert_child_at_index(
+                    labelSeperatorStart,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+            }
+            // Add track title
 
-        Main.panel[positions[extensionPosition]].insert_child_at_index(
-            buttonToggle,
-            extensionIndex + currentIndex
-        );
-        currentIndex++;
-        Main.panel[positions[extensionPosition]].insert_child_at_index(
-            buttonNext,
-            extensionIndex + currentIndex
-        );
-        currentIndex++;
-    }
+            Main.panel[positions[extensionPosition]].insert_child_at_index(
+                buttonLabel,
+                extensionIndex + currentIndex
+            );
+            currentIndex++;
+
+            // Add closing seperator
+            if (!hideSeperators) {
+                Main.panel[positions[extensionPosition]].insert_child_at_index(
+                    labelSeperatorEnd,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+            }
+        }
+        // Add controls
+        if (element === "controls" && !hideControls) {
+            Main.panel[positions[extensionPosition]].insert_child_at_index(
+                buttonPrev,
+                extensionIndex + currentIndex
+            );
+            currentIndex++;
+
+            Main.panel[positions[extensionPosition]].insert_child_at_index(
+                buttonToggle,
+                extensionIndex + currentIndex
+            );
+            currentIndex++;
+            Main.panel[positions[extensionPosition]].insert_child_at_index(
+                buttonNext,
+                extensionIndex + currentIndex
+            );
+            currentIndex++;
+        }
+    });
 };
 
 const removeContent = () => {
@@ -222,7 +229,7 @@ const removeContent = () => {
     Main.panel[positions[extensionPosition]].remove_actor(buttonLabel);
     Main.panel[positions[extensionPosition]].remove_actor(labelSeperatorEnd);
     Main.panel[positions[extensionPosition]].remove_actor(labelSeperatorStart);
-    Main.panel[positions[extensionPosition]].remove_actor(iconPlayer);
+    Main.panel[positions[extensionPosition]].remove_actor(buttonPlayer);
 };
 
 // Utility methods
@@ -448,21 +455,12 @@ const enable = () => {
         }
     );
 
-    onMouseActionsLeftClickChanged = settings.connect(
-        "changed::mouse-actions-left",
-        () => {
-            // log("Shit changed");
-            mouseActionsLeftClick = settings.get_string("mouse-actions-left");
-        }
-    );
-
-    onMouseActionsRightClickChanged = settings.connect(
-        "changed::mouse-actions-right",
-        () => {
-            mouseActionsRightClick = settings.get_string("mouse-actions-right");
-            // log(mouseActionsRightClick);
-        }
-    );
+    onMouseActionsChanged = settings.connect("changed::mouse-actions", () => {
+        mouseActions = settings.get_strv("mouse-actions");
+        mouseActionsLeftClick = mouseActions[0];
+        mouseActionsRightClick = mouseActions[1];
+        // log(mouseActionsRightClick);
+    });
 
     onColoredPlayerIconChanged = settings.connect(
         "changed::colored-player-icon",
@@ -479,23 +477,21 @@ const enable = () => {
         }
     );
 
-    onSepCharStartChanged = settings.connect(
-        "changed::seperator-char-start",
-        () => {
-            labelSeperatorStart.set_text(
-                settings.get_string("seperator-char-start")
-            );
-        }
-    );
+    onSepCharsChanged = settings.connect("changed::seperator-chars", () => {
+        sepChars = settings.get_strv("seperator-chars");
+        labelSeperatorStart.set_text(sepChars[0]);
+        labelSeperatorEnd.set_text(sepChars[1]);
+    });
 
-    onSepCharEndChanged = settings.connect(
-        "changed::seperator-char-end",
-        () => {
-            labelSeperatorEnd.set_text(
-                settings.get_string("seperator-char-end")
-            );
-        }
-    );
+    onElementOrderChanged = settings.connect("changed::element-order", () => {
+        elementOrder = settings.get_strv("element-order");
+        removeContent();
+        addContent();
+    });
+
+    mouseActions = settings.get_strv("mouse-actions");
+    sepChars = settings.get_strv("seperator-chars");
+    elementOrder = settings.get_strv("element-order");
 
     updateDelay = settings.get_int("update-delay");
     maxDisplayLength = settings.get_int("max-text-length");
@@ -506,49 +502,65 @@ const enable = () => {
     extensionPosition = settings.get_string("extension-position");
     coloredPlayerIcon = settings.get_boolean("colored-player-icon");
     showAllOnHover = settings.get_boolean("show-all-on-hover");
-    mouseActionsLeftClick = settings.get_string("mouse-actions-left");
-    mouseActionsRightClick = settings.get_string("mouse-actions-right");
+    mouseActionsLeftClick = mouseActions[0];
+    mouseActionsRightClick = mouseActions[1];
     hideSeperators = settings.get_boolean("hide-seperators");
 
     // UI Elements
 
     buttonToggle = new St.Button({ style_class: "panel-button" });
-    buttonNext = new St.Button({ style_class: "panel-button" });
-    buttonPrev = new St.Button({ style_class: "panel-button" });
+    buttonNext = new St.Button({
+        style_class: "panel-button",
+        style: "padding-right: 3px;",
+    });
+    buttonPrev = new St.Button({
+        style_class: "panel-button",
+        style: "padding-left: 3px;",
+    });
     buttonLabel = new St.Button({
         track_hover: false,
-        style: "padding: 0 5px;",
+        style: "padding: 0px 3px;",
         label: "No player found",
+    });
+    buttonPlayer = new St.Button({
+        track_hover: false,
+        style: "padding: 0px 3px;",
     });
 
     iconPlay = new St.Icon({
         icon_name: "media-playback-start-symbolic",
         style_class: "system-status-icon",
+        style: "padding: 0px;",
     });
     iconPause = new St.Icon({
         icon_name: "media-playback-pause-symbolic",
         style_class: "system-status-icon",
+        style: "padding: 0px;",
     });
     iconNext = new St.Icon({
         icon_name: "media-skip-forward-symbolic",
         style_class: "system-status-icon",
+        style: "padding: 0px 0px 0px 3px;",
     });
     iconPrev = new St.Icon({
         icon_name: "media-skip-backward-symbolic",
         style_class: "system-status-icon",
+        style: "padding: 0px 3px 0px 0px;",
     });
     iconPlayer = new St.Icon({
         icon_name: playerIcons.default,
         icon_size: 16,
-        style: "padding-right: 5px;",
+        style: "padding: 0px;",
     });
 
     labelSeperatorStart = new St.Label({
         y_align: Clutter.ActorAlign.CENTER,
+        style: "padding-left: 3px;",
     });
 
     labelSeperatorEnd = new St.Label({
         y_align: Clutter.ActorAlign.CENTER,
+        style: "padding-right: 3px;",
     });
 
     // Set childs and bind methods
@@ -569,8 +581,11 @@ const enable = () => {
         mouseHovered = false;
     });
 
-    labelSeperatorStart.set_text(settings.get_string("seperator-char-start"));
-    labelSeperatorEnd.set_text(settings.get_string("seperator-char-end"));
+    buttonPlayer.set_child(iconPlayer);
+    buttonPlayer.connect("button-release-event", _mouseAction);
+
+    labelSeperatorStart.set_text(sepChars[0]);
+    labelSeperatorEnd.set_text(sepChars[1]);
 
     // Initialize content
     updatePlayerIconEffects();
@@ -594,11 +609,9 @@ const disable = () => {
     settings.disconnect(onHideSeperatorsChanged);
     settings.disconnect(onExtensionIndexChanged);
     settings.disconnect(onExtensionPositionChanged);
-    settings.disconnect(onMouseActionsLeftClickChanged);
-    settings.disconnect(onMouseActionsRightClickChanged);
+    settings.disconnect(onMouseActionsChanged);
     settings.disconnect(onColoredPlayerIconChanged);
-    settings.disconnect(onSepCharEndChanged);
-    settings.disconnect(onSepCharStartChanged);
+    settings.disconnect(onSepCharsChanged);
     settings.disconnect(onShowAllOnHoverChanged);
 
     buttonNext.destroy();
