@@ -162,75 +162,89 @@ const updatePlayerIconEffects = () => {
 const addContent = () => {
     // let currentIndex;
     // log(`Adding to ${extensionPosition} box`);
-    let currentIndex = 0;
-    elementOrder.forEach((element) => {
-        // Add player icon
-        if (element === "icon" && !hidePlayerIcon) {
-            Main.panel[positions[extensionPosition]].insert_child_at_index(
-                buttonPlayer,
-                extensionIndex + currentIndex
-            );
-            currentIndex++;
-        }
-        // Add opening seperator
-        if (element === "title" && !hideTrackName) {
-            if (!hideSeperators) {
+    if (contentRemoved) {
+        let currentIndex = 0;
+        elementOrder.forEach((element) => {
+            // Add player icon
+            if (element === "icon" && !hidePlayerIcon) {
                 Main.panel[positions[extensionPosition]].insert_child_at_index(
-                    labelSeperatorStart,
+                    buttonPlayer,
                     extensionIndex + currentIndex
                 );
                 currentIndex++;
             }
-            // Add track title
+            // Add opening seperator
+            if (element === "title" && !hideTrackName) {
+                if (!hideSeperators) {
+                    Main.panel[
+                        positions[extensionPosition]
+                    ].insert_child_at_index(
+                        labelSeperatorStart,
+                        extensionIndex + currentIndex
+                    );
+                    currentIndex++;
+                }
+                // Add track title
 
-            Main.panel[positions[extensionPosition]].insert_child_at_index(
-                buttonLabel,
-                extensionIndex + currentIndex
-            );
-            currentIndex++;
-
-            // Add closing seperator
-            if (!hideSeperators) {
                 Main.panel[positions[extensionPosition]].insert_child_at_index(
-                    labelSeperatorEnd,
+                    buttonLabel,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+
+                // Add closing seperator
+                if (!hideSeperators) {
+                    Main.panel[
+                        positions[extensionPosition]
+                    ].insert_child_at_index(
+                        labelSeperatorEnd,
+                        extensionIndex + currentIndex
+                    );
+                    currentIndex++;
+                }
+            }
+            // Add controls
+            if (element === "controls" && !hideControls) {
+                Main.panel[positions[extensionPosition]].insert_child_at_index(
+                    buttonPrev,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+
+                Main.panel[positions[extensionPosition]].insert_child_at_index(
+                    buttonToggle,
+                    extensionIndex + currentIndex
+                );
+                currentIndex++;
+                Main.panel[positions[extensionPosition]].insert_child_at_index(
+                    buttonNext,
                     extensionIndex + currentIndex
                 );
                 currentIndex++;
             }
-        }
-        // Add controls
-        if (element === "controls" && !hideControls) {
-            Main.panel[positions[extensionPosition]].insert_child_at_index(
-                buttonPrev,
-                extensionIndex + currentIndex
-            );
-            currentIndex++;
-
-            Main.panel[positions[extensionPosition]].insert_child_at_index(
-                buttonToggle,
-                extensionIndex + currentIndex
-            );
-            currentIndex++;
-            Main.panel[positions[extensionPosition]].insert_child_at_index(
-                buttonNext,
-                extensionIndex + currentIndex
-            );
-            currentIndex++;
-        }
-    });
+        });
+        contentRemoved = false;
+    }
 };
 
 const removeContent = () => {
     // extensionPosition, extensionPosition Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah
     // log(`Removing from ${extensionPosition} box`);
 
-    Main.panel[positions[extensionPosition]].remove_actor(buttonNext);
-    Main.panel[positions[extensionPosition]].remove_actor(buttonToggle);
-    Main.panel[positions[extensionPosition]].remove_actor(buttonPrev);
-    Main.panel[positions[extensionPosition]].remove_actor(buttonLabel);
-    Main.panel[positions[extensionPosition]].remove_actor(labelSeperatorEnd);
-    Main.panel[positions[extensionPosition]].remove_actor(labelSeperatorStart);
-    Main.panel[positions[extensionPosition]].remove_actor(buttonPlayer);
+    if (!contentRemoved) {
+        Main.panel[positions[extensionPosition]].remove_actor(buttonNext);
+        Main.panel[positions[extensionPosition]].remove_actor(buttonToggle);
+        Main.panel[positions[extensionPosition]].remove_actor(buttonPrev);
+        Main.panel[positions[extensionPosition]].remove_actor(buttonLabel);
+        Main.panel[positions[extensionPosition]].remove_actor(
+            labelSeperatorEnd
+        );
+        Main.panel[positions[extensionPosition]].remove_actor(
+            labelSeperatorStart
+        );
+        Main.panel[positions[extensionPosition]].remove_actor(buttonPlayer);
+        contentRemoved = true;
+    }
 };
 
 // Utility methods
@@ -293,16 +307,12 @@ const updateMetadata = async () => {
                     playerDataMap[player]._artist
                 );
             } else {
-                if (!contentRemoved) {
-                    removeContent();
-                    contentRemoved = true;
-                }
+                removeContent();
+                resetData();
             }
         } else {
-            if (!contentRemoved) {
-                removeContent();
-                contentRemoved = true;
-            }
+            removeContent();
+            resetData();
         }
     } catch (e) {
         logError(e);
@@ -392,7 +402,9 @@ const startMainLoop = () => {
 
 // Lifecycle methods
 
-const init = () => {};
+const init = () => {
+    contentRemoved = true;
+};
 
 const enable = () => {
     // Initialize settings
