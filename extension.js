@@ -223,13 +223,14 @@ const addContent = () => {
 const removeContent = () => {
     // extensionPosition, extensionPosition Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah
     // log(`Removing from ${extensionPosition} box`);
-    Main.panel[positions[extensionPosition]].remove_child(buttonNext);
-    Main.panel[positions[extensionPosition]].remove_child(buttonToggle);
-    Main.panel[positions[extensionPosition]].remove_child(buttonPrev);
-    Main.panel[positions[extensionPosition]].remove_child(buttonLabel);
-    Main.panel[positions[extensionPosition]].remove_child(labelSeperatorEnd);
-    Main.panel[positions[extensionPosition]].remove_child(labelSeperatorStart);
-    Main.panel[positions[extensionPosition]].remove_child(buttonPlayer);
+
+    Main.panel[positions[extensionPosition]].remove_actor(buttonNext);
+    Main.panel[positions[extensionPosition]].remove_actor(buttonToggle);
+    Main.panel[positions[extensionPosition]].remove_actor(buttonPrev);
+    Main.panel[positions[extensionPosition]].remove_actor(buttonLabel);
+    Main.panel[positions[extensionPosition]].remove_actor(labelSeperatorEnd);
+    Main.panel[positions[extensionPosition]].remove_actor(labelSeperatorStart);
+    Main.panel[positions[extensionPosition]].remove_actor(buttonPlayer);
 };
 
 // Utility methods
@@ -292,12 +293,16 @@ const updateMetadata = async () => {
                     playerDataMap[player]._artist
                 );
             } else {
+                if (!contentRemoved) {
+                    removeContent();
+                    contentRemoved = true;
+                }
+            }
+        } else {
+            if (!contentRemoved) {
                 removeContent();
                 contentRemoved = true;
             }
-        } else {
-            removeContent();
-            contentRemoved = true;
         }
     } catch (e) {
         logError(e);
