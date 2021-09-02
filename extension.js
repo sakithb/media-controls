@@ -72,16 +72,9 @@ let buttonNext,
     labelSeperatorStart,
     labelSeperatorEnd;
 
-// Constants
+// Other variables
 
-const playerIcons = {
-    default: "audio-x-generic-symbolic",
-    chromium: "chromium",
-    firefox: "firefox",
-    rhythmbox: "rhythmbox",
-    spotify: "spotify",
-    vlc: "vlc",
-};
+const playerIconExceptions = ["chromium"];
 
 const positions = {
     left: "_leftBox",
@@ -89,6 +82,7 @@ const positions = {
     right: "_rightBox",
 };
 
+// playback actions
 const playbackActions = {
     none: () => {},
     toggle_play: () => {
@@ -117,15 +111,9 @@ const playbackActions = {
 
 // Performs corresponding mouse action
 const _mouseAction = (event) => {
-    // log("came here");
-    // log(event.pseudo_class);
     if (event.pseudo_class && event.pseudo_class.includes("active")) {
-        // log(mouseActionsLeftClick);
-        // log("Came here but upper case");
         playbackActions[mouseActionsLeftClick]();
     } else {
-        // log("Doesn't include");
-        // log(mouseActionsRightClick);
         playbackActions[mouseActionsRightClick]();
     }
 };
@@ -160,8 +148,6 @@ const updatePlayerIconEffects = () => {
 // Housekeeping methods
 
 const addContent = () => {
-    // let currentIndex;
-    // log(`Adding to ${extensionPosition} box`);
     if (contentRemoved) {
         let currentIndex = 0;
         elementOrder.forEach((element) => {
@@ -173,8 +159,8 @@ const addContent = () => {
                 );
                 currentIndex++;
             }
-            // Add opening seperator
             if (element === "title" && !hideTrackName) {
+                // Add opening seperator
                 if (!hideSeperators) {
                     Main.panel[
                         positions[extensionPosition]
@@ -184,8 +170,8 @@ const addContent = () => {
                     );
                     currentIndex++;
                 }
-                // Add track title
 
+                // Add track title
                 Main.panel[positions[extensionPosition]].insert_child_at_index(
                     buttonLabel,
                     extensionIndex + currentIndex
@@ -203,7 +189,8 @@ const addContent = () => {
                     currentIndex++;
                 }
             }
-            // Add controls
+
+            // Add player control icons
             if (element === "controls" && !hideControls) {
                 Main.panel[positions[extensionPosition]].insert_child_at_index(
                     buttonPrev,
@@ -228,9 +215,8 @@ const addContent = () => {
 };
 
 const removeContent = () => {
-    // extensionPosition, extensionPosition Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah
-    // log(`Removing from ${extensionPosition} box`);
-
+    // Remove content if not already removed.
+    // NOTE: Checking before removing is essential else it will spam the journalctl with warnings
     if (!contentRemoved) {
         Main.panel[positions[extensionPosition]].remove_actor(buttonNext);
         Main.panel[positions[extensionPosition]].remove_actor(buttonToggle);
@@ -250,8 +236,8 @@ const removeContent = () => {
 // Utility methods
 
 const updateMetadata = async () => {
-    // log("Updating metadata");
     try {
+        // Retrieve player list
         playersList = await getPlayers();
         if (playersList.length > 0) {
             let playerStateMap = [];
@@ -264,7 +250,14 @@ const updateMetadata = async () => {
                     [_playerState, [_title, _artist, _url]] = await Promise.all(
                         [_playerStatePromise, _metadataPromise]
                     );
-                    if (_title || _url) {
+
+                    // If the title or the url is valid add the player
+                    if (
+                        _title ||
+                        (_url &&
+                            _url !==
+                                "/org/mpris/MediaPlayer2/TrackList/NoTrack")
+                    ) {
                         playerStateMap.push([player, _playerState]);
                         playerDataMap[player] = {
                             _title: _title || _url,
@@ -275,6 +268,7 @@ const updateMetadata = async () => {
                 }
             }
 
+            // Get the list of players that are currently playing
             let playingPlayers = playerStateMap.filter(([player, state]) => {
                 if (state === "Playing") {
                     return true;
@@ -282,6 +276,7 @@ const updateMetadata = async () => {
                 return false;
             });
 
+            // If any of the player are playing set the current player else get the first paused player
             if (playingPlayers.length > 0) {
                 if (contentRemoved) {
                     addContent();
@@ -320,48 +315,39 @@ const updateMetadata = async () => {
 };
 
 const updateData = (player, _playerState, _title, _artist) => {
-    // log("Updating data");
     let currentMetadata = `${_title}${_artist ? " - " + _artist : ""}`;
-    let splittedPlayer = player.split(".");
     if (lastPlayer !== player) {
-        // log("Updating player");
         currentPlayer = player;
         lastPlayer = player;
-        playerIcon = playerIcons["default"];
-        for ([key, value] of Object.entries(playerIcons)) {
-            if (splittedPlayer.includes(key)) {
-                playerIcon = playerIcons[key];
-                break;
+        playerIcon = null;
+        playerIconExceptions.forEach((exception) => {
+            if (player.includes(exception)) {
+                playerIcon = exception;
             }
+        });
+        if (!playerIcon) {
+            let splittedPlayer = player.split(".");
+            playerIcon = splittedPlayer[splittedPlayer.length - 1];
+            log(playerIcon);
         }
         lastPlayerChanged = true;
     }
     if (lastState !== _playerState) {
-        // log("Updating player state");
         playerState = _playerState;
         lastState = _playerState;
         lastStateChanged = true;
     }
     if (currentMetadata !== lastMetadata) {
-        // log("Updating player metadata");
         lastMetadata = currentMetadata;
         displayText = currentMetadata;
         lastMetadataChanged = true;
     }
     if (lastMetadata.length > maxDisplayLength && maxDisplayLength !== 0) {
         if (mouseHovered && showAllOnHover) {
-            // log("Mouse hovered...");
             displayText = lastMetadata;
-            // let diff = lastMetadata.length - maxDisplayLength;
-            // displayText =
-            //     "..." +
-            //     lastMetadata.substr(lastMetadata.length - diff - 3) +
-            //     " ".repeat(maxDisplayLength - diff);
-            // log(displayText.length);
         } else {
             displayText =
                 lastMetadata.substring(0, maxDisplayLength - 3) + "...";
-            // log(displayText.length);
         }
     } else {
         displayText = lastMetadata;
@@ -392,7 +378,6 @@ const startMainLoop = () => {
     }
     mainLoop = Mainloop.timeout_add(updateDelay, () => {
         (async () => {
-            // startTime = Date.now();
             await updateMetadata();
             updateContent();
         })();
@@ -568,7 +553,7 @@ const enable = () => {
         style: "padding: 0px;",
     });
     iconPlayer = new St.Icon({
-        icon_name: playerIcons.default,
+        fallback_icon_name: "audio-x-generic-symbolic",
         icon_size: 16,
     });
 
