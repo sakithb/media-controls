@@ -223,13 +223,25 @@ const addContent = () => {
 const removeContent = () => {
     // extensionPosition, extensionPosition Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah
     // log(`Removing from ${extensionPosition} box`);
-    Main.panel[positions[extensionPosition]].remove_actor(buttonNext);
-    Main.panel[positions[extensionPosition]].remove_actor(buttonToggle);
-    Main.panel[positions[extensionPosition]].remove_actor(buttonPrev);
-    Main.panel[positions[extensionPosition]].remove_actor(buttonLabel);
-    Main.panel[positions[extensionPosition]].remove_actor(labelSeperatorEnd);
-    Main.panel[positions[extensionPosition]].remove_actor(labelSeperatorStart);
-    Main.panel[positions[extensionPosition]].remove_actor(buttonPlayer);
+    if (!hideControls) {
+        Main.panel[positions[extensionPosition]].remove_actor(buttonNext);
+        Main.panel[positions[extensionPosition]].remove_actor(buttonToggle);
+        Main.panel[positions[extensionPosition]].remove_actor(buttonPrev);
+    }
+    if (!hidePlayerIcon) {
+        Main.panel[positions[extensionPosition]].remove_actor(buttonPlayer);
+    }
+    if (!hideSeperators) {
+        Main.panel[positions[extensionPosition]].remove_actor(
+            labelSeperatorEnd
+        );
+        Main.panel[positions[extensionPosition]].remove_actor(
+            labelSeperatorStart
+        );
+    }
+    if (!hideTrackName) {
+        Main.panel[positions[extensionPosition]].remove_actor(buttonLabel);
+    }
 };
 
 // Utility methods
