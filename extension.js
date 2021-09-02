@@ -471,6 +471,7 @@ const enable = () => {
         "changed::colored-player-icon",
         () => {
             coloredPlayerIcon = settings.get_boolean("colored-player-icon");
+            log(`Colirng playeer icon ${coloredPlayerIcon}`);
             updatePlayerIconEffects();
         }
     );
