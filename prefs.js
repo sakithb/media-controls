@@ -48,22 +48,27 @@ const elementIds = Object.keys(elements);
 
 let settings,
     builder,
+    MediaControlsBuilderScope,
     widgetElementOrderFirst,
     widgetElementOrderSecond,
     widgetElementOrderThird,
     widgetPreset,
     widgetCustom;
 
-let MediaControlsBuilderScope = GObject.registerClass(
-    { Implements: [Gtk.BuilderScope] },
-    class MediaControlsBuilderScope extends GObject.Object {
-        vfunc_create_closure(builder, handlerName, flags, connectObject) {
-            if (typeof signalHandler[handlerName] !== "undefined") {
-                return signalHandler[handlerName].bind(connectObject || this);
+if (shellVersion >= 40) {
+    MediaControlsBuilderScope = GObject.registerClass(
+        { Implements: [Gtk.BuilderScope] },
+        class MediaControlsBuilderScope extends GObject.Object {
+            vfunc_create_closure(builder, handlerName, flags, connectObject) {
+                if (typeof signalHandler[handlerName] !== "undefined") {
+                    return signalHandler[handlerName].bind(
+                        connectObject || this
+                    );
+                }
             }
         }
-    }
-);
+    );
+}
 
 const signalHandler = {
     on_seperator_character_group_changed: (widget) => {

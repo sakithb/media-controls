@@ -150,9 +150,9 @@ const resetData = () => {
 const updatePlayerIconEffects = () => {
     if (coloredPlayerIcon) {
         iconPlayer.clear_effects();
-        iconPlayer.set_style("padding-right: 3px; -st-icon-style: requested");
+        iconPlayer.set_style("padding: 0; -st-icon-style: requested");
     } else {
-        iconPlayer.set_style("padding-right: 3px; -st-icon-style: symbolic");
+        iconPlayer.set_style("padding: 0; -st-icon-style: symbolic");
         iconPlayer.add_effect(new Clutter.DesaturateEffect());
     }
 };
@@ -511,18 +511,20 @@ const enable = () => {
     buttonToggle = new St.Button({ style_class: "panel-button" });
     buttonNext = new St.Button({
         style_class: "panel-button",
-        style: "padding-right: 3px;",
+        style: "padding-right: 3px; padding-left: 0px;",
     });
     buttonPrev = new St.Button({
         style_class: "panel-button",
-        style: "padding-left: 3px;",
+        style: "padding-left: 3px; padding-right: 0px;",
     });
     buttonLabel = new St.Button({
         track_hover: false,
+        style_class: "panel-button",
         style: "padding: 0px 3px;",
         label: "No player found",
     });
     buttonPlayer = new St.Button({
+        style_class: "panel-button",
         track_hover: false,
         style: "padding: 0px 3px;",
     });
@@ -540,27 +542,28 @@ const enable = () => {
     iconNext = new St.Icon({
         icon_name: "media-skip-forward-symbolic",
         style_class: "system-status-icon",
-        style: "padding: 0px 0px 0px 3px;",
+        style: "padding: 0px;",
     });
     iconPrev = new St.Icon({
         icon_name: "media-skip-backward-symbolic",
         style_class: "system-status-icon",
-        style: "padding: 0px 3px 0px 0px;",
+        style: "padding: 0px;",
     });
     iconPlayer = new St.Icon({
         icon_name: playerIcons.default,
         icon_size: 16,
-        style: "padding: 0px;",
     });
 
     labelSeperatorStart = new St.Label({
         y_align: Clutter.ActorAlign.CENTER,
-        style: "padding-left: 3px;",
+        style: "padding-left: 3px; padding-right: 0px;",
+        style_class: "panel-button",
     });
 
     labelSeperatorEnd = new St.Label({
         y_align: Clutter.ActorAlign.CENTER,
-        style: "padding-right: 3px;",
+        style: "padding-right: 3px; padding-left: 0px;",
+        style_class: "panel-button",
     });
 
     // Set childs and bind methods
