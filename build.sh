@@ -13,7 +13,8 @@ if [ "$1" == "-p" ] || [ "$2" == "-p" ]; then
     zip -d Release.zip .gitignore;
     zip -d Release.zip build.sh;
     VERSION=$(cat metadata.json | grep '\"version\"' | sed 's/[^0-9]*//g');
-    mv Release.zip "Release_v$VERSION.zip";
+    mkdir -p "./builds";
+    mv Release.zip "./builds/Release_v$VERSION.zip";
 fi
 
 if [ "$1" == "-r" ] || [ "$2" == "-r"  ]; then

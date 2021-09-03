@@ -16,11 +16,11 @@ const shellVersion = Number.parseInt(major);
 const positions = ["left", "center", "right"];
 const playbackActionNamesMap = {
     none: "None",
-    toggle_play: "Toggle play/pause",
+    toggle: "Toggle play/pause",
     play: "Play",
     pause: "Pause",
     next: "Next",
-    prev: "Previous",
+    previous: "Previous",
 };
 let playbackActionNameIds = Object.keys(playbackActionNamesMap);
 
@@ -61,9 +61,7 @@ if (shellVersion >= 40) {
         class MediaControlsBuilderScope extends GObject.Object {
             vfunc_create_closure(builder, handlerName, flags, connectObject) {
                 if (typeof signalHandler[handlerName] !== "undefined") {
-                    return signalHandler[handlerName].bind(
-                        connectObject || this
-                    );
+                    return signalHandler[handlerName].bind(connectObject || this);
                 }
             }
         }
@@ -98,10 +96,7 @@ const signalHandler = {
         if (builder.get_object("custom-radio-btn").get_active()) {
             let customValues = widget.get_text().split("...");
             if (customValues[0] && customValues[1]) {
-                settings.set_strv("seperator-chars", [
-                    customValues[0],
-                    customValues[1],
-                ]);
+                settings.set_strv("seperator-chars", [customValues[0], customValues[1]]);
             }
         }
     },
@@ -185,10 +180,7 @@ const signalHandler = {
         settings.set_strv("mouse-actions", currentMouseActions);
     },
     on_extension_position_changed: (widget) => {
-        settings.set_string(
-            "extension-position",
-            positions[widget.get_active()]
-        );
+        settings.set_string("extension-position", positions[widget.get_active()]);
     },
 };
 
@@ -199,18 +191,8 @@ const bindSettings = () => {
         "value",
         Gio.SettingsBindFlags.DEFAULT
     );
-    settings.bind(
-        "update-delay",
-        builder.get_object("update-delay"),
-        "value",
-        Gio.SettingsBindFlags.DEFAULT
-    );
-    settings.bind(
-        "hide-text",
-        builder.get_object("hide-text"),
-        "active",
-        Gio.SettingsBindFlags.DEFAULT
-    );
+    settings.bind("update-delay", builder.get_object("update-delay"), "value", Gio.SettingsBindFlags.DEFAULT);
+    settings.bind("hide-text", builder.get_object("hide-text"), "active", Gio.SettingsBindFlags.DEFAULT);
     settings.bind(
         "hide-player-icon",
         builder.get_object("hide-player-icon"),
@@ -270,9 +252,7 @@ const initWidgets = () => {
     positions.forEach((position) => {
         widgetExtensionPos.append(position, position);
     });
-    widgetExtensionPos.set_active(
-        positions.indexOf(settings.get_string("extension-position"))
-    );
+    widgetExtensionPos.set_active(positions.indexOf(settings.get_string("extension-position")));
 
     // Init element order comboboxes
     elementIds.forEach((element) => {
@@ -293,12 +273,8 @@ const initWidgets = () => {
         widgetMouseActionRight.append(action, playbackActionNamesMap[action]);
     });
     let mouseActions = settings.get_strv("mouse-actions");
-    widgetMouseActionLeft.set_active(
-        playbackActionNameIds.indexOf(mouseActions[0])
-    );
-    widgetMouseActionRight.set_active(
-        playbackActionNameIds.indexOf(mouseActions[1])
-    );
+    widgetMouseActionLeft.set_active(playbackActionNameIds.indexOf(mouseActions[0]));
+    widgetMouseActionRight.set_active(playbackActionNameIds.indexOf(mouseActions[1]));
 };
 
 const init = () => {

@@ -1,14 +1,12 @@
-// Imports
-
 const { St, GLib, Gio, Clutter } = imports.gi;
-const Main = imports.ui.main;
-const Mainloop = imports.mainloop;
+
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const { getMetadata, getPlayers, getPlaybackStatus, playbackAction } =
-    Me.imports.dbus;
 
-// User-defined settings
+const Mainloop = imports.mainloop;
+const Main = imports.ui.main;
+
+const { playerAction, getPlayers, getMetadata, getStatus } = Me.imports.utils;
 
 let maxDisplayLength,
     updateDelay,
@@ -22,15 +20,10 @@ let maxDisplayLength,
     showAllOnHover,
     sepChars,
     mouseActions,
-    mouseActionsLeftClick,
-    mouseActionsRightClick,
     elementOrder;
 
-// Global variables
-
-let currentPlayer, playerIcon, playerState, displayText;
-let onUpdateDelayChanged,
-    onMaxLengthChanged,
+let onMaxLengthChanged,
+    onUpdateDelayChanged,
     onHideTrackNameChanged,
     onHidePlayerIconChanged,
     onHideControlsChanged,
@@ -38,26 +31,10 @@ let onUpdateDelayChanged,
     onExtensionPositionChanged,
     onExtensionIndexChanged,
     onColoredPlayerIconChanged,
+    onShowAllOnHoverChanged,
     onSepCharsChanged,
     onMouseActionsChanged,
-    onShowAllOnHoverChanged,
     onElementOrderChanged;
-
-let mainLoop;
-let settings;
-
-// Tracking variables
-
-let lastPlayer,
-    lastMetadata,
-    lastState,
-    lastPlayerChanged,
-    lastStateChanged,
-    lastMetadataChanged,
-    mouseHovered,
-    contentRemoved;
-
-// UI elements
 
 let buttonNext,
     buttonPrev,
@@ -72,338 +49,33 @@ let buttonNext,
     labelSeperatorStart,
     labelSeperatorEnd;
 
-// Other variables
+let mainloop, settings, positions, playerIcons;
 
-const playerIconExceptions = ["chromium"];
+let currentPlayer, currentMetadata, currentStatus;
 
-const positions = {
-    left: "_leftBox",
-    center: "_centerBox",
-    right: "_rightBox",
-};
-
-// playback actions
-const playbackActions = {
-    none: () => {},
-    toggle_play: () => {
-        if (playerState === "Playing") {
-            buttonToggle.set_child(iconPause);
-            playerState = "Paused";
-        } else {
-            buttonToggle.set_child(iconPlay);
-            playerState = "Playing";
-        }
-        playbackAction("PlayPause", currentPlayer);
-    },
-    play: () => {
-        playbackAction("Play", currentPlayer);
-    },
-    pause: () => {
-        playbackAction("Pause", currentPlayer);
-    },
-    next: () => {
-        playbackAction("Next", currentPlayer);
-    },
-    prev: () => {
-        playbackAction("Previous", currentPlayer);
-    },
-};
-
-// Performs corresponding mouse action
-const _mouseAction = (event) => {
-    if (event.pseudo_class && event.pseudo_class.includes("active")) {
-        playbackActions[mouseActionsLeftClick]();
-    } else {
-        playbackActions[mouseActionsRightClick]();
-    }
-};
-
-// Reset variables variables
-
-const resetData = () => {
-    currentPlayer = undefined;
-    playerIcon = undefined;
-    playerState = undefined;
-    displayText = undefined;
-    lastPlayer = undefined;
-    lastMetadata = undefined;
-    lastState = undefined;
-    lastPlayerChanged = undefined;
-    lastStateChanged = undefined;
-    lastMetadataChanged = undefined;
-};
-
-// Other utility methods
-
-const updatePlayerIconEffects = () => {
-    if (coloredPlayerIcon) {
-        iconPlayer.clear_effects();
-        iconPlayer.set_style("padding: 0; -st-icon-style: requested");
-    } else {
-        iconPlayer.set_style("padding: 0; -st-icon-style: symbolic");
-        iconPlayer.add_effect(new Clutter.DesaturateEffect());
-    }
-};
-
-// Housekeeping methods
-
-const addContent = () => {
-    if (contentRemoved) {
-        let currentIndex = 0;
-        elementOrder.forEach((element) => {
-            // Add player icon
-            if (element === "icon" && !hidePlayerIcon) {
-                Main.panel[positions[extensionPosition]].insert_child_at_index(
-                    buttonPlayer,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-            }
-            if (element === "title" && !hideTrackName) {
-                // Add opening seperator
-                if (!hideSeperators) {
-                    Main.panel[
-                        positions[extensionPosition]
-                    ].insert_child_at_index(
-                        labelSeperatorStart,
-                        extensionIndex + currentIndex
-                    );
-                    currentIndex++;
-                }
-
-                // Add track title
-                Main.panel[positions[extensionPosition]].insert_child_at_index(
-                    buttonLabel,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-
-                // Add closing seperator
-                if (!hideSeperators) {
-                    Main.panel[
-                        positions[extensionPosition]
-                    ].insert_child_at_index(
-                        labelSeperatorEnd,
-                        extensionIndex + currentIndex
-                    );
-                    currentIndex++;
-                }
-            }
-
-            // Add player control icons
-            if (element === "controls" && !hideControls) {
-                Main.panel[positions[extensionPosition]].insert_child_at_index(
-                    buttonPrev,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-
-                Main.panel[positions[extensionPosition]].insert_child_at_index(
-                    buttonToggle,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-                Main.panel[positions[extensionPosition]].insert_child_at_index(
-                    buttonNext,
-                    extensionIndex + currentIndex
-                );
-                currentIndex++;
-            }
-        });
-        contentRemoved = false;
-    }
-};
-
-const removeContent = () => {
-    // Remove content if not already removed.
-    // NOTE: Checking before removing is essential else it will spam the journalctl with warnings
-    if (!contentRemoved) {
-        Main.panel[positions[extensionPosition]].remove_actor(buttonNext);
-        Main.panel[positions[extensionPosition]].remove_actor(buttonToggle);
-        Main.panel[positions[extensionPosition]].remove_actor(buttonPrev);
-        Main.panel[positions[extensionPosition]].remove_actor(buttonLabel);
-        Main.panel[positions[extensionPosition]].remove_actor(
-            labelSeperatorEnd
-        );
-        Main.panel[positions[extensionPosition]].remove_actor(
-            labelSeperatorStart
-        );
-        Main.panel[positions[extensionPosition]].remove_actor(buttonPlayer);
-        contentRemoved = true;
-    }
-};
-
-// Utility methods
-
-const updateMetadata = async () => {
-    try {
-        // Retrieve player list
-        playersList = await getPlayers();
-        if (playersList.length > 0) {
-            let playerStateMap = [];
-            let playerDataMap = {};
-            for (let i = 0; i <= playersList.length; i++) {
-                player = playersList[i];
-                if (player) {
-                    _playerStatePromise = getPlaybackStatus(player);
-                    _metadataPromise = getMetadata(player);
-                    [_playerState, [_title, _artist, _url]] = await Promise.all(
-                        [_playerStatePromise, _metadataPromise]
-                    );
-
-                    // If the title or the url is valid add the player
-                    if (
-                        _title ||
-                        (_url &&
-                            _url !==
-                                "/org/mpris/MediaPlayer2/TrackList/NoTrack")
-                    ) {
-                        playerStateMap.push([player, _playerState]);
-                        playerDataMap[player] = {
-                            _title: _title || _url,
-                            _artist,
-                            _playerState,
-                        };
-                    }
-                }
-            }
-
-            // Get the list of players that are currently playing
-            let playingPlayers = playerStateMap.filter(([player, state]) => {
-                if (state === "Playing") {
-                    return true;
-                }
-                return false;
-            });
-
-            // If any of the player are playing set the current player else get the first paused player
-            if (playingPlayers.length > 0) {
-                if (contentRemoved) {
-                    addContent();
-                    contentRemoved = false;
-                }
-                player = playingPlayers[0][0];
-                updateData(
-                    player,
-                    playerDataMap[player]._playerState,
-                    playerDataMap[player]._title,
-                    playerDataMap[player]._artist
-                );
-            } else if (playerStateMap.length > 0) {
-                if (contentRemoved) {
-                    addContent();
-                    contentRemoved = false;
-                }
-                player = playerStateMap[0][0];
-                updateData(
-                    player,
-                    playerDataMap[player]._playerState,
-                    playerDataMap[player]._title,
-                    playerDataMap[player]._artist
-                );
-            } else {
-                removeContent();
-                resetData();
-            }
-        } else {
-            removeContent();
-            resetData();
-        }
-    } catch (e) {
-        logError(e);
-    }
-};
-
-const updateData = (player, _playerState, _title, _artist) => {
-    let currentMetadata = `${_title}${_artist ? " - " + _artist : ""}`;
-    if (lastPlayer !== player) {
-        currentPlayer = player;
-        lastPlayer = player;
-        playerIcon = null;
-        playerIconExceptions.forEach((exception) => {
-            if (player.includes(exception)) {
-                playerIcon = exception;
-            }
-        });
-        if (!playerIcon) {
-            let splittedPlayer = player.split(".");
-            playerIcon = splittedPlayer[splittedPlayer.length - 1];
-            log(playerIcon);
-        }
-        lastPlayerChanged = true;
-    }
-    if (lastState !== _playerState) {
-        playerState = _playerState;
-        lastState = _playerState;
-        lastStateChanged = true;
-    }
-    if (currentMetadata !== lastMetadata) {
-        lastMetadata = currentMetadata;
-        displayText = currentMetadata;
-        lastMetadataChanged = true;
-    }
-    if (lastMetadata.length > maxDisplayLength && maxDisplayLength !== 0) {
-        if (mouseHovered && showAllOnHover) {
-            displayText = lastMetadata;
-        } else {
-            displayText =
-                lastMetadata.substring(0, maxDisplayLength - 3) + "...";
-        }
-    } else {
-        displayText = lastMetadata;
-    }
-};
-
-const updateContent = () => {
-    if (lastStateChanged) {
-        if (playerState === "Playing") {
-            buttonToggle.set_child(iconPause);
-        } else {
-            buttonToggle.set_child(iconPlay);
-        }
-        lastStateChanged = false;
-    }
-    if (lastPlayerChanged) {
-        iconPlayer.set_icon_name(playerIcon);
-        lastPlayerChanged = false;
-    }
-    if (lastMetadataChanged) {
-        buttonLabel.set_label(`${displayText}`);
-    }
-};
-
-const startMainLoop = () => {
-    if (updateDelay < 50) {
-        updateDelay = 50;
-    }
-    mainLoop = Mainloop.timeout_add(updateDelay, () => {
-        (async () => {
-            await updateMetadata();
-            updateContent();
-        })();
-        return true;
-    });
-};
-
-// Lifecycle methods
+let loopFinished, contentRemoved, mouseHovered;
 
 const init = () => {
+    settings = ExtensionUtils.getSettings();
+    loopFinished = true;
     contentRemoved = true;
+    playerIcons = ["chromium"];
+    positions = {
+        left: "_leftBox",
+        center: "_centerBox",
+        right: "_rightBox",
+    };
 };
 
 const enable = () => {
-    // Initialize settings
-
-    settings = ExtensionUtils.getSettings();
+    onMaxLengthChanged = settings.connect("changed::max-text-length", () => {
+        maxDisplayLength = settings.get_int("max-text-length");
+        updateContent();
+    });
 
     onUpdateDelayChanged = settings.connect("changed::update-delay", () => {
         updateDelay = settings.get_int("update-delay");
-        Mainloop.source_remove(mainLoop);
-        startMainLoop();
-    });
-
-    onMaxLengthChanged = settings.connect("changed::max-text-length", () => {
-        maxDisplayLength = settings.get_int("max-text-length");
+        startMainloop();
     });
 
     onHideTrackNameChanged = settings.connect("changed::hide-text", () => {
@@ -412,78 +84,53 @@ const enable = () => {
         addContent();
     });
 
-    onHidePlayerIconChanged = settings.connect(
-        "changed::hide-player-icon",
-        () => {
-            hidePlayerIcon = settings.get_boolean("hide-player-icon");
-            removeContent();
-            addContent();
-        }
-    );
-
-    onExtensionIndexChanged = settings.connect(
-        "changed::extension-index",
-        () => {
-            extensionIndex = settings.get_int("extension-index");
-            removeContent();
-            addContent();
-        }
-    );
-
-    onExtensionPositionChanged = settings.connect(
-        "changed::extension-position",
-        () => {
-            removeContent();
-            extensionPosition = settings.get_string("extension-position");
-            addContent();
-        }
-    );
-
-    onHideControlsChanged = settings.connect(
-        "changed::hide-control-icons",
-        () => {
-            hideControls = settings.get_boolean("hide-control-icons");
-            removeContent();
-            addContent();
-        }
-    );
-
-    onHideSeperatorsChanged = settings.connect(
-        "changed::hide-seperators",
-        () => {
-            hideSeperators = settings.get_boolean("hide-seperators");
-            removeContent();
-            addContent();
-        }
-    );
-
-    onMouseActionsChanged = settings.connect("changed::mouse-actions", () => {
-        mouseActions = settings.get_strv("mouse-actions");
-        mouseActionsLeftClick = mouseActions[0];
-        mouseActionsRightClick = mouseActions[1];
-        // log(mouseActionsRightClick);
+    onHidePlayerIconChanged = settings.connect("changed::hide-player-icon", () => {
+        hidePlayerIcon = settings.get_boolean("hide-player-icon");
+        removeContent();
+        addContent();
     });
 
-    onColoredPlayerIconChanged = settings.connect(
-        "changed::colored-player-icon",
-        () => {
-            coloredPlayerIcon = settings.get_boolean("colored-player-icon");
-            log(`Colirng playeer icon ${coloredPlayerIcon}`);
-            updatePlayerIconEffects();
-        }
-    );
+    onHideControlsChanged = settings.connect("changed::hide-control-icons", () => {
+        hideControls = settings.get_boolean("hide-control-icons");
+        removeContent();
+        addContent();
+    });
 
-    onShowAllOnHoverChanged = settings.connect(
-        "changed::show-all-on-hover",
-        () => {
-            showAllOnHover = settings.get_boolean("show-all-on-hover");
-        }
-    );
+    onHideSeperatorsChanged = settings.connect("changed::hide-seperators", () => {
+        hideSeperators = settings.get_boolean("hide-seperators");
+        removeContent();
+        addContent();
+    });
+
+    onExtensionPositionChanged = settings.connect("changed::extension-position", () => {
+        removeContent();
+        extensionPosition = settings.get_string("extension-position");
+        addContent();
+    });
+
+    onExtensionIndexChanged = settings.connect("changed::extension-index", () => {
+        extensionIndex = settings.get_int("extension-index");
+        removeContent();
+        addContent();
+    });
+
+    onColoredPlayerIconChanged = settings.connect("changed::colored-player-icon", () => {
+        coloredPlayerIcon = settings.get_boolean("colored-player-icon");
+        updatePlayerIconEffects();
+    });
+
+    onShowAllOnHoverChanged = settings.connect("changed::show-all-on-hover", () => {
+        showAllOnHover = settings.get_boolean("show-all-on-hover");
+    });
 
     onSepCharsChanged = settings.connect("changed::seperator-chars", () => {
         sepChars = settings.get_strv("seperator-chars");
         labelSeperatorStart.set_text(sepChars[0]);
         labelSeperatorEnd.set_text(sepChars[1]);
+    });
+
+    onMouseActionsChanged = settings.connect("changed::mouse-actions", () => {
+        mouseActions = settings.get_strv("mouse-actions");
     });
 
     onElementOrderChanged = settings.connect("changed::element-order", () => {
@@ -492,120 +139,105 @@ const enable = () => {
         addContent();
     });
 
-    mouseActions = settings.get_strv("mouse-actions");
-    sepChars = settings.get_strv("seperator-chars");
-    elementOrder = settings.get_strv("element-order");
-
-    updateDelay = settings.get_int("update-delay");
     maxDisplayLength = settings.get_int("max-text-length");
+    updateDelay = settings.get_int("update-delay");
     hideTrackName = settings.get_boolean("hide-text");
     hidePlayerIcon = settings.get_boolean("hide-player-icon");
     hideControls = settings.get_boolean("hide-control-icons");
-    extensionIndex = settings.get_int("extension-index");
+    hideSeperators = settings.get_boolean("hide-seperators");
     extensionPosition = settings.get_string("extension-position");
+    extensionIndex = settings.get_int("extension-index");
     coloredPlayerIcon = settings.get_boolean("colored-player-icon");
     showAllOnHover = settings.get_boolean("show-all-on-hover");
-    mouseActionsLeftClick = mouseActions[0];
-    mouseActionsRightClick = mouseActions[1];
-    hideSeperators = settings.get_boolean("hide-seperators");
+    mouseActions = settings.get_strv("mouse-actions");
+    sepChars = settings.get_strv("seperator-chars");
+    elementOrder = settings.get_strv("element-order");
 
     // UI Elements
 
     buttonToggle = new St.Button({ style_class: "panel-button" });
     buttonNext = new St.Button({
         style_class: "panel-button",
-        style: "padding-right: 3px; padding-left: 0px;",
     });
     buttonPrev = new St.Button({
         style_class: "panel-button",
-        style: "padding-left: 3px; padding-right: 0px;",
     });
     buttonLabel = new St.Button({
-        track_hover: false,
         style_class: "panel-button",
-        style: "padding: 0px 3px;",
-        label: "No player found",
     });
     buttonPlayer = new St.Button({
         style_class: "panel-button",
-        track_hover: false,
-        style: "padding: 0px 3px;",
     });
 
     iconPlay = new St.Icon({
         icon_name: "media-playback-start-symbolic",
         style_class: "system-status-icon",
-        style: "padding: 0px;",
     });
     iconPause = new St.Icon({
         icon_name: "media-playback-pause-symbolic",
         style_class: "system-status-icon",
-        style: "padding: 0px;",
     });
     iconNext = new St.Icon({
         icon_name: "media-skip-forward-symbolic",
         style_class: "system-status-icon",
-        style: "padding: 0px;",
     });
     iconPrev = new St.Icon({
         icon_name: "media-skip-backward-symbolic",
         style_class: "system-status-icon",
-        style: "padding: 0px;",
     });
     iconPlayer = new St.Icon({
-        fallback_icon_name: "audio-x-generic-symbolic",
-        icon_size: 16,
+        fallback_icon_name: "audio-x-generic",
+        style_class: "system-status-icon",
     });
 
     labelSeperatorStart = new St.Label({
         y_align: Clutter.ActorAlign.CENTER,
-        style: "padding-left: 3px; padding-right: 0px;",
         style_class: "panel-button",
+        style: "padding: 3px",
     });
 
     labelSeperatorEnd = new St.Label({
         y_align: Clutter.ActorAlign.CENTER,
-        style: "padding-right: 3px; padding-left: 0px;",
         style_class: "panel-button",
+        style: "padding: 3px",
     });
 
-    // Set childs and bind methods
     buttonNext.set_child(iconNext);
-    buttonNext.connect("button-release-event", playbackActions.next);
+    buttonNext.connect("button-release-event", () => playerAction(currentPlayer, "next"));
 
     buttonPrev.set_child(iconPrev);
-    buttonPrev.connect("button-release-event", playbackActions.prev);
+    buttonPrev.connect("button-release-event", () => playerAction(currentPlayer, "previous"));
 
     buttonToggle.set_child(iconPlay);
-    buttonToggle.connect("button-release-event", playbackActions.toggle_play);
-
-    buttonLabel.connect("button-release-event", _mouseAction);
-    buttonLabel.connect("enter-event", () => {
-        mouseHovered = true;
-    });
-    buttonLabel.connect("leave-event", () => {
-        mouseHovered = false;
-    });
+    buttonToggle.connect("button-release-event", () => playerAction(currentPlayer, "toggle"));
 
     buttonPlayer.set_child(iconPlayer);
-    buttonPlayer.connect("button-release-event", _mouseAction);
+    buttonPlayer.connect("button-release-event", mouseAction);
+
+    buttonLabel.connect("button-release-event", mouseAction);
+    buttonLabel.connect("enter-event", () => {
+        if (showAllOnHover) {
+            mouseHovered = true;
+            updateContent();
+        }
+    });
+    buttonLabel.connect("leave-event", () => {
+        if (showAllOnHover) {
+            mouseHovered = false;
+            updateContent();
+        }
+    });
 
     labelSeperatorStart.set_text(sepChars[0]);
     labelSeperatorEnd.set_text(sepChars[1]);
 
-    // Initialize content
     updatePlayerIconEffects();
 
-    // Reset data and add content to the panel
-    resetData();
-    addContent();
-
-    // Start the main loop
-    startMainLoop();
+    startMainloop();
 };
 
 const disable = () => {
-    Mainloop.source_remove(mainLoop);
+    Mainloop.source_remove(mainloop);
 
     settings.disconnect(onMaxLengthChanged);
     settings.disconnect(onUpdateDelayChanged);
@@ -613,23 +245,244 @@ const disable = () => {
     settings.disconnect(onHidePlayerIconChanged);
     settings.disconnect(onHideTrackNameChanged);
     settings.disconnect(onHideSeperatorsChanged);
-    settings.disconnect(onExtensionIndexChanged);
     settings.disconnect(onExtensionPositionChanged);
-    settings.disconnect(onMouseActionsChanged);
-    settings.disconnect(onColoredPlayerIconChanged);
-    settings.disconnect(onSepCharsChanged);
+    settings.disconnect(onExtensionIndexChanged);
     settings.disconnect(onShowAllOnHoverChanged);
+    settings.disconnect(onColoredPlayerIconChanged);
+    settings.disconnect(onMouseActionsChanged);
+    settings.disconnect(onSepCharsChanged);
+    settings.disconnect(onElementOrderChanged);
 
     buttonNext.destroy();
     buttonPrev.destroy();
     buttonToggle.destroy();
+    buttonLabel.destroy();
     iconNext.destroy();
     iconPause.destroy();
     iconPlay.destroy();
     iconPrev.destroy();
-    labelSeperatorEnd.destroy();
     labelSeperatorStart.destroy();
-    buttonLabel.destroy();
+    labelSeperatorEnd.destroy();
 
     removeContent();
+};
+
+const mainLoop = async () => {
+    loopFinished = false;
+    try {
+        let players = await getPlayers();
+        if (players.length > 0) {
+            // log("Players are availablee");
+            if (players.includes(currentPlayer)) {
+                // log("Current player is in list");
+                let status = await getStatus(currentPlayer);
+                if (status === "Playing") {
+                    // log("Player is playing");
+                    currentStatus = "Playing";
+                    let metadata = await getMetadata(currentPlayer);
+                    if (Object.keys(metadata).every((key) => metadata[key] !== currentMetadata[key])) {
+                        log("Metadata is not equal, updating em");
+                        currentMetadata = metadata;
+                        updateContent();
+                    } else {
+                        updateToggleButtonIcon();
+                    }
+                } else {
+                    // log("Current player is playing");
+                    for (player of players) {
+                        _status = getStatus(player);
+                        if (status === "Playing") {
+                            currentPlayer = null;
+                            break;
+                        }
+                    }
+
+                    if (currentPlayer) {
+                        currentStatus = status;
+                        _metadata = await getMetadata(currentPlayer);
+                        if (Object.keys(_metadata).every((key) => _metadata[key] !== currentMetadata[key])) {
+                            log("Metadata is not equal, updating em");
+                            currentMetadata = _metadata;
+                            updateContent();
+                        } else {
+                            updateToggleButtonIcon();
+                        }
+                    }
+                }
+            } else {
+                // log("Player not in list");
+                // log("New player/ new state");
+                let validPlayers = new Map();
+                let playingPlayers = [];
+                for (player of players) {
+                    let { id, title, artist } = await getMetadata(player);
+                    if (title || (id && id !== "/org/mpris/MediaPlayer2/TrackList/NoTrack")) {
+                        let status = getStatus(player);
+                        if (status === "Playing") {
+                            playingPlayers.push(player);
+                        }
+                        validPlayers.set(player, {
+                            id,
+                            title,
+                            artist,
+                        });
+                    }
+                }
+                if (validPlayers.size > 0) {
+                    addContent();
+                    if (playingPlayers.length > 0) {
+                        currentPlayer = playingPlayers[0];
+                        currentStatus = "Playing";
+                    } else {
+                        currentPlayer = validPlayers.keys().next().value;
+                        currentStatus = "Paused";
+                    }
+                    currentMetadata = validPlayers.get(currentPlayer);
+                    updateContent();
+                } else {
+                    removeContent();
+                }
+            }
+        } else {
+            // log("No players available");
+            removeContent();
+        }
+    } catch (error) {
+        logError(error);
+    }
+    loopFinished = true;
+};
+
+const startMainloop = () => {
+    Mainloop.source_remove(mainloop);
+    mainloop = Mainloop.timeout_add(updateDelay, () => {
+        if (loopFinished) {
+            mainLoop();
+        }
+        return true;
+    });
+};
+
+const updateContent = () => {
+    log("Updating content");
+    let currentIcon = null;
+    for (playerIcon of playerIcons) {
+        if (currentPlayer.includes(playerIcon)) {
+            currentIcon = playerIcon;
+            break;
+        }
+    }
+    if (!currentIcon) {
+        let splittedCurrentPlayer = currentPlayer.split(".");
+        currentIcon = splittedCurrentPlayer[splittedCurrentPlayer.length - 1];
+    }
+    iconPlayer.set_icon_name(currentIcon);
+
+    let currentLabel =
+        (currentMetadata["title"] || currentMetadata["id"]) +
+        (currentMetadata["artist"] ? ` - ${currentMetadata["artist"]}` : "");
+
+    if (currentLabel.length > maxDisplayLength && maxDisplayLength !== 0 && !mouseHovered) {
+        currentLabel = currentLabel.substr(0, maxDisplayLength - 3) + "...";
+    }
+
+    buttonLabel.set_label(currentLabel);
+
+    updateToggleButtonIcon();
+};
+
+const addContent = () => {
+    if (contentRemoved) {
+        log("Adding content");
+        let index = 0;
+        for (element of elementOrder) {
+            if (element === "icon" && !hidePlayerIcon) {
+                Main.panel[positions[extensionPosition]].insert_child_at_index(
+                    buttonPlayer,
+                    extensionIndex + index
+                );
+                index++;
+            } else if (element === "title" && !hideTrackName) {
+                if (!hideSeperators) {
+                    Main.panel[positions[extensionPosition]].insert_child_at_index(
+                        labelSeperatorStart,
+                        extensionIndex + index
+                    );
+                    index++;
+                }
+
+                Main.panel[positions[extensionPosition]].insert_child_at_index(
+                    buttonLabel,
+                    extensionIndex + index
+                );
+                index++;
+
+                if (!hideSeperators) {
+                    Main.panel[positions[extensionPosition]].insert_child_at_index(
+                        labelSeperatorEnd,
+                        extensionIndex + index
+                    );
+                    index++;
+                }
+            } else if (element === "controls" && !hideControls) {
+                Main.panel[positions[extensionPosition]].insert_child_at_index(
+                    buttonPrev,
+                    extensionIndex + index
+                );
+                index++;
+
+                Main.panel[positions[extensionPosition]].insert_child_at_index(
+                    buttonToggle,
+                    extensionIndex + index
+                );
+                index++;
+                Main.panel[positions[extensionPosition]].insert_child_at_index(
+                    buttonNext,
+                    extensionIndex + index
+                );
+                index++;
+            }
+        }
+        contentRemoved = false;
+    }
+};
+
+const removeContent = () => {
+    if (!contentRemoved) {
+        log("Removing content");
+        Main.panel[positions[extensionPosition]].remove_actor(buttonNext);
+        Main.panel[positions[extensionPosition]].remove_actor(buttonToggle);
+        Main.panel[positions[extensionPosition]].remove_actor(buttonPrev);
+        Main.panel[positions[extensionPosition]].remove_actor(buttonLabel);
+        Main.panel[positions[extensionPosition]].remove_actor(buttonPlayer);
+        Main.panel[positions[extensionPosition]].remove_actor(labelSeperatorStart);
+        Main.panel[positions[extensionPosition]].remove_actor(labelSeperatorEnd);
+        contentRemoved = true;
+    }
+};
+
+const updatePlayerIconEffects = () => {
+    if (coloredPlayerIcon) {
+        iconPlayer.clear_effects();
+        iconPlayer.set_style("-st-icon-style: requested");
+    } else {
+        iconPlayer.set_style("-st-icon-style: symbolic");
+        iconPlayer.add_effect(new Clutter.DesaturateEffect());
+    }
+};
+
+const updateToggleButtonIcon = () => {
+    if (currentStatus === "Playing") {
+        buttonToggle.set_child(iconPause);
+    } else {
+        buttonToggle.set_child(iconPlay);
+    }
+};
+
+const mouseAction = (event) => {
+    if (event.pseudo_class && event.pseudo_class.includes("active")) {
+        playerAction(currentPlayer, mouseActions[0]);
+    } else {
+        playerAction(currentPlayer, mouseActions[1]);
+    }
 };
