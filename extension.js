@@ -59,7 +59,7 @@ const init = () => {
     settings = ExtensionUtils.getSettings();
     loopFinished = true;
     contentRemoved = true;
-    playerIcons = ["chromium"];
+    playerIcons = ["chromium", "firefox"];
     positions = {
         left: "_leftBox",
         center: "_centerBox",
@@ -186,7 +186,6 @@ const enable = () => {
         style_class: "system-status-icon",
     });
     iconPlayer = new St.Icon({
-        fallback_icon_name: "audio-x-generic",
         style_class: "system-status-icon",
     });
 
@@ -284,7 +283,7 @@ const mainLoop = async () => {
     try {
         let players = await getPlayers();
         if (players.length > 0) {
-            // log("Players are availablee");
+            // log("\nPlayers are availablee");
             if (players.includes(currentPlayer)) {
                 // log("Current player is in list");
                 let status = await getStatus(currentPlayer);
@@ -293,27 +292,29 @@ const mainLoop = async () => {
                     currentStatus = "Playing";
                     let metadata = await getMetadata(currentPlayer);
                     if (Object.keys(metadata).every((key) => metadata[key] !== currentMetadata[key])) {
-                        log("Metadata is not equal, updating em");
+                        // log("Metadata is not equal, updating em");
                         currentMetadata = metadata;
                         updateContent();
                     } else {
                         updateToggleButtonIcon();
                     }
                 } else {
-                    // log("Current player is playing");
+                    // log("Current player is not playing");
                     for (player of players) {
-                        _status = getStatus(player);
-                        if (status === "Playing") {
+                        _status = await getStatus(player);
+                        if (_status === "Playing") {
+                            // log("nulling player", _status);
                             currentPlayer = null;
                             break;
                         }
                     }
 
                     if (currentPlayer) {
-                        currentStatus = status;
+                        // log("not nulling player", currentPlayer);
+                        currentStatus = _status;
                         _metadata = await getMetadata(currentPlayer);
                         if (Object.keys(_metadata).every((key) => _metadata[key] !== currentMetadata[key])) {
-                            log("Metadata is not equal, updating em");
+                            // log("Metadata is not equal, updating em");
                             currentMetadata = _metadata;
                             updateContent();
                         } else {
@@ -329,7 +330,7 @@ const mainLoop = async () => {
                 for (player of players) {
                     let { id, title, artist } = await getMetadata(player);
                     if (title || (id && id !== "/org/mpris/MediaPlayer2/TrackList/NoTrack")) {
-                        let status = getStatus(player);
+                        let status = await getStatus(player);
                         if (status === "Playing") {
                             playingPlayers.push(player);
                         }
@@ -341,15 +342,17 @@ const mainLoop = async () => {
                     }
                 }
                 if (validPlayers.size > 0) {
-                    addContent();
                     if (playingPlayers.length > 0) {
                         currentPlayer = playingPlayers[0];
                         currentStatus = "Playing";
+                        // log("Playing player", currentPlayer);
                     } else {
                         currentPlayer = validPlayers.keys().next().value;
                         currentStatus = "Paused";
+                        // log("no playing players", currentPlayer);
                     }
                     currentMetadata = validPlayers.get(currentPlayer);
+                    addContent();
                     updateContent();
                 } else {
                     removeContent();
@@ -376,7 +379,7 @@ const startMainloop = () => {
 };
 
 const updateContent = () => {
-    log("Updating content");
+    // log("Updating content");
     let currentIcon = null;
     for (playerIcon of playerIcons) {
         if (currentPlayer.includes(playerIcon)) {
@@ -405,7 +408,7 @@ const updateContent = () => {
 
 const addContent = () => {
     if (contentRemoved) {
-        log("Adding content");
+        // log("Adding content");
         let index = 0;
         for (element of elementOrder) {
             if (element === "icon" && !hidePlayerIcon) {
@@ -461,7 +464,7 @@ const addContent = () => {
 
 const removeContent = () => {
     if (!contentRemoved) {
-        log("Removing content");
+        // log("Removing content");
         Main.panel[positions[extensionPosition]].remove_actor(buttonNext);
         Main.panel[positions[extensionPosition]].remove_actor(buttonToggle);
         Main.panel[positions[extensionPosition]].remove_actor(buttonPrev);
@@ -477,9 +480,11 @@ const updatePlayerIconEffects = () => {
     if (coloredPlayerIcon) {
         iconPlayer.clear_effects();
         iconPlayer.set_style("-st-icon-style: requested");
+        iconPlayer.set_fallback_icon_name("audio-x-generic");
     } else {
         iconPlayer.set_style("-st-icon-style: symbolic");
         iconPlayer.add_effect(new Clutter.DesaturateEffect());
+        iconPlayer.set_fallback_icon_name("audio-x-generic-symbolic");
     }
 };
 
