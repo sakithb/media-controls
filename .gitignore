@@ -1,3 +1,4 @@
 *.compiled
 *.zip
 .vscode
+/build
