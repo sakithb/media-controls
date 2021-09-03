@@ -56,7 +56,6 @@ let currentPlayer, currentMetadata, currentStatus;
 let loopFinished, contentRemoved, mouseHovered;
 
 const init = () => {
-    settings = ExtensionUtils.getSettings();
     loopFinished = true;
     contentRemoved = true;
     playerIcons = ["chromium", "firefox"];
@@ -68,6 +67,8 @@ const init = () => {
 };
 
 const enable = () => {
+    settings = ExtensionUtils.getSettings();
+
     onMaxLengthChanged = settings.connect("changed::max-text-length", () => {
         maxDisplayLength = settings.get_int("max-text-length");
         updateContent();
