@@ -203,13 +203,25 @@ const enable = () => {
     });
 
     buttonNext.set_child(iconNext);
-    buttonNext.connect("button-release-event", () => playerAction(currentPlayer, "next"));
+    buttonNext.connect("button-release-event", () => {
+        (() => {
+            playerAction(currentPlayer, "next");
+        })();
+    });
 
     buttonPrev.set_child(iconPrev);
-    buttonPrev.connect("button-release-event", () => playerAction(currentPlayer, "previous"));
+    buttonPrev.connect("button-release-event", () => {
+        (() => {
+            playerAction(currentPlayer, "previous");
+        })();
+    });
 
     buttonToggle.set_child(iconPlay);
-    buttonToggle.connect("button-release-event", () => playerAction(currentPlayer, "toggle"));
+    buttonToggle.connect("button-release-event", () => {
+        (() => {
+            playerAction(currentPlayer, "toggle");
+        })();
+    });
 
     buttonPlayer.set_child(iconPlayer);
     buttonPlayer.connect("button-release-event", mouseAction);
