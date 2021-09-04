@@ -6,7 +6,8 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Mainloop = imports.mainloop;
 const Main = imports.ui.main;
 
-const { playerAction, getPlayers, getMetadata, getStatus } = Me.imports.utils;
+const { playerAction, getPlayers, getMetadata, getStatus, isValidPlayer, hasMetadataChanged } =
+    Me.imports.utils;
 
 let maxDisplayLength,
     updateDelay,
@@ -56,8 +57,6 @@ let currentPlayer, currentMetadata, currentLabel, currentStatus;
 let loopFinished, contentRemoved, mouseHovered;
 
 const init = () => {
-    loopFinished = true;
-    contentRemoved = true;
     playerIcons = ["chromium", "firefox"];
     positions = {
         left: "_leftBox",
@@ -69,6 +68,8 @@ const init = () => {
 const enable = () => {
     log("[Media-Controls] Enabling");
     settings = ExtensionUtils.getSettings();
+    loopFinished = true;
+    contentRemoved = true;
     currentMetadata = null;
     currentPlayer = null;
     currentStatus = null;
@@ -304,11 +305,8 @@ const mainLoop = async () => {
                     // log("Player is playing");
                     currentStatus = "Playing";
                     let metadata = await getMetadata(currentPlayer);
-                    if (
-                        metadata["title"] ||
-                        (_metadata["id"] && _metadata["id"] !== "/org/mpris/MediaPlayer2/TrackList/NoTrack")
-                    ) {
-                        if (Object.keys(metadata).every((key) => metadata[key] !== currentMetadata[key])) {
+                    if (isValidPlayer(metadata)) {
+                        if (hasMetadataChanged(metadata, currentMetadata)) {
                             log("Metadata is not equal, updating em");
                             currentMetadata = metadata;
                             currentLabel = currentMetadata["title"] || currentMetadata["id"];
@@ -317,6 +315,7 @@ const mainLoop = async () => {
                             updateToggleButtonIcon();
                         }
                     } else {
+                        log("Not valid player");
                         currentPlayer = null;
                     }
                 } else {
@@ -331,17 +330,11 @@ const mainLoop = async () => {
                     }
 
                     if (currentPlayer) {
-                        // log("not nulling player", currentPlayer);
+                        log("not nulling player", currentPlayer);
                         currentStatus = _status;
                         _metadata = await getMetadata(currentPlayer);
-                        if (
-                            _metadata["title"] ||
-                            (_metadata["id"] &&
-                                _metadata["id"] !== "/org/mpris/MediaPlayer2/TrackList/NoTrack")
-                        ) {
-                            if (
-                                Object.keys(_metadata).every((key) => _metadata[key] !== currentMetadata[key])
-                            ) {
+                        if (isValidPlayer(_metadata)) {
+                            if (hasMetadataChanged(_metadata, currentMetadata)) {
                                 log("_Metadata is not equal, updating em");
                                 currentMetadata = _metadata;
                                 currentLabel = currentMetadata["title"] || currentMetadata["id"];
@@ -350,18 +343,20 @@ const mainLoop = async () => {
                                 updateToggleButtonIcon();
                             }
                         } else {
+                            log("Not valid player");
+
                             currentPlayer = null;
                         }
                     }
                 }
             } else {
-                log("Player not in list");
+                // log("Player not in list");
                 // log("New player/ new state");
                 let validPlayers = new Map();
                 let playingPlayers = [];
                 for (player of players) {
                     let { id, title, artist } = await getMetadata(player);
-                    if (title || (id && id !== "/org/mpris/MediaPlayer2/TrackList/NoTrack")) {
+                    if (isValidPlayer({ id, title })) {
                         let status = await getStatus(player);
                         if (status === "Playing") {
                             playingPlayers.push(player);
@@ -377,13 +372,14 @@ const mainLoop = async () => {
                     if (playingPlayers.length > 0) {
                         currentPlayer = playingPlayers[0];
                         currentStatus = "Playing";
-                        // log("Playing player", currentPlayer);
+                        log("Playing player", currentPlayer);
                     } else {
                         currentPlayer = validPlayers.keys().next().value;
                         currentStatus = "Paused";
-                        // log("no playing players", currentPlayer);
+                        log("no playing players", currentPlayer);
                     }
                     currentMetadata = validPlayers.get(currentPlayer);
+                    log(currentMetadata["title"], currentMetadata["id"]);
                     currentLabel = currentMetadata["title"] || currentMetadata["id"];
                     addContent();
                     updateContent();

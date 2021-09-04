@@ -83,3 +83,17 @@ var getStatus = async (player) => {
         logError(error);
     }
 };
+
+var isValidPlayer = ({ id, title }) => {
+    if (title || (id && id !== "/org/mpris/MediaPlayer2/TrackList/NoTrack")) {
+        return true;
+    }
+    return false;
+};
+
+var hasMetadataChanged = (metadata, _metadata) => {
+    if (Object.keys(metadata).every((key) => metadata[key] !== _metadata[key])) {
+        return true;
+    }
+    return false;
+};
