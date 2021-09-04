@@ -6,7 +6,10 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Mainloop = imports.mainloop;
 const Main = imports.ui.main;
 
-const { playerAction, getPlayers, getMetadata, getStatus, isValidPlayer, hasMetadataChanged } =
+const PanelMenu = imports.ui.panelMenu;
+const PopupMenu = imports.ui.popupMenu;
+
+const { playerAction, getPlayers, getMetadata, getStatus, updatePlayers, isValidPlayer, hasMetadataChanged } =
     Me.imports.utils;
 
 let maxDisplayLength,
@@ -48,13 +51,14 @@ let buttonNext,
     iconPrev,
     iconPlayer,
     labelSeperatorStart,
-    labelSeperatorEnd;
+    labelSeperatorEnd,
+    sourceMenu;
 
 let mainloop, settings, positions, playerIcons;
 
 let currentPlayer, currentMetadata, currentLabel, currentStatus;
 
-let loopFinished, contentRemoved, mouseHovered;
+let loopFinished, contentRemoved, mouseHovered, changedSource;
 
 const init = () => {
     playerIcons = ["chromium", "firefox"];
@@ -209,6 +213,17 @@ const enable = () => {
         style: "padding: 3px",
     });
 
+    sourceMenu = new PanelMenu.Button(1);
+    sourceMenu.add_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
+    sourceMenu.menu.connect("open-state-changed", (menu, open) => {
+        if (open) {
+            (() => {
+                updatePlayers(sourceMenu, changeSource);
+            })();
+        }
+    });
+    sourceMenu.menu.addMenuItem(new PopupMenu.PopupMenuItem("Players", { reactive: false }));
+
     buttonNext.set_child(iconNext);
     buttonNext.connect("button-release-event", () => {
         (() => {
@@ -281,8 +296,10 @@ const disable = () => {
     iconPause.destroy();
     iconPlay.destroy();
     iconPrev.destroy();
+    iconPlayer.destroy();
     labelSeperatorStart.destroy();
     labelSeperatorEnd.destroy();
+    sourceMenu.destroy();
 
     currentMetadata = null;
     currentPlayer = null;
@@ -301,12 +318,15 @@ const mainLoop = async () => {
             if (players.includes(currentPlayer)) {
                 // log("Current player is in list");
                 let status = await getStatus(currentPlayer);
-                if (status === "Playing") {
+                if (status === "Playing" || changedSource === currentPlayer) {
                     // log("Player is playing");
-                    currentStatus = "Playing";
+                    currentStatus = status;
                     let metadata = await getMetadata(currentPlayer);
                     if (isValidPlayer(metadata)) {
-                        if (hasMetadataChanged(metadata, currentMetadata)) {
+                        if (
+                            hasMetadataChanged(metadata, currentMetadata) ||
+                            changedSource === currentPlayer
+                        ) {
                             log("Metadata is not equal, updating em");
                             currentMetadata = metadata;
                             currentLabel = currentMetadata["title"] || currentMetadata["id"];
@@ -330,7 +350,7 @@ const mainLoop = async () => {
                     }
 
                     if (currentPlayer) {
-                        log("not nulling player", currentPlayer);
+                        // log("not nulling player", currentPlayer);
                         currentStatus = _status;
                         _metadata = await getMetadata(currentPlayer);
                         if (isValidPlayer(_metadata)) {
@@ -493,6 +513,7 @@ const addContent = () => {
                 index++;
             }
         }
+        Main.panel.addToStatusArea("sourceMenu", sourceMenu, extensionIndex + index, extensionPosition);
         contentRemoved = false;
     }
 };
@@ -507,6 +528,7 @@ const removeContent = () => {
         Main.panel[positions[extensionPosition]].remove_actor(buttonPlayer);
         Main.panel[positions[extensionPosition]].remove_actor(labelSeperatorStart);
         Main.panel[positions[extensionPosition]].remove_actor(labelSeperatorEnd);
+        delete Main.panel.statusArea["sourceMenu"];
         contentRemoved = true;
     }
 };
@@ -537,4 +559,10 @@ const mouseAction = (event) => {
     } else {
         playerAction(currentPlayer, mouseActions[1]);
     }
+};
+
+const changeSource = (player) => {
+    currentPlayer = player;
+    currentMetadata = null;
+    changedSource = player;
 };

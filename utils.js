@@ -1,9 +1,13 @@
-const { GLib } = imports.gi;
+const { GLib, Gio, St } = imports.gi;
+
+const PopupMenu = imports.ui.popupMenu;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 const { dbusMethod } = Me.imports.dbus;
+
+let players;
 
 var playerAction = async (player, action) => {
     switch (action) {
@@ -59,10 +63,12 @@ var getMetadata = async (player) => {
         let id = metadata[0]["mpris:trackid"];
         let title = metadata[0]["xesam:title"];
         let artist = metadata[0]["xesam:artist"];
+        let image = metadata[0]["mpris:artUrl"];
         return {
             id,
             title,
             artist,
+            image,
         };
     } catch (error) {
         logError(error);
@@ -84,6 +90,36 @@ var getStatus = async (player) => {
     }
 };
 
+const updatePlayers = async (sourceMenu, callback) => {
+    sourceMenu.menu.removeAll();
+    players = await getPlayers();
+    if (players.length > 0) {
+        for (player of players) {
+            let metadata = await getMetadata(player);
+            if (isValidPlayer(metadata)) {
+                let image = metadata["image"];
+                if (image) {
+                    image = image.replace("https://open.spotify.com/image/", "https://i.scdn.co/image/");
+                } else {
+                    image = "audio-x-generic-symbolic";
+                }
+                let title =
+                    (metadata["title"] || metadata["id"]) +
+                    (metadata["artist"] ? " - " + metadata["artist"] : "");
+                let icon = Gio.icon_new_for_string(image);
+                let item = new PopupMenu.PopupImageMenuItem(title, icon);
+                let playerIndex = players.indexOf(player);
+                item.connect("activate", () => {
+                    callback(players[playerIndex]);
+                });
+                sourceMenu.menu.addMenuItem(item);
+            }
+        }
+    } else {
+        sourceMenu.menu.addMenuItem(new PopupMenu.PopupMenuItem("No players found", { reactive: false }));
+    }
+};
+
 var isValidPlayer = ({ id, title }) => {
     if (title || (id && id !== "/org/mpris/MediaPlayer2/TrackList/NoTrack")) {
         return true;
@@ -92,7 +128,7 @@ var isValidPlayer = ({ id, title }) => {
 };
 
 var hasMetadataChanged = (metadata, _metadata) => {
-    if (Object.keys(metadata).every((key) => metadata[key] !== _metadata[key])) {
+    if (metadata && _metadata && Object.keys(metadata).every((key) => metadata[key] !== _metadata[key])) {
         return true;
     }
     return false;
