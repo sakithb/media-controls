@@ -69,6 +69,10 @@ const init = () => {
 const enable = () => {
     log("[Media-Controls] Enabling");
     settings = ExtensionUtils.getSettings();
+    currentMetadata = null;
+    currentPlayer = null;
+    currentStatus = null;
+    currentLabel = null;
 
     onMaxLengthChanged = settings.connect("changed::max-text-length", () => {
         maxDisplayLength = settings.get_int("max-text-length");
@@ -300,13 +304,20 @@ const mainLoop = async () => {
                     // log("Player is playing");
                     currentStatus = "Playing";
                     let metadata = await getMetadata(currentPlayer);
-                    if (Object.keys(metadata).every((key) => metadata[key] !== currentMetadata[key])) {
-                        log("Metadata is not equal, updating em");
-                        currentMetadata = metadata;
-                        currentLabel = currentMetadata["title"] || currentMetadata["id"];
-                        updateContent();
+                    if (
+                        metadata["title"] ||
+                        (_metadata["id"] && _metadata["id"] !== "/org/mpris/MediaPlayer2/TrackList/NoTrack")
+                    ) {
+                        if (Object.keys(metadata).every((key) => metadata[key] !== currentMetadata[key])) {
+                            log("Metadata is not equal, updating em");
+                            currentMetadata = metadata;
+                            currentLabel = currentMetadata["title"] || currentMetadata["id"];
+                            updateContent();
+                        } else {
+                            updateToggleButtonIcon();
+                        }
                     } else {
-                        updateToggleButtonIcon();
+                        currentPlayer = null;
                     }
                 } else {
                     // log("Current player is not playing");
@@ -323,14 +334,23 @@ const mainLoop = async () => {
                         // log("not nulling player", currentPlayer);
                         currentStatus = _status;
                         _metadata = await getMetadata(currentPlayer);
-
-                        if (Object.keys(_metadata).every((key) => _metadata[key] !== currentMetadata[key])) {
-                            log("_Metadata is not equal, updating em");
-                            currentMetadata = _metadata;
-                            currentLabel = currentMetadata["title"] || currentMetadata["id"];
-                            updateContent();
+                        if (
+                            _metadata["title"] ||
+                            (_metadata["id"] &&
+                                _metadata["id"] !== "/org/mpris/MediaPlayer2/TrackList/NoTrack")
+                        ) {
+                            if (
+                                Object.keys(_metadata).every((key) => _metadata[key] !== currentMetadata[key])
+                            ) {
+                                log("_Metadata is not equal, updating em");
+                                currentMetadata = _metadata;
+                                currentLabel = currentMetadata["title"] || currentMetadata["id"];
+                                updateContent();
+                            } else {
+                                updateToggleButtonIcon();
+                            }
                         } else {
-                            updateToggleButtonIcon();
+                            currentPlayer = null;
                         }
                     }
                 }
