@@ -9,7 +9,7 @@ const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
-const { playerAction, getPlayers, getMetadata, getStatus, updatePlayers, isValidPlayer, hasMetadataChanged } =
+const { playerAction, getPlayers, getMetadata, getStatus, updatePlayers, isValidPlayer, isEqual } =
     Me.imports.utils;
 
 let maxDisplayLength,
@@ -58,7 +58,7 @@ let mainloop, settings, positions, playerIcons;
 
 let currentPlayer, currentMetadata, currentLabel, currentStatus;
 
-let loopFinished, contentRemoved, mouseHovered, changedSource;
+let loopFinished, contentRemoved, mouseHovered, changedSource, sourceChanged;
 
 const init = () => {
     playerIcons = ["chromium", "firefox"];
@@ -322,16 +322,16 @@ const mainLoop = async () => {
                     // log("Player is playing");
                     currentStatus = status;
                     let metadata = await getMetadata(currentPlayer);
-                    log("here", metadata["title"], currentMetadata["title"]);
                     if (isValidPlayer(metadata["id"], metadata["title"])) {
                         if (
-                            hasMetadataChanged(metadata, currentMetadata) ||
-                            changedSource === currentPlayer
+                            !isEqual(metadata, currentMetadata) ||
+                            (changedSource === currentPlayer && sourceChanged)
                         ) {
-                            log("_Metadata is not equal", metadata["title"], currentMetadata["title"]);
+                            // log("_Metadata has changed", changedSource);
                             currentMetadata = metadata;
                             currentLabel = metadata["title"] || metadata["id"];
                             updateContent();
+                            sourceChanged = false;
                         } else {
                             updateToggleButtonIcon();
                         }
@@ -354,22 +354,22 @@ const mainLoop = async () => {
                         // log("not nulling player", currentPlayer);
                         currentStatus = _status;
                         _metadata = await getMetadata(currentPlayer);
-                        log(
-                            "noy here",
-                            _metadata["title"],
-                            currentMetadata["title"],
-                            _metadata["title"] === currentMetadata["title"],
-                            hasMetadataChanged(_metadata, currentMetadata)
-                        );
+                        // log(
+                        //     "noy here",
+                        //     _metadata["title"],
+                        //     currentMetadata["title"],
+                        //     _metadata["title"] === currentMetadata["title"],
+                        //     hasMetadataChanged(_metadata, currentMetadata)
+                        // );
 
                         if (isValidPlayer(_metadata["id"], _metadata["title"])) {
-                            if (hasMetadataChanged(_metadata, currentMetadata)) {
-                                log("_Metadata is not equal", _metadata["title"], currentMetadata["title"]);
+                            if (!isEqual(_metadata, currentMetadata)) {
+                                // log("_Metadata is not equal", _metadata["title"], currentMetadata["title"]);
                                 currentMetadata = _metadata;
                                 currentLabel = _metadata["title"] || _metadata["id"];
                                 updateContent();
                             } else {
-                                log("Not changed");
+                                // log("Not changed");
                                 updateToggleButtonIcon();
                             }
                         } else {
@@ -578,6 +578,7 @@ const mouseAction = (event) => {
 
 const changeSource = (player) => {
     currentPlayer = player;
-    currentMetadata = null;
     changedSource = player;
+    sourceChanged = true;
+    log("[Media-Controls] Changing source to " + player);
 };

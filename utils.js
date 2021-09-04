@@ -108,9 +108,9 @@ const updatePlayers = async (sourceMenu, callback) => {
                     (metadata["artist"] ? " - " + metadata["artist"] : "");
                 let icon = Gio.icon_new_for_string(image);
                 let item = new PopupMenu.PopupImageMenuItem(title, icon);
-                let playerIndex = players.indexOf(player);
-                item.connect("activate", () => {
-                    callback(players[playerIndex]);
+                item.player = player;
+                item.connect("activate", (widget) => {
+                    callback(widget.player);
                 });
                 sourceMenu.menu.addMenuItem(item);
             }
@@ -127,9 +127,28 @@ var isValidPlayer = (id, title) => {
     return false;
 };
 
-var hasMetadataChanged = (metadata, _metadata) => {
-    if (metadata && _metadata && Object.keys(metadata).every((key) => metadata[key] === _metadata[key])) {
+var isEqual = (object, _object) => {
+    let keys = Object.keys(object);
+    let _keys = Object.keys(_object);
+
+    if (keys.length !== _keys.length) {
         return false;
     }
+
+    for (let key of keys) {
+        let val = object[key];
+        let _val = _object[key];
+
+        let areObjects = _isObject(val) && _isObject(_val);
+
+        if ((areObjects && !isEqual(val, _val)) || (!areObjects && val !== _val)) {
+            return false;
+        }
+    }
+
     return true;
+};
+
+const _isObject = (object) => {
+    return object != null && typeof object === "object";
 };
