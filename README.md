@@ -13,9 +13,6 @@ Show controls and information of the currently playing media in the panel
 ## Notes
 
 -   Only support Gnome 3.38 and 40
--   ~Currently font awesome needs to be installed in the system for the icons to show up~ [FIXED].
--   ~There will be small performance issues, a fix for this will be put up soon~ [FIXED]
--   ~Setting update delay to 0 would cause the gnome shell to freeze~ [FIXED]
 
 ---
 
@@ -36,9 +33,3 @@ Install from source
 -   Rename the extracted folder to `mediacontrols@cliffniff.github.com`
 -   Move it to `~/.local/share/gnome-shell/extensions/`
 -   Enable the extension in the Extensions app or type `gnome-extensions enable mediacontrols@cliffniff.github.com` in the terminal
-
-## Upcoming features
-
--  ~Support for video players~ [DONE]
--  ~Desaturated player icon~ [DONE]
--  ~Clickable title with actions~ [DONE]
