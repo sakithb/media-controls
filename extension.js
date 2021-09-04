@@ -51,7 +51,7 @@ let buttonNext,
 
 let mainloop, settings, positions, playerIcons;
 
-let currentPlayer, currentMetadata, currentStatus;
+let currentPlayer, currentMetadata, currentLabel, currentStatus;
 
 let loopFinished, contentRemoved, mouseHovered;
 
@@ -67,6 +67,7 @@ const init = () => {
 };
 
 const enable = () => {
+    log("[Media-Controls] Enabling");
     settings = ExtensionUtils.getSettings();
 
     onMaxLengthChanged = settings.connect("changed::max-text-length", () => {
@@ -165,6 +166,7 @@ const enable = () => {
     });
     buttonLabel = new St.Button({
         style_class: "panel-button",
+        label: "No media",
     });
     buttonPlayer = new St.Button({
         style_class: "panel-button",
@@ -249,6 +251,7 @@ const enable = () => {
 };
 
 const disable = () => {
+    log("[Media-Controls] Disabling");
     Mainloop.source_remove(mainloop);
 
     settings.disconnect(onMaxLengthChanged);
@@ -276,6 +279,11 @@ const disable = () => {
     labelSeperatorStart.destroy();
     labelSeperatorEnd.destroy();
 
+    currentMetadata = null;
+    currentPlayer = null;
+    currentStatus = null;
+    currentLabel = null;
+
     removeContent();
 };
 
@@ -293,8 +301,9 @@ const mainLoop = async () => {
                     currentStatus = "Playing";
                     let metadata = await getMetadata(currentPlayer);
                     if (Object.keys(metadata).every((key) => metadata[key] !== currentMetadata[key])) {
-                        // log("Metadata is not equal, updating em");
+                        log("Metadata is not equal, updating em");
                         currentMetadata = metadata;
+                        currentLabel = currentMetadata["title"] || currentMetadata["id"];
                         updateContent();
                     } else {
                         updateToggleButtonIcon();
@@ -304,7 +313,7 @@ const mainLoop = async () => {
                     for (player of players) {
                         _status = await getStatus(player);
                         if (_status === "Playing") {
-                            // log("nulling player", _status);
+                            log("nulling player", _status);
                             currentPlayer = null;
                             break;
                         }
@@ -314,9 +323,11 @@ const mainLoop = async () => {
                         // log("not nulling player", currentPlayer);
                         currentStatus = _status;
                         _metadata = await getMetadata(currentPlayer);
+
                         if (Object.keys(_metadata).every((key) => _metadata[key] !== currentMetadata[key])) {
-                            // log("Metadata is not equal, updating em");
+                            log("_Metadata is not equal, updating em");
                             currentMetadata = _metadata;
+                            currentLabel = currentMetadata["title"] || currentMetadata["id"];
                             updateContent();
                         } else {
                             updateToggleButtonIcon();
@@ -324,7 +335,7 @@ const mainLoop = async () => {
                     }
                 }
             } else {
-                // log("Player not in list");
+                log("Player not in list");
                 // log("New player/ new state");
                 let validPlayers = new Map();
                 let playingPlayers = [];
@@ -353,15 +364,24 @@ const mainLoop = async () => {
                         // log("no playing players", currentPlayer);
                     }
                     currentMetadata = validPlayers.get(currentPlayer);
+                    currentLabel = currentMetadata["title"] || currentMetadata["id"];
                     addContent();
                     updateContent();
                 } else {
                     removeContent();
+                    currentMetadata = null;
+                    currentPlayer = null;
+                    currentStatus = null;
+                    currentLabel = null;
                 }
             }
         } else {
-            // log("No players available");
+            log("No players available");
             removeContent();
+            currentMetadata = null;
+            currentPlayer = null;
+            currentStatus = null;
+            currentLabel = null;
         }
     } catch (error) {
         logError(error);
@@ -380,7 +400,7 @@ const startMainloop = () => {
 };
 
 const updateContent = () => {
-    // log("Updating content");
+    log("[Media-Controls] Updating content");
     let currentIcon = null;
     for (playerIcon of playerIcons) {
         if (currentPlayer.includes(playerIcon)) {
@@ -394,22 +414,20 @@ const updateContent = () => {
     }
     iconPlayer.set_icon_name(currentIcon);
 
-    let currentLabel =
-        (currentMetadata["title"] || currentMetadata["id"]) +
-        (currentMetadata["artist"] ? ` - ${currentMetadata["artist"]}` : "");
+    let displayLabel = currentLabel + (currentMetadata["artist"] ? ` - ${currentMetadata["artist"]}` : "");
 
-    if (currentLabel.length > maxDisplayLength && maxDisplayLength !== 0 && !mouseHovered) {
-        currentLabel = currentLabel.substr(0, maxDisplayLength - 3) + "...";
+    if (displayLabel.length > maxDisplayLength && maxDisplayLength !== 0 && !mouseHovered) {
+        displayLabel = displayLabel.substr(0, maxDisplayLength - 3) + "...";
     }
 
-    buttonLabel.set_label(currentLabel);
+    buttonLabel.set_label(displayLabel);
 
     updateToggleButtonIcon();
 };
 
 const addContent = () => {
     if (contentRemoved) {
-        // log("Adding content");
+        log("[Media-Controls] Adding content");
         let index = 0;
         for (element of elementOrder) {
             if (element === "icon" && !hidePlayerIcon) {
@@ -465,7 +483,7 @@ const addContent = () => {
 
 const removeContent = () => {
     if (!contentRemoved) {
-        // log("Removing content");
+        log(" [Media-Controls]Removing content");
         Main.panel[positions[extensionPosition]].remove_actor(buttonNext);
         Main.panel[positions[extensionPosition]].remove_actor(buttonToggle);
         Main.panel[positions[extensionPosition]].remove_actor(buttonPrev);
