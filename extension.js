@@ -322,20 +322,21 @@ const mainLoop = async () => {
                     // log("Player is playing");
                     currentStatus = status;
                     let metadata = await getMetadata(currentPlayer);
-                    if (isValidPlayer(metadata)) {
+                    log("here", metadata["title"], currentMetadata["title"]);
+                    if (isValidPlayer(metadata["id"], metadata["title"])) {
                         if (
                             hasMetadataChanged(metadata, currentMetadata) ||
                             changedSource === currentPlayer
                         ) {
-                            log("Metadata is not equal, updating em");
+                            log("_Metadata is not equal", metadata["title"], currentMetadata["title"]);
                             currentMetadata = metadata;
-                            currentLabel = currentMetadata["title"] || currentMetadata["id"];
+                            currentLabel = metadata["title"] || metadata["id"];
                             updateContent();
                         } else {
                             updateToggleButtonIcon();
                         }
                     } else {
-                        log("Not valid player");
+                        // log("Not valid player");
                         currentPlayer = null;
                     }
                 } else {
@@ -343,7 +344,7 @@ const mainLoop = async () => {
                     for (player of players) {
                         _status = await getStatus(player);
                         if (_status === "Playing") {
-                            log("nulling player", _status);
+                            // log("nulling player", _status);
                             currentPlayer = null;
                             break;
                         }
@@ -353,17 +354,26 @@ const mainLoop = async () => {
                         // log("not nulling player", currentPlayer);
                         currentStatus = _status;
                         _metadata = await getMetadata(currentPlayer);
-                        if (isValidPlayer(_metadata)) {
+                        log(
+                            "noy here",
+                            _metadata["title"],
+                            currentMetadata["title"],
+                            _metadata["title"] === currentMetadata["title"],
+                            hasMetadataChanged(_metadata, currentMetadata)
+                        );
+
+                        if (isValidPlayer(_metadata["id"], _metadata["title"])) {
                             if (hasMetadataChanged(_metadata, currentMetadata)) {
-                                log("_Metadata is not equal, updating em");
+                                log("_Metadata is not equal", _metadata["title"], currentMetadata["title"]);
                                 currentMetadata = _metadata;
-                                currentLabel = currentMetadata["title"] || currentMetadata["id"];
+                                currentLabel = _metadata["title"] || _metadata["id"];
                                 updateContent();
                             } else {
+                                log("Not changed");
                                 updateToggleButtonIcon();
                             }
                         } else {
-                            log("Not valid player");
+                            // log("Not valid player");
 
                             currentPlayer = null;
                         }
@@ -376,7 +386,7 @@ const mainLoop = async () => {
                 let playingPlayers = [];
                 for (player of players) {
                     let { id, title, artist } = await getMetadata(player);
-                    if (isValidPlayer({ id, title })) {
+                    if (isValidPlayer(id, title)) {
                         let status = await getStatus(player);
                         if (status === "Playing") {
                             playingPlayers.push(player);
@@ -392,14 +402,14 @@ const mainLoop = async () => {
                     if (playingPlayers.length > 0) {
                         currentPlayer = playingPlayers[0];
                         currentStatus = "Playing";
-                        log("Playing player", currentPlayer);
+                        // log("Playing player", currentPlayer);
                     } else {
                         currentPlayer = validPlayers.keys().next().value;
                         currentStatus = "Paused";
-                        log("no playing players", currentPlayer);
+                        // log("no playing players", currentPlayer);
                     }
                     currentMetadata = validPlayers.get(currentPlayer);
-                    log(currentMetadata["title"], currentMetadata["id"]);
+                    // log(currentMetadata["title"], currentMetadata["id"]);
                     currentLabel = currentMetadata["title"] || currentMetadata["id"];
                     addContent();
                     updateContent();
@@ -409,15 +419,17 @@ const mainLoop = async () => {
                     currentPlayer = null;
                     currentStatus = null;
                     currentLabel = null;
+                    changedSource = null;
                 }
             }
         } else {
-            log("No players available");
+            // log("No players available");
             removeContent();
             currentMetadata = null;
             currentPlayer = null;
             currentStatus = null;
             currentLabel = null;
+            changedSource = null;
         }
     } catch (error) {
         logError(error);
@@ -513,14 +525,16 @@ const addContent = () => {
                 index++;
             }
         }
+
         Main.panel.addToStatusArea("sourceMenu", sourceMenu, extensionIndex + index, extensionPosition);
+
         contentRemoved = false;
     }
 };
 
 const removeContent = () => {
     if (!contentRemoved) {
-        log(" [Media-Controls]Removing content");
+        log("[Media-Controls]Removing content");
         Main.panel[positions[extensionPosition]].remove_actor(buttonNext);
         Main.panel[positions[extensionPosition]].remove_actor(buttonToggle);
         Main.panel[positions[extensionPosition]].remove_actor(buttonPrev);
@@ -528,6 +542,7 @@ const removeContent = () => {
         Main.panel[positions[extensionPosition]].remove_actor(buttonPlayer);
         Main.panel[positions[extensionPosition]].remove_actor(labelSeperatorStart);
         Main.panel[positions[extensionPosition]].remove_actor(labelSeperatorEnd);
+        Main.panel[positions[extensionPosition]].remove_actor(sourceMenu.container);
         delete Main.panel.statusArea["sourceMenu"];
         contentRemoved = true;
     }

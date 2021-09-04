@@ -120,7 +120,7 @@ const updatePlayers = async (sourceMenu, callback) => {
     }
 };
 
-var isValidPlayer = ({ id, title }) => {
+var isValidPlayer = (id, title) => {
     if (title || (id && id !== "/org/mpris/MediaPlayer2/TrackList/NoTrack")) {
         return true;
     }
@@ -128,8 +128,8 @@ var isValidPlayer = ({ id, title }) => {
 };
 
 var hasMetadataChanged = (metadata, _metadata) => {
-    if (metadata && _metadata && Object.keys(metadata).every((key) => metadata[key] !== _metadata[key])) {
-        return true;
+    if (metadata && _metadata && Object.keys(metadata).every((key) => metadata[key] === _metadata[key])) {
+        return false;
     }
-    return false;
+    return true;
 };
