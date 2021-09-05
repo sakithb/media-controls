@@ -4,10 +4,12 @@
 
 const Lang = imports.lang;
 
-const { Gio, Gtk, GObject } = imports.gi;
+const { Gio, Gtk, GObject, GLib } = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
+
+const { Utf8ArrayToStr } = Me.imports.utils;
 
 const Config = imports.misc.config;
 const [major] = Config.PACKAGE_VERSION.split(".");
@@ -53,7 +55,8 @@ let settings,
     widgetElementOrderSecond,
     widgetElementOrderThird,
     widgetPreset,
-    widgetCustom;
+    widgetCustom,
+    widgetCacheSize;
 
 if (shellVersion >= 40) {
     MediaControlsBuilderScope = GObject.registerClass(
@@ -90,7 +93,6 @@ const signalHandler = {
                 presetValue.charAt(presetValue.length - 1),
             ]);
         }
-        return "done";
     },
     on_seperator_custom_changed: (widget) => {
         if (builder.get_object("custom-radio-btn").get_active()) {
@@ -182,12 +184,22 @@ const signalHandler = {
     on_extension_position_changed: (widget) => {
         settings.set_string("extension-position", positions[widget.get_active()]);
     },
+
+    on_clear_cache_clicked: () => {
+        let dir = GLib.get_user_config_dir() + "/media-controls";
+        let [ok, out, err, status] = GLib.spawn_command_line_sync(`rm -r '${dir}'`);
+        if (ok) {
+            widgetCacheSize.set_text(getCacheSize());
+        } else {
+            widgetCacheSize.set_text("Failed to clear cache");
+        }
+    },
 };
 
 const bindSettings = () => {
     settings.bind(
-        "max-text-length",
-        builder.get_object("max-text-length"),
+        "max-text-width",
+        builder.get_object("max-text-width"),
         "value",
         Gio.SettingsBindFlags.DEFAULT
     );
@@ -275,6 +287,8 @@ const initWidgets = () => {
     let mouseActions = settings.get_strv("mouse-actions");
     widgetMouseActionLeft.set_active(playbackActionNameIds.indexOf(mouseActions[0]));
     widgetMouseActionRight.set_active(playbackActionNameIds.indexOf(mouseActions[1]));
+
+    widgetCacheSize.set_text(getCacheSize());
 };
 
 const init = () => {
@@ -297,7 +311,18 @@ const buildPrefsWidget = () => {
     widgetElementOrderThird = builder.get_object("element-order-third");
     widgetPreset = builder.get_object("sepchars-preset");
     widgetCustom = builder.get_object("sepchars-custom");
+    widgetCacheSize = builder.get_object("cache-size");
     initWidgets();
     bindSettings();
     return builder.get_object("main_prefs");
+};
+
+const getCacheSize = () => {
+    // du -hs ./.config/media-controls | awk '{NF=1}1'
+    const [ok, out, err, status] = GLib.spawn_command_line_sync(
+        "/bin/bash -c \"du -hs ./.config/media-controls | awk '{NF=1}1'\""
+    );
+    if (ok) {
+        return Utf8ArrayToStr(out).trim() || "0B";
+    }
 };

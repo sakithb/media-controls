@@ -1,6 +1,9 @@
-const { GLib, Gio, St } = imports.gi;
-
-const PopupMenu = imports.ui.popupMenu;
+try {
+    var { GLib, Gio, St } = imports.gi;
+    var PopupMenu = imports.ui.popupMenu;
+} catch (error) {
+    log("[Media-Controls] GLib, Gio, PopupMenu or St doesn't exist");
+}
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -66,7 +69,10 @@ var getMetadata = async (player) => {
         let id = metadata[0]["mpris:trackid"];
         let title = metadata[0]["xesam:title"];
         let artist = metadata[0]["xesam:artist"];
-        let image = metadata[0]["mpris:artUrl"];
+        let image = metadata[0]["mpris:artUrl"].replace(
+            "https://open.spotify.com/image/",
+            "https://i.scdn.co/image/"
+        );
         let url = metadata[0]["xesam:url"];
         return {
             id,
@@ -103,9 +109,7 @@ const updatePlayers = async (sourceMenu, callback) => {
             let metadata = await getMetadata(player);
             if (isValidPlayer(metadata)) {
                 let image = metadata["image"];
-                if (image) {
-                    image = image.replace("https://open.spotify.com/image/", "https://i.scdn.co/image/");
-                } else {
+                if (!image) {
                     image = "audio-x-generic-symbolic";
                 }
                 let title =
@@ -180,8 +184,8 @@ var getDisplayLabel = ({ id, title, url }) => {
 };
 
 var getIcon = (id) => {
-    let destination = GLib.build_filenamev([dataDir, "media-controls", "cache", GLib.base64_encode(id)]);
     try {
+        let destination = GLib.build_filenamev([dataDir, "media-controls", "cache", GLib.base64_encode(id)]);
         let cacheFile = Gio.File.new_for_path(destination);
         let [success, contents] = cacheFile.load_contents(null);
         if (success) {
@@ -196,37 +200,44 @@ var getIcon = (id) => {
 };
 
 var saveIcon = async (id, url) => {
-    let regexp = new RegExp(
-        /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
-    );
+    try {
+        let regexp = new RegExp(
+            /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
+        );
 
-    if (regexp.test(url)) {
-        let remoteIcon = await _getRequest(url);
-        let destination = GLib.build_filenamev([dataDir, "media-controls", "cache", GLib.base64_encode(id)]);
-        let cacheFile = Gio.File.new_for_path(destination);
-        try {
-            if (GLib.mkdir_with_parents(cacheFile.get_parent().get_path(), 0744) === 0) {
-                let [success, tag] = cacheFile.replace_contents(
-                    remoteIcon,
-                    null,
-                    false,
-                    Gio.FileCreateFlags.REPLACE_DESTINATION,
-                    null
-                );
+        if (regexp.test(url)) {
+            let destination = GLib.build_filenamev([
+                dataDir,
+                "media-controls",
+                "cache",
+                GLib.base64_encode(id),
+            ]);
+            let cacheFile = Gio.File.new_for_path(destination);
+            if (!cacheFile.query_exists(null)) {
+                let remoteIcon = await _getRequest(url);
+                if (GLib.mkdir_with_parents(cacheFile.get_parent().get_path(), 0744) === 0) {
+                    let [success, tag] = cacheFile.replace_contents(
+                        remoteIcon,
+                        null,
+                        false,
+                        Gio.FileCreateFlags.REPLACE_DESTINATION,
+                        null
+                    );
 
-                if (!success) {
+                    if (!success) {
+                        logError("Failed to save icon.");
+                    }
+                } else {
                     logError("Failed to save icon.");
                 }
-            } else {
-                logError("Failed to save icon.");
             }
-        } catch (error) {
-            logError(error);
         }
+    } catch (error) {
+        logError(error);
     }
 };
 
-const _Utf8ArrayToStr = (array) => {
+var Utf8ArrayToStr = (array) => {
     var out, i, len, c;
     var char2, char3;
 

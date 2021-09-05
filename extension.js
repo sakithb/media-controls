@@ -18,6 +18,7 @@ const {
     isValidPlayer,
     isEqual,
     getDisplayLabel,
+    saveIcon,
 } = Me.imports.utils;
 
 let maxDisplayLength,
@@ -85,10 +86,15 @@ const enable = () => {
     currentPlayer = null;
     currentStatus = null;
     currentLabel = null;
+    sourceChanged = false;
 
-    onMaxLengthChanged = settings.connect("changed::max-text-length", () => {
-        maxDisplayLength = settings.get_int("max-text-length");
-        updateContent();
+    onMaxLengthChanged = settings.connect("changed::max-text-width", () => {
+        maxDisplayLength = settings.get_int("max-text-width");
+        if (maxDisplayLength === 0) {
+            buttonLabel.set_style(``);
+        } else {
+            buttonLabel.set_style(`max-width: ${maxDisplayLength}px`);
+        }
     });
 
     onUpdateDelayChanged = settings.connect("changed::update-delay", () => {
@@ -157,7 +163,7 @@ const enable = () => {
         addContent();
     });
 
-    maxDisplayLength = settings.get_int("max-text-length");
+    maxDisplayLength = settings.get_int("max-text-width");
     updateDelay = settings.get_int("update-delay");
     hideTrackName = settings.get_boolean("hide-text");
     hidePlayerIcon = settings.get_boolean("hide-player-icon");
@@ -181,6 +187,7 @@ const enable = () => {
         style_class: "panel-button",
     });
     buttonLabel = new St.Button({
+        style: `max-width: ${maxDisplayLength}px`,
         style_class: "panel-button",
         label: "No media",
     });
@@ -262,14 +269,12 @@ const enable = () => {
     buttonLabel.connect("button-release-event", mouseAction);
     buttonLabel.connect("enter-event", () => {
         if (showAllOnHover) {
-            mouseHovered = true;
-            updateContent();
+            buttonLabel.set_style("");
         }
     });
     buttonLabel.connect("leave-event", () => {
         if (showAllOnHover) {
-            mouseHovered = false;
-            updateContent();
+            buttonLabel.set_style(`max-width: ${maxDisplayLength}px`);
         }
     });
 
@@ -311,10 +316,13 @@ const disable = () => {
     labelSeperatorEnd.destroy();
     sourceMenu.destroy();
 
+    delete Main.panel.statusArea["sourceMenu"];
+
     currentMetadata = null;
     currentPlayer = null;
     currentStatus = null;
     currentLabel = null;
+    sourceChanged = false;
 
     removeContent();
 };
@@ -401,6 +409,8 @@ const mainLoop = async () => {
                     currentPlayer = null;
                     currentStatus = null;
                     currentLabel = null;
+
+                    sourceChanged = false;
                 }
             }
         } else {
@@ -444,13 +454,13 @@ const updateContent = () => {
 
     let displayLabel = currentLabel + (currentMetadata["artist"] ? ` - ${currentMetadata["artist"]}` : "");
 
-    if (displayLabel.length > maxDisplayLength && maxDisplayLength !== 0 && !mouseHovered) {
-        displayLabel = displayLabel.substr(0, maxDisplayLength - 3) + "...";
-    }
-
     buttonLabel.set_label(displayLabel);
 
     updateToggleButtonIcon();
+
+    if (currentMetadata["image"]) {
+        saveIcon(currentMetadata["id"], currentMetadata["image"]);
+    }
 };
 
 const addContent = () => {
