@@ -4,25 +4,28 @@
 
 const Lang = imports.lang;
 
-const { Gio, Gtk, GObject } = imports.gi;
+const { Gio, Gtk, GObject, GLib } = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
+
+const { Utf8ArrayToStr } = Me.imports.utils;
 
 const Config = imports.misc.config;
 const [major] = Config.PACKAGE_VERSION.split(".");
 const shellVersion = Number.parseInt(major);
 
 const positions = ["left", "center", "right"];
-const playbackActionNamesMap = {
+const mouseActionNamesMap = {
     none: "None",
-    toggle: "Toggle play/pause",
+    toggle_play: "Toggle play/pause",
     play: "Play",
     pause: "Pause",
     next: "Next",
     previous: "Previous",
+    toggle_menu: "Open sources menu",
 };
-let playbackActionNameIds = Object.keys(playbackActionNamesMap);
+let mouseActionNameIds = Object.keys(mouseActionNamesMap);
 
 const presetSepChars = [
     "|...|",
@@ -53,7 +56,8 @@ let settings,
     widgetElementOrderSecond,
     widgetElementOrderThird,
     widgetPreset,
-    widgetCustom;
+    widgetCustom,
+    widgetCacheSize;
 
 if (shellVersion >= 40) {
     MediaControlsBuilderScope = GObject.registerClass(
@@ -90,7 +94,6 @@ const signalHandler = {
                 presetValue.charAt(presetValue.length - 1),
             ]);
         }
-        return "done";
     },
     on_seperator_custom_changed: (widget) => {
         if (builder.get_object("custom-radio-btn").get_active()) {
@@ -171,23 +174,33 @@ const signalHandler = {
     },
     on_mouse_actions_left_changed: (widget) => {
         let currentMouseActions = settings.get_strv("mouse-actions");
-        currentMouseActions[0] = playbackActionNameIds[widget.get_active()];
+        currentMouseActions[0] = mouseActionNameIds[widget.get_active()];
         settings.set_strv("mouse-actions", currentMouseActions);
     },
     on_mouse_actions_right_changed: (widget) => {
         let currentMouseActions = settings.get_strv("mouse-actions");
-        currentMouseActions[1] = playbackActionNameIds[widget.get_active()];
+        currentMouseActions[1] = mouseActionNameIds[widget.get_active()];
         settings.set_strv("mouse-actions", currentMouseActions);
     },
     on_extension_position_changed: (widget) => {
         settings.set_string("extension-position", positions[widget.get_active()]);
     },
+
+    on_clear_cache_clicked: () => {
+        let dir = GLib.get_user_config_dir() + "/media-controls";
+        let [ok, out, err, status] = GLib.spawn_command_line_sync(`rm -r '${dir}'`);
+        if (ok) {
+            widgetCacheSize.set_text(getCacheSize());
+        } else {
+            widgetCacheSize.set_text("Failed to clear cache");
+        }
+    },
 };
 
 const bindSettings = () => {
     settings.bind(
-        "max-text-length",
-        builder.get_object("max-text-length"),
+        "max-text-width",
+        builder.get_object("max-text-width"),
         "value",
         Gio.SettingsBindFlags.DEFAULT
     );
@@ -268,13 +281,15 @@ const initWidgets = () => {
     // Init mouse action comboboxes
     let widgetMouseActionLeft = builder.get_object("mouse-actions-left");
     let widgetMouseActionRight = builder.get_object("mouse-actions-right");
-    playbackActionNameIds.forEach((action) => {
-        widgetMouseActionLeft.append(action, playbackActionNamesMap[action]);
-        widgetMouseActionRight.append(action, playbackActionNamesMap[action]);
+    mouseActionNameIds.forEach((action) => {
+        widgetMouseActionLeft.append(action, mouseActionNamesMap[action]);
+        widgetMouseActionRight.append(action, mouseActionNamesMap[action]);
     });
     let mouseActions = settings.get_strv("mouse-actions");
-    widgetMouseActionLeft.set_active(playbackActionNameIds.indexOf(mouseActions[0]));
-    widgetMouseActionRight.set_active(playbackActionNameIds.indexOf(mouseActions[1]));
+    widgetMouseActionLeft.set_active(mouseActionNameIds.indexOf(mouseActions[0]));
+    widgetMouseActionRight.set_active(mouseActionNameIds.indexOf(mouseActions[1]));
+
+    widgetCacheSize.set_text(getCacheSize());
 };
 
 const init = () => {
@@ -297,7 +312,18 @@ const buildPrefsWidget = () => {
     widgetElementOrderThird = builder.get_object("element-order-third");
     widgetPreset = builder.get_object("sepchars-preset");
     widgetCustom = builder.get_object("sepchars-custom");
+    widgetCacheSize = builder.get_object("cache-size");
     initWidgets();
     bindSettings();
     return builder.get_object("main_prefs");
+};
+
+const getCacheSize = () => {
+    // du -hs ./.config/media-controls | awk '{NF=1}1'
+    const [ok, out, err, status] = GLib.spawn_command_line_sync(
+        "/bin/bash -c \"du -hs ./.config/media-controls | awk '{NF=1}1'\""
+    );
+    if (ok) {
+        return Utf8ArrayToStr(out).trim() || "0B";
+    }
 };

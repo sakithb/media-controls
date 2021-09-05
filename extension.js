@@ -9,8 +9,17 @@ const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 
-const { playerAction, getPlayers, getMetadata, getStatus, updatePlayers, isValidPlayer, hasMetadataChanged } =
-    Me.imports.utils;
+const {
+    playerAction,
+    getPlayers,
+    getMetadata,
+    getStatus,
+    updatePlayers,
+    isValidPlayer,
+    isEqual,
+    getDisplayLabel,
+    saveIcon,
+} = Me.imports.utils;
 
 let maxDisplayLength,
     updateDelay,
@@ -58,7 +67,7 @@ let mainloop, settings, positions, playerIcons;
 
 let currentPlayer, currentMetadata, currentLabel, currentStatus;
 
-let loopFinished, contentRemoved, mouseHovered, changedSource;
+let loopFinished, contentRemoved, mouseHovered, sourceChanged;
 
 const init = () => {
     playerIcons = ["chromium", "firefox"];
@@ -70,7 +79,6 @@ const init = () => {
 };
 
 const enable = () => {
-    log("[Media-Controls] Enabling");
     settings = ExtensionUtils.getSettings();
     loopFinished = true;
     contentRemoved = true;
@@ -78,10 +86,15 @@ const enable = () => {
     currentPlayer = null;
     currentStatus = null;
     currentLabel = null;
+    sourceChanged = false;
 
-    onMaxLengthChanged = settings.connect("changed::max-text-length", () => {
-        maxDisplayLength = settings.get_int("max-text-length");
-        updateContent();
+    onMaxLengthChanged = settings.connect("changed::max-text-width", () => {
+        maxDisplayLength = settings.get_int("max-text-width");
+        if (maxDisplayLength === 0) {
+            buttonLabel.set_style(``);
+        } else {
+            buttonLabel.set_style(`max-width: ${maxDisplayLength}px`);
+        }
     });
 
     onUpdateDelayChanged = settings.connect("changed::update-delay", () => {
@@ -150,7 +163,7 @@ const enable = () => {
         addContent();
     });
 
-    maxDisplayLength = settings.get_int("max-text-length");
+    maxDisplayLength = settings.get_int("max-text-width");
     updateDelay = settings.get_int("update-delay");
     hideTrackName = settings.get_boolean("hide-text");
     hidePlayerIcon = settings.get_boolean("hide-player-icon");
@@ -174,6 +187,7 @@ const enable = () => {
         style_class: "panel-button",
     });
     buttonLabel = new St.Button({
+        style: `max-width: ${maxDisplayLength}px`,
         style_class: "panel-button",
         label: "No media",
     });
@@ -217,9 +231,13 @@ const enable = () => {
     sourceMenu.add_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
     sourceMenu.menu.connect("open-state-changed", (menu, open) => {
         if (open) {
-            (() => {
-                updatePlayers(sourceMenu, changeSource);
-            })();
+            try {
+                (() => {
+                    updatePlayers(sourceMenu, changeSource);
+                })();
+            } catch (error) {
+                logError(error);
+            }
         }
     });
     sourceMenu.menu.addMenuItem(new PopupMenu.PopupMenuItem("Players", { reactive: false }));
@@ -251,14 +269,12 @@ const enable = () => {
     buttonLabel.connect("button-release-event", mouseAction);
     buttonLabel.connect("enter-event", () => {
         if (showAllOnHover) {
-            mouseHovered = true;
-            updateContent();
+            buttonLabel.set_style("");
         }
     });
     buttonLabel.connect("leave-event", () => {
         if (showAllOnHover) {
-            mouseHovered = false;
-            updateContent();
+            buttonLabel.set_style(`max-width: ${maxDisplayLength}px`);
         }
     });
 
@@ -271,7 +287,6 @@ const enable = () => {
 };
 
 const disable = () => {
-    log("[Media-Controls] Disabling");
     Mainloop.source_remove(mainloop);
 
     settings.disconnect(onMaxLengthChanged);
@@ -301,10 +316,13 @@ const disable = () => {
     labelSeperatorEnd.destroy();
     sourceMenu.destroy();
 
+    delete Main.panel.statusArea["sourceMenu"];
+
     currentMetadata = null;
     currentPlayer = null;
     currentStatus = null;
     currentLabel = null;
+    sourceChanged = false;
 
     removeContent();
 };
@@ -314,103 +332,75 @@ const mainLoop = async () => {
     try {
         let players = await getPlayers();
         if (players.length > 0) {
-            // log("\nPlayers are availablee");
             if (players.includes(currentPlayer)) {
-                // log("Current player is in list");
                 let status = await getStatus(currentPlayer);
-                if (status === "Playing" || changedSource === currentPlayer) {
-                    // log("Player is playing");
+                if (status === "Playing") {
                     currentStatus = status;
                     let metadata = await getMetadata(currentPlayer);
-                    log("here", metadata["title"], currentMetadata["title"]);
                     if (isValidPlayer(metadata["id"], metadata["title"])) {
-                        if (
-                            hasMetadataChanged(metadata, currentMetadata) ||
-                            changedSource === currentPlayer
-                        ) {
-                            log("_Metadata is not equal", metadata["title"], currentMetadata["title"]);
+                        if (!isEqual(metadata, currentMetadata)) {
                             currentMetadata = metadata;
-                            currentLabel = metadata["title"] || metadata["id"];
+                            currentLabel = getDisplayLabel(metadata);
                             updateContent();
                         } else {
                             updateToggleButtonIcon();
                         }
                     } else {
-                        // log("Not valid player");
                         currentPlayer = null;
+                        sourceChanged = false;
                     }
                 } else {
-                    // log("Current player is not playing");
                     for (player of players) {
                         _status = await getStatus(player);
-                        if (_status === "Playing") {
-                            // log("nulling player", _status);
+                        if (_status === "Playing" && !sourceChanged) {
                             currentPlayer = null;
                             break;
                         }
                     }
 
                     if (currentPlayer) {
-                        // log("not nulling player", currentPlayer);
                         currentStatus = _status;
                         _metadata = await getMetadata(currentPlayer);
-                        log(
-                            "noy here",
-                            _metadata["title"],
-                            currentMetadata["title"],
-                            _metadata["title"] === currentMetadata["title"],
-                            hasMetadataChanged(_metadata, currentMetadata)
-                        );
 
                         if (isValidPlayer(_metadata["id"], _metadata["title"])) {
-                            if (hasMetadataChanged(_metadata, currentMetadata)) {
-                                log("_Metadata is not equal", _metadata["title"], currentMetadata["title"]);
+                            if (!isEqual(_metadata, currentMetadata)) {
                                 currentMetadata = _metadata;
-                                currentLabel = _metadata["title"] || _metadata["id"];
+                                currentLabel = getDisplayLabel(_metadata);
                                 updateContent();
                             } else {
-                                log("Not changed");
                                 updateToggleButtonIcon();
                             }
                         } else {
-                            // log("Not valid player");
-
                             currentPlayer = null;
+                            sourceChanged = false;
                         }
                     }
                 }
             } else {
-                // log("Player not in list");
-                // log("New player/ new state");
+                sourceChanged = false;
                 let validPlayers = new Map();
                 let playingPlayers = [];
                 for (player of players) {
-                    let { id, title, artist } = await getMetadata(player);
-                    if (isValidPlayer(id, title)) {
+                    let metadata = await getMetadata(player);
+                    if (isValidPlayer(metadata["id"], metadata["title"])) {
                         let status = await getStatus(player);
                         if (status === "Playing") {
                             playingPlayers.push(player);
                         }
-                        validPlayers.set(player, {
-                            id,
-                            title,
-                            artist,
-                        });
+                        validPlayers.set(player, metadata);
                     }
                 }
                 if (validPlayers.size > 0) {
                     if (playingPlayers.length > 0) {
                         currentPlayer = playingPlayers[0];
                         currentStatus = "Playing";
-                        // log("Playing player", currentPlayer);
                     } else {
                         currentPlayer = validPlayers.keys().next().value;
                         currentStatus = "Paused";
-                        // log("no playing players", currentPlayer);
                     }
                     currentMetadata = validPlayers.get(currentPlayer);
-                    // log(currentMetadata["title"], currentMetadata["id"]);
-                    currentLabel = currentMetadata["title"] || currentMetadata["id"];
+
+                    currentLabel = getDisplayLabel(currentMetadata);
                     addContent();
                     updateContent();
                 } else {
@@ -419,17 +409,17 @@ const mainLoop = async () => {
                     currentPlayer = null;
                     currentStatus = null;
                     currentLabel = null;
-                    changedSource = null;
+
+                    sourceChanged = false;
                 }
             }
         } else {
-            // log("No players available");
             removeContent();
             currentMetadata = null;
             currentPlayer = null;
             currentStatus = null;
             currentLabel = null;
-            changedSource = null;
+            sourceChanged = false;
         }
     } catch (error) {
         logError(error);
@@ -464,13 +454,13 @@ const updateContent = () => {
 
     let displayLabel = currentLabel + (currentMetadata["artist"] ? ` - ${currentMetadata["artist"]}` : "");
 
-    if (displayLabel.length > maxDisplayLength && maxDisplayLength !== 0 && !mouseHovered) {
-        displayLabel = displayLabel.substr(0, maxDisplayLength - 3) + "...";
-    }
-
     buttonLabel.set_label(displayLabel);
 
     updateToggleButtonIcon();
+
+    if (currentMetadata["image"]) {
+        saveIcon(currentMetadata["id"], currentMetadata["image"]);
+    }
 };
 
 const addContent = () => {
@@ -534,7 +524,8 @@ const addContent = () => {
 
 const removeContent = () => {
     if (!contentRemoved) {
-        log("[Media-Controls]Removing content");
+        log("[Media-Controls] Removing content");
+
         Main.panel[positions[extensionPosition]].remove_actor(buttonNext);
         Main.panel[positions[extensionPosition]].remove_actor(buttonToggle);
         Main.panel[positions[extensionPosition]].remove_actor(buttonPrev);
@@ -569,15 +560,19 @@ const updateToggleButtonIcon = () => {
 };
 
 const mouseAction = (event) => {
+    let button = 1;
     if (event.pseudo_class && event.pseudo_class.includes("active")) {
-        playerAction(currentPlayer, mouseActions[0]);
+        button = 0;
+    }
+    if (mouseActions[button] === "toggle_menu") {
+        sourceMenu.menu.toggle();
     } else {
-        playerAction(currentPlayer, mouseActions[1]);
+        playerAction(currentPlayer, mouseActions[button]);
     }
 };
 
 const changeSource = (player) => {
+    log(`[Media-Controls] Changing player to ${player}`);
     currentPlayer = player;
-    currentMetadata = null;
-    changedSource = player;
+    sourceChanged = true;
 };
