@@ -29,7 +29,7 @@ var playerAction = async (player, action) => {
         case "previous":
             await dbusMethod(player, "/org/mpris/MediaPlayer2", "org.mpris.MediaPlayer2.Player", "Previous");
             break;
-        case "toggle":
+        case "toggle_play":
             await dbusMethod(player, "/org/mpris/MediaPlayer2", "org.mpris.MediaPlayer2.Player", "PlayPause");
             break;
         default:
@@ -119,7 +119,6 @@ const updatePlayers = async (sourceMenu, callback) => {
                 }
                 let icon = getIcon(metadata["id"]);
                 if (!icon) {
-                    log("Icon not valid");
                     icon = Gio.icon_new_for_string(image);
                     iconStr = icon.to_string();
                     if (iconStr !== "audio-x-generic-symbolic") {

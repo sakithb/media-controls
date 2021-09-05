@@ -16,15 +16,16 @@ const [major] = Config.PACKAGE_VERSION.split(".");
 const shellVersion = Number.parseInt(major);
 
 const positions = ["left", "center", "right"];
-const playbackActionNamesMap = {
+const mouseActionNamesMap = {
     none: "None",
-    toggle: "Toggle play/pause",
+    toggle_play: "Toggle play/pause",
     play: "Play",
     pause: "Pause",
     next: "Next",
     previous: "Previous",
+    toggle_menu: "Open sources menu",
 };
-let playbackActionNameIds = Object.keys(playbackActionNamesMap);
+let mouseActionNameIds = Object.keys(mouseActionNamesMap);
 
 const presetSepChars = [
     "|...|",
@@ -173,12 +174,12 @@ const signalHandler = {
     },
     on_mouse_actions_left_changed: (widget) => {
         let currentMouseActions = settings.get_strv("mouse-actions");
-        currentMouseActions[0] = playbackActionNameIds[widget.get_active()];
+        currentMouseActions[0] = mouseActionNameIds[widget.get_active()];
         settings.set_strv("mouse-actions", currentMouseActions);
     },
     on_mouse_actions_right_changed: (widget) => {
         let currentMouseActions = settings.get_strv("mouse-actions");
-        currentMouseActions[1] = playbackActionNameIds[widget.get_active()];
+        currentMouseActions[1] = mouseActionNameIds[widget.get_active()];
         settings.set_strv("mouse-actions", currentMouseActions);
     },
     on_extension_position_changed: (widget) => {
@@ -280,13 +281,13 @@ const initWidgets = () => {
     // Init mouse action comboboxes
     let widgetMouseActionLeft = builder.get_object("mouse-actions-left");
     let widgetMouseActionRight = builder.get_object("mouse-actions-right");
-    playbackActionNameIds.forEach((action) => {
-        widgetMouseActionLeft.append(action, playbackActionNamesMap[action]);
-        widgetMouseActionRight.append(action, playbackActionNamesMap[action]);
+    mouseActionNameIds.forEach((action) => {
+        widgetMouseActionLeft.append(action, mouseActionNamesMap[action]);
+        widgetMouseActionRight.append(action, mouseActionNamesMap[action]);
     });
     let mouseActions = settings.get_strv("mouse-actions");
-    widgetMouseActionLeft.set_active(playbackActionNameIds.indexOf(mouseActions[0]));
-    widgetMouseActionRight.set_active(playbackActionNameIds.indexOf(mouseActions[1]));
+    widgetMouseActionLeft.set_active(mouseActionNameIds.indexOf(mouseActions[0]));
+    widgetMouseActionRight.set_active(mouseActionNameIds.indexOf(mouseActions[1]));
 
     widgetCacheSize.set_text(getCacheSize());
 };

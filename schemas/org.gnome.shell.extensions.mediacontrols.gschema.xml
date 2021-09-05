@@ -29,7 +29,7 @@
       <default>['|', '|']</default>
     </key>
     <key name="mouse-actions" type="as">
-      <default>['none', 'none']</default>
+      <default>['toggle_play', 'toggle_menu']</default>
     </key>
     <key name="extension-position" type="s">
       <default>'center'</default>

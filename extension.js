@@ -560,10 +560,14 @@ const updateToggleButtonIcon = () => {
 };
 
 const mouseAction = (event) => {
+    let button = 1;
     if (event.pseudo_class && event.pseudo_class.includes("active")) {
-        playerAction(currentPlayer, mouseActions[0]);
+        button = 0;
+    }
+    if (mouseActions[button] === "toggle_menu") {
+        sourceMenu.menu.toggle();
     } else {
-        playerAction(currentPlayer, mouseActions[1]);
+        playerAction(currentPlayer, mouseActions[button]);
     }
 };
 
