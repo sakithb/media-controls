@@ -46,18 +46,20 @@ const elements = {
     icon: "Player icon",
     title: "Track title",
     controls: "Control icons",
+    menu: "Sources menu",
 };
 const elementIds = Object.keys(elements);
 
 let settings,
     builder,
     MediaControlsBuilderScope,
-    widgetElementOrderFirst,
-    widgetElementOrderSecond,
-    widgetElementOrderThird,
     widgetPreset,
     widgetCustom,
-    widgetCacheSize;
+    widgetCacheSize,
+    widgetElementOrder,
+    elementOrderWidgets;
+
+let elementOrder, elementOrderLock;
 
 if (shellVersion >= 40) {
     MediaControlsBuilderScope = GObject.registerClass(
@@ -103,75 +105,75 @@ const signalHandler = {
             }
         }
     },
-    on_element_order_first_changed: (widget) => {
-        let secondValue = elementIds[widgetElementOrderSecond.get_active()];
-        let thirdValue = elementIds[widgetElementOrderThird.get_active()];
-        let thisValue = elementIds[widget.get_active()];
-        if (thisValue === secondValue) {
-            elementIds.forEach((element, index) => {
-                if (!(element === thirdValue || element === thisValue)) {
-                    widgetElementOrderSecond.set_active(index);
-                }
-            });
-        } else if (thisValue === thirdValue) {
-            elementIds.forEach((element, index) => {
-                if (!(element === secondValue || element === thisValue)) {
-                    widgetElementOrderThird.set_active(index);
-                }
-            });
-        }
-        settings.set_strv("element-order", [
-            thisValue,
-            elementIds[widgetElementOrderSecond.get_active()],
-            elementIds[widgetElementOrderThird.get_active()],
-        ]);
-    },
-    on_element_order_second_changed: (widget) => {
-        let firstValue = elementIds[widgetElementOrderFirst.get_active()];
-        let thirdValue = elementIds[widgetElementOrderThird.get_active()];
-        let thisValue = elementIds[widget.get_active()];
-        if (thisValue === firstValue) {
-            elementIds.forEach((element, index) => {
-                if (!(element === thirdValue || element === thisValue)) {
-                    widgetElementOrderFirst.set_active(index);
-                }
-            });
-        } else if (thisValue === thirdValue) {
-            elementIds.forEach((element, index) => {
-                if (!(element === firstValue || element === thisValue)) {
-                    widgetElementOrderThird.set_active(index);
-                }
-            });
-        }
-        settings.set_strv("element-order", [
-            elementIds[widgetElementOrderFirst.get_active()],
-            thisValue,
-            elementIds[widgetElementOrderThird.get_active()],
-        ]);
-    },
-    on_element_order_third_changed: (widget) => {
-        let secondValue = elementIds[widgetElementOrderSecond.get_active()];
-        let firstValue = elementIds[widgetElementOrderFirst.get_active()];
-        let thisValue = elementIds[widget.get_active()];
-        if (thisValue === secondValue) {
-            elementIds.forEach((element, index) => {
-                if (!(element === firstValue || element === thisValue)) {
-                    widgetElementOrderSecond.set_active(index);
-                }
-            });
-        } else if (thisValue === firstValue) {
-            elementIds.forEach((element, index) => {
-                if (!(element === secondValue || element === thisValue)) {
-                    widgetElementOrderFirst.set_active(index);
-                }
-            });
-        }
-        settings.set_strv("element-order", [
-            elementIds[widgetElementOrderFirst.get_active()],
-            elementIds[widgetElementOrderSecond.get_active()],
-            thisValue,
-        ]);
-    },
+    // on_element_order_first_changed: (widget) => {
+    //     let secondValue = elementIds[widgetElementOrderSecond.get_active()];
+    //     let thirdValue = elementIds[widgetElementOrderThird.get_active()];
+    //     let thisValue = elementIds[widget.get_active()];
+    //     if (thisValue === secondValue) {
+    //         elementIds.forEach((element, index) => {
+    //             if (!(element === thirdValue || element === thisValue)) {
+    //                 widgetElementOrderSecond.set_active(index);
+    //             }
+    //         });
+    //     } else if (thisValue === thirdValue) {
+    //         elementIds.forEach((element, index) => {
+    //             if (!(element === secondValue || element === thisValue)) {
+    //                 widgetElementOrderThird.set_active(index);
+    //             }
+    //         });
+    //     }
+    //     settings.set_strv("element-order", [
+    //         thisValue,
+    //         elementIds[widgetElementOrderSecond.get_active()],
+    //         elementIds[widgetElementOrderThird.get_active()],
+    //     ]);
+    // },
+    // on_element_order_second_changed: (widget) => {
+    //     let firstValue = elementIds[widgetElementOrderFirst.get_active()];
+    //     let thirdValue = elementIds[widgetElementOrderThird.get_active()];
+    //     let thisValue = elementIds[widget.get_active()];
+    //     if (thisValue === firstValue) {
+    //         elementIds.forEach((element, index) => {
+    //             if (!(element === thirdValue || element === thisValue)) {
+    //                 widgetElementOrderFirst.set_active(index);
+    //             }
+    //         });
+    //     } else if (thisValue === thirdValue) {
+    //         elementIds.forEach((element, index) => {
+    //             if (!(element === firstValue || element === thisValue)) {
+    //                 widgetElementOrderThird.set_active(index);
+    //             }
+    //         });
+    //     }
+    //     settings.set_strv("element-order", [
+    //         elementIds[widgetElementOrderFirst.get_active()],
+    //         thisValue,
+    //         elementIds[widgetElementOrderThird.get_active()],
+    //     ]);
+    // },
+    // on_element_order_third_changed: (widget) => {
+    //     let secondValue = elementIds[widgetElementOrderSecond.get_active()];
+    //     let firstValue = elementIds[widgetElementOrderFirst.get_active()];
+    //     let thisValue = elementIds[widget.get_active()];
+    //     if (thisValue === secondValue) {
+    //         elementIds.forEach((element, index) => {
+    //             if (!(element === firstValue || element === thisValue)) {
+    //                 widgetElementOrderSecond.set_active(index);
+    //             }
+    //         });
+    //     } else if (thisValue === firstValue) {
+    //         elementIds.forEach((element, index) => {
+    //             if (!(element === secondValue || element === thisValue)) {
+    //                 widgetElementOrderFirst.set_active(index);
+    //             }
+    //         });
+    //     }
+    //     settings.set_strv("element-order", [
+    //         elementIds[widgetElementOrderFirst.get_active()],
+    //         elementIds[widgetElementOrderSecond.get_active()],
+    //         thisValue,
+    //     ]);
+    // },
     on_mouse_actions_left_changed: (widget) => {
         let currentMouseActions = settings.get_strv("mouse-actions");
         currentMouseActions[0] = mouseActionNameIds[widget.get_active()];
@@ -205,22 +207,22 @@ const bindSettings = () => {
         Gio.SettingsBindFlags.DEFAULT
     );
     settings.bind("update-delay", builder.get_object("update-delay"), "value", Gio.SettingsBindFlags.DEFAULT);
-    settings.bind("hide-text", builder.get_object("hide-text"), "active", Gio.SettingsBindFlags.DEFAULT);
+    settings.bind("show-text", builder.get_object("show-text"), "active", Gio.SettingsBindFlags.DEFAULT);
     settings.bind(
-        "hide-player-icon",
-        builder.get_object("hide-player-icon"),
+        "show-player-icon",
+        builder.get_object("show-player-icon"),
         "active",
         Gio.SettingsBindFlags.DEFAULT
     );
     settings.bind(
-        "hide-control-icons",
-        builder.get_object("hide-control-icons"),
+        "show-control-icons",
+        builder.get_object("show-control-icons"),
         "active",
         Gio.SettingsBindFlags.DEFAULT
     );
     settings.bind(
-        "hide-seperators",
-        builder.get_object("hide-seperators"),
+        "show-seperators",
+        builder.get_object("show-seperators"),
         "active",
         Gio.SettingsBindFlags.DEFAULT
     );
@@ -240,6 +242,12 @@ const bindSettings = () => {
         "extension-index",
         builder.get_object("extension-index"),
         "value",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "show-sources-menu",
+        builder.get_object("show-sources-menu"),
+        "active",
         Gio.SettingsBindFlags.DEFAULT
     );
 };
@@ -268,15 +276,69 @@ const initWidgets = () => {
     widgetExtensionPos.set_active(positions.indexOf(settings.get_string("extension-position")));
 
     // Init element order comboboxes
-    elementIds.forEach((element) => {
-        widgetElementOrderFirst.append(element, elements[element]);
-        widgetElementOrderSecond.append(element, elements[element]);
-        widgetElementOrderThird.append(element, elements[element]);
+    // elementIds.forEach((element) => {
+    //     widgetElementOrderFirst.append(element, elements[element]);
+    //     widgetElementOrderSecond.append(element, elements[element]);
+    //     widgetElementOrderThird.append(element, elements[element]);
+    // });
+    // let elementOrder = settings.get_strv("element-order");
+    // widgetElementOrderFirst.set_active(elementIds.indexOf(elementOrder[0]));
+    // widgetElementOrderSecond.set_active(elementIds.indexOf(elementOrder[1]));
+    // widgetElementOrderThird.set_active(elementIds.indexOf(elementOrder[2]));
+
+    elementOrder = settings.get_strv("element-order");
+
+    elementIds.forEach((element, index) => {
+        let widget = new Gtk.ComboBoxText({
+            visible: true,
+        });
+
+        elementIds.forEach((_element) => {
+            widget.append(_element, elements[_element]);
+        });
+
+        widget.set_active(elementIds.indexOf(elementOrder[index]));
+
+        widget.connect("changed", () => {
+            if (!elementOrderLock) {
+                elementOrderLock = true;
+                let newElementOrder = [];
+                elementOrder = settings.get_strv("element-order");
+                elementOrderWidgets.forEach((_widget, index) => {
+                    let val = elementIds[_widget.get_active()];
+                    log(`Current value: ${val}`);
+                    if (newElementOrder.includes(val)) {
+                        log(`   Current: ${newElementOrder} at index ${index}`);
+                        let _index = newElementOrder.indexOf(val);
+                        log(`   Index of conflicting element ${_index}`);
+                        if (elementOrder[_index] === val) {
+                            log(
+                                `       This is the new one. Overriding old value: '${val}' at index: '${_index}' with '${elementOrder[index]}'`
+                            );
+                            newElementOrder[_index] = elementOrder[index];
+                            log(`       Changed: ${newElementOrder} at index ${index}`);
+                            elementOrderWidgets[_index].set_active(elementIds.indexOf(elementOrder[index]));
+                        } else {
+                            log(
+                                `       This is the old one. Overriding current value: ${val} with ${elementOrder[_index]}`
+                            );
+                            val = elementOrder[_index];
+                            _widget.set_active(elementIds.indexOf(val));
+                        }
+                    }
+                    newElementOrder.push(val);
+                });
+                log(`Finalized ${newElementOrder}`);
+                settings.set_strv("element-order", newElementOrder);
+                elementOrderLock = false;
+            } else {
+                log("Ignoring signal");
+            }
+        });
+
+        widgetElementOrder.attach(widget, 1, index, 1, 1);
+        elementOrderWidgets.push(widget);
     });
-    let elementOrder = settings.get_strv("element-order");
-    widgetElementOrderFirst.set_active(elementIds.indexOf(elementOrder[0]));
-    widgetElementOrderSecond.set_active(elementIds.indexOf(elementOrder[1]));
-    widgetElementOrderThird.set_active(elementIds.indexOf(elementOrder[2]));
 
     // Init mouse action comboboxes
     let widgetMouseActionLeft = builder.get_object("mouse-actions-left");
@@ -307,12 +369,11 @@ const buildPrefsWidget = () => {
         builder.set_scope(new MediaControlsBuilderScope());
         builder.add_from_file(Me.dir.get_path() + "/prefs4.ui");
     }
-    widgetElementOrderFirst = builder.get_object("element-order-first");
-    widgetElementOrderSecond = builder.get_object("element-order-second");
-    widgetElementOrderThird = builder.get_object("element-order-third");
     widgetPreset = builder.get_object("sepchars-preset");
     widgetCustom = builder.get_object("sepchars-custom");
     widgetCacheSize = builder.get_object("cache-size");
+    widgetElementOrder = builder.get_object("element-order");
+    elementOrderWidgets = [];
     initWidgets();
     bindSettings();
     return builder.get_object("main_prefs");

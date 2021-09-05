@@ -7,6 +7,19 @@
     <key name="update-delay" type="i">
       <default>100</default>
     </key>
+    <key name="show-text" type="b">
+      <default>true</default>
+    </key>
+    <key name="show-player-icon" type="b">
+      <default>true</default>
+    </key>
+    <key name="show-control-icons" type="b">
+      <default>true</default>
+    </key>
+    <key name="show-seperators" type="b">
+      <default>true</default>
+    </key>
+
     <key name="hide-text" type="b">
       <default>false</default>
     </key>
@@ -17,7 +30,11 @@
       <default>false</default>
     </key>
     <key name="hide-seperators" type="b">
-      <default>false</default>
+      <default>true</default>
+    </key>
+
+    <key name="show-sources-menu" type="b">
+      <default>true</default>
     </key>
     <key name="colored-player-icon" type="b">
       <default>false</default>
@@ -38,7 +55,7 @@
       <default>0</default>
     </key>
     <key name="element-order" type="as">
-      <default>['icon', 'title', 'controls']</default>
+      <default>['icon', 'title', 'controls', 'menu']</default>
     </key>
   </schema>
 </schemalist>

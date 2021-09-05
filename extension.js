@@ -23,10 +23,11 @@ const {
 
 let maxDisplayLength,
     updateDelay,
-    hideTrackName,
-    hidePlayerIcon,
-    hideControls,
-    hideSeperators,
+    showTrackName,
+    showPlayerIcon,
+    showControls,
+    showSeperators,
+    showMenu,
     extensionPosition,
     extensionIndex,
     coloredPlayerIcon,
@@ -37,10 +38,11 @@ let maxDisplayLength,
 
 let onMaxLengthChanged,
     onUpdateDelayChanged,
-    onHideTrackNameChanged,
-    onHidePlayerIconChanged,
-    onHideControlsChanged,
-    onHideSeperatorsChanged,
+    onShowTrackNameChanged,
+    onShowPlayerIconChanged,
+    onShowControlsChanged,
+    onShowMenuChanged,
+    onShowSeperatorsChanged,
     onExtensionPositionChanged,
     onExtensionIndexChanged,
     onColoredPlayerIconChanged,
@@ -63,7 +65,7 @@ let buttonNext,
     labelSeperatorEnd,
     sourceMenu;
 
-let mainloop, settings, positions, playerIcons;
+let mainloop, settings, settingsMap, positions, playerIcons;
 
 let currentPlayer, currentMetadata, currentLabel, currentStatus;
 
@@ -88,6 +90,8 @@ const enable = () => {
     currentLabel = null;
     sourceChanged = false;
 
+    initNewSettings();
+
     onMaxLengthChanged = settings.connect("changed::max-text-width", () => {
         maxDisplayLength = settings.get_int("max-text-width");
         if (maxDisplayLength === 0) {
@@ -102,26 +106,32 @@ const enable = () => {
         startMainloop();
     });
 
-    onHideTrackNameChanged = settings.connect("changed::hide-text", () => {
-        hideTrackName = settings.get_boolean("hide-text");
+    onShowTrackNameChanged = settings.connect("changed::show-text", () => {
+        showTrackName = settings.get_boolean("show-text");
         removeContent();
         addContent();
     });
 
-    onHidePlayerIconChanged = settings.connect("changed::hide-player-icon", () => {
-        hidePlayerIcon = settings.get_boolean("hide-player-icon");
+    onShowPlayerIconChanged = settings.connect("changed::show-player-icon", () => {
+        showPlayerIcon = settings.get_boolean("show-player-icon");
         removeContent();
         addContent();
     });
 
-    onHideControlsChanged = settings.connect("changed::hide-control-icons", () => {
-        hideControls = settings.get_boolean("hide-control-icons");
+    onShowControlsChanged = settings.connect("changed::show-control-icons", () => {
+        showControls = settings.get_boolean("show-control-icons");
         removeContent();
         addContent();
     });
 
-    onHideSeperatorsChanged = settings.connect("changed::hide-seperators", () => {
-        hideSeperators = settings.get_boolean("hide-seperators");
+    onShowSeperatorsChanged = settings.connect("changed::show-seperators", () => {
+        showSeperators = settings.get_boolean("show-seperators");
+        removeContent();
+        addContent();
+    });
+
+    onShowMenuChanged = settings.connect("changed::show-sources-menu", () => {
+        showMenu = settings.get_boolean("show-sources-menu");
         removeContent();
         addContent();
     });
@@ -165,10 +175,11 @@ const enable = () => {
 
     maxDisplayLength = settings.get_int("max-text-width");
     updateDelay = settings.get_int("update-delay");
-    hideTrackName = settings.get_boolean("hide-text");
-    hidePlayerIcon = settings.get_boolean("hide-player-icon");
-    hideControls = settings.get_boolean("hide-control-icons");
-    hideSeperators = settings.get_boolean("hide-seperators");
+    showTrackName = settings.get_boolean("show-text");
+    showPlayerIcon = settings.get_boolean("show-player-icon");
+    showControls = settings.get_boolean("show-control-icons");
+    showSeperators = settings.get_boolean("show-seperators");
+    showMenu = settings.get_boolean("show-sources-menu");
     extensionPosition = settings.get_string("extension-position");
     extensionIndex = settings.get_int("extension-index");
     coloredPlayerIcon = settings.get_boolean("colored-player-icon");
@@ -291,10 +302,10 @@ const disable = () => {
 
     settings.disconnect(onMaxLengthChanged);
     settings.disconnect(onUpdateDelayChanged);
-    settings.disconnect(onHideControlsChanged);
-    settings.disconnect(onHidePlayerIconChanged);
-    settings.disconnect(onHideTrackNameChanged);
-    settings.disconnect(onHideSeperatorsChanged);
+    settings.disconnect(onShowControlsChanged);
+    settings.disconnect(onShowPlayerIconChanged);
+    settings.disconnect(onShowTrackNameChanged);
+    settings.disconnect(onShowSeperatorsChanged);
     settings.disconnect(onExtensionPositionChanged);
     settings.disconnect(onExtensionIndexChanged);
     settings.disconnect(onShowAllOnHoverChanged);
@@ -468,14 +479,14 @@ const addContent = () => {
         log("[Media-Controls] Adding content");
         let index = 0;
         for (element of elementOrder) {
-            if (element === "icon" && !hidePlayerIcon) {
+            if (element === "icon" && showPlayerIcon) {
                 Main.panel[positions[extensionPosition]].insert_child_at_index(
                     buttonPlayer,
                     extensionIndex + index
                 );
                 index++;
-            } else if (element === "title" && !hideTrackName) {
-                if (!hideSeperators) {
+            } else if (element === "title" && showTrackName) {
+                if (showSeperators) {
                     Main.panel[positions[extensionPosition]].insert_child_at_index(
                         labelSeperatorStart,
                         extensionIndex + index
@@ -489,14 +500,14 @@ const addContent = () => {
                 );
                 index++;
 
-                if (!hideSeperators) {
+                if (showSeperators) {
                     Main.panel[positions[extensionPosition]].insert_child_at_index(
                         labelSeperatorEnd,
                         extensionIndex + index
                     );
                     index++;
                 }
-            } else if (element === "controls" && !hideControls) {
+            } else if (element === "controls" && showControls) {
                 Main.panel[positions[extensionPosition]].insert_child_at_index(
                     buttonPrev,
                     extensionIndex + index
@@ -513,10 +524,18 @@ const addContent = () => {
                     extensionIndex + index
                 );
                 index++;
+            } else if (element === "menu" && showMenu) {
+                // As a safety measurement
+                delete Main.panel.statusArea["sourceMenu"];
+                Main.panel.addToStatusArea(
+                    "sourceMenu",
+                    sourceMenu,
+                    extensionIndex + index,
+                    extensionPosition
+                );
+                index++;
             }
         }
-
-        Main.panel.addToStatusArea("sourceMenu", sourceMenu, extensionIndex + index, extensionPosition);
 
         contentRemoved = false;
     }
@@ -575,4 +594,17 @@ const changeSource = (player) => {
     log(`[Media-Controls] Changing player to ${player}`);
     currentPlayer = player;
     sourceChanged = true;
+};
+
+const initNewSettings = () => {
+    settingsMap = {
+        "hide-text": "show-text",
+        "hide-player-icon": "show-player-icon",
+        "hide-control-icons": "show-control-icons",
+        "hide-seperators": "show-seperators",
+    };
+    Object.keys(settingsMap).forEach((old) => {
+        let oldVal = settings.get_boolean(old);
+        settings.set_boolean(settingsMap[old], !oldVal);
+    });
 };
