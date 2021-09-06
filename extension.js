@@ -86,7 +86,7 @@ const enable = () => {
     settings = ExtensionUtils.getSettings();
     loopFinished = true;
     contentRemoved = true;
-    
+
     currentMetadata = null;
     currentPlayer = null;
     currentStatus = null;
@@ -432,6 +432,7 @@ const mainLoop = async () => {
                     currentMetadata = validPlayers.get(currentPlayer);
 
                     currentLabel = getDisplayLabel(currentMetadata);
+
                     addContent();
                     updateContent();
                 } else {
@@ -470,6 +471,7 @@ const startMainloop = () => {
 
 const updateContent = () => {
     log("[Media-Controls] Updating content");
+
     let currentIcon = null;
     for (playerIcon of playerIcons) {
         if (currentPlayer.includes(playerIcon)) {
@@ -497,9 +499,9 @@ const updateContent = () => {
 const addContent = () => {
     if (contentRemoved) {
         log("[Media-Controls] Adding content");
-        if (!Main.panel.statusArea["sourceMenu"]) {
-            Main.panel.addToStatusArea("sourceMenu", container, extensionIndex, extensionPosition);
-        }
+        // Deleting reference as safety measuremnt
+        delete Main.panel.statusArea["sourceMenu"];
+        Main.panel.addToStatusArea("sourceMenu", container, extensionIndex, extensionPosition);
         for (element of elementOrder) {
             if (element === "icon" && showPlayerIcon) {
                 box.add(buttonPlayer);
@@ -520,7 +522,6 @@ const addContent = () => {
 
                 box.add(buttonNext);
             } else if (element === "menu" && showMenu) {
-                // As a safety measurement
                 box.add(menuIcon);
             }
         }
