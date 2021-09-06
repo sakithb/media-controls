@@ -84,6 +84,7 @@ const enable = () => {
     settings = ExtensionUtils.getSettings();
     loopFinished = true;
     contentRemoved = true;
+    
     currentMetadata = null;
     currentPlayer = null;
     currentStatus = null;
