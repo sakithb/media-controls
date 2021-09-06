@@ -595,4 +595,5 @@ const initNewSettings = () => {
         let oldVal = settings.get_boolean(old);
         settings.set_boolean(settingsMap[old], !oldVal);
     });
+    settings.set_strv("element-order", [...settings.get_strv("element-order"), "menu"]);
 };
