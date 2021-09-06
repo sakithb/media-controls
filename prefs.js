@@ -9,7 +9,7 @@ const { Gio, Gtk, GObject, GLib } = imports.gi;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-const { Utf8ArrayToStr } = Me.imports.utils;
+const { Utf8ArrayToStr, execCommunicate } = Me.imports.utils;
 
 const Config = imports.misc.config;
 const [major] = Config.PACKAGE_VERSION.split(".");
@@ -190,10 +190,12 @@ const signalHandler = {
 
     on_clear_cache_clicked: () => {
         let dir = GLib.get_user_config_dir() + "/media-controls";
-        let [ok, out, err, status] = GLib.spawn_command_line_sync(`rm -r '${dir}'`);
-        if (ok) {
-            widgetCacheSize.set_text(getCacheSize());
-        } else {
+        try {
+            (async () => {
+                await execCommunicate(["rm", "-r", dir]);
+                widgetCacheSize.set_text(await getCacheSize());
+            })();
+        } catch (error) {
             widgetCacheSize.set_text("Failed to clear cache");
         }
     },
@@ -353,7 +355,9 @@ const initWidgets = () => {
     widgetMouseActionLeft.set_active(mouseActionNameIds.indexOf(mouseActions[0]));
     widgetMouseActionRight.set_active(mouseActionNameIds.indexOf(mouseActions[1]));
 
-    widgetCacheSize.set_text(getCacheSize());
+    (async () => {
+        widgetCacheSize.set_text(await getCacheSize());
+    })();
 };
 
 const init = () => {
@@ -381,12 +385,13 @@ const buildPrefsWidget = () => {
     return builder.get_object("main_prefs");
 };
 
-const getCacheSize = () => {
+const getCacheSize = async () => {
     // du -hs ./.config/media-controls | awk '{NF=1}1'
-    const [ok, out, err, status] = GLib.spawn_command_line_sync(
-        "/bin/bash -c \"du -hs ./.config/media-controls | awk '{NF=1}1'\""
-    );
-    if (ok) {
-        return Utf8ArrayToStr(out).trim() || "0B";
+    try {
+        let dir = GLib.get_user_config_dir() + "/media-controls";
+        const result = await execCommunicate(["/bin/bash", "-c", `du -hs ${dir} | awk '{NF=1}1'`]);
+        return result || "0K";
+    } catch (error) {
+        logError(error);
     }
 };

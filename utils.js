@@ -289,3 +289,44 @@ const _getRequest = (url) => {
         });
     });
 };
+
+var execCommunicate = async (argv, input = null, cancellable = null) => {
+    let cancelId = 0;
+    let flags = Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE;
+
+    if (input !== null) flags |= Gio.SubprocessFlags.STDIN_PIPE;
+
+    let proc = new Gio.Subprocess({
+        argv: argv,
+        flags: flags,
+    });
+    proc.init(cancellable);
+
+    if (cancellable instanceof Gio.Cancellable) {
+        cancelId = cancellable.connect(() => proc.force_exit());
+    }
+
+    return new Promise((resolve, reject) => {
+        proc.communicate_utf8_async(input, null, (proc, res) => {
+            try {
+                let [, stdout, stderr] = proc.communicate_utf8_finish(res);
+                let status = proc.get_exit_status();
+
+                if (status !== 0) {
+                    throw new Gio.IOErrorEnum({
+                        code: Gio.io_error_from_errno(status),
+                        message: stderr ? stderr.trim() : GLib.strerror(status),
+                    });
+                }
+
+                resolve(stdout.trim());
+            } catch (e) {
+                reject(e);
+            } finally {
+                if (cancelId > 0) {
+                    cancellable.disconnect(cancelId);
+                }
+            }
+        });
+    });
+};
