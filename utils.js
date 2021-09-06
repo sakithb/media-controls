@@ -69,10 +69,10 @@ var getMetadata = async (player) => {
         let id = metadata[0]["mpris:trackid"];
         let title = metadata[0]["xesam:title"];
         let artist = metadata[0]["xesam:artist"];
-        let image = metadata[0]["mpris:artUrl"].replace(
-            "https://open.spotify.com/image/",
-            "https://i.scdn.co/image/"
-        );
+        let image = metadata[0]["mpris:artUrl"];
+        if (image) {
+            image = image.replace("https://open.spotify.com/image/", "https://i.scdn.co/image/");
+        }
         let url = metadata[0]["xesam:url"];
         return {
             id,

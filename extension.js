@@ -132,6 +132,12 @@ const enable = () => {
 
     onShowMenuChanged = settings.connect("changed::show-sources-menu", () => {
         showMenu = settings.get_boolean("show-sources-menu");
+        if (!showMenu) {
+            if (showTrackName) {
+                altSourceMenu = new PanelMenu.Button(1);
+            } else {
+            }
+        }
         removeContent();
         addContent();
     });
