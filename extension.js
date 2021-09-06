@@ -586,14 +586,25 @@ const changeSource = (player) => {
 };
 
 const initNewSettings = () => {
-    settingsMap = {
-        "hide-text": "show-text",
-        "hide-player-icon": "show-player-icon",
-        "hide-control-icons": "show-control-icons",
-        "hide-seperators": "show-seperators",
-    };
-    Object.keys(settingsMap).forEach((old) => {
-        let oldVal = settings.get_boolean(old);
-        settings.set_boolean(settingsMap[old], !oldVal);
-    });
+    let elOrder = settings.get_strv("element-order");
+    if (elOrder.length === 3) {
+        settingsMap = {
+            "hide-text": "show-text",
+            "hide-player-icon": "show-player-icon",
+            "hide-control-icons": "show-control-icons",
+            "hide-seperators": "show-seperators",
+        };
+        Object.keys(settingsMap).forEach((old) => {
+            let oldVal = settings.get_boolean(old);
+            settings.set_boolean(settingsMap[old], !oldVal);
+        });
+
+        settings.set_strv("element-order", [...elOrder, "menu"]);
+
+        let msActions = settings.get_strv("mouse-actions");
+        if (msActions.includes("toggle")) {
+            msActions[msActions.indexOf("toggle")] = "toggle_play";
+        }
+        settings.set_strv("mouse-actions", msActions);
+    }
 };

@@ -259,7 +259,7 @@
                     <property name="margin-end">10</property>
                     <property name="column-homogeneous">True</property>
                     <child>
-                      <object class="GtkSwitch" id="hide-text">
+                      <object class="GtkSwitch" id="show-text">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="halign">end</property>
@@ -282,7 +282,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSwitch" id="hide-player-icon">
+                      <object class="GtkSwitch" id="show-player-icon">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="halign">end</property>
@@ -293,7 +293,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSwitch" id="hide-seperators">
+                      <object class="GtkSwitch" id="show-seperators">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="halign">end</property>
@@ -316,7 +316,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSwitch" id="hide-control-icons">
+                      <object class="GtkSwitch" id="show-control-icons">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="halign">end</property>
@@ -363,7 +363,7 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkSwitch" id="hide-sources-menu">
+                      <object class="GtkSwitch" id="show-sources-menu">
                         <property name="visible">True</property>
                         <property name="can-focus">True</property>
                         <property name="halign">end</property>
