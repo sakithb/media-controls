@@ -257,6 +257,7 @@
                     <property name="margin-right">10</property>
                     <property name="margin-start">10</property>
                     <property name="margin-end">10</property>
+                    <property name="row-spacing">5</property>
                     <property name="column-homogeneous">True</property>
                     <child>
                       <object class="GtkSwitch" id="show-text">
@@ -520,6 +521,7 @@
                   <object class="GtkGrid" id="element-order">
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
+                    <property name="row-spacing">3</property>
                     <property name="column-homogeneous">True</property>
                     <child>
                       <placeholder/>
