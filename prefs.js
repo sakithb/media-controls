@@ -262,10 +262,12 @@ const initWidgets = () => {
     if (presetSepChars.includes(sepChars)) {
         builder.get_object("preset-radio-btn").set_active(true);
         widgetPreset.set_active(presetSepChars.indexOf(sepChars));
+        widgetCustom.set_sensitive(false);
     } else {
         builder.get_object("custom-radio-btn").set_active(true);
         widgetCustom.set_text(sepChars);
         widgetPreset.set_active(0);
+        widgetPreset.set_sensitive(false);
     }
 
     // Init extension position combobox

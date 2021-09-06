@@ -63,7 +63,9 @@ let buttonNext,
     iconPlayer,
     labelSeperatorStart,
     labelSeperatorEnd,
-    sourceMenu;
+    container,
+    box,
+    menuIcon;
 
 let mainloop, settings, settingsMap, positions, playerIcons;
 
@@ -245,20 +247,31 @@ const enable = () => {
         style: "padding: 3px",
     });
 
-    sourceMenu = new PanelMenu.Button(1);
-    sourceMenu.add_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
-    sourceMenu.menu.connect("open-state-changed", (menu, open) => {
+    box = new St.BoxLayout();
+
+    container = new PanelMenu.Button(0.5);
+    container.set_style_class_name(null);
+
+    container.add_child(box);
+    container.menu.connect("open-state-changed", (menu, open) => {
         if (open) {
+            menuIcon.add_style_pseudo_class("active");
             try {
                 (() => {
-                    updatePlayers(sourceMenu, changeSource);
+                    updatePlayers(container, changeSource);
                 })();
             } catch (error) {
                 logError(error);
             }
+        } else {
+            menuIcon.remove_style_pseudo_class("active");
         }
     });
-    sourceMenu.menu.addMenuItem(new PopupMenu.PopupMenuItem("Players", { reactive: false }));
+    container.menu.addMenuItem(new PopupMenu.PopupMenuItem("Players", { reactive: false }));
+
+    menuIcon = PopupMenu.arrowIcon(St.Side.BOTTOM);
+    menuIcon.add_style_class_name("panel-button");
+    menuIcon.set_style("padding: 3px;");
 
     buttonNext.set_child(iconNext);
     buttonNext.connect("button-release-event", () => {
@@ -277,7 +290,7 @@ const enable = () => {
     buttonToggle.set_child(iconPlay);
     buttonToggle.connect("button-release-event", () => {
         (() => {
-            playerAction(currentPlayer, "toggle");
+            playerAction(currentPlayer, "toggle_play");
         })();
     });
 
@@ -332,7 +345,7 @@ const disable = () => {
     iconPlayer.destroy();
     labelSeperatorStart.destroy();
     labelSeperatorEnd.destroy();
-    sourceMenu.destroy();
+    container.destroy();
 
     delete Main.panel.statusArea["sourceMenu"];
 
@@ -484,63 +497,31 @@ const updateContent = () => {
 const addContent = () => {
     if (contentRemoved) {
         log("[Media-Controls] Adding content");
-        let index = 0;
+        if (!Main.panel.statusArea["sourceMenu"]) {
+            Main.panel.addToStatusArea("sourceMenu", container, extensionIndex, extensionPosition);
+        }
         for (element of elementOrder) {
             if (element === "icon" && showPlayerIcon) {
-                Main.panel[positions[extensionPosition]].insert_child_at_index(
-                    buttonPlayer,
-                    extensionIndex + index
-                );
-                index++;
+                box.add(buttonPlayer);
             } else if (element === "title" && showTrackName) {
                 if (showSeperators) {
-                    Main.panel[positions[extensionPosition]].insert_child_at_index(
-                        labelSeperatorStart,
-                        extensionIndex + index
-                    );
-                    index++;
+                    box.add(labelSeperatorStart);
                 }
 
-                Main.panel[positions[extensionPosition]].insert_child_at_index(
-                    buttonLabel,
-                    extensionIndex + index
-                );
-                index++;
+                box.add(buttonLabel);
 
                 if (showSeperators) {
-                    Main.panel[positions[extensionPosition]].insert_child_at_index(
-                        labelSeperatorEnd,
-                        extensionIndex + index
-                    );
-                    index++;
+                    box.add(labelSeperatorEnd);
                 }
             } else if (element === "controls" && showControls) {
-                Main.panel[positions[extensionPosition]].insert_child_at_index(
-                    buttonPrev,
-                    extensionIndex + index
-                );
-                index++;
+                box.add(buttonPrev);
 
-                Main.panel[positions[extensionPosition]].insert_child_at_index(
-                    buttonToggle,
-                    extensionIndex + index
-                );
-                index++;
-                Main.panel[positions[extensionPosition]].insert_child_at_index(
-                    buttonNext,
-                    extensionIndex + index
-                );
-                index++;
+                box.add(buttonToggle);
+
+                box.add(buttonNext);
             } else if (element === "menu" && showMenu) {
                 // As a safety measurement
-                delete Main.panel.statusArea["sourceMenu"];
-                Main.panel.addToStatusArea(
-                    "sourceMenu",
-                    sourceMenu,
-                    extensionIndex + index,
-                    extensionPosition
-                );
-                index++;
+                box.add(menuIcon);
             }
         }
 
@@ -551,16 +532,17 @@ const addContent = () => {
 const removeContent = () => {
     if (!contentRemoved) {
         log("[Media-Controls] Removing content");
+        box.remove_child(buttonNext);
+        box.remove_child(buttonToggle);
+        box.remove_child(buttonPrev);
+        box.remove_child(buttonLabel);
+        box.remove_child(buttonPlayer);
+        box.remove_child(labelSeperatorStart);
+        box.remove_child(labelSeperatorEnd);
+        box.remove_child(menuIcon);
 
-        Main.panel[positions[extensionPosition]].remove_actor(buttonNext);
-        Main.panel[positions[extensionPosition]].remove_actor(buttonToggle);
-        Main.panel[positions[extensionPosition]].remove_actor(buttonPrev);
-        Main.panel[positions[extensionPosition]].remove_actor(buttonLabel);
-        Main.panel[positions[extensionPosition]].remove_actor(buttonPlayer);
-        Main.panel[positions[extensionPosition]].remove_actor(labelSeperatorStart);
-        Main.panel[positions[extensionPosition]].remove_actor(labelSeperatorEnd);
-        Main.panel[positions[extensionPosition]].remove_actor(sourceMenu.container);
         delete Main.panel.statusArea["sourceMenu"];
+
         contentRemoved = true;
     }
 };
@@ -591,7 +573,7 @@ const mouseAction = (event) => {
         button = 0;
     }
     if (mouseActions[button] === "toggle_menu") {
-        sourceMenu.menu.toggle();
+        container.menu.open();
     } else {
         playerAction(currentPlayer, mouseActions[button]);
     }

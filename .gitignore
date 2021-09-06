@@ -1,4 +1,4 @@
-*.compiled
+/schemas/*.compiled
 *.zip
 .vscode
 /build
