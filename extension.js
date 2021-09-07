@@ -98,9 +98,9 @@ const enable = () => {
     onMaxLengthChanged = settings.connect("changed::max-text-width", () => {
         maxDisplayLength = settings.get_int("max-text-width");
         if (maxDisplayLength === 0) {
-            buttonLabel.set_style(``);
+            buttonLabel.set_style(`max-width: none; padding: 0px 3px;`);
         } else {
-            buttonLabel.set_style(`max-width: ${maxDisplayLength}px`);
+            buttonLabel.set_style(`max-width: ${maxDisplayLength}px;  padding: 0px 3px;`);
         }
     });
 
@@ -207,7 +207,7 @@ const enable = () => {
         style_class: "panel-button",
     });
     buttonLabel = new St.Button({
-        style: `max-width: ${maxDisplayLength}px`,
+        style: `max-width: ${maxDisplayLength}px; padding: 0px 3px;`,
         style_class: "panel-button",
         label: "No media",
     });
@@ -300,12 +300,12 @@ const enable = () => {
     buttonLabel.connect("button-release-event", mouseAction);
     buttonLabel.connect("enter-event", () => {
         if (showAllOnHover) {
-            buttonLabel.set_style("");
+            buttonLabel.set_style("max-width: none; padding: 0px 3px;");
         }
     });
     buttonLabel.connect("leave-event", () => {
         if (showAllOnHover) {
-            buttonLabel.set_style(`max-width: ${maxDisplayLength}px`);
+            buttonLabel.set_style(`max-width: ${maxDisplayLength}px; padding: 0px 3px;`);
         }
     });
 
