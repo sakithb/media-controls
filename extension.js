@@ -580,12 +580,19 @@ const mouseAction = (event) => {
     }
 };
 
+/**
+ * Changes the currentPlayer
+ * @param {string} player
+ */
 const changeSource = (player) => {
     log(`[Media-Controls] Changing player to ${player}`);
     currentPlayer = player;
     sourceChanged = true;
 };
 
+/**
+ * Replace old settings with new settings
+ */
 const initNewSettings = () => {
     let elOrder = settings.get_strv("element-order");
     if (elOrder.length === 3) {

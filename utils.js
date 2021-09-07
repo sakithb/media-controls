@@ -1,3 +1,7 @@
+/**
+ * Contains utility functions to be used in other files.
+ */
+
 try {
     var { GLib, Gio, St } = imports.gi;
     var PopupMenu = imports.ui.popupMenu;
@@ -15,6 +19,11 @@ const dataDir = GLib.get_user_config_dir();
 
 let players;
 
+/**
+ * Does the specified @action on @player
+ * @param {string} player The player to do the action upon
+ * @param {string} action The action
+ */
 var playerAction = async (player, action) => {
     switch (action) {
         case "play":
@@ -37,6 +46,10 @@ var playerAction = async (player, action) => {
     }
 };
 
+/**
+ * Returns the currently active players
+ * @returns {Promise<Array<string>>} An array of currently available players
+ */
 var getPlayers = async () => {
     try {
         let services = await dbusMethod(
@@ -57,6 +70,11 @@ var getPlayers = async () => {
     }
 };
 
+/**
+ * Returns the current metadata of the @player
+ * @param {string} player Bus name of the player to get metadata
+ * @returns {Promise<{id, title, artist, image, url}>} An object with the metadata
+ */
 var getMetadata = async (player) => {
     try {
         let metadata = await dbusMethod(
@@ -86,6 +104,11 @@ var getMetadata = async (player) => {
     }
 };
 
+/**
+ * Returns the playback status of @player
+ * @param {string} player Bus name of the player
+ * @returns {Promise<string>} Playback status of the player : Playing | Paused
+ */
 var getStatus = async (player) => {
     try {
         let status = await dbusMethod(
@@ -101,6 +124,11 @@ var getStatus = async (player) => {
     }
 };
 
+/**
+ * Iterates through the currently active players and adds them to @sourceMenu
+ * @param {PanelMenu.Button} sourceMenu Menu object to add menu items
+ * @param {function} callback function to be fired when a menu item is clicked: (player) => {}
+ */
 const updatePlayers = async (sourceMenu, callback) => {
     sourceMenu.menu.removeAll();
     players = await getPlayers();
@@ -138,6 +166,9 @@ const updatePlayers = async (sourceMenu, callback) => {
     }
 };
 
+/**
+ * Checks whether a player is valid
+ */
 var isValidPlayer = (id, title) => {
     if (title || (id && id !== "/org/mpris/MediaPlayer2/TrackList/NoTrack")) {
         return true;
@@ -145,6 +176,9 @@ var isValidPlayer = (id, title) => {
     return false;
 };
 
+/**
+ * Checks whether two objects are equal
+ */
 var isEqual = (object, _object) => {
     let keys = Object.keys(object);
     let _keys = Object.keys(_object);
@@ -171,6 +205,11 @@ const _isObject = (object) => {
     return object != null && typeof object === "object";
 };
 
+/**
+ * Generates a proper title for the track
+ * @param {{id: string, title: string, url: string}} param0 Track id, title and url
+ * @returns {string} the generated title
+ */
 var getDisplayLabel = ({ id, title, url }) => {
     let label = title || url || id;
     if (label === url) {
@@ -182,6 +221,11 @@ var getDisplayLabel = ({ id, title, url }) => {
     return label;
 };
 
+/**
+ *
+ * @param {string} id Id of the icon to retrieve
+ * @returns {Gio.Icon || null} Returns the icon if it exists else null
+ */
 var getIcon = (id) => {
     try {
         let destination = GLib.build_filenamev([dataDir, "media-controls", "cache", GLib.base64_encode(id)]);
@@ -198,6 +242,11 @@ var getIcon = (id) => {
     }
 };
 
+/**
+ *
+ * @param {string} id unique id of the icon to save (usually the track id)
+ * @param {string} url url of the remote image
+ */
 var saveIcon = async (id, url) => {
     try {
         let regexp = new RegExp(
@@ -236,6 +285,7 @@ var saveIcon = async (id, url) => {
     }
 };
 
+// Converts Utf8Array to string
 var Utf8ArrayToStr = (array) => {
     var out, i, len, c;
     var char2, char3;
@@ -290,6 +340,13 @@ const _getRequest = (url) => {
     });
 };
 
+/**
+ * Executes a shell command asynchronously
+ * @param {Array<string>} argv  array of arguments
+ * @param {string?} input input to be given to the shell command
+ * @param {boolean?} cancellable whether the operation is cancellable
+ * @returns
+ */
 var execCommunicate = async (argv, input = null, cancellable = null) => {
     let cancelId = 0;
     let flags = Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE;
