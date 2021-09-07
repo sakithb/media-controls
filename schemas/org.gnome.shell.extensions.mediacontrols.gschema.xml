@@ -39,7 +39,7 @@
     <key name="colored-player-icon" type="b">
       <default>false</default>
     </key>
-    <key name="show-all-on-hover" type="b">
+    <key name="show-info-on-hover" type="b">
       <default>true</default>
     </key>
     <key name="seperator-chars" type="as">

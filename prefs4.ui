@@ -11,12 +11,6 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
-  <object class="GtkAdjustment" id="update_delay">
-    <property name="lower">50</property>
-    <property name="upper">1000</property>
-    <property name="step-increment">50</property>
-    <property name="page-increment">10</property>
-  </object>
   <object class="GtkNotebook" id="main_prefs">
     <property name="focusable">1</property>
     <child>
@@ -59,9 +53,9 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkLabel">
-                        <property name="halign">start</property>
-                        <property name="label" translatable="yes">Update delay (milliseconds)</property>
+                      <object class="GtkSwitch" id="show-info-on-hover">
+                        <property name="focusable">1</property>
+                        <property name="halign">end</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="row">1</property>
@@ -69,12 +63,9 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkSpinButton" id="update-delay">
-                        <property name="focusable">1</property>
-                        <property name="halign">end</property>
-                        <property name="text" translatable="yes">50</property>
-                        <property name="adjustment">update_delay</property>
-                        <property name="value">50</property>
+                      <object class="GtkLabel">
+                        <property name="halign">start</property>
+                        <property name="label" translatable="yes">Show track information on hover</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="row">1</property>
@@ -133,26 +124,6 @@
                       </object>
                     </child>
                     <child>
-                      <object class="GtkLabel">
-                        <property name="halign">start</property>
-                        <property name="label" translatable="yes">Show hidden content on hover</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">4</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkSwitch" id="show-all-on-hover">
-                        <property name="focusable">1</property>
-                        <property name="halign">end</property>
-                        <layout>
-                          <property name="column">0</property>
-                          <property name="row">4</property>
-                        </layout>
-                      </object>
-                    </child>
-                    <child>
                       <object class="GtkCheckButton" id="preset-radio-btn">
                         <property name="label" translatable="yes">Preset</property>
                         <property name="halign">start</property>
@@ -160,7 +131,7 @@
                         <signal name="toggled" handler="on_seperator_character_group_changed" swapped="no"/>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">7</property>
+                          <property name="row">6</property>
                         </layout>
                       </object>
                     </child>
@@ -172,7 +143,7 @@
                         <signal name="toggled" handler="on_seperator_character_group_changed" swapped="no"/>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">8</property>
+                          <property name="row">7</property>
                         </layout>
                       </object>
                     </child>
@@ -182,7 +153,7 @@
                         <signal name="changed" handler="on_seperator_preset_changed" swapped="no"/>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">7</property>
+                          <property name="row">6</property>
                         </layout>
                       </object>
                     </child>
@@ -195,7 +166,7 @@
                         <property name="use-markup">1</property>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">6</property>
+                          <property name="row">5</property>
                         </layout>
                       </object>
                     </child>
@@ -207,7 +178,7 @@
                         <signal name="changed" handler="on_seperator_custom_changed" swapped="no"/>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">8</property>
+                          <property name="row">7</property>
                         </layout>
                       </object>
                     </child>
@@ -348,7 +319,7 @@
                       <object class="GtkSeparator">
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">5</property>
+                          <property name="row">4</property>
                         </layout>
                       </object>
                     </child>
@@ -606,5 +577,11 @@
         </property>
       </object>
     </child>
+  </object>
+  <object class="GtkAdjustment" id="update_delay">
+    <property name="lower">50</property>
+    <property name="upper">1000</property>
+    <property name="step-increment">50</property>
+    <property name="page-increment">10</property>
   </object>
 </interface>

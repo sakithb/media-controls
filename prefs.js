@@ -16,6 +16,7 @@ const [major] = Config.PACKAGE_VERSION.split(".");
 const shellVersion = Number.parseInt(major);
 
 const positions = ["left", "center", "right"];
+
 const mouseActionNamesMap = {
     none: "None",
     toggle_play: "Toggle play/pause",
@@ -24,6 +25,7 @@ const mouseActionNamesMap = {
     next: "Next",
     previous: "Previous",
     toggle_menu: "Open sources menu",
+    toggle_info: "Open track information menu",
 };
 let mouseActionNameIds = Object.keys(mouseActionNamesMap);
 
@@ -61,6 +63,7 @@ let settings,
 
 let elementOrder, elementOrderLock;
 
+// Create a builder scope of the version id 40 or greater
 if (shellVersion >= 40) {
     MediaControlsBuilderScope = GObject.registerClass(
         { Implements: [Gtk.BuilderScope] },
@@ -75,6 +78,7 @@ if (shellVersion >= 40) {
 }
 
 const signalHandler = {
+    // Disable the opposite inputs from the selected and apply changes
     on_seperator_character_group_changed: (widget) => {
         let label = widget.get_label();
         let active = widget.get_active();
@@ -105,75 +109,7 @@ const signalHandler = {
             }
         }
     },
-    // on_element_order_first_changed: (widget) => {
-    //     let secondValue = elementIds[widgetElementOrderSecond.get_active()];
-    //     let thirdValue = elementIds[widgetElementOrderThird.get_active()];
-    //     let thisValue = elementIds[widget.get_active()];
-    //     if (thisValue === secondValue) {
-    //         elementIds.forEach((element, index) => {
-    //             if (!(element === thirdValue || element === thisValue)) {
-    //                 widgetElementOrderSecond.set_active(index);
-    //             }
-    //         });
-    //     } else if (thisValue === thirdValue) {
-    //         elementIds.forEach((element, index) => {
-    //             if (!(element === secondValue || element === thisValue)) {
-    //                 widgetElementOrderThird.set_active(index);
-    //             }
-    //         });
-    //     }
-    //     settings.set_strv("element-order", [
-    //         thisValue,
-    //         elementIds[widgetElementOrderSecond.get_active()],
-    //         elementIds[widgetElementOrderThird.get_active()],
-    //     ]);
-    // },
-    // on_element_order_second_changed: (widget) => {
-    //     let firstValue = elementIds[widgetElementOrderFirst.get_active()];
-    //     let thirdValue = elementIds[widgetElementOrderThird.get_active()];
-    //     let thisValue = elementIds[widget.get_active()];
-    //     if (thisValue === firstValue) {
-    //         elementIds.forEach((element, index) => {
-    //             if (!(element === thirdValue || element === thisValue)) {
-    //                 widgetElementOrderFirst.set_active(index);
-    //             }
-    //         });
-    //     } else if (thisValue === thirdValue) {
-    //         elementIds.forEach((element, index) => {
-    //             if (!(element === firstValue || element === thisValue)) {
-    //                 widgetElementOrderThird.set_active(index);
-    //             }
-    //         });
-    //     }
-    //     settings.set_strv("element-order", [
-    //         elementIds[widgetElementOrderFirst.get_active()],
-    //         thisValue,
-    //         elementIds[widgetElementOrderThird.get_active()],
-    //     ]);
-    // },
-    // on_element_order_third_changed: (widget) => {
-    //     let secondValue = elementIds[widgetElementOrderSecond.get_active()];
-    //     let firstValue = elementIds[widgetElementOrderFirst.get_active()];
-    //     let thisValue = elementIds[widget.get_active()];
-    //     if (thisValue === secondValue) {
-    //         elementIds.forEach((element, index) => {
-    //             if (!(element === firstValue || element === thisValue)) {
-    //                 widgetElementOrderSecond.set_active(index);
-    //             }
-    //         });
-    //     } else if (thisValue === firstValue) {
-    //         elementIds.forEach((element, index) => {
-    //             if (!(element === secondValue || element === thisValue)) {
-    //                 widgetElementOrderFirst.set_active(index);
-    //             }
-    //         });
-    //     }
-    //     settings.set_strv("element-order", [
-    //         elementIds[widgetElementOrderFirst.get_active()],
-    //         elementIds[widgetElementOrderSecond.get_active()],
-    //         thisValue,
-    //     ]);
-    // },
+
     on_mouse_actions_left_changed: (widget) => {
         let currentMouseActions = settings.get_strv("mouse-actions");
         currentMouseActions[0] = mouseActionNameIds[widget.get_active()];
@@ -208,7 +144,7 @@ const bindSettings = () => {
         "value",
         Gio.SettingsBindFlags.DEFAULT
     );
-    settings.bind("update-delay", builder.get_object("update-delay"), "value", Gio.SettingsBindFlags.DEFAULT);
+    // settings.bind("update-delay", builder.get_object("update-delay"), "value", Gio.SettingsBindFlags.DEFAULT);
     settings.bind("show-text", builder.get_object("show-text"), "active", Gio.SettingsBindFlags.DEFAULT);
     settings.bind(
         "show-player-icon",
@@ -235,8 +171,8 @@ const bindSettings = () => {
         Gio.SettingsBindFlags.DEFAULT
     );
     settings.bind(
-        "show-all-on-hover",
-        builder.get_object("show-all-on-hover"),
+        "show-info-on-hover",
+        builder.get_object("show-info-on-hover"),
         "active",
         Gio.SettingsBindFlags.DEFAULT
     );
@@ -278,17 +214,6 @@ const initWidgets = () => {
         widgetExtensionPos.append(position, position);
     });
     widgetExtensionPos.set_active(positions.indexOf(settings.get_string("extension-position")));
-
-    // Init element order comboboxes
-    // elementIds.forEach((element) => {
-    //     widgetElementOrderFirst.append(element, elements[element]);
-    //     widgetElementOrderSecond.append(element, elements[element]);
-    //     widgetElementOrderThird.append(element, elements[element]);
-    // });
-    // let elementOrder = settings.get_strv("element-order");
-    // widgetElementOrderFirst.set_active(elementIds.indexOf(elementOrder[0]));
-    // widgetElementOrderSecond.set_active(elementIds.indexOf(elementOrder[1]));
-    // widgetElementOrderThird.set_active(elementIds.indexOf(elementOrder[2]));
 
     elementOrder = settings.get_strv("element-order");
 
@@ -386,7 +311,7 @@ const buildPrefsWidget = () => {
 };
 
 const getCacheSize = async () => {
-    // du -hs ./.config/media-controls | awk '{NF=1}1'
+    // Command: du -hs [data_directory]/media-controls | awk '{NF=1}1'
     try {
         let dir = GLib.get_user_config_dir() + "/media-controls";
         const result = await execCommunicate(["/bin/bash", "-c", `du -hs ${dir} | awk '{NF=1}1'`]);
