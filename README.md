@@ -18,13 +18,15 @@ Show controls and information of the currently playing media in the panel
 
 ## Screenshots
 
-![Screenshot](screenshot.png)
+![Screenshot](/images/Screenshot_info_menu.png)
+
+![Screenshot](/images/Screenshot_sources_menu.png)
 
 ## How to install
 
 Install from extensions.gnome.org
 
-[<img src="get-it-from-ego.png" height="100">](https://extensions.gnome.org/extension/4470/media-controls/)
+[<img src="./images/get-ego.png" height="100">](https://extensions.gnome.org/extension/4470/media-controls/)
 
 or
 

@@ -10,6 +10,10 @@ const Me = ExtensionUtils.getCurrentExtension();
 const { createProxy } = Me.imports.dbus;
 const { parseMetadata, stripInstanceNumbers, getRequest } = Me.imports.utils;
 
+const urlRegexp = new RegExp(
+    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
+);
+
 const Player = GObject.registerClass(
     class Player extends PanelMenu.Button {
         _init(busName, parent) {
@@ -67,18 +71,18 @@ const Player = GObject.registerClass(
             });
             this.labelTitle = new St.Label({
                 text: this.label || "No track",
-                style: this.maxWidth,
+                style: this.maxWidthStyle,
                 y_align: Clutter.ActorAlign.CENTER,
             });
 
             this.labelSeperatorStart = new St.Label({
-                text: this._extension._settings.sepChars[0],
+                text: this._extension.settings.sepChars[0],
                 style: "padding-right: 3px",
                 y_align: Clutter.ActorAlign.CENTER,
             });
 
             this.labelSeperatorEnd = new St.Label({
-                text: this._extension._settings.sepChars[1],
+                text: this._extension.settings.sepChars[1],
                 style: "padding-left: 3px",
                 y_align: Clutter.ActorAlign.CENTER,
             });
@@ -96,7 +100,7 @@ const Player = GObject.registerClass(
 
             this.containerButtonLabel.connect("button-release-event", (widget) => {
                 let button = widget.pseudo_class && widget.pseudo_class.includes("active") ? 0 : 1;
-                switch (this._extension._settings.mouseActions[button]) {
+                switch (this._extension.settings.mouseActions[button]) {
                     case "toggle_play":
                         this._playerProxy.PlayPauseRemote();
                         break;
@@ -177,14 +181,14 @@ const Player = GObject.registerClass(
             this.dummyContainer = new St.BoxLayout();
 
             this.dummyContainer.add_child(this.containerButtonLabel);
-            // this.dummyContainer.add_child(this.containerControls);
+            this.dummyContainer.add_child(this.containerControls);
 
             this.add_child(this.dummyContainer);
 
             this._addInfoMenuItems();
 
             this._updateLoopIcon();
-            this.updateLabelWidths();
+            this.updateWidgetWidths();
             this.updateIconEffects();
         }
 
@@ -196,7 +200,7 @@ const Player = GObject.registerClass(
                     if (this.hidden) {
                         this._extension.unhidePlayer(this.busName);
                     }
-                    this._updateWidgets();
+                    this.updateWidgets();
                     this._saveImage();
                 } else {
                     this._extension.hidePlayer(this.busName);
@@ -222,7 +226,7 @@ const Player = GObject.registerClass(
             }
         }
 
-        _updateWidgets() {
+        updateWidgets() {
             if (this.iconPlayer) {
                 this.iconPlayer.set_icon_name(this.icon);
                 this.labelTitle.set_text(this.label);
@@ -272,19 +276,26 @@ const Player = GObject.registerClass(
                         break;
                 }
             } else {
-                this.infoItemContainer.remove_child(this.infoButtonLoop);
+                this.infoButtonLoop.set_reactive(false);
             }
         }
 
-        updateLabelWidths() {
-            this.labelTitle.set_style(this.maxWidth);
-            this._menuLabel.set_style(this.maxWidth);
-            this.infoArtistLabel.set_style(this.maxWidth);
-            this.infoTitleLabel.set_style(`font-size: large; ${this.maxWidth}`);
+        updateWidgetWidths() {
+            if (this.labelTitle) {
+                this.labelTitle.set_style(this.maxWidthStyle);
+            }
+            if (this._menuItem) {
+                this._menuLabel.set_style(this.maxWidthStyle);
+            }
+            if (this._infoItem) {
+                this.infoArtistLabel.set_style(this.maxWidthStyle);
+                this.infoTitleLabel.set_style(`font-size: large; ${this.maxWidthStyle}`);
+                this._infoIcon.set_icon_size(this._extension.settings.maxWidgetWidth);
+            }
         }
 
         updateIconEffects() {
-            if (this._extension._settings.coloredPlayerIcon) {
+            if (this._extension.settings.coloredPlayerIcon) {
                 this.iconPlayer.clear_effects();
                 this.iconPlayer.set_style("-st-icon-style: requested");
                 this.iconPlayer.set_fallback_icon_name("audio-x-generic");
@@ -349,9 +360,9 @@ const Player = GObject.registerClass(
                 this._infoIcon = new St.Icon({
                     x_expand: true,
                     gicon: this.trackIcon,
+                    style: "padding-bottom: 10px;",
+                    // icon_size: 80,
                 });
-
-                this._infoIcon.set_width(100);
 
                 this.infoItemContainer.add(this._infoIcon);
 
@@ -473,11 +484,7 @@ const Player = GObject.registerClass(
 
         async _saveImage() {
             try {
-                const regexp = new RegExp(
-                    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
-                );
-
-                if (regexp.test(this.image)) {
+                if (urlRegexp.test(this.image)) {
                     const destination = GLib.build_filenamev([
                         this._extension.dataDir,
                         "media-controls",
@@ -554,6 +561,7 @@ const Player = GObject.registerClass(
                 this._menuLabel = new St.Label({
                     text: this.label,
                     y_align: Clutter.ActorAlign.CENTER,
+                    style: this.maxWidthStyle,
                 });
 
                 this._menuItem.busName = this.busName;
@@ -573,8 +581,8 @@ const Player = GObject.registerClass(
             return this._status === "Playing";
         }
 
-        get maxWidth() {
-            let maxWidth = this._extension._settings.maxDisplayWidth;
+        get maxWidthStyle() {
+            let maxWidth = this._extension.settings.maxWidgetWidth;
 
             if (maxWidth !== 0) {
                 maxWidth = `max-width: ${maxWidth}px;`;
@@ -586,17 +594,51 @@ const Player = GObject.registerClass(
         }
 
         get icon() {
-            return this.name.toLowerCase();
+            let icon;
+
+            if (this._otherProxy.DesktopEntry) {
+                icon = this._otherProxy.DesktopEntry;
+            } else {
+                icon = this.name.toLowerCase().split(" ");
+
+                icon = icon[icon.length - 1];
+            }
+
+            return icon;
         }
 
         get label() {
-            let labelWithArtist = this.title;
+            let label = "";
 
-            if (this.artist !== "Unknown artist") {
-                labelWithArtist += ` - ${this.artist}`;
+            let labelEls = {
+                track: this.title,
+                artist: this.artist === "Unknown artist" ? null : this.artist,
+                url: this.url,
+                name: this.name,
+                status: this._status,
+                file: this.file,
+                none: null,
+            };
+
+            let trackLabelSetting = this._extension.settings.trackLabel;
+
+            let startLabel = labelEls[trackLabelSetting[0]] || "";
+            let endLabel = labelEls[trackLabelSetting[2]] || "";
+            let sepLabel = trackLabelSetting[1];
+
+            if (!(startLabel && endLabel)) {
+                sepLabel = "";
+            } else {
+                if (!sepLabel) {
+                    sepLabel = " ";
+                } else {
+                    sepLabel = ` ${sepLabel} `;
+                }
             }
 
-            return labelWithArtist;
+            label = startLabel + sepLabel + endLabel;
+
+            return label;
         }
 
         get name() {
@@ -623,6 +665,27 @@ const Player = GObject.registerClass(
 
         get image() {
             return this._metadata["image"];
+        }
+
+        get url() {
+            return this._metadata["url"];
+        }
+
+        get file() {
+            let file = this._metadata["url"];
+
+            if (file && urlRegexp.test(file)) {
+                if (file.includes("file:")) {
+                    file = file.split("/");
+                    file = file[file.length - 1];
+                } else {
+                    file = null;
+                }
+            } else {
+                file = null;
+            }
+
+            return file;
         }
 
         get id() {

@@ -52,6 +52,17 @@ const elements = {
 };
 const elementIds = Object.keys(elements);
 
+const trackLabelOpts = {
+    track: "Track",
+    artist: "Artist",
+    url: "URL",
+    name: "Player name",
+    status: "Playback status",
+    file: "Filename",
+    none: "None",
+};
+const trackLabelOptKeys = Object.keys(trackLabelOpts);
+
 let settings,
     builder,
     MediaControlsBuilderScope,
@@ -59,7 +70,10 @@ let settings,
     widgetCustom,
     widgetCacheSize,
     widgetElementOrder,
-    elementOrderWidgets;
+    elementOrderWidgets,
+    trackLabelStart,
+    trackLabelSep,
+    trackLabelEnd;
 
 let elementOrder, elementOrderLock;
 
@@ -128,19 +142,28 @@ const signalHandler = {
         let dir = GLib.get_user_config_dir() + "/media-controls";
         try {
             (async () => {
+                builder.get_object("clear-cache-spinner").start();
                 await execCommunicate(["rm", "-r", dir]);
                 widgetCacheSize.set_text(await getCacheSize());
+                builder.get_object("clear-cache-spinner").stop();
             })();
         } catch (error) {
             widgetCacheSize.set_text("Failed to clear cache");
         }
     },
+    on_track_label_changed: () => {
+        settings.set_strv("track-label", [
+            trackLabelOptKeys[trackLabelStart.get_active()],
+            trackLabelSep.get_text(),
+            trackLabelOptKeys[trackLabelEnd.get_active()],
+        ]);
+    },
 };
 
 const bindSettings = () => {
     settings.bind(
-        "max-text-width",
-        builder.get_object("max-text-width"),
+        "max-widget-width",
+        builder.get_object("max-widget-width"),
         "value",
         Gio.SettingsBindFlags.DEFAULT
     );
@@ -159,6 +182,24 @@ const bindSettings = () => {
         Gio.SettingsBindFlags.DEFAULT
     );
     settings.bind(
+        "show-playpause-icon",
+        builder.get_object("show-playpause-icon"),
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "show-prev-icon",
+        builder.get_object("show-prev-icon"),
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "show-next-icon",
+        builder.get_object("show-next-icon"),
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
         "show-seperators",
         builder.get_object("show-seperators"),
         "active",
@@ -167,12 +208,6 @@ const bindSettings = () => {
     settings.bind(
         "colored-player-icon",
         builder.get_object("colored-player-icon"),
-        "active",
-        Gio.SettingsBindFlags.DEFAULT
-    );
-    settings.bind(
-        "show-info-on-hover",
-        builder.get_object("show-info-on-hover"),
         "active",
         Gio.SettingsBindFlags.DEFAULT
     );
@@ -280,6 +315,19 @@ const initWidgets = () => {
     widgetMouseActionLeft.set_active(mouseActionNameIds.indexOf(mouseActions[0]));
     widgetMouseActionRight.set_active(mouseActionNameIds.indexOf(mouseActions[1]));
 
+    trackLabelOptKeys.forEach((opt) => {
+        trackLabelStart.append(opt, trackLabelOpts[opt]);
+        trackLabelEnd.append(opt, trackLabelOpts[opt]);
+    });
+
+    let tracklabelSetting = settings.get_strv("track-label");
+
+    trackLabelStart.set_active(trackLabelOptKeys.indexOf(tracklabelSetting[0]));
+    trackLabelSep.set_text(tracklabelSetting[1]);
+    trackLabelEnd.set_active(trackLabelOptKeys.indexOf(tracklabelSetting[2]));
+
+    // trackLabelStart.set_active();
+
     (async () => {
         widgetCacheSize.set_text(await getCacheSize());
     })();
@@ -302,6 +350,9 @@ const buildPrefsWidget = () => {
     }
     widgetPreset = builder.get_object("sepchars-preset");
     widgetCustom = builder.get_object("sepchars-custom");
+    trackLabelStart = builder.get_object("track-label-start");
+    trackLabelSep = builder.get_object("track-label-sep");
+    trackLabelEnd = builder.get_object("track-label-end");
     widgetCacheSize = builder.get_object("cache-size");
     widgetElementOrder = builder.get_object("element-order");
     elementOrderWidgets = [];

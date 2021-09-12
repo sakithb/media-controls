@@ -27,7 +27,7 @@ const MediaControls = GObject.registerClass(
         }
 
         enable() {
-            this._settings = new Settings(this);
+            this.settings = new Settings(this);
             this.buttonMenu = PopupMenu.arrowIcon(St.Side.BOTTOM);
 
             this.dummyContainer = new St.BoxLayout();
@@ -85,7 +85,7 @@ const MediaControls = GObject.registerClass(
         disable() {
             log("Disabling");
             this.removeWidgets();
-            this._settings.disconnectSignals();
+            this.settings.disconnectSignals();
 
             for (let playerObj of Object.values(this._players)) {
                 playerObj.destroy();
@@ -100,24 +100,32 @@ const MediaControls = GObject.registerClass(
             Main.panel.addToStatusArea(
                 "media_controls_extension",
                 this,
-                this._settings.extensionIndex,
-                this._settings.extensionPosition
+                this.settings.extensionIndex,
+                this.settings.extensionPosition
             );
             this.dummyContainer.add_child(this.player.container);
-            this._settings.elementOrder.forEach((element) => {
-                if (element === "icon" && this._settings.showPlayerIcon) {
+            this.settings.elementOrder.forEach((element) => {
+                if (element === "icon" && this.settings.showPlayerIcon) {
                     this.player.subContainerLabel.add_child(this.player.iconPlayer);
-                } else if (element === "title" && this._settings.showTrackName) {
-                    if (this._settings.showSeperators) {
+                } else if (element === "title" && this.settings.showTrackName) {
+                    if (this.settings.showSeperators) {
                         this.player.subContainerLabel.add_child(this.player.labelSeperatorStart);
                     }
                     this.player.subContainerLabel.add_child(this.player.labelTitle);
-                    if (this._settings.showSeperators) {
+                    if (this.settings.showSeperators) {
                         this.player.subContainerLabel.add_child(this.player.labelSeperatorEnd);
                     }
-                } else if (element === "controls" && this._settings.showControls) {
-                    this.player.dummyContainer.add_child(this.player.containerControls);
-                } else if (element === "menu" && this._settings.showMenu) {
+                } else if (element === "controls" && this.settings.showControls) {
+                    if (this.settings.showPrevButton) {
+                        this.player.containerControls.add_child(this.player.buttonPrev);
+                    }
+                    if (this.settings.showPlayPauseButton) {
+                        this.player.containerControls.add_child(this.player.buttonPlayPause);
+                    }
+                    if (this.settings.showNextButton) {
+                        this.player.containerControls.add_child(this.player.buttonNext);
+                    }
+                } else if (element === "menu" && this.settings.showMenu) {
                     this.dummyContainer.add_child(this.buttonMenu);
                 }
             });
@@ -134,7 +142,10 @@ const MediaControls = GObject.registerClass(
             this.player.subContainerLabel.remove_child(this.player.labelTitle);
             this.player.subContainerLabel.remove_child(this.player.labelSeperatorStart);
             this.player.subContainerLabel.remove_child(this.player.labelSeperatorEnd);
-            this.player.dummyContainer.remove_child(this.player.containerControls);
+
+            this.player.containerControls.remove_child(this.player.buttonPrev);
+            this.player.containerControls.remove_child(this.player.buttonPlayPause);
+            this.player.containerControls.remove_child(this.player.buttonNext);
         }
 
         async _addPlayer(busName) {

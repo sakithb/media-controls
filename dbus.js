@@ -16,6 +16,7 @@ const ifacesXml = `
         </interface>
         <interface name="org.mpris.MediaPlayer2">
             <property name="Identity" type="s" access="read" />
+            <property name="DesktopEntry" type="s" access="read" />
         </interface>
         <interface name="org.freedesktop.DBus">
             <method name='ListNames'>

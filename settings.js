@@ -3,30 +3,33 @@ const ExtensionUtils = imports.misc.extensionUtils;
 class Settings {
     constructor(parent) {
         this._settings = ExtensionUtils.getSettings();
-        this.extension = parent;
+        this._extension = parent;
 
         this.connectSignals();
 
-        this.maxDisplayWidth = this._settings.get_int("max-text-width");
+        this.maxWidgetWidth = this._settings.get_int("max-widget-width");
         this.updateDelay = this._settings.get_int("update-delay");
         this.showTrackName = this._settings.get_boolean("show-text");
         this.showPlayerIcon = this._settings.get_boolean("show-player-icon");
         this.showControls = this._settings.get_boolean("show-control-icons");
         this.showSeperators = this._settings.get_boolean("show-seperators");
         this.showMenu = this._settings.get_boolean("show-sources-menu");
+        this.showPlayPauseButton = this._settings.get_boolean("show-playpause-icon");
+        this.showPrevButton = this._settings.get_boolean("show-prev-icon");
+        this.showNextButton = this._settings.get_boolean("show-next-icon");
         this.extensionPosition = this._settings.get_string("extension-position");
         this.extensionIndex = this._settings.get_int("extension-index");
         this.coloredPlayerIcon = this._settings.get_boolean("colored-player-icon");
-        this.showInfoOnHover = this._settings.get_boolean("show-info-on-hover");
         this.mouseActions = this._settings.get_strv("mouse-actions");
         this.sepChars = this._settings.get_strv("seperator-chars");
         this.elementOrder = this._settings.get_strv("element-order");
+        this.trackLabel = this._settings.get_strv("track-label");
     }
 
     connectSignals() {
-        this._onMaxWidthChanged = this._settings.connect("changed::max-text-width", () => {
-            this.maxDisplayWidth = this._settings.get_int("max-text-width");
-            this.extension.player.updateLabelWidths();
+        this._onMaxWidgetWidthChanged = this._settings.connect("changed::max-widget-width", () => {
+            this.maxWidgetWidth = this._settings.get_int("max-widget-width");
+            this._extension.player.updateWidgetWidths();
         });
 
         this._onUpdateDelayChanged = this._settings.connect("changed::update-delay", () => {
@@ -35,59 +38,71 @@ class Settings {
 
         this._onShowTrackNameChanged = this._settings.connect("changed::show-text", () => {
             this.showTrackName = this._settings.get_boolean("show-text");
-            this.extension.removeWidgets();
-            this.extension.addWidgets();
+            this._extension.removeWidgets();
+            this._extension.addWidgets();
         });
 
         this._onShowPlayerIconChanged = this._settings.connect("changed::show-player-icon", () => {
             this.showPlayerIcon = this._settings.get_boolean("show-player-icon");
-            this.extension.removeWidgets();
-            this.extension.addWidgets();
+            this._extension.removeWidgets();
+            this._extension.addWidgets();
         });
 
         this._onShowControlsChanged = this._settings.connect("changed::show-control-icons", () => {
             this.showControls = this._settings.get_boolean("show-control-icons");
-            this.extension.removeWidgets();
-            this.extension.addWidgets();
+            this._extension.removeWidgets();
+            this._extension.addWidgets();
         });
 
         this._onShowSeperatorsChanged = this._settings.connect("changed::show-seperators", () => {
             this.showSeperators = this._settings.get_boolean("show-seperators");
-            this.extension.removeWidgets();
-            this.extension.addWidgets();
+            this._extension.removeWidgets();
+            this._extension.addWidgets();
+        });
+
+        this._onShowPlayPauseButtonChanged = this._settings.connect("changed::show-playpause-icon", () => {
+            this.showPlayPauseButton = this._settings.get_boolean("show-playpause-icon");
+            this._extension.removeWidgets();
+            this._extension.addWidgets();
+        });
+        this._onShowPrevButtonChanged = this._settings.connect("changed::show-prev-icon", () => {
+            this.showPrevButton = this._settings.get_boolean("show-prev-icon");
+            this._extension.removeWidgets();
+            this._extension.addWidgets();
+        });
+        this._onShowNextButtonChanged = this._settings.connect("changed::show-next-icon", () => {
+            this.showNextButton = this._settings.get_boolean("show-next-icon");
+            this._extension.removeWidgets();
+            this._extension.addWidgets();
         });
 
         this._onShowMenuChanged = this._settings.connect("changed::show-sources-menu", () => {
             this.showMenu = this._settings.get_boolean("show-sources-menu");
-            this.extension.removeWidgets();
-            this.extension.addWidgets();
+            this._extension.removeWidgets();
+            this._extension.addWidgets();
         });
 
         this._onExtensionPositionChanged = this._settings.connect("changed::extension-position", () => {
-            this.extension.removeWidgets();
+            this._extension.removeWidgets();
             this.extensionPosition = this._settings.get_string("extension-position");
-            this.extension.addWidgets();
+            this._extension.addWidgets();
         });
 
         this._onExtensionIndexChanged = this._settings.connect("changed::extension-index", () => {
             this.extensionIndex = this._settings.get_int("extension-index");
-            this.extension.removeWidgets();
-            this.extension.addWidgets();
+            this._extension.removeWidgets();
+            this._extension.addWidgets();
         });
 
         this._onColoredPlayerIconChanged = this._settings.connect("changed::colored-player-icon", () => {
             this.coloredPlayerIcon = this._settings.get_boolean("colored-player-icon");
-            this.extension.player.updateIconEffects();
-        });
-
-        this._onShowInfoOnHoverChanged = this._settings.connect("changed::show-info-on-hover", () => {
-            this.showInfoOnHover = this._settings.get_boolean("show-info-on-hover");
+            this._extension.player.updateIconEffects();
         });
 
         this._onSepCharsChanged = this._settings.connect("changed::seperator-chars", () => {
             this.sepChars = this._settings.get_strv("seperator-chars");
-            this.extension.player.labelSeperatorStart.set_text(this.sepChars[0]);
-            this.extension.player.labelSeperatorEnd.set_text(this.sepChars[1]);
+            this._extension.player.labelSeperatorStart.set_text(this.sepChars[0]);
+            this._extension.player.labelSeperatorEnd.set_text(this.sepChars[1]);
         });
 
         this._onMouseActionsChanged = this._settings.connect("changed::mouse-actions", () => {
@@ -96,24 +111,33 @@ class Settings {
 
         this._onElementOrderChanged = this._settings.connect("changed::element-order", () => {
             this.elementOrder = this._settings.get_strv("element-order");
-            this.extension.removeWidgets();
-            this.extension.addWidgets();
+            this._extension.removeWidgets();
+            this._extension.addWidgets();
+        });
+
+        this._onTrackLabelChanged = this._settings.connect("changed::track-label", () => {
+            this.trackLabel = this._settings.get_strv("track-label");
+            this._extension.player.updateWidgets();
         });
     }
 
     disconnectSignals() {
-        this._settings.disconnect(this._onMaxWidthChanged);
+        this._settings.disconnect(this._onMaxWidgetWidthChanged);
         this._settings.disconnect(this._onUpdateDelayChanged);
         this._settings.disconnect(this._onShowControlsChanged);
         this._settings.disconnect(this._onShowPlayerIconChanged);
         this._settings.disconnect(this._onShowTrackNameChanged);
         this._settings.disconnect(this._onShowSeperatorsChanged);
         this._settings.disconnect(this._onExtensionPositionChanged);
+        this._settings.disconnect(this._onShowPlayPauseButtonChanged);
+        this._settings.disconnect(this._onShowNextButtonChanged);
+        this._settings.disconnect(this._onShowPrevButtonChanged);
         this._settings.disconnect(this._onExtensionIndexChanged);
-        this._settings.disconnect(this._onShowInfoOnHoverChanged);
+        this._settings.disconnect(this._onShowSourcesInInfoMenuChanged);
         this._settings.disconnect(this._onColoredPlayerIconChanged);
         this._settings.disconnect(this._onMouseActionsChanged);
         this._settings.disconnect(this._onSepCharsChanged);
         this._settings.disconnect(this._onElementOrderChanged);
+        this._settings.disconnect(this._onTrackLabelChanged);
     }
 }
