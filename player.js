@@ -78,13 +78,8 @@ const Player = GObject.registerClass(
         }
 
         initWidgets() {
-            // Title and player icon
+            // Title/artist and seperators
 
-            this.iconPlayer = new St.Icon({
-                fallback_icon_name: "audio-x-generic",
-                icon_name: this.icon,
-                style_class: "system-status-icon",
-            });
             this.labelTitle = new St.Label({
                 text: this.label || "No track",
                 style: this.maxWidthStyle,
@@ -105,7 +100,6 @@ const Player = GObject.registerClass(
 
             this.subContainerLabel = new St.BoxLayout();
 
-            // this.subContainerLabel.add_child(this.iconPlayer);
             // this.subContainerLabel.add_child(this.labelSeperatorStart);
             // this.subContainerLabel.add_child(this.labelTitle);
             // this.subContainerLabel.add_child(this.labelSeperatorEnd);
@@ -114,51 +108,33 @@ const Player = GObject.registerClass(
                 style_class: "panel-button",
             });
 
-            this.containerButtonLabel.connect("button-release-event", (widget, event) => {
-                let clickCount = event.get_click_count();
-                let button = event.get_button();
+            this.containerButtonLabel.connect("button-release-event", this._mouseActionButton.bind(this));
 
-                if (clickCount === 1) {
-                    GLib.timeout_add(
-                        GLib.PRIORITY_HIGH,
-                        this._extension.clutterSettings.double_click_time,
-                        () => {
-                            if (!doubleClick) {
-                                if (button === 1) {
-                                    this._mouseAction(mouseActionTypes.LEFT_CLICK);
-                                } else if (button === 2) {
-                                    this._mouseAction(mouseActionTypes.MIDDLE_CLICK);
-                                } else if (button === 3) {
-                                    this._mouseAction(mouseActionTypes.RIGHT_CLICK);
-                                }
-                            }
-                            doubleClick = false;
-                            return GLib.SOURCE_REMOVE;
-                        }
-                    );
-                } else if (clickCount === 2) {
-                    doubleClick = true;
-                    if (button === 1) {
-                        this._mouseAction(mouseActionTypes.LEFT_DBL_CLICK);
-                    } else if (button === 3) {
-                        this._mouseAction(mouseActionTypes.RIGHT_DBL_CLICK);
-                    }
-                }
-            });
+            this.containerButtonLabel.connect("scroll-event", this._mouseActionScroll.bind(this));
 
-            this.containerButtonLabel.connect("scroll-event", (widget, event) => {
-                if (event.get_scroll_direction() === Clutter.ScrollDirection.UP) {
-                    this._mouseAction(mouseActionTypes.SCROLL_UP);
-                } else if (event.get_scroll_direction() === Clutter.ScrollDirection.DOWN) {
-                    this._mouseAction(mouseActionTypes.SCROLL_DOWN);
-                }
-            });
-
-            this.containerButtonLabel.connect("enter-event", () => {
-                this._mouseAction(mouseActionTypes.HOVER);
-            });
+            this.containerButtonLabel.connect("enter-event", this._mouseActionHover.bind(this));
 
             this.containerButtonLabel.set_child(this.subContainerLabel);
+
+            // Player icon
+
+            this.buttonPlayer = new St.Button({
+                style_class: "panel-button",
+            });
+
+            this.iconPlayer = new St.Icon({
+                fallback_icon_name: "audio-x-generic",
+                icon_name: this.icon,
+                style_class: "system-status-icon",
+            });
+
+            this.buttonPlayer.set_child(this.iconPlayer);
+
+            this.buttonPlayer.connect("button-release-event", this._mouseActionButton.bind(this));
+
+            this.buttonPlayer.connect("scroll-event", this._mouseActionScroll.bind(this));
+
+            this.buttonPlayer.connect("enter-event", this._mouseActionHover.bind(this));
 
             // Player controls
 
@@ -203,14 +179,27 @@ const Player = GObject.registerClass(
 
             this.containerControls = new St.BoxLayout();
 
-            this.containerControls.add_child(this.buttonPrev);
-            this.containerControls.add_child(this.buttonPlayPause);
-            this.containerControls.add_child(this.buttonNext);
+            // this.containerControls.add_child(this.buttonPrev);
+            // this.containerControls.add_child(this.buttonPlayPause);
+            // this.containerControls.add_child(this.buttonNext);
+
+            // Sources dropdown button
+
+            this.buttonMenu = new St.Button({
+                style_class: "panel-button",
+                style: "padding: 0px 3px;",
+            });
+            this.buttonMenu.set_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
+            this.buttonMenu.connect("button-release-event", () => {
+                this._extension.menu.toggle();
+            });
 
             this.dummyContainer = new St.BoxLayout();
 
-            this.dummyContainer.add_child(this.containerButtonLabel);
-            this.dummyContainer.add_child(this.containerControls);
+            // this.dummyContainer.add_child(this.buttonPlayer);
+            // this.dummyContainer.add_child(this.containerButtonLabel);
+            // this.dummyContainer.add_child(this.containerControls);
+            // this.dummyContainer.add_child(this.buttonMenu);
 
             this.add_child(this.dummyContainer);
 
@@ -551,7 +540,6 @@ const Player = GObject.registerClass(
         }
 
         async _saveImage() {
-            log(this._extension.settings.cacheImages);
             if (this._extension.settings.cacheImages) {
                 try {
                     if (urlRegexp.test(this.image)) {
@@ -643,6 +631,50 @@ const Player = GObject.registerClass(
                 default:
                     break;
             }
+        }
+
+        _mouseActionButton(widget, event) {
+            let clickCount = event.get_click_count();
+            let button = event.get_button();
+
+            if (clickCount === 1) {
+                GLib.timeout_add(
+                    GLib.PRIORITY_HIGH,
+                    this._extension.clutterSettings.double_click_time,
+                    () => {
+                        if (!doubleClick) {
+                            if (button === 1) {
+                                this._mouseAction(mouseActionTypes.LEFT_CLICK);
+                            } else if (button === 2) {
+                                this._mouseAction(mouseActionTypes.MIDDLE_CLICK);
+                            } else if (button === 3) {
+                                this._mouseAction(mouseActionTypes.RIGHT_CLICK);
+                            }
+                        }
+                        doubleClick = false;
+                        return GLib.SOURCE_REMOVE;
+                    }
+                );
+            } else if (clickCount === 2) {
+                doubleClick = true;
+                if (button === 1) {
+                    this._mouseAction(mouseActionTypes.LEFT_DBL_CLICK);
+                } else if (button === 3) {
+                    this._mouseAction(mouseActionTypes.RIGHT_DBL_CLICK);
+                }
+            }
+        }
+
+        _mouseActionScroll(widget, event) {
+            if (event.get_scroll_direction() === Clutter.ScrollDirection.UP) {
+                this._mouseAction(mouseActionTypes.SCROLL_UP);
+            } else if (event.get_scroll_direction() === Clutter.ScrollDirection.DOWN) {
+                this._mouseAction(mouseActionTypes.SCROLL_DOWN);
+            }
+        }
+
+        _mouseActionHover() {
+            this._mouseAction(mouseActionTypes.HOVER);
         }
 
         destroy() {

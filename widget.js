@@ -44,7 +44,6 @@ const MediaControls = GObject.registerClass(
 
             this.clutterSettings = Clutter.Settings.get_default();
             this.clutterSettings.double_click_time = 200;
-            this.buttonMenu = PopupMenu.arrowIcon(St.Side.BOTTOM);
 
             this.dummyContainer = new St.BoxLayout();
             this.add_child(this.dummyContainer);
@@ -110,6 +109,7 @@ const MediaControls = GObject.registerClass(
 
         addWidgets() {
             log("[MediaControls] Adding widgets");
+
             delete Main.panel.statusArea["media_controls_extension"];
             Main.panel.addToStatusArea(
                 "media_controls_extension",
@@ -118,10 +118,14 @@ const MediaControls = GObject.registerClass(
                 this.settings.extensionPosition
             );
             this.dummyContainer.add_child(this.player.container);
+
             this.settings.elementOrder.forEach((element) => {
                 if (element === "icon" && this.settings.showPlayerIcon) {
-                    this.player.subContainerLabel.add_child(this.player.iconPlayer);
+                    log("Adding icon");
+                    this.player.dummyContainer.add_child(this.player.buttonPlayer);
                 } else if (element === "title" && this.settings.showTrackName) {
+                    log("Adding title");
+                    this.player.dummyContainer.add_child(this.player.containerButtonLabel);
                     if (this.settings.showSeperators) {
                         this.player.subContainerLabel.add_child(this.player.labelSeperatorStart);
                     }
@@ -130,6 +134,8 @@ const MediaControls = GObject.registerClass(
                         this.player.subContainerLabel.add_child(this.player.labelSeperatorEnd);
                     }
                 } else if (element === "controls" && this.settings.showControls) {
+                    log("Adding controls");
+                    this.player.dummyContainer.add_child(this.player.containerControls);
                     if (this.settings.showPrevButton) {
                         this.player.containerControls.add_child(this.player.buttonPrev);
                     }
@@ -140,7 +146,8 @@ const MediaControls = GObject.registerClass(
                         this.player.containerControls.add_child(this.player.buttonNext);
                     }
                 } else if (element === "menu" && this.settings.showMenu) {
-                    this.dummyContainer.add_child(this.buttonMenu);
+                    log("Adding menu");
+                    this.player.dummyContainer.add_child(this.player.buttonMenu);
                 }
             });
         }
@@ -149,17 +156,23 @@ const MediaControls = GObject.registerClass(
             log("[MediaControls] Removing widgets");
             delete Main.panel.statusArea["media_controls_extension"];
 
-            this.dummyContainer.remove_child(this.buttonMenu);
             this.dummyContainer.remove_child(this.player.container);
 
-            this.player.subContainerLabel.remove_child(this.player.iconPlayer);
+            this.player.dummyContainer.remove_child(this.player.buttonPlayer);
+
+            this.player.dummyContainer.remove_child(this.player.containerButtonLabel);
+
             this.player.subContainerLabel.remove_child(this.player.labelTitle);
             this.player.subContainerLabel.remove_child(this.player.labelSeperatorStart);
             this.player.subContainerLabel.remove_child(this.player.labelSeperatorEnd);
 
+            this.player.dummyContainer.remove_child(this.player.containerControls);
+
             this.player.containerControls.remove_child(this.player.buttonPrev);
             this.player.containerControls.remove_child(this.player.buttonPlayPause);
             this.player.containerControls.remove_child(this.player.buttonNext);
+
+            this.player.dummyContainer.remove_child(this.player.buttonMenu);
         }
 
         async _addPlayer(busName) {
@@ -189,9 +202,9 @@ const MediaControls = GObject.registerClass(
 
         _updatePlayer(player = null) {
             if (this.player) {
+                this.removeWidgets();
                 Gio.bus_unwatch_name(this.playerWatchId);
 
-                this.removeWidgets();
                 Main.panel.menuManager.removeMenu(this.player.menu);
 
                 this.player = null;
@@ -229,7 +242,7 @@ const MediaControls = GObject.registerClass(
                     null,
                     this.playerVanished.bind(this)
                 );
-
+                this.removeWidgets();
                 this.addWidgets();
             }
 

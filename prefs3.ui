@@ -363,7 +363,7 @@ ex. track name, artist</property>
                                 <property name="halign">center</property>
                                 <property name="valign">center</property>
                                 <property name="pixel-size">16</property>
-                                <property name="icon-name">help-about</property>
+                                <property name="icon-name">dialog-information-symbolic</property>
                               </object>
                               <packing>
                                 <property name="left-attach">0</property>

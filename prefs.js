@@ -71,7 +71,7 @@ const mouseActionLabels = [
     "Right double click",
     "Scroll up",
     "Scroll down",
-    "Hover",
+    "Hover <i><span size='smaller'>(unstable)</span></i>",
 ];
 
 let settings,
@@ -336,7 +336,9 @@ const initWidgets = () => {
 
     mouseActionLabels.forEach((label, index) => {
         let widgetLabel = new Gtk.Label({
+            use_markup: true,
             label,
+            visible: true,
             halign: Gtk.Align.START,
         });
 
