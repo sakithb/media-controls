@@ -7,7 +7,7 @@ const { createProxy } = Me.imports.dbus;
 const { Player } = Me.imports.player;
 const { Settings } = Me.imports.settings;
 
-const { GObject, Gio, St, GLib } = imports.gi;
+const { GObject, Gio, St, GLib, Clutter } = imports.gi;
 
 const Main = imports.ui.main;
 
@@ -28,6 +28,22 @@ const MediaControls = GObject.registerClass(
 
         enable() {
             this.settings = new Settings(this);
+
+            let mouseActions = this.settings.mouseActions;
+            let defaultMouseActions = this.settings._settings
+                .get_default_value("mouse-actions")
+                .recursiveUnpack();
+
+            defaultMouseActions.forEach((action, index) => {
+                if (!mouseActions[index]) {
+                    mouseActions[index] = action;
+                }
+            });
+
+            this.settings._settings.set_strv("mouse-actions", mouseActions);
+
+            this.clutterSettings = Clutter.Settings.get_default();
+            this.clutterSettings.double_click_time = 200;
             this.buttonMenu = PopupMenu.arrowIcon(St.Side.BOTTOM);
 
             this.dummyContainer = new St.BoxLayout();
@@ -68,7 +84,6 @@ const MediaControls = GObject.registerClass(
                             !this._players[busName]
                         ) {
                             (async () => {
-                                log(`New player: ${busName}`);
                                 await this._addPlayer(busName);
                                 this._updatePlayer(null);
                             })();
@@ -83,7 +98,6 @@ const MediaControls = GObject.registerClass(
         }
 
         disable() {
-            log("Disabling");
             this.removeWidgets();
             this.settings.disconnectSignals();
 

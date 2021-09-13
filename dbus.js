@@ -13,6 +13,8 @@ const ifacesXml = `
             <property name="PlaybackStatus" type="s" access="read" />
             <property name="Metadata" type="a{sv}" access="read" />
             <property name="LoopStatus" type="s" access="readwrite" />
+            <property name="Shuffle" type="b" access="readwrite" />
+            <property name="CanControl" type="b" access="read" />
         </interface>
         <interface name="org.mpris.MediaPlayer2">
             <property name="Identity" type="s" access="read" />

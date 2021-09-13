@@ -2,6 +2,9 @@ const { Gio, GObject, St, Clutter, GLib } = imports.gi;
 
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
+
+const BoxPointer = imports.ui.boxpointer;
+
 const { Slider } = imports.ui.slider;
 
 const ExtensionUtils = imports.misc.extensionUtils;
@@ -13,6 +16,19 @@ const { parseMetadata, stripInstanceNumbers, getRequest } = Me.imports.utils;
 const urlRegexp = new RegExp(
     /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
 );
+
+let doubleClick = false;
+
+let mouseActionTypes = {
+    LEFT_CLICK: 0,
+    RIGHT_CLICK: 1,
+    MIDDLE_CLICK: 2,
+    LEFT_DBL_CLICK: 3,
+    RIGHT_DBL_CLICK: 4,
+    SCROLL_UP: 5,
+    SCROLL_DOWN: 6,
+    HOVER: 7,
+};
 
 const Player = GObject.registerClass(
     class Player extends PanelMenu.Button {
@@ -30,15 +46,15 @@ const Player = GObject.registerClass(
                     this._playerProxy = createProxy(
                         "org.mpris.MediaPlayer2.Player",
                         busName,
-                        "/org/mpris/MediaPlayer2",
-                        Gio.DBusProxyFlags.GET_INVALIDATED_PROPERTIES
+                        "/org/mpris/MediaPlayer2"
+                        // Gio.DBusProxyFlags.GET_INVALIDATED_PROPERTIES
                     );
 
                     this._otherProxy = createProxy(
                         "org.mpris.MediaPlayer2",
                         busName,
-                        "/org/mpris/MediaPlayer2",
-                        Gio.DBusProxyFlags.GET_INVALIDATED_PROPERTIES
+                        "/org/mpris/MediaPlayer2"
+                        // Gio.DBusProxyFlags.GET_INVALIDATED_PROPERTIES
                     );
 
                     [this._playerProxy, this._otherProxy] = await Promise.all([
@@ -98,35 +114,48 @@ const Player = GObject.registerClass(
                 style_class: "panel-button",
             });
 
-            this.containerButtonLabel.connect("button-release-event", (widget) => {
-                let button = widget.pseudo_class && widget.pseudo_class.includes("active") ? 0 : 1;
-                switch (this._extension.settings.mouseActions[button]) {
-                    case "toggle_play":
-                        this._playerProxy.PlayPauseRemote();
-                        break;
-                    case "next":
-                        this._playerProxy.NextRemote();
-                        break;
-                    case "previous":
-                        this._playerProxy.PreviousRemote();
-                        break;
-                    case "play":
-                        this._playerProxy.PlayRemote();
-                        break;
-                    case "pause":
-                        this._playerProxy.PauseRemote();
-                        break;
-                    case "toggle_menu":
-                        this._extension.menu.toggle(true);
-                        this.menu.close(true);
-                        break;
-                    case "toggle_info":
-                        this.menu.toggle(true);
-                        this._extension.menu.close(true);
-                        break;
-                    default:
-                        break;
+            this.containerButtonLabel.connect("button-release-event", (widget, event) => {
+                let clickCount = event.get_click_count();
+                let button = event.get_button();
+
+                if (clickCount === 1) {
+                    GLib.timeout_add(
+                        GLib.PRIORITY_HIGH,
+                        this._extension.clutterSettings.double_click_time,
+                        () => {
+                            if (!doubleClick) {
+                                if (button === 1) {
+                                    this._mouseAction(mouseActionTypes.LEFT_CLICK);
+                                } else if (button === 2) {
+                                    this._mouseAction(mouseActionTypes.MIDDLE_CLICK);
+                                } else if (button === 3) {
+                                    this._mouseAction(mouseActionTypes.RIGHT_CLICK);
+                                }
+                            }
+                            doubleClick = false;
+                            return GLib.SOURCE_REMOVE;
+                        }
+                    );
+                } else if (clickCount === 2) {
+                    doubleClick = true;
+                    if (button === 1) {
+                        this._mouseAction(mouseActionTypes.LEFT_DBL_CLICK);
+                    } else if (button === 3) {
+                        this._mouseAction(mouseActionTypes.RIGHT_DBL_CLICK);
+                    }
                 }
+            });
+
+            this.containerButtonLabel.connect("scroll-event", (widget, event) => {
+                if (event.get_scroll_direction() === Clutter.ScrollDirection.UP) {
+                    this._mouseAction(mouseActionTypes.SCROLL_UP);
+                } else if (event.get_scroll_direction() === Clutter.ScrollDirection.DOWN) {
+                    this._mouseAction(mouseActionTypes.SCROLL_DOWN);
+                }
+            });
+
+            this.containerButtonLabel.connect("enter-event", () => {
+                this._mouseAction(mouseActionTypes.HOVER);
             });
 
             this.containerButtonLabel.set_child(this.subContainerLabel);
@@ -188,6 +217,7 @@ const Player = GObject.registerClass(
             this._addInfoMenuItems();
 
             this._updateLoopIcon();
+            this._updateShuffleIcon();
             this.updateWidgetWidths();
             this.updateIconEffects();
         }
@@ -215,6 +245,10 @@ const Player = GObject.registerClass(
             if (changed.LoopStatus) {
                 this._updateLoopIcon();
             }
+
+            if (changed.Shuffle !== undefined) {
+                this._updateShuffleIcon();
+            }
         }
 
         _otherPropsChanged(proxy, changed, invalidated) {
@@ -235,7 +269,6 @@ const Player = GObject.registerClass(
             }
 
             if (this._menuItem) {
-                log(this._menuIcon, this._menuItem, this._menuLabel);
                 this._menuIcon.set_gicon(this.trackIcon);
                 this._menuLabel.set_text(this.label);
             }
@@ -265,18 +298,32 @@ const Player = GObject.registerClass(
                 switch (this._playerProxy.LoopStatus) {
                     case "None":
                         this.infoIconLoop.set_icon_name("media-playlist-consecutive-symbolic");
+                        this.infoButtonLoop.remove_style_class_name("popup-menu-button-active");
                         break;
                     case "Track":
                         this.infoIconLoop.set_icon_name("media-playlist-repeat-song-symbolic");
+                        this.infoButtonLoop.add_style_class_name("popup-menu-button-active");
                         break;
                     case "Playlist":
                         this.infoIconLoop.set_icon_name("media-playlist-repeat-symbolic");
+                        this.infoButtonLoop.add_style_class_name("popup-menu-button-active");
                         break;
                     default:
                         break;
                 }
             } else {
                 this.infoButtonLoop.set_reactive(false);
+                this.infoButtonLoop.remove_style_class_name("popup-menu-button-active");
+            }
+        }
+
+        _updateShuffleIcon() {
+            if (this._playerProxy.Shuffle === true) {
+                this.infoShuffleButton.add_style_class_name("popup-menu-button-active");
+            } else if (this._playerProxy.Shuffle === false) {
+                this.infoShuffleButton.remove_style_class_name("popup-menu-button-active");
+            } else {
+                this.infoShuffleButton.set_reactive(false);
             }
         }
 
@@ -384,6 +431,13 @@ const Player = GObject.registerClass(
 
                 // Controls
 
+                // Play/pause button
+
+                const mainControlButtons = new St.BoxLayout({
+                    x_align: Clutter.ActorAlign.FILL,
+                    style: "padding-top: 10px;",
+                });
+
                 this.infoIconLoop = new St.Icon({
                     icon_name: "media-playlist-repeat-symbolic",
                     style_class: "popup-menu-icon",
@@ -391,7 +445,7 @@ const Player = GObject.registerClass(
 
                 this.infoButtonLoop = new St.Button({
                     x_align: Clutter.ActorAlign.START,
-
+                    x_expand: true,
                     style_class: "popup-menu-button",
                 });
 
@@ -399,13 +453,7 @@ const Player = GObject.registerClass(
 
                 this.infoButtonLoop.set_child(this.infoIconLoop);
 
-                this.infoItemContainer.add(this.infoButtonLoop);
-
-                // Play/pause button
-
-                const mainControlButtons = new St.BoxLayout({
-                    x_align: Clutter.ActorAlign.CENTER,
-                });
+                mainControlButtons.add(this.infoButtonLoop);
 
                 this.infoIconPlayPause = new St.Icon({
                     icon_name: this.isPlaying
@@ -459,6 +507,27 @@ const Player = GObject.registerClass(
                 mainControlButtons.add(buttonPlayPause);
                 mainControlButtons.add(buttonNext);
 
+                this.infoShuffleIcon = new St.Icon({
+                    icon_name: "media-playlist-shuffle-symbolic",
+                    style_class: "popup-menu-icon",
+                });
+
+                this.infoShuffleButton = new St.Button({
+                    x_align: Clutter.ActorAlign.END,
+                    x_expand: true,
+                    style_class: "popup-menu-button",
+                });
+
+                this.infoShuffleButton.connect("button-press-event", () => {
+                    if (typeof this._playerProxy.Shuffle === "boolean") {
+                        this._playerProxy.Shuffle = !this._playerProxy.Shuffle;
+                    }
+                });
+
+                this.infoShuffleButton.set_child(this.infoShuffleIcon);
+
+                mainControlButtons.add(this.infoShuffleButton);
+
                 this.infoItemContainer.add(mainControlButtons);
 
                 this._infoItem.add(this.infoItemContainer);
@@ -479,40 +548,42 @@ const Player = GObject.registerClass(
                     this._playerProxy.LoopStatus = "None";
                     break;
             }
-            // this._updateLoopIcon();
         }
 
         async _saveImage() {
-            try {
-                if (urlRegexp.test(this.image)) {
-                    const destination = GLib.build_filenamev([
-                        this._extension.dataDir,
-                        "media-controls",
-                        "cache",
-                        GLib.base64_encode(this.id),
-                    ]);
-                    const cacheFile = Gio.File.new_for_path(destination);
-                    if (!cacheFile.query_exists(null)) {
-                        const remoteIcon = await getRequest(this.image);
-                        if (GLib.mkdir_with_parents(cacheFile.get_parent().get_path(), 0o744) === 0) {
-                            let [success, tag] = cacheFile.replace_contents(
-                                remoteIcon,
-                                null,
-                                false,
-                                Gio.FileCreateFlags.REPLACE_DESTINATION,
-                                null
-                            );
+            log(this._extension.settings.cacheImages);
+            if (this._extension.settings.cacheImages) {
+                try {
+                    if (urlRegexp.test(this.image)) {
+                        const destination = GLib.build_filenamev([
+                            this._extension.dataDir,
+                            "media-controls",
+                            "cache",
+                            GLib.base64_encode(this.image),
+                        ]);
+                        const cacheFile = Gio.File.new_for_path(destination);
+                        if (!cacheFile.query_exists(null)) {
+                            const remoteIcon = await getRequest(this.image);
+                            if (GLib.mkdir_with_parents(cacheFile.get_parent().get_path(), 0o744) === 0) {
+                                let [success, tag] = cacheFile.replace_contents(
+                                    remoteIcon,
+                                    null,
+                                    false,
+                                    Gio.FileCreateFlags.REPLACE_DESTINATION,
+                                    null
+                                );
 
-                            if (!success) {
+                                if (!success) {
+                                    throw new Error("Failed to save icon.");
+                                }
+                            } else {
                                 throw new Error("Failed to save icon.");
                             }
-                        } else {
-                            throw new Error("Failed to save icon.");
                         }
                     }
+                } catch (error) {
+                    logError(error);
                 }
-            } catch (error) {
-                logError(error);
             }
         }
 
@@ -522,7 +593,7 @@ const Player = GObject.registerClass(
                     this._extension.dataDir,
                     "media-controls",
                     "cache",
-                    GLib.base64_encode(this.id),
+                    GLib.base64_encode(this.image),
                 ]);
                 let cacheFile = Gio.File.new_for_path(destination);
                 let [success, contents] = cacheFile.load_contents(null);
@@ -536,11 +607,41 @@ const Player = GObject.registerClass(
                     error.toString().includes("Expected type") ||
                     error.toString().includes("Error opening file")
                 ) {
-                    log("Failed to retrieve icon.");
+                    log("[MediaControls] Failed to retrieve icon.");
                 } else {
                     logError(error);
                 }
                 return null;
+            }
+        }
+
+        _mouseAction(index) {
+            switch (this._extension.settings.mouseActions[index]) {
+                case "toggle_play":
+                    this._playerProxy.PlayPauseRemote();
+                    break;
+                case "next":
+                    this._playerProxy.NextRemote();
+                    break;
+                case "previous":
+                    this._playerProxy.PreviousRemote();
+                    break;
+                case "play":
+                    this._playerProxy.PlayRemote();
+                    break;
+                case "pause":
+                    this._playerProxy.PauseRemote();
+                    break;
+                case "toggle_menu":
+                    this.menu.close(BoxPointer.PopupAnimation.FULL);
+                    this._extension.menu.toggle();
+                    break;
+                case "toggle_info":
+                    this._extension.menu.close(BoxPointer.PopupAnimation.FULL);
+                    this.menu.toggle();
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -686,10 +787,6 @@ const Player = GObject.registerClass(
             }
 
             return file;
-        }
-
-        get id() {
-            return this._metadata["id"];
         }
     }
 );

@@ -24,6 +24,7 @@ class Settings {
         this.sepChars = this._settings.get_strv("seperator-chars");
         this.elementOrder = this._settings.get_strv("element-order");
         this.trackLabel = this._settings.get_strv("track-label");
+        this.cacheImages = this._settings.get_boolean("cache-images");
     }
 
     connectSignals() {
@@ -119,6 +120,10 @@ class Settings {
             this.trackLabel = this._settings.get_strv("track-label");
             this._extension.player.updateWidgets();
         });
+
+        this._onCacheImagesChanged = this._settings.connect("changed::cache-images", () => {
+            this.cacheImages = this._settings.get_boolean("cache-images");
+        });
     }
 
     disconnectSignals() {
@@ -139,5 +144,6 @@ class Settings {
         this._settings.disconnect(this._onSepCharsChanged);
         this._settings.disconnect(this._onElementOrderChanged);
         this._settings.disconnect(this._onTrackLabelChanged);
+        this._settings.disconnect(this._onCacheImagesChanged);
     }
 }

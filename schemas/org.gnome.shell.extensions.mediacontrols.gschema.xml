@@ -38,7 +38,7 @@
       <default>['|', '|']</default>
     </key>
     <key name="mouse-actions" type="as">
-      <default>['toggle_play', 'toggle_menu']</default>
+      <default>['toggle_play', 'toggle_menu', 'none', 'none', 'none', 'none', 'none', 'none']</default>
     </key>
     <key name="extension-position" type="s">
       <default>'center'</default>
@@ -50,7 +50,10 @@
       <default>['icon', 'title', 'controls', 'menu']</default>
     </key>
     <key name="track-label" type="as">
-      <default>['Track', '-', 'Artist']</default>
+      <default>['track', '-', 'artist']</default>
+    </key>
+    <key name="cache-images" type="b">
+      <default>true</default>
     </key>
   </schema>
 </schemalist>
