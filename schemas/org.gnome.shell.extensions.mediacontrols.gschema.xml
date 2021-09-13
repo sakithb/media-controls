@@ -1,12 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
   <schema id="org.gnome.shell.extensions.mediacontrols" path="/org/gnome/shell/extensions/mediacontrols/">
-    <key name="max-text-length" type="i">
-      <default>40</default>
+    <key name="max-text-width" type="i">
+      <default>200</default>
     </key>
     <key name="update-delay" type="i">
       <default>100</default>
     </key>
+    <key name="show-text" type="b">
+      <default>true</default>
+    </key>
+    <key name="show-player-icon" type="b">
+      <default>true</default>
+    </key>
+    <key name="show-control-icons" type="b">
+      <default>true</default>
+    </key>
+    <key name="show-seperators" type="b">
+      <default>true</default>
+    </key>
+
     <key name="hide-text" type="b">
       <default>false</default>
     </key>
@@ -16,17 +29,20 @@
     <key name="hide-control-icons" type="b">
       <default>false</default>
     </key>
-
     <key name="hide-seperators" type="b">
-      <default>false</default>
+      <default>true</default>
     </key>
 
+    <key name="show-sources-menu" type="b">
+      <default>true</default>
+    </key>
     <key name="colored-player-icon" type="b">
       <default>false</default>
     </key>
-    <key name="show-all-on-hover" type="b">
+    <key name="show-info-on-hover" type="b">
       <default>true</default>
     </key>
+<<<<<<< HEAD
 
     <key name="seperator-char-start" type="s">
       <default>' '</default>
@@ -43,12 +59,22 @@
 
     <key name="mouse-actions-right" type="s">
       <default>'none'</default>
+=======
+    <key name="seperator-chars" type="as">
+      <default>['|', '|']</default>
+    </key>
+    <key name="mouse-actions" type="as">
+      <default>['toggle_play', 'toggle_menu']</default>
+>>>>>>> e91a2aaefbc557e39484a9c66d9dd03f42fb5822
     </key>
     <key name="extension-position" type="s">
       <default>'center'</default>
     </key>
     <key name="extension-index" type="i">
       <default>0</default>
+    </key>
+    <key name="element-order" type="as">
+      <default>['icon', 'title', 'controls', 'menu']</default>
     </key>
   </schema>
 </schemalist>

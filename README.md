@@ -12,7 +12,12 @@ Show controls and information of the currently playing media in the panel
 
 ## Notes
 
+<<<<<<< HEAD
 -   Only supports GNOME 40+
+=======
+-   Only support Gnome 3.38 and 40
+
+>>>>>>> e91a2aaefbc557e39484a9c66d9dd03f42fb5822
 ---
 
 ## Screenshots
@@ -32,6 +37,7 @@ Install from source
 -   Rename the extracted folder to `mediacontrols@cliffniff.github.com`
 -   Move it to `~/.local/share/gnome-shell/extensions/`
 -   Enable the extension in the Extensions app or type `gnome-extensions enable mediacontrols@cliffniff.github.com` in the terminal
+<<<<<<< HEAD
 
 ## Upcoming features
 
@@ -41,3 +47,5 @@ Install from source
 
 
 *This extension has been updated to be more compatible with JovarkOS. Updates have been made by @lucasburlingham*
+=======
+>>>>>>> e91a2aaefbc557e39484a9c66d9dd03f42fb5822

@@ -8,5 +8,10 @@
   ],
   "url": "https://github.com/cliffniff/media-controls",
   "uuid": "mediacontrols@cliffniff.github.com",
+<<<<<<< HEAD
   "version": "7.rc1"
 }
+=======
+  "version": 14
+}
+>>>>>>> e91a2aaefbc557e39484a9c66d9dd03f42fb5822
