@@ -1,0 +1,14 @@
+.popup-menu-button {
+    border-radius: 99px;
+    padding: 0.4em;
+    margin: 0.1em;
+}
+
+.popup-menu-button:hover {
+    background-color: rgba(160, 160, 160, 0.2);
+}
+
+.popup-menu-button-active {
+    border-radius: 99px;
+    background-color: rgba(160, 160, 160, 0.2);
+}

@@ -25,6 +25,7 @@ const mouseActionNamesMap = {
     next: "Next",
     previous: "Previous",
     toggle_menu: "Open sources menu",
+    toggle_info: "Open track information menu",
 };
 let mouseActionNameIds = Object.keys(mouseActionNamesMap);
 
@@ -51,6 +52,28 @@ const elements = {
 };
 const elementIds = Object.keys(elements);
 
+const trackLabelOpts = {
+    track: "Track",
+    artist: "Artist",
+    url: "URL",
+    name: "Player name",
+    status: "Playback status",
+    file: "Filename",
+    none: "None",
+};
+const trackLabelOptKeys = Object.keys(trackLabelOpts);
+
+const mouseActionLabels = [
+    "Left click",
+    "Right click",
+    "Middle click",
+    "Left double click",
+    "Right double click",
+    "Scroll up",
+    "Scroll down",
+    "Hover",
+];
+
 let settings,
     builder,
     MediaControlsBuilderScope,
@@ -58,9 +81,12 @@ let settings,
     widgetCustom,
     widgetCacheSize,
     widgetElementOrder,
-    elementOrderWidgets;
+    elementOrderWidgets,
+    trackLabelStart,
+    trackLabelSep,
+    trackLabelEnd;
 
-let elementOrder, elementOrderLock;
+let elementOrder, trackLabelLock;
 
 // Create a builder scope of the version id 40 or greater
 if (shellVersion >= 40) {
@@ -109,16 +135,16 @@ const signalHandler = {
         }
     },
 
-    on_mouse_actions_left_changed: (widget) => {
-        let currentMouseActions = settings.get_strv("mouse-actions");
-        currentMouseActions[0] = mouseActionNameIds[widget.get_active()];
-        settings.set_strv("mouse-actions", currentMouseActions);
-    },
-    on_mouse_actions_right_changed: (widget) => {
-        let currentMouseActions = settings.get_strv("mouse-actions");
-        currentMouseActions[1] = mouseActionNameIds[widget.get_active()];
-        settings.set_strv("mouse-actions", currentMouseActions);
-    },
+    // on_mouse_actions_left_changed: (widget) => {
+    //     let currentMouseActions = settings.get_strv("mouse-actions");
+    //     currentMouseActions[0] = mouseActionNameIds[widget.get_active()];
+    //     settings.set_strv("mouse-actions", currentMouseActions);
+    // },
+    // on_mouse_actions_right_changed: (widget) => {
+    //     let currentMouseActions = settings.get_strv("mouse-actions");
+    //     currentMouseActions[1] = mouseActionNameIds[widget.get_active()];
+    //     settings.set_strv("mouse-actions", currentMouseActions);
+    // },
     on_extension_position_changed: (widget) => {
         settings.set_string("extension-position", positions[widget.get_active()]);
     },
@@ -127,23 +153,35 @@ const signalHandler = {
         let dir = GLib.get_user_config_dir() + "/media-controls";
         try {
             (async () => {
+                builder.get_object("clear-cache-spinner").start();
                 await execCommunicate(["rm", "-r", dir]);
                 widgetCacheSize.set_text(await getCacheSize());
+                builder.get_object("clear-cache-spinner").stop();
             })();
         } catch (error) {
             widgetCacheSize.set_text("Failed to clear cache");
         }
     },
+    on_track_label_changed: () => {
+        let currentTrackLabel = settings.get_strv("track-label");
+        let trackLabelArray = [
+            trackLabelOptKeys[trackLabelStart.get_active()] || currentTrackLabel[0],
+            trackLabelSep.get_text() ?? currentTrackLabel[1],
+            trackLabelOptKeys[trackLabelEnd.get_active()] || currentTrackLabel[2],
+        ];
+
+        settings.set_strv("track-label", trackLabelArray);
+    },
 };
 
 const bindSettings = () => {
     settings.bind(
-        "max-text-width",
-        builder.get_object("max-text-width"),
+        "max-widget-width",
+        builder.get_object("max-widget-width"),
         "value",
         Gio.SettingsBindFlags.DEFAULT
     );
-    settings.bind("update-delay", builder.get_object("update-delay"), "value", Gio.SettingsBindFlags.DEFAULT);
+    // settings.bind("update-delay", builder.get_object("update-delay"), "value", Gio.SettingsBindFlags.DEFAULT);
     settings.bind("show-text", builder.get_object("show-text"), "active", Gio.SettingsBindFlags.DEFAULT);
     settings.bind(
         "show-player-icon",
@@ -154,6 +192,24 @@ const bindSettings = () => {
     settings.bind(
         "show-control-icons",
         builder.get_object("show-control-icons"),
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "show-playpause-icon",
+        builder.get_object("show-playpause-icon"),
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "show-prev-icon",
+        builder.get_object("show-prev-icon"),
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "show-next-icon",
+        builder.get_object("show-next-icon"),
         "active",
         Gio.SettingsBindFlags.DEFAULT
     );
@@ -170,12 +226,6 @@ const bindSettings = () => {
         Gio.SettingsBindFlags.DEFAULT
     );
     settings.bind(
-        "show-all-on-hover",
-        builder.get_object("show-all-on-hover"),
-        "active",
-        Gio.SettingsBindFlags.DEFAULT
-    );
-    settings.bind(
         "extension-index",
         builder.get_object("extension-index"),
         "value",
@@ -184,6 +234,12 @@ const bindSettings = () => {
     settings.bind(
         "show-sources-menu",
         builder.get_object("show-sources-menu"),
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "cache-images",
+        builder.get_object("cache-images"),
         "active",
         Gio.SettingsBindFlags.DEFAULT
     );
@@ -228,40 +284,24 @@ const initWidgets = () => {
         widget.set_active(elementIds.indexOf(elementOrder[index]));
 
         widget.connect("changed", () => {
-            if (!elementOrderLock) {
-                elementOrderLock = true;
-                let newElementOrder = [];
-                elementOrder = settings.get_strv("element-order");
-                elementOrderWidgets.forEach((_widget, index) => {
-                    let val = elementIds[_widget.get_active()];
-                    log(`Current value: ${val}`);
-                    if (newElementOrder.includes(val)) {
-                        log(`   Current: ${newElementOrder} at index ${index}`);
-                        let _index = newElementOrder.indexOf(val);
-                        log(`   Index of conflicting element ${_index}`);
-                        if (elementOrder[_index] === val) {
-                            log(
-                                `       This is the new one. Overriding old value: '${val}' at index: '${_index}' with '${elementOrder[index]}'`
-                            );
-                            newElementOrder[_index] = elementOrder[index];
-                            log(`       Changed: ${newElementOrder} at index ${index}`);
-                            elementOrderWidgets[_index].set_active(elementIds.indexOf(elementOrder[index]));
-                        } else {
-                            log(
-                                `       This is the old one. Overriding current value: ${val} with ${elementOrder[_index]}`
-                            );
-                            val = elementOrder[_index];
-                            _widget.set_active(elementIds.indexOf(val));
-                        }
+            let newElementOrder = [];
+            elementOrder = settings.get_strv("element-order");
+            elementOrderWidgets.forEach((_widget, index) => {
+                let val = elementIds[_widget.get_active()];
+
+                if (newElementOrder.includes(val)) {
+                    let _index = newElementOrder.indexOf(val);
+                    if (elementOrder[_index] === val) {
+                        newElementOrder[_index] = elementOrder[index];
+                        elementOrderWidgets[_index].set_active(elementIds.indexOf(elementOrder[index]));
+                    } else {
+                        val = elementOrder[_index];
+                        _widget.set_active(elementIds.indexOf(val));
                     }
-                    newElementOrder.push(val);
-                });
-                log(`Finalized ${newElementOrder}`);
-                settings.set_strv("element-order", newElementOrder);
-                elementOrderLock = false;
-            } else {
-                log("Ignoring signal");
-            }
+                }
+                newElementOrder.push(val);
+            });
+            settings.set_strv("element-order", newElementOrder);
         });
 
         widgetElementOrder.attach(widget, 1, index, 1, 1);
@@ -269,15 +309,59 @@ const initWidgets = () => {
     });
 
     // Init mouse action comboboxes
-    let widgetMouseActionLeft = builder.get_object("mouse-actions-left");
-    let widgetMouseActionRight = builder.get_object("mouse-actions-right");
-    mouseActionNameIds.forEach((action) => {
-        widgetMouseActionLeft.append(action, mouseActionNamesMap[action]);
-        widgetMouseActionRight.append(action, mouseActionNamesMap[action]);
+    // let widgetMouseActionLeft = builder.get_object("mouse-actions-left");
+    // let widgetMouseActionRight = builder.get_object("mouse-actions-right");
+    // mouseActionNameIds.forEach((action) => {
+    //     widgetMouseActionLeft.append(action, mouseActionNamesMap[action]);
+    //     widgetMouseActionRight.append(action, mouseActionNamesMap[action]);
+    // });
+    // widgetMouseActionLeft.set_active(mouseActionNameIds.indexOf(mouseActions[0]));
+    // widgetMouseActionRight.set_active(mouseActionNameIds.indexOf(mouseActions[1]));
+
+    trackLabelOptKeys.forEach((opt) => {
+        trackLabelStart.append(opt, trackLabelOpts[opt]);
+        trackLabelEnd.append(opt, trackLabelOpts[opt]);
     });
+
+    let tracklabelSetting = settings.get_strv("track-label");
+
+    trackLabelSep.set_text(tracklabelSetting[1]);
+    trackLabelStart.set_active(trackLabelOptKeys.indexOf(tracklabelSetting[0]));
+    trackLabelEnd.set_active(trackLabelOptKeys.indexOf(tracklabelSetting[2]));
+
+    // trackLabelStart.set_active();
+
     let mouseActions = settings.get_strv("mouse-actions");
-    widgetMouseActionLeft.set_active(mouseActionNameIds.indexOf(mouseActions[0]));
-    widgetMouseActionRight.set_active(mouseActionNameIds.indexOf(mouseActions[1]));
+    let widgetMouseActionsGrid = builder.get_object("mouse-actions-grid");
+
+    mouseActionLabels.forEach((label, index) => {
+        let widgetLabel = new Gtk.Label({
+            label,
+            halign: Gtk.Align.START,
+        });
+
+        let widgetCombobox = new Gtk.ComboBoxText({
+            visible: true,
+            halign: Gtk.Align.END,
+        });
+
+        mouseActionNameIds.forEach((action) => {
+            widgetCombobox.append(action, mouseActionNamesMap[action]);
+        });
+
+        widgetCombobox.set_active(mouseActionNameIds.indexOf(mouseActions[index]));
+
+        widgetCombobox.index = index;
+
+        widgetCombobox.connect("changed", (widget) => {
+            let currentMouseActions = settings.get_strv("mouse-actions");
+            currentMouseActions[widget.index] = mouseActionNameIds[widget.get_active()];
+            settings.set_strv("mouse-actions", currentMouseActions);
+        });
+
+        widgetMouseActionsGrid.attach(widgetLabel, 0, index, 1, 1);
+        widgetMouseActionsGrid.attach(widgetCombobox, 1, index, 1, 1);
+    });
 
     (async () => {
         widgetCacheSize.set_text(await getCacheSize());
@@ -301,6 +385,9 @@ const buildPrefsWidget = () => {
     }
     widgetPreset = builder.get_object("sepchars-preset");
     widgetCustom = builder.get_object("sepchars-custom");
+    trackLabelStart = builder.get_object("track-label-start");
+    trackLabelSep = builder.get_object("track-label-sep");
+    trackLabelEnd = builder.get_object("track-label-end");
     widgetCacheSize = builder.get_object("cache-size");
     widgetElementOrder = builder.get_object("element-order");
     elementOrderWidgets = [];

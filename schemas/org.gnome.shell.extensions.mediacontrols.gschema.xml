@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
   <schema id="org.gnome.shell.extensions.mediacontrols" path="/org/gnome/shell/extensions/mediacontrols/">
-    <key name="max-text-width" type="i">
+    <key name="max-widget-width" type="i">
       <default>200</default>
     </key>
     <key name="update-delay" type="i">
@@ -19,34 +19,26 @@
     <key name="show-seperators" type="b">
       <default>true</default>
     </key>
-
-    <key name="hide-text" type="b">
-      <default>false</default>
-    </key>
-    <key name="hide-player-icon" type="b">
-      <default>false</default>
-    </key>
-    <key name="hide-control-icons" type="b">
-      <default>false</default>
-    </key>
-    <key name="hide-seperators" type="b">
+    <key name="show-playpause-icon" type="b">
       <default>true</default>
     </key>
-
+    <key name="show-prev-icon" type="b">
+      <default>true</default>
+    </key>
+    <key name="show-next-icon" type="b">
+      <default>true</default>
+    </key>
     <key name="show-sources-menu" type="b">
       <default>true</default>
     </key>
     <key name="colored-player-icon" type="b">
       <default>false</default>
     </key>
-    <key name="show-all-on-hover" type="b">
-      <default>true</default>
-    </key>
     <key name="seperator-chars" type="as">
       <default>['|', '|']</default>
     </key>
     <key name="mouse-actions" type="as">
-      <default>['toggle_play', 'toggle_menu']</default>
+      <default>['toggle_play', 'toggle_menu', 'none', 'none', 'none', 'none', 'none', 'none']</default>
     </key>
     <key name="extension-position" type="s">
       <default>'center'</default>
@@ -56,6 +48,12 @@
     </key>
     <key name="element-order" type="as">
       <default>['icon', 'title', 'controls', 'menu']</default>
+    </key>
+    <key name="track-label" type="as">
+      <default>['track', '-', 'artist']</default>
+    </key>
+    <key name="cache-images" type="b">
+      <default>true</default>
     </key>
   </schema>
 </schemalist>

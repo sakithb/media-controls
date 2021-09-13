@@ -1,37 +1,17 @@
-const Mainloop = imports.mainloop;
-const Main = imports.ui.main;
+const MediaControls = imports.misc.extensionUtils.getCurrentExtension().imports.widget.MediaControls;
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-
-const { bindSignals, initSettings, initWidgets, disconnectSignals, destroyWidgets, initVars, nullifyVars } =
-    Me.imports.main;
-
-const { startMainloop } = Me.imports.mainloop;
+let extension;
 
 const init = () => {};
 
 const enable = () => {
-    initVars();
-
-    bindSignals();
-
-    initSettings();
-
-    initWidgets();
-
-    startMainloop();
+    log("[MediaControls] Enabling");
+    extension = new MediaControls();
+    extension.enable();
 };
 
 const disable = () => {
-    Mainloop.source_remove(mainloop);
-
-    disconnectSignals();
-    destroyWidgets();
-
-    delete Main.panel.statusArea["sourceMenu"];
-
-    nullifyVars();
-
-    removeContent();
+    log("[MediaControls] Disabling");
+    extension.disable();
+    extension = null;
 };

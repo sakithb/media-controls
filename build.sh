@@ -8,8 +8,7 @@ if [ "$1" == "-p" ] || [ "$2" == "-p" ]; then
     echo "Generating archive file";
     git archive -o Release.zip HEAD;
     zip -d Release.zip README.md;
-    zip -d Release.zip get-it-from-ego.png;
-    zip -d Release.zip screenshot.png;
+    zip -d Release.zip /images;
     zip -d Release.zip .gitignore;
     zip -d Release.zip build.sh;
     VERSION=$(cat metadata.json | grep '\"version\"' | sed 's/[^0-9]*//g');
