@@ -1,12 +1,15 @@
 ## What does this extension do?
 
-Show controls and information of the currently playing media in the panel
+Show controls and information of the currently playing media in the panel.
 
 ## Features
 
--   Shows the title and the artist
--   Shows the media player icon if possible
--   Show controls for the media
+- Customize how the extension looks
+- Disable elements you don't want
+- Invoke different actions in many ways through mouse actions
+- Basic media controls (play/pause/next/prev)
+- Other media controls (loop/shuffle)
+- And more...
 
 ---
 
@@ -24,11 +27,17 @@ Show controls and information of the currently playing media in the panel
 
 ## How to install
 
-Install from extensions.gnome.org
+#### Install from extensions.gnome.org
 
 [<img src="./images/get-ego.png" height="100">](https://extensions.gnome.org/extension/4470/media-controls/)
 
-or
+OR
+
+#### Fedora
+
+`dnf install gnome-shell-extension-mediacontrols`
+
+#### Other distributions
 
 Install from source
 -   Download and extract the zip file in the releases tab
