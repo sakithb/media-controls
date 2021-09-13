@@ -8,6 +8,10 @@
     background-color: rgba(160, 160, 160, 0.2);
 }
 
+.popup-menu-button:active {
+    background-color: rgba(160, 160, 160, 0.4);
+}
+
 .popup-menu-button-active {
     border-radius: 99px;
     background-color: rgba(160, 160, 160, 0.2);

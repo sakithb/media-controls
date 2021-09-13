@@ -106,6 +106,7 @@ const Player = GObject.registerClass(
 
             this.containerButtonLabel = new St.Button({
                 style_class: "panel-button",
+                style: "padding: 0px 5px",
             });
 
             this.containerButtonLabel.connect("button-release-event", this._mouseActionButton.bind(this));
@@ -687,13 +688,13 @@ const Player = GObject.registerClass(
 
                 this._menuIcon = new St.Icon({
                     gicon: this.trackIcon,
-                    y_align: Clutter.ActorAlign.CENTER,
                     style_class: "popup-menu-icon",
                 });
 
                 this._menuLabel = new St.Label({
                     text: this.label,
                     y_align: Clutter.ActorAlign.CENTER,
+                    y_expand: true,
                     style: this.maxWidthStyle,
                 });
 
@@ -819,6 +820,16 @@ const Player = GObject.registerClass(
             }
 
             return file;
+        }
+
+        set active(active) {
+            if (active) {
+                this._menuItem.add_style_class_name("selected");
+                this._menuItem.track_hover = false;
+            } else {
+                this._menuItem.remove_style_class_name("selected");
+                this._menuItem.track_hover = true;
+            }
         }
     }
 );
