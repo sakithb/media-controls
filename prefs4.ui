@@ -865,7 +865,7 @@ ex. track name, artist</property>
                         <property name="use-markup">1</property>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">2</property>
+                          <property name="row">5</property>
                         </layout>
                       </object>
                     </child>
@@ -877,7 +877,7 @@ ex. track name, artist</property>
                         <property name="xalign">0</property>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">3</property>
+                          <property name="row">6</property>
                         </layout>
                       </object>
                     </child>
@@ -917,7 +917,7 @@ ex. track name, artist</property>
                         </child>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">4</property>
+                          <property name="row">7</property>
                         </layout>
                       </object>
                     </child>
@@ -946,7 +946,35 @@ ex. track name, artist</property>
                         <property name="halign">end</property>
                         <layout>
                           <property name="column">0</property>
+                          <property name="row">5</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="halign">start</property>
+                        <property name="label" translatable="yes">Blacklist players</property>
+                        <layout>
+                          <property name="column">0</property>
                           <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkListBox" id="backlist-listbox">
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">4</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="backlist-entry">
+                        <property name="focusable">1</property>
+                        <signal name="activate" handler="on_backlist_entry_changed" swapped="no"/>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">3</property>
                         </layout>
                       </object>
                     </child>
