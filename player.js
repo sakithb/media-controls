@@ -229,6 +229,12 @@ const Player = GObject.registerClass(
 
             if (changed.PlaybackStatus) {
                 this._status = changed.PlaybackStatus;
+                if (this.isPlaying && !this._active) {
+                    this._extension.activatePlayer(this.menuItem);
+                } else {
+                    log("Updating player");
+                    this._extension.updatePlayer();
+                }
                 this._updateStatusIcons();
             }
 
@@ -258,7 +264,7 @@ const Player = GObject.registerClass(
                 this._updateStatusIcons();
             }
 
-            if (this._menuItem) {
+            if (this.menuItem) {
                 this._menuIcon.set_gicon(this.trackIcon);
                 this._menuLabel.set_text(this.label);
             }
@@ -321,7 +327,7 @@ const Player = GObject.registerClass(
             if (this.labelTitle) {
                 this.labelTitle.set_style(this.maxWidthStyle);
             }
-            if (this._menuItem) {
+            if (this.menuItem) {
                 this._menuLabel.set_style(this.maxWidthStyle);
             }
             if (this._infoItem) {
@@ -823,12 +829,13 @@ const Player = GObject.registerClass(
         }
 
         set active(active) {
+            this._active = active;
             if (active) {
-                this._menuItem.add_style_class_name("selected");
-                this._menuItem.track_hover = false;
+                this.menuItem.add_style_class_name("selected");
+                this.menuItem.track_hover = false;
             } else {
-                this._menuItem.remove_style_class_name("selected");
-                this._menuItem.track_hover = true;
+                this.menuItem.remove_style_class_name("selected");
+                this.menuItem.track_hover = true;
             }
         }
     }
