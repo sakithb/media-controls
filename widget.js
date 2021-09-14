@@ -20,7 +20,7 @@ const MediaControls = GObject.registerClass(
             super._init(0.5, "Media Controls Extension");
             this.setSensitive(false);
 
-            this._isFixedPlayer = false;
+            this.isFixedPlayer = false;
             this._players = {};
 
             this.dataDir = GLib.get_user_config_dir();
@@ -44,6 +44,32 @@ const MediaControls = GObject.registerClass(
 
             this.clutterSettings = Clutter.Settings.get_default();
             this.clutterSettings.double_click_time = 200;
+
+            this._automaticUpdateToggle = new PopupMenu.PopupSwitchMenuItem(
+                "Determine player automatically",
+                true
+            );
+
+            this._automaticUpdateToggle.track_hover = false;
+
+            this._automaticUpdateToggle.connect("toggled", (widget, value) => {
+                this.isFixedPlayer = !value;
+                this.updatePlayer();
+            });
+
+            // this._automaticUpdateToggle.connect("toggled", (widget, value) => {
+            //     if (value) {
+            //         this._isFixedPlayer = true;
+            //         this.updatePlayer(this.player);
+            //     } else {
+            //         this._isFixedPlayer = false;
+            //         this.updatePlayer();
+            //     }
+            //     log(this._isFixedPlayer);
+            // });
+
+            this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+            this.menu.addMenuItem(this._automaticUpdateToggle);
 
             (async () => {
                 try {
@@ -114,6 +140,7 @@ const MediaControls = GObject.registerClass(
                 this.settings.extensionIndex,
                 this.settings.extensionPosition
             );
+
             this.add_child(this.player.container);
 
             this.settings.elementOrder.forEach((element) => {
@@ -149,23 +176,27 @@ const MediaControls = GObject.registerClass(
             log("[MediaControls] Removing widgets");
             delete Main.panel.statusArea["media_controls_extension"];
 
-            this.remove_child(this.player.container);
+            if (this.player) {
+                this.remove_child(this.player.container);
 
-            this.player.dummyContainer.remove_child(this.player.buttonPlayer);
+                this.player.dummyContainer.remove_child(this.player.buttonPlayer);
 
-            this.player.dummyContainer.remove_child(this.player.containerButtonLabel);
+                this.player.dummyContainer.remove_child(this.player.containerButtonLabel);
 
-            this.player.subContainerLabel.remove_child(this.player.labelTitle);
-            this.player.subContainerLabel.remove_child(this.player.labelSeperatorStart);
-            this.player.subContainerLabel.remove_child(this.player.labelSeperatorEnd);
+                this.player.subContainerLabel.remove_child(this.player.labelTitle);
+                this.player.subContainerLabel.remove_child(this.player.labelSeperatorStart);
+                this.player.subContainerLabel.remove_child(this.player.labelSeperatorEnd);
 
-            this.player.dummyContainer.remove_child(this.player.containerControls);
+                this.player.dummyContainer.remove_child(this.player.containerControls);
 
-            this.player.containerControls.remove_child(this.player.buttonPrev);
-            this.player.containerControls.remove_child(this.player.buttonPlayPause);
-            this.player.containerControls.remove_child(this.player.buttonNext);
+                this.player.containerControls.remove_child(this.player.buttonPrev);
+                this.player.containerControls.remove_child(this.player.buttonPlayPause);
+                this.player.containerControls.remove_child(this.player.buttonNext);
 
-            this.player.dummyContainer.remove_child(this.player.buttonMenu);
+                this.player.dummyContainer.remove_child(this.player.buttonMenu);
+            } else {
+                this.remove_all_children();
+            }
         }
 
         async _addPlayer(busName) {
@@ -173,7 +204,10 @@ const MediaControls = GObject.registerClass(
                 let playerObj = await new Player(busName, this);
                 let menuItem = playerObj.menuItem;
 
-                menuItem.connect("activate", this.activatePlayer.bind(this));
+                menuItem.connect("activate", (menuItem) => {
+                    this.toggleActivatePlayer(menuItem.busName);
+                });
+
                 this.menu.addMenuItem(menuItem);
                 this._players[busName] = playerObj;
 
@@ -186,19 +220,24 @@ const MediaControls = GObject.registerClass(
         }
 
         _removePlayer(busName) {
-            this.hidePlayer(busName);
+            let playerObj = this._players[busName];
 
-            this._players[busName].destroy();
+            // Remove menu item from the source menu
+            this.menu.box.remove_child(playerObj.menuItem);
+            // Remove track information menu menu
+            Main.panel.menuManager.removeMenu(playerObj.menu);
+
+            playerObj.destroy();
 
             delete this._players[busName];
         }
 
         updatePlayer(player = null) {
-            if (!this.player && this._isFixedPlayer) {
-                this._isFixedPlayer = false;
+            if (!this.player && this.isFixedPlayer) {
+                this.isFixedPlayer = false;
             }
 
-            if (!player && !this._isFixedPlayer) {
+            if (!player && !this.isFixedPlayer) {
                 log("Automatic determine");
                 const validPlayers = [];
                 for (let playerName in this._players) {
@@ -207,7 +246,6 @@ const MediaControls = GObject.registerClass(
                         log(playerObj.busName, playerObj._status);
                         validPlayers.push(playerObj);
                         if (playerObj.isPlaying) {
-                            log("Playing");
                             player = playerObj;
                         }
                     }
@@ -222,11 +260,13 @@ const MediaControls = GObject.registerClass(
                 if (this.player) {
                     this.player.active = false;
                     this.removeWidgets();
+
                     Gio.bus_unwatch_name(this.playerWatchId);
                     Main.panel.menuManager.removeMenu(this.player.menu);
                 }
 
                 this.player = typeof player === "string" ? this._players[player] : player;
+
                 if (!this.player.dummyContainer) {
                     this.player.initWidgets();
                 }
@@ -241,25 +281,27 @@ const MediaControls = GObject.registerClass(
                     this.playerVanished.bind(this)
                 );
 
-                // this.removeWidgets();
+                this.removeWidgets();
                 this.addWidgets();
 
                 this.player.active = true;
             } else if (!this.player) {
                 log("Removing all");
-                this.remove_all_children();
+                this.removeWidgets();
             }
 
             log("[MediaControls] Updated player", player ? player.busName : player);
+            log("No. of players", Object.values(this._players).length);
+            log("Fixed player", this.isFixedPlayer);
         }
 
-        activatePlayer(playerItem) {
-            if (this._isFixedPlayer && playerItem.busName === this.player.busName) {
-                this._isFixedPlayer = false;
+        toggleActivatePlayer(busName) {
+            if (this.isFixedPlayer && this.player && busName === this.player.busName) {
+                this.fixedPlayer = false;
                 this.updatePlayer();
             } else {
-                this._isFixedPlayer = true;
-                this.updatePlayer(playerItem.busName);
+                this.fixedPlayer = true;
+                this.updatePlayer(busName);
             }
         }
 
@@ -267,15 +309,17 @@ const MediaControls = GObject.registerClass(
             const playerObj = this._players[busName];
 
             if (playerObj) {
+                // Remove menu item from the source menu
                 this.menu.box.remove_child(playerObj.menuItem);
+                // Remove track information menu menu
                 Main.panel.menuManager.removeMenu(playerObj.menu);
 
                 playerObj.hidden = true;
 
-                if (this.player && this.player.busName === busName && this._isFixedPlayer) {
-                    this._isFixedPlayer = false;
+                if (this.player && this.player.busName === busName && this.fixedPlayer) {
+                    this.fixedPlayer = false;
                     this.updatePlayer();
-                } else if (this.player && this.player.busName !== busName && this._isFixedPlayer) {
+                } else if (this.player && this.player.busName !== busName && this.fixedPlayer) {
                     this.updatePlayer(this.player);
                 } else {
                     this.updatePlayer();
@@ -288,7 +332,7 @@ const MediaControls = GObject.registerClass(
             if (playerObj) {
                 this.menu.addMenuItem(playerObj.menuItem);
                 playerObj.hidden = false;
-                if (this._isFixedPlayer) {
+                if (this.isFixedPlayer) {
                     this.updatePlayer(this.player);
                 } else {
                     this.updatePlayer();
@@ -296,9 +340,10 @@ const MediaControls = GObject.registerClass(
             }
         }
 
-        playerVanished(con, name) {
-            log("player removed", name);
-            log(Object.values(this._players).length);
+        playerVanished(connection, name) {
+            log("Player Vanished", name);
+            log("No. of players", Object.values(this._players).length);
+
             if (name === this.player.busName) {
                 Gio.bus_unwatch_name(this.playerWatchId);
                 this._removePlayer(this.player.busName);
@@ -309,11 +354,20 @@ const MediaControls = GObject.registerClass(
             } else {
                 this._removePlayer(name);
             }
-            log(Object.values(this._players).length);
+            log("No. of players", Object.values(this._players).length);
         }
 
         destroy() {
             super.destroy();
+        }
+
+        get fixedPlayer() {
+            return this.isFixedPlayer;
+        }
+
+        set fixedPlayer(value) {
+            this.isFixedPlayer = value;
+            this._automaticUpdateToggle.setToggleState(!value);
         }
     }
 );

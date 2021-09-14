@@ -24,8 +24,12 @@ const mouseActionNamesMap = {
     pause: "Pause",
     next: "Next",
     previous: "Previous",
+    toggle_loop: "Cycle loop options",
+    toggle_shuffle: "Toggle shuffle",
     toggle_menu: "Open sources menu",
     toggle_info: "Open track information menu",
+    raise: "Raise player",
+    quit: "Quit player",
 };
 let mouseActionNameIds = Object.keys(mouseActionNamesMap);
 
@@ -84,7 +88,8 @@ let settings,
     elementOrderWidgets,
     trackLabelStart,
     trackLabelSep,
-    trackLabelEnd;
+    trackLabelEnd,
+    widgetBacklistBox;
 
 let elementOrder, trackLabelLock;
 
@@ -171,6 +176,14 @@ const signalHandler = {
         ];
 
         settings.set_strv("track-label", trackLabelArray);
+    },
+
+    on_backlist_entry_changed: (entry) => {
+        let currentBacklistApps = settings.get_strv("backlist-apps");
+        currentBacklistApps.push(entry.get_text());
+        addToBacklistListBox(entry.get_text());
+        settings.set_strv("backlist-apps", currentBacklistApps);
+        entry.set_text("");
     },
 };
 
@@ -275,6 +288,7 @@ const initWidgets = () => {
     elementIds.forEach((element, index) => {
         let widget = new Gtk.ComboBoxText({
             visible: true,
+            can_focus: false,
         });
 
         elementIds.forEach((_element) => {
@@ -345,6 +359,7 @@ const initWidgets = () => {
         let widgetCombobox = new Gtk.ComboBoxText({
             visible: true,
             halign: Gtk.Align.END,
+            can_focus: false,
         });
 
         mouseActionNameIds.forEach((action) => {
@@ -363,6 +378,12 @@ const initWidgets = () => {
 
         widgetMouseActionsGrid.attach(widgetLabel, 0, index, 1, 1);
         widgetMouseActionsGrid.attach(widgetCombobox, 1, index, 1, 1);
+    });
+
+    let currentBacklistApps = settings.get_strv("backlist-apps");
+
+    currentBacklistApps.forEach((app) => {
+        addToBacklistListBox(app);
     });
 
     (async () => {
@@ -392,6 +413,9 @@ const buildPrefsWidget = () => {
     trackLabelEnd = builder.get_object("track-label-end");
     widgetCacheSize = builder.get_object("cache-size");
     widgetElementOrder = builder.get_object("element-order");
+
+    widgetBacklistBox = builder.get_object("backlist-listbox");
+
     elementOrderWidgets = [];
     initWidgets();
     bindSettings();
@@ -406,5 +430,34 @@ const getCacheSize = async () => {
         return result || "0K";
     } catch (error) {
         logError(error);
+    }
+};
+
+const addToBacklistListBox = (app) => {
+    let box = new Gtk.Box({
+        visible: true,
+    });
+
+    let label = new Gtk.Label({
+        visible: true,
+        label: app,
+        hexpand: true,
+        halign: Gtk.Align.START,
+    });
+
+    let deleteButton = Gtk.Button.new_from_icon_name("edit-delete-symbolic", null);
+
+    deleteButton.connect("clicked", (widget) => {
+        widgetBacklistBox.remove(widget.get_parent().get_parent());
+    });
+
+    if (shellVersion < 40) {
+        box.pack_start(label, false, false, null);
+        box.pack_start(deleteButton, false, false, null);
+        widgetBacklistBox.insert_child(box, -1);
+    } else {
+        box.append(label);
+        box.append(deleteButton);
+        widgetBacklistBox.append(box);
     }
 };

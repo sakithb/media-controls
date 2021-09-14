@@ -15,8 +15,10 @@ const ifacesXml = `
             <property name="LoopStatus" type="s" access="readwrite" />
             <property name="Shuffle" type="b" access="readwrite" />
             <property name="CanControl" type="b" access="read" />
-        </interface>
-        <interface name="org.mpris.MediaPlayer2">
+            </interface>
+            <interface name="org.mpris.MediaPlayer2">
+            <method name="Raise" />
+            <method name="Quit" />
             <property name="Identity" type="s" access="read" />
             <property name="DesktopEntry" type="s" access="read" />
         </interface>

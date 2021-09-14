@@ -229,12 +229,10 @@ const Player = GObject.registerClass(
 
             if (changed.PlaybackStatus) {
                 this._status = changed.PlaybackStatus;
-                if (this.isPlaying && !this._active) {
-                    this._extension.activatePlayer(this.menuItem);
-                } else {
-                    log("Updating player");
-                    this._extension.updatePlayer();
+                if (this.isPlaying && !this._extension.isFixedPlayer && !this._active) {
+                    this._extension.updatePlayer(this.busName);
                 }
+
                 this._updateStatusIcons();
             }
 
@@ -514,11 +512,7 @@ const Player = GObject.registerClass(
                     style_class: "popup-menu-button",
                 });
 
-                this.infoShuffleButton.connect("button-press-event", () => {
-                    if (typeof this._playerProxy.Shuffle === "boolean") {
-                        this._playerProxy.Shuffle = !this._playerProxy.Shuffle;
-                    }
-                });
+                this.infoShuffleButton.connect("button-press-event", this._toggleShuffle.bind(this));
 
                 this.infoShuffleButton.set_child(this.infoShuffleIcon);
 
@@ -529,6 +523,12 @@ const Player = GObject.registerClass(
                 this._infoItem.add(this.infoItemContainer);
 
                 this.menu.addMenuItem(this._infoItem);
+            }
+        }
+
+        _toggleShuffle() {
+            if (typeof this._playerProxy.Shuffle === "boolean") {
+                this._playerProxy.Shuffle = !this._playerProxy.Shuffle;
             }
         }
 
@@ -634,6 +634,18 @@ const Player = GObject.registerClass(
                 case "toggle_info":
                     this._extension.menu.close(BoxPointer.PopupAnimation.FULL);
                     this.menu.toggle();
+                    break;
+                case "toggle_loop":
+                    this._changeLoop();
+                    break;
+                case "toggle_shuffle":
+                    this._toggleShuffle();
+                    break;
+                case "raise":
+                    this._otherProxy.RaiseRemote();
+                    break;
+                case "quit":
+                    this._otherProxy.QuitRemote();
                     break;
                 default:
                     break;

@@ -55,5 +55,8 @@
     <key name="cache-images" type="b">
       <default>true</default>
     </key>
+    <key name="backlist-apps" type="as">
+      <default>[]</default>
+    </key>
   </schema>
 </schemalist>
