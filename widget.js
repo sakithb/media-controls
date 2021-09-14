@@ -45,9 +45,6 @@ const MediaControls = GObject.registerClass(
             this.clutterSettings = Clutter.Settings.get_default();
             this.clutterSettings.double_click_time = 200;
 
-            this.dummyContainer = new St.BoxLayout();
-            this.add_child(this.dummyContainer);
-
             (async () => {
                 try {
                     this._playersProxy = await createProxy(
@@ -68,7 +65,7 @@ const MediaControls = GObject.registerClass(
                                         }
                                     }
 
-                                    this._updatePlayer(null);
+                                    this.updatePlayer(null);
                                 } catch (error) {
                                     logError(error);
                                 }
@@ -84,7 +81,7 @@ const MediaControls = GObject.registerClass(
                         ) {
                             (async () => {
                                 await this._addPlayer(busName);
-                                this._updatePlayer(null);
+                                this.updatePlayer(null);
                             })();
                         }
                     });
@@ -117,7 +114,7 @@ const MediaControls = GObject.registerClass(
                 this.settings.extensionIndex,
                 this.settings.extensionPosition
             );
-            this.dummyContainer.add_child(this.player.container);
+            this.add_child(this.player.container);
 
             this.settings.elementOrder.forEach((element) => {
                 if (element === "icon" && this.settings.showPlayerIcon) {
@@ -152,7 +149,7 @@ const MediaControls = GObject.registerClass(
             log("[MediaControls] Removing widgets");
             delete Main.panel.statusArea["media_controls_extension"];
 
-            this.dummyContainer.remove_child(this.player.container);
+            this.remove_child(this.player.container);
 
             this.player.dummyContainer.remove_child(this.player.buttonPlayer);
 
@@ -176,7 +173,7 @@ const MediaControls = GObject.registerClass(
                 let playerObj = await new Player(busName, this);
                 let menuItem = playerObj.menuItem;
 
-                menuItem.connect("activate", this._activatePlayer.bind(this));
+                menuItem.connect("activate", this.activatePlayer.bind(this));
                 this.menu.addMenuItem(menuItem);
                 this._players[busName] = playerObj;
 
@@ -191,28 +188,26 @@ const MediaControls = GObject.registerClass(
         _removePlayer(busName) {
             this.hidePlayer(busName);
 
-            _players[busName].destroy();
+            this._players[busName].destroy();
 
-            delete _players[busName];
+            delete this._players[busName];
         }
 
-        _updatePlayer(player = null) {
-            if (this.player) {
-                this.player.active = false;
-                this.removeWidgets();
-                Gio.bus_unwatch_name(this.playerWatchId);
-                Main.panel.menuManager.removeMenu(this.player.menu);
-
-                this.player = null;
+        updatePlayer(player = null) {
+            if (!this.player && this._isFixedPlayer) {
+                this._isFixedPlayer = false;
             }
 
             if (!player && !this._isFixedPlayer) {
+                log("Automatic determine");
                 const validPlayers = [];
                 for (let playerName in this._players) {
                     let playerObj = this._players[playerName];
                     if (playerObj._metadata["title"] && !playerObj.hidden) {
+                        log(playerObj.busName, playerObj._status);
                         validPlayers.push(playerObj);
-                        if (!player && playerObj.isPlaying) {
+                        if (playerObj.isPlaying) {
+                            log("Playing");
                             player = playerObj;
                         }
                     }
@@ -224,6 +219,13 @@ const MediaControls = GObject.registerClass(
             }
 
             if (player && (player instanceof Player || typeof player === "string")) {
+                if (this.player) {
+                    this.player.active = false;
+                    this.removeWidgets();
+                    Gio.bus_unwatch_name(this.playerWatchId);
+                    Main.panel.menuManager.removeMenu(this.player.menu);
+                }
+
                 this.player = typeof player === "string" ? this._players[player] : player;
                 if (!this.player.dummyContainer) {
                     this.player.initWidgets();
@@ -239,18 +241,26 @@ const MediaControls = GObject.registerClass(
                     this.playerVanished.bind(this)
                 );
 
-                this.removeWidgets();
+                // this.removeWidgets();
                 this.addWidgets();
 
                 this.player.active = true;
+            } else if (!this.player) {
+                log("Removing all");
+                this.remove_all_children();
             }
 
             log("[MediaControls] Updated player", player ? player.busName : player);
         }
 
-        _activatePlayer(playerItem) {
-            this._isFixedPlayer = true;
-            this._updatePlayer(playerItem.busName);
+        activatePlayer(playerItem) {
+            if (this._isFixedPlayer && playerItem.busName === this.player.busName) {
+                this._isFixedPlayer = false;
+                this.updatePlayer();
+            } else {
+                this._isFixedPlayer = true;
+                this.updatePlayer(playerItem.busName);
+            }
         }
 
         hidePlayer(busName) {
@@ -264,11 +274,11 @@ const MediaControls = GObject.registerClass(
 
                 if (this.player && this.player.busName === busName && this._isFixedPlayer) {
                     this._isFixedPlayer = false;
-                    this._updatePlayer();
+                    this.updatePlayer();
                 } else if (this.player && this.player.busName !== busName && this._isFixedPlayer) {
-                    this._updatePlayer(this.player);
+                    this.updatePlayer(this.player);
                 } else {
-                    this._updatePlayer();
+                    this.updatePlayer();
                 }
             }
         }
@@ -279,24 +289,27 @@ const MediaControls = GObject.registerClass(
                 this.menu.addMenuItem(playerObj.menuItem);
                 playerObj.hidden = false;
                 if (this._isFixedPlayer) {
-                    this._updatePlayer(this.player);
+                    this.updatePlayer(this.player);
                 } else {
-                    this._updatePlayer();
+                    this.updatePlayer();
                 }
             }
         }
 
-        playerVanished() {
-            Gio.bus_unwatch_name(this.playerWatchId);
-            this._removePlayer(this.player.busName);
+        playerVanished(con, name) {
+            log("player removed", name);
+            log(Object.values(this._players).length);
+            if (name === this.player.busName) {
+                Gio.bus_unwatch_name(this.playerWatchId);
+                this._removePlayer(this.player.busName);
 
-            this.player = null;
+                this.player = null;
 
-            if (this._isFixedPlayer) {
-                this._isFixedPlayer = false;
+                this.updatePlayer();
+            } else {
+                this._removePlayer(name);
             }
-
-            this._updatePlayer(null);
+            log(Object.values(this._players).length);
         }
 
         destroy() {
