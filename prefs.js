@@ -445,16 +445,21 @@ const addToBacklistListBox = (app) => {
         halign: Gtk.Align.START,
     });
 
-    let deleteButton = Gtk.Button.new_from_icon_name("edit-delete-symbolic", null);
+    let deleteButton = Gtk.Button.new_from_icon_name(
+        "edit-delete-symbolic",
+        Gtk.IconSize.BUTTON || Gtk.IconSize.NORMAL
+    );
+
+    deleteButton.visible = true;
 
     deleteButton.connect("clicked", (widget) => {
         widgetBacklistBox.remove(widget.get_parent().get_parent());
     });
 
     if (shellVersion < 40) {
-        box.pack_start(label, false, false, null);
-        box.pack_start(deleteButton, false, false, null);
-        widgetBacklistBox.insert_child(box, -1);
+        box.add(label);
+        box.add(deleteButton);
+        widgetBacklistBox.insert(box, -1);
     } else {
         box.append(label);
         box.append(deleteButton);
