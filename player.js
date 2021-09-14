@@ -106,7 +106,7 @@ const Player = GObject.registerClass(
 
             this.containerButtonLabel = new St.Button({
                 style_class: "panel-button",
-                style: "padding: 0px 5px;",
+                style: "padding: 0px 5px; margin: 0px;",
             });
 
             this.containerButtonLabel.connect("button-release-event", this._mouseActionButton.bind(this));
@@ -121,6 +121,7 @@ const Player = GObject.registerClass(
 
             this.buttonPlayer = new St.Button({
                 style_class: "panel-button",
+                style: "margin: 0px;",
             });
 
             this.iconPlayer = new St.Icon({
@@ -154,12 +155,15 @@ const Player = GObject.registerClass(
 
             this.buttonPrev = new St.Button({
                 style_class: "panel-button",
+                style: "margin: 0px;",
             });
             this.buttonPlayPause = new St.Button({
                 style_class: "panel-button",
+                style: "margin: 0px;",
             });
             this.buttonNext = new St.Button({
                 style_class: "panel-button",
+                style: "margin: 0px;",
             });
 
             this.buttonPrev.connect("button-release-event", () => {
@@ -188,16 +192,14 @@ const Player = GObject.registerClass(
 
             this.buttonMenu = new St.Button({
                 style_class: "panel-button",
-                style: "padding: 0px 3px;",
+                style: "padding: 0px 3px; margin: 0px;",
             });
             this.buttonMenu.set_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
             this.buttonMenu.connect("button-release-event", () => {
                 this._extension.menu.toggle();
             });
 
-            this.dummyContainer = new St.BoxLayout({
-                style: "padding-top: 0; padding-bottom: 0;",
-            });
+            this.dummyContainer = new St.BoxLayout();
 
             // this.dummyContainer.add_child(this.buttonPlayer);
             // this.dummyContainer.add_child(this.containerButtonLabel);
