@@ -23,7 +23,7 @@ Show controls and information of the currently playing media in the panel.
 
 -   If you have installed the extension from extensions.gnome.org, there will be some padding and icon size issues with some themes as [reported here](https://github.com/cliffniff/media-controls/issues/16). To fix it run this command and re-login.
 
-`cd ~/.local/share/gnome-shell/extensions/mediacontrols@cliffniff.github.com/ && curl -OL https://raw.githubusercontent.com/cliffniff/media-controls/main/player.js`
+`cd ~/.local/share/gnome-shell/extensions/mediacontrols@cliffniff.github.com/ && curl -OL https://raw.githubusercontent.com/cliffniff/media-controls/main/player.js && curl -OL https://raw.githubusercontent.com/cliffniff/media-controls/main/stylesheet.css`
 
 ---
 
