@@ -16,3 +16,8 @@
     border-radius: 99px;
     background-color: rgba(160, 160, 160, 0.2);
 }
+
+.no-vertical-spacing {
+    margin: 0px auto;
+    padding: 0px auto;
+}

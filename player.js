@@ -82,23 +82,24 @@ const Player = GObject.registerClass(
 
             this.labelTitle = new St.Label({
                 text: this.label || "No track",
-                style: this.maxWidthStyle,
                 y_align: Clutter.ActorAlign.CENTER,
             });
 
             this.labelSeperatorStart = new St.Label({
                 text: this._extension.settings.sepChars[0],
-                style: "padding-right: 3px",
+                style: "padding: 3px 0px 0px 0px; margin: 0px auto;",
                 y_align: Clutter.ActorAlign.CENTER,
             });
 
             this.labelSeperatorEnd = new St.Label({
                 text: this._extension.settings.sepChars[1],
-                style: "padding-left: 3px",
+                style: "padding: 0px 0px 0px 3px; margin: 0px auto;",
                 y_align: Clutter.ActorAlign.CENTER,
             });
 
-            this.subContainerLabel = new St.BoxLayout();
+            this.subContainerLabel = new St.BoxLayout({
+                style: "padding: 0px; margin: 0px;",
+            });
 
             // this.subContainerLabel.add_child(this.labelSeperatorStart);
             // this.subContainerLabel.add_child(this.labelTitle);
@@ -106,7 +107,7 @@ const Player = GObject.registerClass(
 
             this.containerButtonLabel = new St.Button({
                 style_class: "panel-button",
-                style: "padding: 0px 5px; margin: 0px;",
+                style: "padding: 0px 5px; margin: 0px auto;",
             });
 
             this.containerButtonLabel.connect("button-release-event", this._mouseActionButton.bind(this));
@@ -120,8 +121,7 @@ const Player = GObject.registerClass(
             // Player icon
 
             this.buttonPlayer = new St.Button({
-                style_class: "panel-button",
-                style: "margin: 0px;",
+                style_class: "panel-button no-vertical-spacing",
             });
 
             this.iconPlayer = new St.Icon({
@@ -154,16 +154,13 @@ const Player = GObject.registerClass(
             });
 
             this.buttonPrev = new St.Button({
-                style_class: "panel-button",
-                style: "margin: 0px;",
+                style_class: "panel-button no-vertical-spacing",
             });
             this.buttonPlayPause = new St.Button({
-                style_class: "panel-button",
-                style: "margin: 0px;",
+                style_class: "panel-button no-vertical-spacing",
             });
             this.buttonNext = new St.Button({
-                style_class: "panel-button",
-                style: "margin: 0px;",
+                style_class: "panel-button no-vertical-spacing",
             });
 
             this.buttonPrev.connect("button-release-event", () => {
@@ -192,8 +189,9 @@ const Player = GObject.registerClass(
 
             this.buttonMenu = new St.Button({
                 style_class: "panel-button",
-                style: "padding: 0px 3px; margin: 0px;",
+                style: "padding: 0px 3px; margin: 0px auto;",
             });
+
             this.buttonMenu.set_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
             this.buttonMenu.connect("button-release-event", () => {
                 this._extension.menu.toggle();
@@ -206,6 +204,7 @@ const Player = GObject.registerClass(
             // this.dummyContainer.add_child(this.containerControls);
             // this.dummyContainer.add_child(this.buttonMenu);
 
+            this.add_style_class_name("no-vertical-spacing");
             this.add_child(this.dummyContainer);
 
             this._addInfoMenuItems();
@@ -327,7 +326,7 @@ const Player = GObject.registerClass(
 
         updateWidgetWidths() {
             if (this.labelTitle) {
-                this.labelTitle.set_style(this.maxWidthStyle);
+                this.labelTitle.set_style(`${this.maxWidthStyle} margin: 0px auto; padding: 0px auto;`);
             }
             if (this.menuItem) {
                 this._menuLabel.set_style(this.maxWidthStyle);
@@ -342,14 +341,14 @@ const Player = GObject.registerClass(
         updateIconEffects() {
             if (this._extension.settings.coloredPlayerIcon) {
                 this.iconPlayer.clear_effects();
-                this.iconPlayer.set_style("-st-icon-style: requested");
+                this.iconPlayer.set_style("margin: 0px auto; padding: 0px auto; -st-icon-style: requested;");
                 this.iconPlayer.set_fallback_icon_name("audio-x-generic");
 
                 this.infoMenuPlayerIcon.clear_effects();
                 this.infoMenuPlayerIcon.set_style("-st-icon-style: requested; padding-right: 6px;");
                 this.infoMenuPlayerIcon.set_fallback_icon_name("audio-x-generic");
             } else {
-                this.iconPlayer.set_style("-st-icon-style: symbolic");
+                this.iconPlayer.set_style("margin: 0px auto; padding: 0px auto; -st-icon-style: symbolic;");
                 this.iconPlayer.add_effect(new Clutter.DesaturateEffect());
                 this.iconPlayer.set_fallback_icon_name("audio-x-generic-symbolic");
 
