@@ -1,22 +1,59 @@
 #! /bin/bash
-# Use the -p flag to generate the zip file and the -r flag to restart the gnome shell
+# Use the -p flag to generate the zip file, the -r flag to restart the gnome shell and -i flag to install extension
 
-echo "Copying files to the extensions directory"
-cp -r ./* ~/.local/share/gnome-shell/extensions/mediacontrols@cliffniff.github.com;
+EXT_DIR="$HOME/.local/share/gnome-shell/extensions/mediacontrols@cliffniff.github.com/";
 
-if [ "$1" == "-p" ] || [ "$2" == "-p" ]; then
-    echo "Generating archive file";
+install() {
+    curl -OL https://github.com/cliffniff/media-controls/releases/latest/download/extension.zip;
+
+    gnome-extensions install -f extension.zip
+    rm -rf extension.zip
+}
+
+build() {
     git archive -o Release.zip HEAD;
     zip -d Release.zip README.md;
     zip -d Release.zip images/*;
     zip -d Release.zip images/;
     zip -d Release.zip .gitignore;
     zip -d Release.zip build.sh;
+    zip -d Release.zip install.sh;
     VERSION=$(cat metadata.json | grep '\"version\"' | sed 's/[^0-9]*//g');
-    mkdir -p "./builds";
-    mv Release.zip "./builds/Release_v$VERSION.zip";
+
+    if [[ `git status --porcelain` ]]; then
+        VERSION="~$VERSION~"  ;
+    fi
+
+    mkdir -p "./builds/v$VERSION";
+    mv Release.zip "./builds/v$VERSION/extension.zip";
+}
+
+restart() {
+    busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta.restart("Restarting…")';
+}
+
+copy() {
+    mkdir -p "$EXT_DIR";
+    cp -r ./* "$EXT_DIR";
+}
+
+
+PARAMS=();
+
+for i in $@
+do
+    PARAMS+=( $i )
+done
+
+if [[ " ${PARAMS[*]} " =~ " -p " ]]; then
+    build;
 fi
 
-if [ "$1" == "-r" ] || [ "$2" == "-r"  ]; then
-    busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta.restart("Restarting…")';
+if [[ " ${PARAMS[*]} " =~ " -i " ]]; then
+    install;
+fi
+
+if [[ " ${PARAMS[*]} " =~ " -r " ]]; then
+    copy;
+    restart;
 fi

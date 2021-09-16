@@ -45,6 +45,12 @@ OR
 
 `dnf install gnome-shell-extension-mediacontrols`
 
+#### Arch Linux (AUR)
+
+`yay -S gnome-shell-extension-mediacontrols` _Stable release_
+
+`yay -S gnome-shell-extension-mediacontrols-git` _Build of the main branch_
+
 #### Other distributions
 
 Install from source
