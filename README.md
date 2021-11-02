@@ -15,7 +15,7 @@ Show controls and information of the currently playing media in the panel.
 
 ## Notes
 
--   Only support Gnome 3.38 and 40
+- Supports GNOME 3.38, 40 and 41.
 
 ---
 
