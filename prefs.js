@@ -256,6 +256,12 @@ const bindSettings = () => {
         "active",
         Gio.SettingsBindFlags.DEFAULT
     );
+    settings.bind(
+        "hide-media-notification",
+        builder.get_object("hide-media-notification"),
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
 };
 
 const initWidgets = () => {

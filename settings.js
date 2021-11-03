@@ -26,6 +26,7 @@ class Settings {
         this.trackLabel = this._settings.get_strv("track-label");
         this.cacheImages = this._settings.get_boolean("cache-images");
         this.blacklistApps = this._settings.get_strv("backlist-apps");
+        this.hideMediaNotification = this._settings.get_boolean("hide-media-notification");
     }
 
     connectSignals() {
@@ -129,6 +130,13 @@ class Settings {
         this._onBacklistAppsChanged = this._settings.connect("changed::backlist-apps", () => {
             this.blacklistApps = this._settings.get_strv("backlist-apps");
         });
+
+        this._onHideMediaNotificationChanged = this._settings.connect(
+            "changed::hide-media-notification",
+            () => {
+                this.hideMediaNotification = this._settings.get_boolean("hide-media-notification");
+            }
+        );
     }
 
     disconnectSignals() {
@@ -151,5 +159,6 @@ class Settings {
         this._settings.disconnect(this._onTrackLabelChanged);
         this._settings.disconnect(this._onCacheImagesChanged);
         this._settings.disconnect(this._onBacklistAppsChanged);
+        this._settings.disconnect(this._onHideMediaNotificationChanged);
     }
 }

@@ -58,5 +58,8 @@
     <key name="backlist-apps" type="as">
       <default>[]</default>
     </key>
+    <key name="hide-media-notification" type="b">
+      <default>false</default>
+    </key>
   </schema>
 </schemalist>
