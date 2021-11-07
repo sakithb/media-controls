@@ -65,8 +65,14 @@ const Player = GObject.registerClass(
                     this._metadata = parseMetadata(this._playerProxy.Metadata);
                     this._status = this._playerProxy.PlaybackStatus;
 
-                    this._playerProxy.connect("g-properties-changed", this._playerPropsChanged.bind(this));
-                    this._otherProxy.connect("g-properties-changed", this._otherPropsChanged.bind(this));
+                    this._playerProxy.connect(
+                        "g-properties-changed",
+                        this._playerPropsChanged.bind(this)
+                    );
+                    this._otherProxy.connect(
+                        "g-properties-changed",
+                        this._otherPropsChanged.bind(this)
+                    );
 
                     this._saveImage();
                 } catch (error) {
@@ -110,11 +116,20 @@ const Player = GObject.registerClass(
                 style: "padding: 0px 5px; margin: 0px auto;",
             });
 
-            this.containerButtonLabel.connect("button-release-event", this._mouseActionButton.bind(this));
+            this.containerButtonLabel.connect(
+                "button-release-event",
+                this._mouseActionButton.bind(this)
+            );
 
-            this.containerButtonLabel.connect("scroll-event", this._mouseActionScroll.bind(this));
+            this.containerButtonLabel.connect(
+                "scroll-event",
+                this._mouseActionScroll.bind(this)
+            );
 
-            this.containerButtonLabel.connect("enter-event", this._mouseActionHover.bind(this));
+            this.containerButtonLabel.connect(
+                "enter-event",
+                this._mouseActionHover.bind(this)
+            );
 
             this.containerButtonLabel.set_child(this.subContainerLabel);
 
@@ -132,11 +147,20 @@ const Player = GObject.registerClass(
 
             this.buttonPlayer.set_child(this.iconPlayer);
 
-            this.buttonPlayer.connect("button-release-event", this._mouseActionButton.bind(this));
+            this.buttonPlayer.connect(
+                "button-release-event",
+                this._mouseActionButton.bind(this)
+            );
 
-            this.buttonPlayer.connect("scroll-event", this._mouseActionScroll.bind(this));
+            this.buttonPlayer.connect(
+                "scroll-event",
+                this._mouseActionScroll.bind(this)
+            );
 
-            this.buttonPlayer.connect("enter-event", this._mouseActionHover.bind(this));
+            this.buttonPlayer.connect(
+                "enter-event",
+                this._mouseActionHover.bind(this)
+            );
 
             // Player controls
 
@@ -145,7 +169,9 @@ const Player = GObject.registerClass(
                 style_class: "system-status-icon",
             });
             this.iconPlayPause = new St.Icon({
-                icon_name: this.isPlaying ? "media-playback-pause-symbolic" : "media-playback-start-symbolic",
+                icon_name: this.isPlaying
+                    ? "media-playback-pause-symbolic"
+                    : "media-playback-start-symbolic",
                 style_class: "system-status-icon",
             });
             this.iconNext = new St.Icon({
@@ -232,7 +258,11 @@ const Player = GObject.registerClass(
 
             if (changed.PlaybackStatus) {
                 this._status = changed.PlaybackStatus;
-                if (this.isPlaying && !this._extension.isFixedPlayer && !this._active) {
+                if (
+                    this.isPlaying &&
+                    !this._extension.isFixedPlayer &&
+                    !this._active
+                ) {
                     this._extension.updatePlayer(this.busName);
                 }
 
@@ -280,12 +310,16 @@ const Player = GObject.registerClass(
         _updateStatusIcons() {
             if (this.iconPlayPause) {
                 this.iconPlayPause.set_icon_name(
-                    this.isPlaying ? "media-playback-pause-symbolic" : "media-playback-start-symbolic"
+                    this.isPlaying
+                        ? "media-playback-pause-symbolic"
+                        : "media-playback-start-symbolic"
                 );
             }
             if (this.infoIconPlayPause) {
                 this.infoIconPlayPause.set_icon_name(
-                    this.isPlaying ? "media-playback-pause-symbolic" : "media-playback-start-symbolic"
+                    this.isPlaying
+                        ? "media-playback-pause-symbolic"
+                        : "media-playback-start-symbolic"
                 );
             }
         }
@@ -294,31 +328,49 @@ const Player = GObject.registerClass(
             if (this._playerProxy.LoopStatus) {
                 switch (this._playerProxy.LoopStatus) {
                     case "None":
-                        this.infoIconLoop.set_icon_name("media-playlist-consecutive-symbolic");
-                        this.infoButtonLoop.remove_style_class_name("popup-menu-button-active");
+                        this.infoIconLoop.set_icon_name(
+                            "media-playlist-consecutive-symbolic"
+                        );
+                        this.infoButtonLoop.remove_style_class_name(
+                            "popup-menu-button-active"
+                        );
                         break;
                     case "Track":
-                        this.infoIconLoop.set_icon_name("media-playlist-repeat-song-symbolic");
-                        this.infoButtonLoop.add_style_class_name("popup-menu-button-active");
+                        this.infoIconLoop.set_icon_name(
+                            "media-playlist-repeat-song-symbolic"
+                        );
+                        this.infoButtonLoop.add_style_class_name(
+                            "popup-menu-button-active"
+                        );
                         break;
                     case "Playlist":
-                        this.infoIconLoop.set_icon_name("media-playlist-repeat-symbolic");
-                        this.infoButtonLoop.add_style_class_name("popup-menu-button-active");
+                        this.infoIconLoop.set_icon_name(
+                            "media-playlist-repeat-symbolic"
+                        );
+                        this.infoButtonLoop.add_style_class_name(
+                            "popup-menu-button-active"
+                        );
                         break;
                     default:
                         break;
                 }
             } else {
                 this.infoButtonLoop.set_reactive(false);
-                this.infoButtonLoop.remove_style_class_name("popup-menu-button-active");
+                this.infoButtonLoop.remove_style_class_name(
+                    "popup-menu-button-active"
+                );
             }
         }
 
         _updateShuffleIcon() {
             if (this._playerProxy.Shuffle === true) {
-                this.infoShuffleButton.add_style_class_name("popup-menu-button-active");
+                this.infoShuffleButton.add_style_class_name(
+                    "popup-menu-button-active"
+                );
             } else if (this._playerProxy.Shuffle === false) {
-                this.infoShuffleButton.remove_style_class_name("popup-menu-button-active");
+                this.infoShuffleButton.remove_style_class_name(
+                    "popup-menu-button-active"
+                );
             } else {
                 this.infoShuffleButton.set_reactive(false);
             }
@@ -326,35 +378,57 @@ const Player = GObject.registerClass(
 
         updateWidgetWidths() {
             if (this.labelTitle) {
-                this.labelTitle.set_style(`${this.maxWidthStyle} margin: 0px auto; padding: 0px auto;`);
+                this.labelTitle.set_style(
+                    `${this.maxWidthStyle} margin: 0px auto; padding: 0px auto;`
+                );
             }
             if (this.menuItem) {
                 this._menuLabel.set_style(this.maxWidthStyle);
             }
             if (this._infoItem) {
                 this.infoArtistLabel.set_style(this.maxWidthStyle);
-                this.infoTitleLabel.set_style(`font-size: large; ${this.maxWidthStyle}`);
-                this._infoIcon.set_icon_size(this._extension.settings.maxWidgetWidth);
+                this.infoTitleLabel.set_style(
+                    `font-size: large; ${this.maxWidthStyle}`
+                );
+                this._infoIcon.set_icon_size(
+                    this._extension.settings.maxWidgetWidth
+                );
             }
         }
 
         updateIconEffects() {
             if (this._extension.settings.coloredPlayerIcon) {
                 this.iconPlayer.clear_effects();
-                this.iconPlayer.set_style("margin: 0px auto; padding: 0px auto; -st-icon-style: requested;");
+                this.iconPlayer.set_style(
+                    "margin: 0px auto; padding: 0px auto; -st-icon-style: requested;"
+                );
                 this.iconPlayer.set_fallback_icon_name("audio-x-generic");
 
                 this.infoMenuPlayerIcon.clear_effects();
-                this.infoMenuPlayerIcon.set_style("-st-icon-style: requested; padding-right: 6px;");
-                this.infoMenuPlayerIcon.set_fallback_icon_name("audio-x-generic");
+                this.infoMenuPlayerIcon.set_style(
+                    "-st-icon-style: requested; padding-right: 6px;"
+                );
+                this.infoMenuPlayerIcon.set_fallback_icon_name(
+                    "audio-x-generic"
+                );
             } else {
-                this.iconPlayer.set_style("margin: 0px auto; padding: 0px auto; -st-icon-style: symbolic;");
+                this.iconPlayer.set_style(
+                    "margin: 0px auto; padding: 0px auto; -st-icon-style: symbolic;"
+                );
                 this.iconPlayer.add_effect(new Clutter.DesaturateEffect());
-                this.iconPlayer.set_fallback_icon_name("audio-x-generic-symbolic");
+                this.iconPlayer.set_fallback_icon_name(
+                    "audio-x-generic-symbolic"
+                );
 
-                this.infoMenuPlayerIcon.set_style("-st-icon-style: symbolic;  padding-right: 6px;");
-                this.infoMenuPlayerIcon.add_effect(new Clutter.DesaturateEffect());
-                this.infoMenuPlayerIcon.set_fallback_icon_name("audio-x-generic-symbolic");
+                this.infoMenuPlayerIcon.set_style(
+                    "-st-icon-style: symbolic;  padding-right: 6px;"
+                );
+                this.infoMenuPlayerIcon.add_effect(
+                    new Clutter.DesaturateEffect()
+                );
+                this.infoMenuPlayerIcon.set_fallback_icon_name(
+                    "audio-x-generic-symbolic"
+                );
             }
         }
 
@@ -397,7 +471,9 @@ const Player = GObject.registerClass(
                 this.infoItemContainer.add(playerIconLabelContainer);
 
                 // const nameSep = ;
-                this.infoItemContainer.add(new PopupMenu.PopupSeparatorMenuItem());
+                this.infoItemContainer.add(
+                    new PopupMenu.PopupSeparatorMenuItem()
+                );
 
                 // Album art
 
@@ -446,7 +522,10 @@ const Player = GObject.registerClass(
                     style_class: "popup-menu-button",
                 });
 
-                this.infoButtonLoop.connect("button-press-event", this._changeLoop.bind(this));
+                this.infoButtonLoop.connect(
+                    "button-press-event",
+                    this._changeLoop.bind(this)
+                );
 
                 this.infoButtonLoop.set_child(this.infoIconLoop);
 
@@ -515,7 +594,10 @@ const Player = GObject.registerClass(
                     style_class: "popup-menu-button",
                 });
 
-                this.infoShuffleButton.connect("button-press-event", this._toggleShuffle.bind(this));
+                this.infoShuffleButton.connect(
+                    "button-press-event",
+                    this._toggleShuffle.bind(this)
+                );
 
                 this.infoShuffleButton.set_child(this.infoShuffleIcon);
 
@@ -562,7 +644,12 @@ const Player = GObject.registerClass(
                         const cacheFile = Gio.File.new_for_path(destination);
                         if (!cacheFile.query_exists(null)) {
                             const remoteIcon = await getRequest(this.image);
-                            if (GLib.mkdir_with_parents(cacheFile.get_parent().get_path(), 0o744) === 0) {
+                            if (
+                                GLib.mkdir_with_parents(
+                                    cacheFile.get_parent().get_path(),
+                                    0o744
+                                ) === 0
+                            ) {
                                 let [success, tag] = cacheFile.replace_contents(
                                     remoteIcon,
                                     null,
@@ -668,7 +755,9 @@ const Player = GObject.registerClass(
                             if (button === 1) {
                                 this._mouseAction(mouseActionTypes.LEFT_CLICK);
                             } else if (button === 2) {
-                                this._mouseAction(mouseActionTypes.MIDDLE_CLICK);
+                                this._mouseAction(
+                                    mouseActionTypes.MIDDLE_CLICK
+                                );
                             } else if (button === 3) {
                                 this._mouseAction(mouseActionTypes.RIGHT_CLICK);
                             }
@@ -690,7 +779,9 @@ const Player = GObject.registerClass(
         _mouseActionScroll(widget, event) {
             if (event.get_scroll_direction() === Clutter.ScrollDirection.UP) {
                 this._mouseAction(mouseActionTypes.SCROLL_UP);
-            } else if (event.get_scroll_direction() === Clutter.ScrollDirection.DOWN) {
+            } else if (
+                event.get_scroll_direction() === Clutter.ScrollDirection.DOWN
+            ) {
                 this._mouseAction(mouseActionTypes.SCROLL_DOWN);
             }
         }
@@ -722,17 +813,34 @@ const Player = GObject.registerClass(
                     style: this.maxWidthStyle,
                 });
 
+                this._menuCloseButton = new St.Button({
+                    child: new St.Icon({
+                        icon_name: "user-trash-symbolic",
+                        style_class: "popup-menu-icon",
+                    }),
+                    style_class: "popup-menu-button",
+                    x_align: Clutter.ActorAlign.END,
+                    x_expand: true,
+                });
+
                 this._menuItem.busName = this.busName;
+                this._menuItem.closeButton = this._menuCloseButton;
 
                 this._menuItem.add(this._menuIcon);
                 this._menuItem.add(this._menuLabel);
+                this._menuItem.add(this._menuCloseButton);
             }
 
             return this._menuItem;
         }
 
         get trackIcon() {
-            return this._getImage() || Gio.icon_new_for_string(this.image || "audio-x-generic-symbolic");
+            return (
+                this._getImage() ||
+                Gio.icon_new_for_string(
+                    this.image || "audio-x-generic-symbolic"
+                )
+            );
         }
 
         get isPlaying() {
@@ -806,10 +914,14 @@ const Player = GObject.registerClass(
                     ""
                 );
                 this._strippedName =
-                    this._strippedName.charAt(0).toUpperCase() + this._strippedName.substr(1);
+                    this._strippedName.charAt(0).toUpperCase() +
+                    this._strippedName.substr(1);
             }
 
-            return this._otherProxy.Identity || this._strippedName;
+            return (
+                (this._otherProxy && this._otherProxy.Identity) ||
+                this._strippedName
+            );
         }
 
         get title() {
@@ -818,7 +930,10 @@ const Player = GObject.registerClass(
 
         get artist() {
             let artist = this._metadata["artist"];
-            return (Array.isArray(artist) ? artist.join(", ") : artist) || "Unknown artist";
+            return (
+                (Array.isArray(artist) ? artist.join(", ") : artist) ||
+                "Unknown artist"
+            );
         }
 
         get image() {

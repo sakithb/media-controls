@@ -255,6 +255,18 @@ const MediaControls = GObject.registerClass(
                         this.toggleActivatePlayer(menuItem.busName);
                     });
 
+                    menuItem.closeButton.connect(
+                        "button-release-event",
+                        (closeButton) => {
+                            this.playerVanished(
+                                null,
+                                closeButton.get_parent().busName
+                            );
+
+                            this.menu.close();
+                        }
+                    );
+
                     this.menu.addMenuItem(menuItem);
                     this._players[busName] = playerObj;
 

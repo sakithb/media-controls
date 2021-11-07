@@ -70,7 +70,6 @@
                     </child>
                     <child>
                       <object class="GtkGrid">
-                        <property name="can-focus">0</property>
                         <property name="column-homogeneous">1</property>
                         <child>
                           <object class="GtkEntry" id="track-label-sep">
@@ -86,7 +85,6 @@
                         <child>
                           <object class="GtkComboBoxText" id="track-label-start">
                             <property name="name">track-label-start</property>
-                            <property name="can-focus">0</property>
                             <property name="halign">start</property>
                             <signal name="changed" handler="on_track_label_changed" swapped="no"/>
                             <layout>
@@ -98,7 +96,6 @@
                         <child>
                           <object class="GtkComboBoxText" id="track-label-end">
                             <property name="name">track-label-end</property>
-                            <property name="can-focus">0</property>
                             <property name="halign">end</property>
                             <signal name="changed" handler="on_track_label_changed" swapped="no"/>
                             <layout>
@@ -204,7 +201,7 @@
                                   <object class="GtkLabel">
                                     <property name="can-focus">1</property>
                                     <property name="valign">start</property>
-                                    <property name="label" translatable="yes">You can now hide the media controls in the notification menu</property>
+                                    <property name="label" translatable="yes">You can now hide the media notification in the notification menu</property>
                                     <property name="wrap">1</property>
                                     <property name="xalign">0</property>
                                     <layout>
@@ -259,7 +256,7 @@
                                   <object class="GtkLabel">
                                     <property name="can-focus">1</property>
                                     <property name="valign">start</property>
-                                    <property name="label" translatable="yes">Support for GNOME 3.36</property>
+                                    <property name="label" translatable="yes">Support for GNOME 41 and GNOME 3.36</property>
                                     <property name="wrap">1</property>
                                     <property name="xalign">0</property>
                                     <layout>
