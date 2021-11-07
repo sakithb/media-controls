@@ -12,16 +12,16 @@
     <property name="page-increment">10</property>
   </object>
   <object class="GtkNotebook" id="main_prefs">
-    <property name="focusable">1</property>
     <child>
       <object class="GtkNotebookPage">
         <property name="child">
           <object class="GtkScrolledWindow">
-            <property name="focusable">1</property>
             <property name="child">
               <object class="GtkViewport">
+                <property name="can-focus">1</property>
                 <property name="child">
                   <object class="GtkGrid">
+                    <property name="can-focus">1</property>
                     <property name="margin-start">15</property>
                     <property name="margin-end">15</property>
                     <property name="margin-start">15</property>
@@ -32,6 +32,7 @@
                     <property name="column-homogeneous">1</property>
                     <child>
                       <object class="GtkLabel">
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">&lt;b&gt;Max widget width&lt;/b&gt;
 &lt;span size=&quot;small&quot;&gt;&lt;i&gt;0 to disable&lt;/i&gt;&lt;/span&gt;</property>
@@ -44,7 +45,6 @@
                     </child>
                     <child>
                       <object class="GtkSpinButton" id="max-widget-width">
-                        <property name="focusable">1</property>
                         <property name="halign">end</property>
                         <property name="text" translatable="yes">0</property>
                         <property name="adjustment">max_widget_width</property>
@@ -56,6 +56,7 @@
                     </child>
                     <child>
                       <object class="GtkLabel">
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Track label</property>
                         <attributes>
@@ -73,7 +74,6 @@
                         <child>
                           <object class="GtkEntry" id="track-label-sep">
                             <property name="name">track-label-sep</property>
-                            <property name="focusable">1</property>
                             <property name="halign">center</property>
                             <signal name="changed" handler="on_track_label_changed" swapped="no"/>
                             <layout>
@@ -112,6 +112,7 @@
                     </child>
                     <child>
                       <object class="GtkBox">
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="orientation">vertical</property>
                         <child>
@@ -120,14 +121,17 @@
                             <property name="uri">https://github.com/cliffniff/media-controls/issues</property>
                             <child>
                               <object class="GtkBox">
+                                <property name="can-focus">1</property>
                                 <property name="spacing">5</property>
                                 <child>
                                   <object class="GtkImage" id="report_issue">
+                                    <property name="can-focus">1</property>
                                     <property name="icon-name">mail-mark-junk-symbolic</property>
                                   </object>
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">1</property>
                                     <property name="label" translatable="yes">Report a issue</property>
                                   </object>
                                 </child>
@@ -141,17 +145,17 @@
                             <property name="uri">https://github.com/cliffniff/media-controls/blob/main/README.md</property>
                             <child>
                               <object class="GtkBox">
-                                <property name="can-focus">0</property>
+                                <property name="can-focus">1</property>
                                 <property name="spacing">5</property>
                                 <child>
                                   <object class="GtkImage" id="report_issue1">
-                                    <property name="can-focus">0</property>
+                                    <property name="can-focus">1</property>
                                     <property name="icon-name">go-home-symbolic</property>
                                   </object>
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
-                                    <property name="can-focus">0</property>
+                                    <property name="can-focus">1</property>
                                     <property name="label" translatable="yes">Extension home page</property>
                                   </object>
                                 </child>
@@ -167,13 +171,13 @@
                     </child>
                     <child>
                       <object class="GtkBox">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <property name="valign">end</property>
                         <property name="vexpand">1</property>
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkSeparator">
-                            <property name="can-focus">0</property>
+                            <property name="can-focus">1</property>
                             <property name="margin-top">10</property>
                             <property name="margin-bottom">10</property>
                           </object>
@@ -182,7 +186,7 @@
                           <object class="GtkExpander">
                             <child>
                               <object class="GtkGrid">
-                                <property name="can-focus">0</property>
+                                <property name="can-focus">1</property>
                                 <property name="valign">end</property>
                                 <property name="margin-start">10</property>
                                 <property name="margin-end">10</property>
@@ -195,7 +199,7 @@
                                 <property name="column-spacing">5</property>
                                 <child>
                                   <object class="GtkLabel">
-                                    <property name="can-focus">0</property>
+                                    <property name="can-focus">1</property>
                                     <property name="valign">start</property>
                                     <property name="label" translatable="yes">You can now hide the media notification in the notification menu</property>
                                     <property name="wrap">1</property>
@@ -208,7 +212,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkImage">
-                                    <property name="can-focus">0</property>
+                                    <property name="can-focus">1</property>
                                     <property name="halign">center</property>
                                     <property name="valign">center</property>
                                     <property name="pixel-size">16</property>
@@ -221,7 +225,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkImage">
-                                    <property name="can-focus">0</property>
+                                    <property name="can-focus">1</property>
                                     <property name="halign">center</property>
                                     <property name="valign">start</property>
                                     <property name="pixel-size">16</property>
@@ -234,7 +238,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
-                                    <property name="can-focus">0</property>
+                                    <property name="can-focus">1</property>
                                     <property name="halign">start</property>
                                     <property name="valign">center</property>
                                     <property name="label" translatable="yes">What&apos;s new in v18?</property>
@@ -250,7 +254,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
-                                    <property name="can-focus">0</property>
+                                    <property name="can-focus">1</property>
                                     <property name="valign">start</property>
                                     <property name="label" translatable="yes">Support for GNOME 41 and GNOME 3.36</property>
                                     <property name="wrap">1</property>
@@ -263,7 +267,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkImage">
-                                    <property name="can-focus">0</property>
+                                    <property name="can-focus">1</property>
                                     <property name="halign">center</property>
                                     <property name="valign">start</property>
                                     <property name="pixel-size">16</property>
@@ -277,10 +281,10 @@
                                 <child>
                                   <object class="GtkLabel">
                                     <property name="height-request">0</property>
-                                    <property name="can-focus">0</property>
+                                    <property name="can-focus">1</property>
                                     <property name="halign">start</property>
                                     <property name="valign">start</property>
-                                    <property name="label" translatable="yes">You can now manually players</property>
+                                    <property name="label" translatable="yes">You can manually hide players now</property>
                                     <property name="wrap">1</property>
                                     <property name="xalign">0</property>
                                     <layout>
@@ -291,7 +295,7 @@
                                 </child>
                                 <child>
                                   <object class="GtkImage">
-                                    <property name="can-focus">0</property>
+                                    <property name="can-focus">1</property>
                                     <property name="halign">center</property>
                                     <property name="valign">start</property>
                                     <property name="pixel-size">16</property>
@@ -306,7 +310,7 @@
                             </child>
                             <child type="label">
                               <object class="GtkLabel">
-                                <property name="can-focus">0</property>
+                                <property name="can-focus">1</property>
                                 <property name="margin-start">5</property>
                                 <property name="margin-start">5</property>
                                 <property name="margin-top">5</property>
@@ -328,7 +332,7 @@
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Hide the default media notification</property>
                         <layout>
@@ -354,7 +358,7 @@
         </property>
         <property name="tab">
           <object class="GtkLabel">
-            <property name="can-focus">0</property>
+            <property name="can-focus">1</property>
             <property name="label" translatable="yes">General</property>
           </object>
         </property>
@@ -367,10 +371,10 @@
           <object class="GtkScrolledWindow">
             <property name="child">
               <object class="GtkViewport">
-                <property name="can-focus">0</property>
+                <property name="can-focus">1</property>
                 <property name="child">
                   <object class="GtkGrid">
-                    <property name="can-focus">0</property>
+                    <property name="can-focus">1</property>
                     <property name="margin-start">15</property>
                     <property name="margin-end">15</property>
                     <property name="margin-start">15</property>
@@ -381,7 +385,7 @@
                     <property name="column-homogeneous">1</property>
                     <child>
                       <object class="GtkLabel">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Colored player icon</property>
                         <layout>
@@ -425,7 +429,7 @@
                     </child>
                     <child>
                       <object class="GtkComboBoxText" id="sepchars-preset">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <property name="halign">end</property>
                         <signal name="changed" handler="on_seperator_preset_changed" swapped="no"/>
                         <layout>
@@ -436,7 +440,7 @@
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="margin-top">8</property>
                         <property name="margin-bottom">8</property>
@@ -463,7 +467,7 @@
                     </child>
                     <child>
                       <object class="GtkGrid">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <property name="margin-start">10</property>
                         <property name="margin-end">10</property>
                         <property name="margin-start">10</property>
@@ -481,7 +485,7 @@
                         </child>
                         <child>
                           <object class="GtkLabel">
-                            <property name="can-focus">0</property>
+                            <property name="can-focus">1</property>
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Title/Track name</property>
                             <layout>
@@ -510,7 +514,7 @@
                         </child>
                         <child>
                           <object class="GtkLabel">
-                            <property name="can-focus">0</property>
+                            <property name="can-focus">1</property>
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Seperators</property>
                             <layout>
@@ -530,7 +534,7 @@
                         </child>
                         <child>
                           <object class="GtkLabel">
-                            <property name="can-focus">0</property>
+                            <property name="can-focus">1</property>
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Player icon</property>
                             <layout>
@@ -541,7 +545,7 @@
                         </child>
                         <child>
                           <object class="GtkLabel">
-                            <property name="can-focus">0</property>
+                            <property name="can-focus">1</property>
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Player controls</property>
                             <layout>
@@ -552,7 +556,7 @@
                         </child>
                         <child>
                           <object class="GtkLabel">
-                            <property name="can-focus">0</property>
+                            <property name="can-focus">1</property>
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Sources menu</property>
                             <layout>
@@ -572,7 +576,7 @@
                         </child>
                         <child>
                           <object class="GtkGrid">
-                            <property name="can-focus">0</property>
+                            <property name="can-focus">1</property>
                             <property name="margin-start">15</property>
                             <property name="margin-end">15</property>
                             <property name="margin-start">15</property>
@@ -581,7 +585,7 @@
                             <property name="column-homogeneous">1</property>
                             <child>
                               <object class="GtkLabel">
-                                <property name="can-focus">0</property>
+                                <property name="can-focus">1</property>
                                 <property name="halign">start</property>
                                 <property name="label" translatable="yes">Play/pause button</property>
                                 <layout>
@@ -601,7 +605,7 @@
                             </child>
                             <child>
                               <object class="GtkLabel">
-                                <property name="can-focus">0</property>
+                                <property name="can-focus">1</property>
                                 <property name="halign">start</property>
                                 <property name="label" translatable="yes">Previous track button</property>
                                 <layout>
@@ -612,7 +616,7 @@
                             </child>
                             <child>
                               <object class="GtkLabel">
-                                <property name="can-focus">0</property>
+                                <property name="can-focus">1</property>
                                 <property name="halign">start</property>
                                 <property name="label" translatable="yes">Next track button</property>
                                 <layout>
@@ -653,7 +657,7 @@
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">how/hide elements</property>
                         <attributes>
@@ -667,7 +671,7 @@
                     </child>
                     <child>
                       <object class="GtkSeparator">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="row">2</property>
@@ -676,7 +680,7 @@
                     </child>
                     <child>
                       <object class="GtkSeparator">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="row">4</property>
@@ -691,7 +695,7 @@
         </property>
         <property name="tab">
           <object class="GtkLabel">
-            <property name="can-focus">0</property>
+            <property name="can-focus">1</property>
             <property name="label" translatable="yes">Visibility</property>
           </object>
         </property>
@@ -704,10 +708,10 @@
           <object class="GtkScrolledWindow">
             <property name="child">
               <object class="GtkViewport">
-                <property name="can-focus">0</property>
+                <property name="can-focus">1</property>
                 <property name="child">
                   <object class="GtkGrid">
-                    <property name="can-focus">0</property>
+                    <property name="can-focus">1</property>
                     <property name="margin-start">15</property>
                     <property name="margin-end">15</property>
                     <property name="margin-start">15</property>
@@ -718,7 +722,7 @@
                     <property name="column-homogeneous">1</property>
                     <child>
                       <object class="GtkLabel">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Extension position</property>
                         <layout>
@@ -729,7 +733,7 @@
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Extension index</property>
                         <layout>
@@ -751,7 +755,7 @@
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Element order</property>
                         <attributes>
@@ -765,7 +769,7 @@
                     </child>
                     <child>
                       <object class="GtkComboBoxText" id="extension-position">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <property name="halign">end</property>
                         <signal name="changed" handler="on_extension_position_changed" swapped="no"/>
                         <layout>
@@ -776,7 +780,7 @@
                     </child>
                     <child>
                       <object class="GtkGrid" id="element-order">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <property name="row-spacing">3</property>
                         <property name="column-homogeneous">1</property>
                         <child>
@@ -802,7 +806,7 @@
         </property>
         <property name="tab">
           <object class="GtkLabel">
-            <property name="can-focus">0</property>
+            <property name="can-focus">1</property>
             <property name="label" translatable="yes">Position</property>
           </object>
         </property>
@@ -815,10 +819,10 @@
           <object class="GtkScrolledWindow">
             <property name="child">
               <object class="GtkViewport">
-                <property name="can-focus">0</property>
+                <property name="can-focus">1</property>
                 <property name="child">
                   <object class="GtkGrid">
-                    <property name="can-focus">0</property>
+                    <property name="can-focus">1</property>
                     <property name="margin-start">15</property>
                     <property name="margin-end">15</property>
                     <property name="margin-start">15</property>
@@ -829,7 +833,7 @@
                     <property name="column-homogeneous">1</property>
                     <child>
                       <object class="GtkLabel">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Mouse actions</property>
                         <attributes>
@@ -843,7 +847,7 @@
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="valign">center</property>
                         <property name="label" translatable="yes">Cache images</property>
@@ -858,7 +862,7 @@
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Media Controls caches album art so they don&apos;t need to be redownloaded everytime. You can clear your cache here.</property>
                         <property name="wrap">1</property>
@@ -871,7 +875,7 @@
                     </child>
                     <child>
                       <object class="GtkGrid">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <property name="column-spacing">10</property>
                         <child>
                           <object class="GtkButton">
@@ -887,7 +891,7 @@
                         </child>
                         <child>
                           <object class="GtkLabel" id="cache-size">
-                            <property name="can-focus">0</property>
+                            <property name="can-focus">1</property>
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">0 MB</property>
                             <layout>
@@ -898,7 +902,7 @@
                         </child>
                         <child>
                           <object class="GtkSpinner" id="clear-cache-spinner">
-                            <property name="can-focus">0</property>
+                            <property name="can-focus">1</property>
                             <layout>
                               <property name="column">2</property>
                               <property name="row">0</property>
@@ -913,7 +917,7 @@
                     </child>
                     <child>
                       <object class="GtkGrid" id="mouse-actions-grid">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <property name="row-spacing">5</property>
                         <property name="column-homogeneous">1</property>
                         <child>
@@ -942,7 +946,7 @@
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Blacklist players</property>
                         <attributes>
@@ -956,7 +960,7 @@
                     </child>
                     <child>
                       <object class="GtkListBox" id="backlist-listbox">
-                        <property name="can-focus">0</property>
+                        <property name="can-focus">1</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="row">4</property>
@@ -982,7 +986,7 @@
         </property>
         <property name="tab">
           <object class="GtkLabel">
-            <property name="can-focus">0</property>
+            <property name="can-focus">1</property>
             <property name="label" translatable="yes">Other</property>
           </object>
         </property>
