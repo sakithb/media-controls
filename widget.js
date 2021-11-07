@@ -255,18 +255,23 @@ const MediaControls = GObject.registerClass(
                         this.toggleActivatePlayer(menuItem.busName);
                     });
 
-                    // menuItem.closeButton.connect(
-                    //     "button-release-event",
-                    //     (closeButton) => {
-                    //         // this.hidePlayer(closeButton.get_parent().busName);
-                    //     }
-                    // );
+                    menuItem.closeButton.connect(
+                        "button-release-event",
+                        (closeButton) => {
+                            this.playerVanished(
+                                null,
+                                closeButton.get_parent().busName
+                            );
+
+                            this.menu.close();
+                        }
+                    );
 
                     this.menu.addMenuItem(menuItem);
                     this._players[busName] = playerObj;
 
                     if (!playerObj._metadata["title"]) {
-                        this._removePlayer(busName);
+                        this.hidePlayer(busName);
                     }
                 } else {
                     playerObj.destroy();
