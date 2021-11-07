@@ -12,16 +12,16 @@
     <property name="page-increment">10</property>
   </object>
   <object class="GtkNotebook" id="main_prefs">
+    <property name="focusable">1</property>
     <child>
       <object class="GtkNotebookPage">
         <property name="child">
           <object class="GtkScrolledWindow">
+            <property name="focusable">1</property>
             <property name="child">
               <object class="GtkViewport">
-                <property name="can-focus">0</property>
                 <property name="child">
                   <object class="GtkGrid">
-                    <property name="can-focus">0</property>
                     <property name="margin-start">15</property>
                     <property name="margin-end">15</property>
                     <property name="margin-start">15</property>
@@ -32,7 +32,6 @@
                     <property name="column-homogeneous">1</property>
                     <child>
                       <object class="GtkLabel">
-                        <property name="can-focus">0</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">&lt;b&gt;Max widget width&lt;/b&gt;
 &lt;span size=&quot;small&quot;&gt;&lt;i&gt;0 to disable&lt;/i&gt;&lt;/span&gt;</property>
@@ -45,6 +44,7 @@
                     </child>
                     <child>
                       <object class="GtkSpinButton" id="max-widget-width">
+                        <property name="focusable">1</property>
                         <property name="halign">end</property>
                         <property name="text" translatable="yes">0</property>
                         <property name="adjustment">max_widget_width</property>
@@ -56,7 +56,6 @@
                     </child>
                     <child>
                       <object class="GtkLabel">
-                        <property name="can-focus">0</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Track label</property>
                         <attributes>
@@ -70,11 +69,11 @@
                     </child>
                     <child>
                       <object class="GtkGrid">
-                        <property name="can-focus">0</property>
                         <property name="column-homogeneous">1</property>
                         <child>
                           <object class="GtkEntry" id="track-label-sep">
                             <property name="name">track-label-sep</property>
+                            <property name="focusable">1</property>
                             <property name="halign">center</property>
                             <signal name="changed" handler="on_track_label_changed" swapped="no"/>
                             <layout>
@@ -86,7 +85,6 @@
                         <child>
                           <object class="GtkComboBoxText" id="track-label-start">
                             <property name="name">track-label-start</property>
-                            <property name="can-focus">0</property>
                             <property name="halign">start</property>
                             <signal name="changed" handler="on_track_label_changed" swapped="no"/>
                             <layout>
@@ -98,7 +96,6 @@
                         <child>
                           <object class="GtkComboBoxText" id="track-label-end">
                             <property name="name">track-label-end</property>
-                            <property name="can-focus">0</property>
                             <property name="halign">end</property>
                             <signal name="changed" handler="on_track_label_changed" swapped="no"/>
                             <layout>
@@ -115,7 +112,6 @@
                     </child>
                     <child>
                       <object class="GtkBox">
-                        <property name="can-focus">0</property>
                         <property name="halign">start</property>
                         <property name="orientation">vertical</property>
                         <child>
@@ -124,17 +120,14 @@
                             <property name="uri">https://github.com/cliffniff/media-controls/issues</property>
                             <child>
                               <object class="GtkBox">
-                                <property name="can-focus">0</property>
                                 <property name="spacing">5</property>
                                 <child>
                                   <object class="GtkImage" id="report_issue">
-                                    <property name="can-focus">0</property>
                                     <property name="icon-name">mail-mark-junk-symbolic</property>
                                   </object>
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
-                                    <property name="can-focus">0</property>
                                     <property name="label" translatable="yes">Report a issue</property>
                                   </object>
                                 </child>
@@ -204,7 +197,7 @@
                                   <object class="GtkLabel">
                                     <property name="can-focus">0</property>
                                     <property name="valign">start</property>
-                                    <property name="label" translatable="yes">You can now hide the media controls in the notification menu</property>
+                                    <property name="label" translatable="yes">You can now hide the media notification in the notification menu</property>
                                     <property name="wrap">1</property>
                                     <property name="xalign">0</property>
                                     <layout>
@@ -259,7 +252,7 @@
                                   <object class="GtkLabel">
                                     <property name="can-focus">0</property>
                                     <property name="valign">start</property>
-                                    <property name="label" translatable="yes">Support for GNOME 3.36</property>
+                                    <property name="label" translatable="yes">Support for GNOME 41 and GNOME 3.36</property>
                                     <property name="wrap">1</property>
                                     <property name="xalign">0</property>
                                     <layout>
@@ -287,7 +280,7 @@
                                     <property name="can-focus">0</property>
                                     <property name="halign">start</property>
                                     <property name="valign">start</property>
-                                    <property name="label" translatable="yes">You can now manually hide the extension</property>
+                                    <property name="label" translatable="yes">You can now manually players</property>
                                     <property name="wrap">1</property>
                                     <property name="xalign">0</property>
                                     <layout>
