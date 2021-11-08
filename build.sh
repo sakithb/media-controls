@@ -18,7 +18,8 @@ build() {
     zip -d Release.zip .gitignore;
     zip -d Release.zip build.sh;
     zip -d Release.zip install.sh;
-    zip -d Release.zip .github;
+    zip -d Release.zip .github/*;
+    zip -d Release.zip .github/;
     VERSION=$(cat metadata.json | grep '\"version\"' | sed 's/[^0-9]*//g');
 
     if [[ `git status --porcelain` ]]; then
