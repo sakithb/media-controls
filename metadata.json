@@ -2,7 +2,7 @@
     "description": "Show controls for the current playing media in the panel",
     "name": "Media Controls",
     "settings-schema": "org.gnome.shell.extensions.mediacontrols",
-    "shell-version": ["3.38", "40", "41"],
+    "shell-version": ["3.36", "3.38", "40", "41"],
     "url": "https://github.com/cliffniff/media-controls",
     "uuid": "mediacontrols@cliffniff.github.com",
     "version": 18
