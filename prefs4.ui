@@ -12,16 +12,16 @@
     <property name="page-increment">10</property>
   </object>
   <object class="GtkNotebook" id="main_prefs">
-    <property name="focusable">1</property>
     <child>
       <object class="GtkNotebookPage">
         <property name="child">
           <object class="GtkScrolledWindow">
-            <property name="focusable">1</property>
             <property name="child">
               <object class="GtkViewport">
+                <property name="can-focus">1</property>
                 <property name="child">
                   <object class="GtkGrid">
+                    <property name="can-focus">1</property>
                     <property name="margin-start">15</property>
                     <property name="margin-end">15</property>
                     <property name="margin-start">15</property>
@@ -32,6 +32,7 @@
                     <property name="column-homogeneous">1</property>
                     <child>
                       <object class="GtkLabel">
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">&lt;b&gt;Max widget width&lt;/b&gt;
 &lt;span size=&quot;small&quot;&gt;&lt;i&gt;0 to disable&lt;/i&gt;&lt;/span&gt;</property>
@@ -44,7 +45,6 @@
                     </child>
                     <child>
                       <object class="GtkSpinButton" id="max-widget-width">
-                        <property name="focusable">1</property>
                         <property name="halign">end</property>
                         <property name="text" translatable="yes">0</property>
                         <property name="adjustment">max_widget_width</property>
@@ -56,6 +56,7 @@
                     </child>
                     <child>
                       <object class="GtkLabel">
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Track label</property>
                         <attributes>
@@ -63,7 +64,7 @@
                         </attributes>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">1</property>
+                          <property name="row">2</property>
                         </layout>
                       </object>
                     </child>
@@ -73,7 +74,6 @@
                         <child>
                           <object class="GtkEntry" id="track-label-sep">
                             <property name="name">track-label-sep</property>
-                            <property name="focusable">1</property>
                             <property name="halign">center</property>
                             <signal name="changed" handler="on_track_label_changed" swapped="no"/>
                             <layout>
@@ -106,29 +106,32 @@
                         </child>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">2</property>
+                          <property name="row">3</property>
                         </layout>
                       </object>
                     </child>
                     <child>
                       <object class="GtkBox">
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkLinkButton">
-                            <property name="focusable">1</property>
                             <property name="receives-default">1</property>
                             <property name="uri">https://github.com/cliffniff/media-controls/issues</property>
                             <child>
                               <object class="GtkBox">
+                                <property name="can-focus">1</property>
                                 <property name="spacing">5</property>
                                 <child>
                                   <object class="GtkImage" id="report_issue">
+                                    <property name="can-focus">1</property>
                                     <property name="icon-name">mail-mark-junk-symbolic</property>
                                   </object>
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">1</property>
                                     <property name="label" translatable="yes">Report a issue</property>
                                   </object>
                                 </child>
@@ -138,19 +141,21 @@
                         </child>
                         <child>
                           <object class="GtkLinkButton">
-                            <property name="focusable">1</property>
                             <property name="receives-default">1</property>
                             <property name="uri">https://github.com/cliffniff/media-controls/blob/main/README.md</property>
                             <child>
                               <object class="GtkBox">
+                                <property name="can-focus">1</property>
                                 <property name="spacing">5</property>
                                 <child>
                                   <object class="GtkImage" id="report_issue1">
+                                    <property name="can-focus">1</property>
                                     <property name="icon-name">go-home-symbolic</property>
                                   </object>
                                 </child>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">1</property>
                                     <property name="label" translatable="yes">Extension home page</property>
                                   </object>
                                 </child>
@@ -160,26 +165,28 @@
                         </child>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">4</property>
+                          <property name="row">5</property>
                         </layout>
                       </object>
                     </child>
                     <child>
                       <object class="GtkBox">
+                        <property name="can-focus">1</property>
                         <property name="valign">end</property>
                         <property name="vexpand">1</property>
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkSeparator">
+                            <property name="can-focus">1</property>
                             <property name="margin-top">10</property>
                             <property name="margin-bottom">10</property>
                           </object>
                         </child>
                         <child>
                           <object class="GtkExpander">
-                            <property name="focusable">1</property>
                             <child>
                               <object class="GtkGrid">
+                                <property name="can-focus">1</property>
                                 <property name="valign">end</property>
                                 <property name="margin-start">10</property>
                                 <property name="margin-end">10</property>
@@ -192,21 +199,10 @@
                                 <property name="column-spacing">5</property>
                                 <child>
                                   <object class="GtkLabel">
+                                    <property name="can-focus">1</property>
                                     <property name="valign">start</property>
-                                    <property name="label" translatable="yes">Now, the extension does not update itself every &lt;i&gt;x&lt;/i&gt; seconds. It watches for changes in the media player and updates itself.</property>
-                                    <property name="use-markup">1</property>
+                                    <property name="label" translatable="yes">You can now hide the media notification in the notification menu</property>
                                     <property name="wrap">1</property>
-                                    <property name="xalign">0</property>
-                                    <layout>
-                                      <property name="column">1</property>
-                                      <property name="row">6</property>
-                                    </layout>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel">
-                                    <property name="valign">start</property>
-                                    <property name="label" translatable="yes">You can switch on/off individual control icons</property>
                                     <property name="xalign">0</property>
                                     <layout>
                                       <property name="column">1</property>
@@ -215,58 +211,8 @@
                                   </object>
                                 </child>
                                 <child>
-                                  <object class="GtkLabel">
-                                    <property name="height-request">0</property>
-                                    <property name="halign">start</property>
-                                    <property name="valign">start</property>
-                                    <property name="label" translatable="yes">You can choose which parts of the label are visible.
-ex. track name, artist</property>
-                                    <property name="wrap">1</property>
-                                    <property name="xalign">0</property>
-                                    <layout>
-                                      <property name="column">1</property>
-                                      <property name="row">2</property>
-                                    </layout>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel">
-                                    <property name="valign">start</property>
-                                    <property name="label" translatable="yes">Better player icon and name recognition</property>
-                                    <property name="wrap">1</property>
-                                    <property name="xalign">0</property>
-                                    <layout>
-                                      <property name="column">1</property>
-                                      <property name="row">3</property>
-                                    </layout>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel">
-                                    <property name="valign">start</property>
-                                    <property name="label" translatable="yes">New track information menu which can be opened with a mouse action</property>
-                                    <property name="wrap">1</property>
-                                    <property name="xalign">0</property>
-                                    <layout>
-                                      <property name="column">1</property>
-                                      <property name="row">4</property>
-                                    </layout>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkLabel">
-                                    <property name="valign">start</property>
-                                    <property name="label" translatable="yes">Left double click, Right double click, Scroll up, Scroll down and Mouse hover added for mouse actions.</property>
-                                    <property name="wrap">1</property>
-                                    <property name="xalign">0</property>
-                                    <layout>
-                                      <property name="column">1</property>
-                                      <property name="row">5</property>
-                                    </layout>
-                                  </object>
-                                </child>
-                                <child>
                                   <object class="GtkImage">
+                                    <property name="can-focus">1</property>
                                     <property name="halign">center</property>
                                     <property name="valign">center</property>
                                     <property name="pixel-size">16</property>
@@ -279,6 +225,7 @@ ex. track name, artist</property>
                                 </child>
                                 <child>
                                   <object class="GtkImage">
+                                    <property name="can-focus">1</property>
                                     <property name="halign">center</property>
                                     <property name="valign">start</property>
                                     <property name="pixel-size">16</property>
@@ -290,19 +237,37 @@ ex. track name, artist</property>
                                   </object>
                                 </child>
                                 <child>
-                                  <object class="GtkImage">
-                                    <property name="halign">center</property>
-                                    <property name="valign">start</property>
-                                    <property name="pixel-size">16</property>
-                                    <property name="icon-name">pan-end</property>
+                                  <object class="GtkLabel">
+                                    <property name="can-focus">1</property>
+                                    <property name="halign">start</property>
+                                    <property name="valign">center</property>
+                                    <property name="label" translatable="yes">What&apos;s new in v18?</property>
+                                    <attributes>
+                                      <attribute name="weight" value="bold"></attribute>
+                                      <attribute name="scale" value="1.25"></attribute>
+                                    </attributes>
                                     <layout>
-                                      <property name="column">0</property>
-                                      <property name="row">2</property>
+                                      <property name="column">1</property>
+                                      <property name="row">0</property>
+                                    </layout>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="can-focus">1</property>
+                                    <property name="valign">start</property>
+                                    <property name="label" translatable="yes">Support for GNOME 41 and GNOME 3.36</property>
+                                    <property name="wrap">1</property>
+                                    <property name="xalign">0</property>
+                                    <layout>
+                                      <property name="column">1</property>
+                                      <property name="row">3</property>
                                     </layout>
                                   </object>
                                 </child>
                                 <child>
                                   <object class="GtkImage">
+                                    <property name="can-focus">1</property>
                                     <property name="halign">center</property>
                                     <property name="valign">start</property>
                                     <property name="pixel-size">16</property>
@@ -314,53 +279,30 @@ ex. track name, artist</property>
                                   </object>
                                 </child>
                                 <child>
-                                  <object class="GtkImage">
-                                    <property name="halign">center</property>
-                                    <property name="valign">start</property>
-                                    <property name="pixel-size">16</property>
-                                    <property name="icon-name">pan-end</property>
-                                    <layout>
-                                      <property name="column">0</property>
-                                      <property name="row">4</property>
-                                    </layout>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkImage">
-                                    <property name="halign">center</property>
-                                    <property name="valign">start</property>
-                                    <property name="pixel-size">16</property>
-                                    <property name="icon-name">pan-end</property>
-                                    <layout>
-                                      <property name="column">0</property>
-                                      <property name="row">5</property>
-                                    </layout>
-                                  </object>
-                                </child>
-                                <child>
-                                  <object class="GtkImage">
-                                    <property name="halign">center</property>
-                                    <property name="valign">start</property>
-                                    <property name="pixel-size">16</property>
-                                    <property name="icon-name">pan-end</property>
-                                    <layout>
-                                      <property name="column">0</property>
-                                      <property name="row">6</property>
-                                    </layout>
-                                  </object>
-                                </child>
-                                <child>
                                   <object class="GtkLabel">
+                                    <property name="height-request">0</property>
+                                    <property name="can-focus">1</property>
                                     <property name="halign">start</property>
-                                    <property name="valign">center</property>
-                                    <property name="label" translatable="yes">What&apos;s new in v17?</property>
-                                    <attributes>
-                                      <attribute name="weight" value="bold"></attribute>
-                                      <attribute name="scale" value="1.25"></attribute>
-                                    </attributes>
+                                    <property name="valign">start</property>
+                                    <property name="label" translatable="yes">You can manually hide players now</property>
+                                    <property name="wrap">1</property>
+                                    <property name="xalign">0</property>
                                     <layout>
                                       <property name="column">1</property>
-                                      <property name="row">0</property>
+                                      <property name="row">2</property>
+                                    </layout>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkImage">
+                                    <property name="can-focus">1</property>
+                                    <property name="halign">center</property>
+                                    <property name="valign">start</property>
+                                    <property name="pixel-size">16</property>
+                                    <property name="icon-name">pan-end</property>
+                                    <layout>
+                                      <property name="column">0</property>
+                                      <property name="row">2</property>
                                     </layout>
                                   </object>
                                 </child>
@@ -368,6 +310,7 @@ ex. track name, artist</property>
                             </child>
                             <child type="label">
                               <object class="GtkLabel">
+                                <property name="can-focus">1</property>
                                 <property name="margin-start">5</property>
                                 <property name="margin-start">5</property>
                                 <property name="margin-top">5</property>
@@ -383,7 +326,27 @@ ex. track name, artist</property>
                         </child>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">3</property>
+                          <property name="row">4</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="can-focus">1</property>
+                        <property name="halign">start</property>
+                        <property name="label" translatable="yes">Hide the default media notification</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSwitch" id="hide-media-notification">
+                        <property name="halign">end</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">1</property>
                         </layout>
                       </object>
                     </child>
@@ -395,6 +358,7 @@ ex. track name, artist</property>
         </property>
         <property name="tab">
           <object class="GtkLabel">
+            <property name="can-focus">1</property>
             <property name="label" translatable="yes">General</property>
           </object>
         </property>
@@ -405,11 +369,12 @@ ex. track name, artist</property>
         <property name="position">1</property>
         <property name="child">
           <object class="GtkScrolledWindow">
-            <property name="focusable">1</property>
             <property name="child">
               <object class="GtkViewport">
+                <property name="can-focus">1</property>
                 <property name="child">
                   <object class="GtkGrid">
+                    <property name="can-focus">1</property>
                     <property name="margin-start">15</property>
                     <property name="margin-end">15</property>
                     <property name="margin-start">15</property>
@@ -420,6 +385,7 @@ ex. track name, artist</property>
                     <property name="column-homogeneous">1</property>
                     <child>
                       <object class="GtkLabel">
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Colored player icon</property>
                         <layout>
@@ -430,7 +396,6 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkSwitch" id="colored-player-icon">
-                        <property name="focusable">1</property>
                         <property name="halign">end</property>
                         <layout>
                           <property name="column">0</property>
@@ -464,6 +429,7 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkComboBoxText" id="sepchars-preset">
+                        <property name="can-focus">1</property>
                         <property name="halign">end</property>
                         <signal name="changed" handler="on_seperator_preset_changed" swapped="no"/>
                         <layout>
@@ -474,6 +440,7 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkLabel">
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="margin-top">8</property>
                         <property name="margin-bottom">8</property>
@@ -489,7 +456,6 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkEntry" id="sepchars-custom">
-                        <property name="focusable">1</property>
                         <property name="halign">end</property>
                         <property name="placeholder-text" translatable="yes">&lt;...&gt;</property>
                         <signal name="changed" handler="on_seperator_custom_changed" swapped="no"/>
@@ -501,6 +467,7 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkGrid">
+                        <property name="can-focus">1</property>
                         <property name="margin-start">10</property>
                         <property name="margin-end">10</property>
                         <property name="margin-start">10</property>
@@ -509,7 +476,6 @@ ex. track name, artist</property>
                         <property name="column-homogeneous">1</property>
                         <child>
                           <object class="GtkSwitch" id="show-text">
-                            <property name="focusable">1</property>
                             <property name="halign">end</property>
                             <layout>
                               <property name="column">0</property>
@@ -519,6 +485,7 @@ ex. track name, artist</property>
                         </child>
                         <child>
                           <object class="GtkLabel">
+                            <property name="can-focus">1</property>
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Title/Track name</property>
                             <layout>
@@ -529,7 +496,6 @@ ex. track name, artist</property>
                         </child>
                         <child>
                           <object class="GtkSwitch" id="show-player-icon">
-                            <property name="focusable">1</property>
                             <property name="halign">end</property>
                             <layout>
                               <property name="column">0</property>
@@ -539,7 +505,6 @@ ex. track name, artist</property>
                         </child>
                         <child>
                           <object class="GtkSwitch" id="show-seperators">
-                            <property name="focusable">1</property>
                             <property name="halign">end</property>
                             <layout>
                               <property name="column">0</property>
@@ -549,6 +514,7 @@ ex. track name, artist</property>
                         </child>
                         <child>
                           <object class="GtkLabel">
+                            <property name="can-focus">1</property>
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Seperators</property>
                             <layout>
@@ -559,7 +525,6 @@ ex. track name, artist</property>
                         </child>
                         <child>
                           <object class="GtkSwitch" id="show-control-icons">
-                            <property name="focusable">1</property>
                             <property name="halign">end</property>
                             <layout>
                               <property name="column">0</property>
@@ -569,6 +534,7 @@ ex. track name, artist</property>
                         </child>
                         <child>
                           <object class="GtkLabel">
+                            <property name="can-focus">1</property>
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Player icon</property>
                             <layout>
@@ -579,6 +545,7 @@ ex. track name, artist</property>
                         </child>
                         <child>
                           <object class="GtkLabel">
+                            <property name="can-focus">1</property>
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Player controls</property>
                             <layout>
@@ -589,6 +556,7 @@ ex. track name, artist</property>
                         </child>
                         <child>
                           <object class="GtkLabel">
+                            <property name="can-focus">1</property>
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">Sources menu</property>
                             <layout>
@@ -599,7 +567,6 @@ ex. track name, artist</property>
                         </child>
                         <child>
                           <object class="GtkSwitch" id="show-sources-menu">
-                            <property name="focusable">1</property>
                             <property name="halign">end</property>
                             <layout>
                               <property name="column">0</property>
@@ -609,6 +576,7 @@ ex. track name, artist</property>
                         </child>
                         <child>
                           <object class="GtkGrid">
+                            <property name="can-focus">1</property>
                             <property name="margin-start">15</property>
                             <property name="margin-end">15</property>
                             <property name="margin-start">15</property>
@@ -617,6 +585,7 @@ ex. track name, artist</property>
                             <property name="column-homogeneous">1</property>
                             <child>
                               <object class="GtkLabel">
+                                <property name="can-focus">1</property>
                                 <property name="halign">start</property>
                                 <property name="label" translatable="yes">Play/pause button</property>
                                 <layout>
@@ -627,7 +596,6 @@ ex. track name, artist</property>
                             </child>
                             <child>
                               <object class="GtkSwitch" id="show-playpause-icon">
-                                <property name="focusable">1</property>
                                 <property name="halign">end</property>
                                 <layout>
                                   <property name="column">0</property>
@@ -637,6 +605,7 @@ ex. track name, artist</property>
                             </child>
                             <child>
                               <object class="GtkLabel">
+                                <property name="can-focus">1</property>
                                 <property name="halign">start</property>
                                 <property name="label" translatable="yes">Previous track button</property>
                                 <layout>
@@ -647,6 +616,7 @@ ex. track name, artist</property>
                             </child>
                             <child>
                               <object class="GtkLabel">
+                                <property name="can-focus">1</property>
                                 <property name="halign">start</property>
                                 <property name="label" translatable="yes">Next track button</property>
                                 <layout>
@@ -657,7 +627,6 @@ ex. track name, artist</property>
                             </child>
                             <child>
                               <object class="GtkSwitch" id="show-prev-icon">
-                                <property name="focusable">1</property>
                                 <property name="halign">end</property>
                                 <layout>
                                   <property name="column">0</property>
@@ -667,7 +636,6 @@ ex. track name, artist</property>
                             </child>
                             <child>
                               <object class="GtkSwitch" id="show-next-icon">
-                                <property name="focusable">1</property>
                                 <property name="halign">end</property>
                                 <layout>
                                   <property name="column">0</property>
@@ -689,6 +657,7 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkLabel">
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">how/hide elements</property>
                         <attributes>
@@ -702,6 +671,7 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkSeparator">
+                        <property name="can-focus">1</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="row">2</property>
@@ -710,6 +680,7 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkSeparator">
+                        <property name="can-focus">1</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="row">4</property>
@@ -724,6 +695,7 @@ ex. track name, artist</property>
         </property>
         <property name="tab">
           <object class="GtkLabel">
+            <property name="can-focus">1</property>
             <property name="label" translatable="yes">Visibility</property>
           </object>
         </property>
@@ -734,11 +706,12 @@ ex. track name, artist</property>
         <property name="position">2</property>
         <property name="child">
           <object class="GtkScrolledWindow">
-            <property name="focusable">1</property>
             <property name="child">
               <object class="GtkViewport">
+                <property name="can-focus">1</property>
                 <property name="child">
                   <object class="GtkGrid">
+                    <property name="can-focus">1</property>
                     <property name="margin-start">15</property>
                     <property name="margin-end">15</property>
                     <property name="margin-start">15</property>
@@ -749,6 +722,7 @@ ex. track name, artist</property>
                     <property name="column-homogeneous">1</property>
                     <child>
                       <object class="GtkLabel">
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Extension position</property>
                         <layout>
@@ -759,6 +733,7 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkLabel">
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Extension index</property>
                         <layout>
@@ -769,7 +744,6 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkSpinButton" id="extension-index">
-                        <property name="focusable">1</property>
                         <property name="halign">end</property>
                         <property name="text" translatable="yes">0</property>
                         <property name="adjustment">extension_index</property>
@@ -781,6 +755,7 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkLabel">
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Element order</property>
                         <attributes>
@@ -794,6 +769,7 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkComboBoxText" id="extension-position">
+                        <property name="can-focus">1</property>
                         <property name="halign">end</property>
                         <signal name="changed" handler="on_extension_position_changed" swapped="no"/>
                         <layout>
@@ -804,6 +780,7 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkGrid" id="element-order">
+                        <property name="can-focus">1</property>
                         <property name="row-spacing">3</property>
                         <property name="column-homogeneous">1</property>
                         <child>
@@ -829,6 +806,7 @@ ex. track name, artist</property>
         </property>
         <property name="tab">
           <object class="GtkLabel">
+            <property name="can-focus">1</property>
             <property name="label" translatable="yes">Position</property>
           </object>
         </property>
@@ -839,11 +817,12 @@ ex. track name, artist</property>
         <property name="position">3</property>
         <property name="child">
           <object class="GtkScrolledWindow">
-            <property name="focusable">1</property>
             <property name="child">
               <object class="GtkViewport">
+                <property name="can-focus">1</property>
                 <property name="child">
                   <object class="GtkGrid">
+                    <property name="can-focus">1</property>
                     <property name="margin-start">15</property>
                     <property name="margin-end">15</property>
                     <property name="margin-start">15</property>
@@ -854,6 +833,7 @@ ex. track name, artist</property>
                     <property name="column-homogeneous">1</property>
                     <child>
                       <object class="GtkLabel">
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Mouse actions</property>
                         <attributes>
@@ -867,6 +847,7 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkLabel">
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="valign">center</property>
                         <property name="label" translatable="yes">Cache images</property>
@@ -881,6 +862,7 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkLabel">
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Media Controls caches album art so they don&apos;t need to be redownloaded everytime. You can clear your cache here.</property>
                         <property name="wrap">1</property>
@@ -893,11 +875,11 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkGrid">
+                        <property name="can-focus">1</property>
                         <property name="column-spacing">10</property>
                         <child>
                           <object class="GtkButton">
                             <property name="label" translatable="yes">Clear cache</property>
-                            <property name="focusable">1</property>
                             <property name="receives-default">1</property>
                             <property name="halign">start</property>
                             <signal name="clicked" handler="on_clear_cache_clicked" swapped="no"/>
@@ -909,6 +891,7 @@ ex. track name, artist</property>
                         </child>
                         <child>
                           <object class="GtkLabel" id="cache-size">
+                            <property name="can-focus">1</property>
                             <property name="halign">start</property>
                             <property name="label" translatable="yes">0 MB</property>
                             <layout>
@@ -919,6 +902,7 @@ ex. track name, artist</property>
                         </child>
                         <child>
                           <object class="GtkSpinner" id="clear-cache-spinner">
+                            <property name="can-focus">1</property>
                             <layout>
                               <property name="column">2</property>
                               <property name="row">0</property>
@@ -933,6 +917,7 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkGrid" id="mouse-actions-grid">
+                        <property name="can-focus">1</property>
                         <property name="row-spacing">5</property>
                         <property name="column-homogeneous">1</property>
                         <child>
@@ -952,7 +937,6 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkSwitch" id="cache-images">
-                        <property name="focusable">1</property>
                         <property name="halign">end</property>
                         <layout>
                           <property name="column">0</property>
@@ -962,6 +946,7 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkLabel">
+                        <property name="can-focus">1</property>
                         <property name="halign">start</property>
                         <property name="label" translatable="yes">Blacklist players</property>
                         <attributes>
@@ -975,6 +960,7 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkListBox" id="backlist-listbox">
+                        <property name="can-focus">1</property>
                         <layout>
                           <property name="column">0</property>
                           <property name="row">4</property>
@@ -983,7 +969,6 @@ ex. track name, artist</property>
                     </child>
                     <child>
                       <object class="GtkEntry" id="backlist-entry">
-                        <property name="focusable">1</property>
                         <property name="secondary-icon-name">list-add</property>
                         <property name="input-hints">GTK_INPUT_HINT_LOWERCASE | GTK_INPUT_HINT_NONE</property>
                         <signal name="activate" handler="on_backlist_entry_changed" swapped="no"/>
@@ -1001,6 +986,7 @@ ex. track name, artist</property>
         </property>
         <property name="tab">
           <object class="GtkLabel">
+            <property name="can-focus">1</property>
             <property name="label" translatable="yes">Other</property>
           </object>
         </property>

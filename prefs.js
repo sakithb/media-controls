@@ -100,7 +100,9 @@ if (shellVersion >= 40) {
         class MediaControlsBuilderScope extends GObject.Object {
             vfunc_create_closure(builder, handlerName, flags, connectObject) {
                 if (typeof signalHandler[handlerName] !== "undefined") {
-                    return signalHandler[handlerName].bind(connectObject || this);
+                    return signalHandler[handlerName].bind(
+                        connectObject || this
+                    );
                 }
             }
         }
@@ -135,7 +137,10 @@ const signalHandler = {
         if (builder.get_object("custom-radio-btn").get_active()) {
             let customValues = widget.get_text().split("...");
             if (customValues[0] && customValues[1]) {
-                settings.set_strv("seperator-chars", [customValues[0], customValues[1]]);
+                settings.set_strv("seperator-chars", [
+                    customValues[0],
+                    customValues[1],
+                ]);
             }
         }
     },
@@ -151,7 +156,10 @@ const signalHandler = {
     //     settings.set_strv("mouse-actions", currentMouseActions);
     // },
     on_extension_position_changed: (widget) => {
-        settings.set_string("extension-position", positions[widget.get_active()]);
+        settings.set_string(
+            "extension-position",
+            positions[widget.get_active()]
+        );
     },
 
     on_clear_cache_clicked: () => {
@@ -170,9 +178,11 @@ const signalHandler = {
     on_track_label_changed: () => {
         let currentTrackLabel = settings.get_strv("track-label");
         let trackLabelArray = [
-            trackLabelOptKeys[trackLabelStart.get_active()] || currentTrackLabel[0],
+            trackLabelOptKeys[trackLabelStart.get_active()] ||
+                currentTrackLabel[0],
             trackLabelSep.get_text() ?? currentTrackLabel[1],
-            trackLabelOptKeys[trackLabelEnd.get_active()] || currentTrackLabel[2],
+            trackLabelOptKeys[trackLabelEnd.get_active()] ||
+                currentTrackLabel[2],
         ];
 
         settings.set_strv("track-label", trackLabelArray);
@@ -195,7 +205,12 @@ const bindSettings = () => {
         Gio.SettingsBindFlags.DEFAULT
     );
     // settings.bind("update-delay", builder.get_object("update-delay"), "value", Gio.SettingsBindFlags.DEFAULT);
-    settings.bind("show-text", builder.get_object("show-text"), "active", Gio.SettingsBindFlags.DEFAULT);
+    settings.bind(
+        "show-text",
+        builder.get_object("show-text"),
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
     settings.bind(
         "show-player-icon",
         builder.get_object("show-player-icon"),
@@ -287,7 +302,9 @@ const initWidgets = () => {
     positions.forEach((position) => {
         widgetExtensionPos.append(position, position);
     });
-    widgetExtensionPos.set_active(positions.indexOf(settings.get_string("extension-position")));
+    widgetExtensionPos.set_active(
+        positions.indexOf(settings.get_string("extension-position"))
+    );
 
     elementOrder = settings.get_strv("element-order");
 
@@ -313,7 +330,9 @@ const initWidgets = () => {
                     let _index = newElementOrder.indexOf(val);
                     if (elementOrder[_index] === val) {
                         newElementOrder[_index] = elementOrder[index];
-                        elementOrderWidgets[_index].set_active(elementIds.indexOf(elementOrder[index]));
+                        elementOrderWidgets[_index].set_active(
+                            elementIds.indexOf(elementOrder[index])
+                        );
                     } else {
                         val = elementOrder[_index];
                         _widget.set_active(elementIds.indexOf(val));
@@ -372,13 +391,16 @@ const initWidgets = () => {
             widgetCombobox.append(action, mouseActionNamesMap[action]);
         });
 
-        widgetCombobox.set_active(mouseActionNameIds.indexOf(mouseActions[index]));
+        widgetCombobox.set_active(
+            mouseActionNameIds.indexOf(mouseActions[index])
+        );
 
         widgetCombobox.index = index;
 
         widgetCombobox.connect("changed", (widget) => {
             let currentMouseActions = settings.get_strv("mouse-actions");
-            currentMouseActions[widget.index] = mouseActionNameIds[widget.get_active()];
+            currentMouseActions[widget.index] =
+                mouseActionNameIds[widget.get_active()];
             settings.set_strv("mouse-actions", currentMouseActions);
         });
 
@@ -432,7 +454,11 @@ const getCacheSize = async () => {
     // Command: du -hs [data_directory]/media-controls | awk '{NF=1}1'
     try {
         let dir = GLib.get_user_config_dir() + "/media-controls";
-        const result = await execCommunicate(["/bin/bash", "-c", `du -hs ${dir} | awk '{NF=1}1'`]);
+        const result = await execCommunicate([
+            "/bin/bash",
+            "-c",
+            `du -hs ${dir} | awk '{NF=1}1'`,
+        ]);
         return result || "0K";
     } catch (error) {
         logError(error);
