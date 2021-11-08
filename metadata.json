@@ -1,5 +1,5 @@
 {
-    "description": "Show controls for the current playing media in the panel",
+    "description": "Show controls and information of the currently playing media in the panel.\n\n    - Highly customizable\n    - Support GNOME 3.36(beta) , 3.38, 40, 41\n    - Caches album art\n    - Control every element in the extension",
     "name": "Media Controls",
     "settings-schema": "org.gnome.shell.extensions.mediacontrols",
     "shell-version": ["3.36", "3.38", "40", "41"],
