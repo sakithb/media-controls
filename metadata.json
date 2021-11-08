@@ -5,5 +5,5 @@
     "shell-version": ["3.36", "3.38", "40", "41"],
     "url": "https://github.com/cliffniff/media-controls",
     "uuid": "mediacontrols@cliffniff.github.com",
-    "version": 18
+    "version": 20
 }
