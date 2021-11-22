@@ -177,10 +177,15 @@ const signalHandler = {
     },
     on_track_label_changed: () => {
         let currentTrackLabel = settings.get_strv("track-label");
+
+        let trackLabelSepText = trackLabelSep.get_text();
+
         let trackLabelArray = [
             trackLabelOptKeys[trackLabelStart.get_active()] ||
                 currentTrackLabel[0],
-            trackLabelSep.get_text() ?? currentTrackLabel[1],
+            trackLabelSepText !== null || trackLabelSepText !== undefined
+                ? trackLabelSepText
+                : currentTrackLabel[1],
             trackLabelOptKeys[trackLabelEnd.get_active()] ||
                 currentTrackLabel[2],
         ];
