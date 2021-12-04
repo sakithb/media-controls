@@ -659,7 +659,7 @@
                       <object class="GtkLabel">
                         <property name="can-focus">1</property>
                         <property name="halign">start</property>
-                        <property name="label" translatable="yes">how/hide elements</property>
+                        <property name="label" translatable="yes">show/hide elements</property>
                         <attributes>
                           <attribute name="weight" value="bold"></attribute>
                         </attributes>
