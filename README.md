@@ -47,9 +47,9 @@ OR
 
 #### Arch Linux (AUR)
 
-`yay -S gnome-shell-extension-mediacontrols` _Stable release_
+`yay -S gnome-shell-extension-media-controls` _Stable release_
 
-`yay -S gnome-shell-extension-mediacontrols-git` _Build of the main branch_
+`yay -S gnome-shell-extension-media-controls-git` _Build of the main branch_
 
 #### Other distributions
 
