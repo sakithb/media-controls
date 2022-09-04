@@ -18,6 +18,7 @@ const urlRegexp = new RegExp(
 );
 
 let doubleClick = false;
+let clicked = false;
 
 let mouseActionTypes = {
     LEFT_CLICK: 0,
@@ -47,14 +48,12 @@ var Player = GObject.registerClass(
                         "org.mpris.MediaPlayer2.Player",
                         busName,
                         "/org/mpris/MediaPlayer2"
-                        // Gio.DBusProxyFlags.GET_INVALIDATED_PROPERTIES
                     );
 
                     this._otherProxy = createProxy(
                         "org.mpris.MediaPlayer2",
                         busName,
                         "/org/mpris/MediaPlayer2"
-                        // Gio.DBusProxyFlags.GET_INVALIDATED_PROPERTIES
                     );
 
                     [this._playerProxy, this._otherProxy] = await Promise.all([
@@ -106,10 +105,6 @@ var Player = GObject.registerClass(
             this.subContainerLabel = new St.BoxLayout({
                 style: "padding: 0px; margin: 0px;",
             });
-
-            // this.subContainerLabel.add_child(this.labelSeperatorStart);
-            // this.subContainerLabel.add_child(this.labelTitle);
-            // this.subContainerLabel.add_child(this.labelSeperatorEnd);
 
             this.containerButtonLabel = new St.Button({
                 style_class: "panel-button",
@@ -207,12 +202,7 @@ var Player = GObject.registerClass(
 
             this.containerControls = new St.BoxLayout();
 
-            // this.containerControls.add_child(this.buttonPrev);
-            // this.containerControls.add_child(this.buttonPlayPause);
-            // this.containerControls.add_child(this.buttonNext);
-
             // Sources dropdown button
-
             this.buttonMenu = new St.Button({
                 style_class: "panel-button",
                 style: "padding: 0px 3px; margin: 0px auto;",
@@ -224,12 +214,6 @@ var Player = GObject.registerClass(
             });
 
             this.dummyContainer = new St.BoxLayout();
-
-            // this.dummyContainer.add_child(this.buttonPlayer);
-            // this.dummyContainer.add_child(this.containerButtonLabel);
-            // this.dummyContainer.add_child(this.containerControls);
-            // this.dummyContainer.add_child(this.buttonMenu);
-
             this.add_style_class_name("no-vertical-spacing");
             this.add_child(this.dummyContainer);
 
@@ -743,10 +727,8 @@ var Player = GObject.registerClass(
         }
 
         _mouseActionButton(widget, event) {
-            let clickCount = event.get_click_count();
             let button = event.get_button();
-
-            if (clickCount === 1) {
+            if (!clicked) {
                 GLib.timeout_add(
                     GLib.PRIORITY_HIGH,
                     this._extension.clutterSettings.double_click_time,
@@ -763,17 +745,23 @@ var Player = GObject.registerClass(
                             }
                         }
                         doubleClick = false;
+                        clicked = false;
                         return GLib.SOURCE_REMOVE;
                     }
                 );
-            } else if (clickCount === 2) {
+            }
+            else {
                 doubleClick = true;
                 if (button === 1) {
                     this._mouseAction(mouseActionTypes.LEFT_DBL_CLICK);
                 } else if (button === 3) {
                     this._mouseAction(mouseActionTypes.RIGHT_DBL_CLICK);
                 }
+                clicked = false;
+                return;
             }
+
+            clicked = true;
         }
 
         _mouseActionScroll(widget, event) {
