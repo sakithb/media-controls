@@ -19,7 +19,7 @@ const PopupMenu = imports.ui.popupMenu;
 
 const Mpris = imports.ui.mpris;
 
-const MediaControls = GObject.registerClass(
+var MediaControls = GObject.registerClass(
     class MediaControls extends PanelMenu.Button {
         _init() {
             super._init(0.5, "Media Controls Extension");

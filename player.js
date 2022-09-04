@@ -30,7 +30,7 @@ let mouseActionTypes = {
     HOVER: 7,
 };
 
-const Player = GObject.registerClass(
+var Player = GObject.registerClass(
     class Player extends PanelMenu.Button {
         _init(busName, parent) {
             super._init(0.5, "Media Controls Track Information");
