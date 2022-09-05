@@ -1,16 +1,18 @@
-const MediaControls = imports.misc.extensionUtils.getCurrentExtension().imports.widget.MediaControls;
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+const MediaControls = Me.imports.widget.MediaControls;
 
 let extension;
 
-const init = () => {};
+function init() {};
 
-const enable = () => {
+function enable() {
     log("[MediaControls] Enabling");
     extension = new MediaControls();
     extension.enable();
 };
 
-const disable = () => {
+function disable() {
     log("[MediaControls] Disabling");
     extension.disable();
     extension = null;

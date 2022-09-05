@@ -2,7 +2,7 @@
 
 const { Gio, GLib } = imports.gi;
 
-const ifacesXml = `
+var ifacesXml = `
     <node>
         <interface name="org.mpris.MediaPlayer2.Player">
             <method name="Next" />
@@ -37,7 +37,7 @@ const ifacesXml = `
 
 const nodeInfo = Gio.DBusNodeInfo.new_for_xml(ifacesXml);
 
-const createProxy = (ifaceName, busName, objectPath, flags = Gio.DBusProxyFlags.NONE) => {
+var createProxy = (ifaceName, busName, objectPath, flags = Gio.DBusProxyFlags.NONE) => {
     return new Promise((resolve, reject) => {
         let ifaceInfo = nodeInfo.interfaces.find((iface) => iface.name == ifaceName);
         if (ifaceInfo) {

@@ -202,7 +202,7 @@ const signalHandler = {
     },
 };
 
-const bindSettings = () => {
+function bindSettings() {
     settings.bind(
         "max-widget-width",
         builder.get_object("max-widget-width"),
@@ -284,7 +284,7 @@ const bindSettings = () => {
     );
 };
 
-const initWidgets = () => {
+function initWidgets() {
     // Init presets combobox
     presetSepChars.forEach((preset) => {
         widgetPreset.append(preset, preset);
@@ -424,11 +424,11 @@ const initWidgets = () => {
     })();
 };
 
-const init = () => {
+function init() {
     settings = ExtensionUtils.getSettings();
 };
 
-const buildPrefsWidget = () => {
+function buildPrefsWidget() {
     builder = new Gtk.Builder();
     if (shellVersion < 40) {
         builder.add_from_file(Me.dir.get_path() + "/prefs3.ui");

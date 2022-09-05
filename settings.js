@@ -1,5 +1,5 @@
 const ExtensionUtils = imports.misc.extensionUtils;
-class Settings {
+var Settings = class Settings {
     constructor(parent) {
         this._settings = ExtensionUtils.getSettings();
         this._extension = parent;
