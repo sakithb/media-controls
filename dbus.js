@@ -10,13 +10,21 @@ var ifacesXml = `
             <method name="PlayPause" />
             <method name="Play" />
             <method name="Pause" />
+            <method name="Seek">
+                <arg type="x" />
+            </method>
+            <property name="Position" type="x" access="read" />
             <property name="PlaybackStatus" type="s" access="read" />
             <property name="Metadata" type="a{sv}" access="read" />
             <property name="LoopStatus" type="s" access="readwrite" />
             <property name="Shuffle" type="b" access="readwrite" />
             <property name="CanControl" type="b" access="read" />
-            </interface>
-            <interface name="org.mpris.MediaPlayer2">
+            <method name="SetPosition">
+                <arg type="o" />
+                <arg type="x" />
+            </method>
+        </interface>
+        <interface name="org.mpris.MediaPlayer2">
             <method name="Raise" />
             <method name="Quit" />
             <property name="Identity" type="s" access="read" />

@@ -171,6 +171,11 @@ var MediaControls = GObject.registerClass(
                     this.player.dummyContainer.add_child(
                         this.player.containerControls
                     );
+                    if (this.settings.showSeekBack) {
+                        this.player.containerControls.add_child(
+                            this.player.buttonSeekBack
+                        );
+                    }
                     if (this.settings.showPrevButton) {
                         this.player.containerControls.add_child(
                             this.player.buttonPrev
@@ -184,6 +189,11 @@ var MediaControls = GObject.registerClass(
                     if (this.settings.showNextButton) {
                         this.player.containerControls.add_child(
                             this.player.buttonNext
+                        );
+                    }
+                    if (this.settings.showSeekForward) {
+                        this.player.containerControls.add_child(
+                            this.player.buttonSeekForward
                         );
                     }
                 } else if (element === "menu" && this.settings.showMenu) {
@@ -223,6 +233,9 @@ var MediaControls = GObject.registerClass(
                 );
 
                 this.player.containerControls.remove_child(
+                    this.player.buttonSeekBack
+                );
+                this.player.containerControls.remove_child(
                     this.player.buttonPrev
                 );
                 this.player.containerControls.remove_child(
@@ -230,6 +243,9 @@ var MediaControls = GObject.registerClass(
                 );
                 this.player.containerControls.remove_child(
                     this.player.buttonNext
+                );
+                this.player.containerControls.remove_child(
+                    this.player.buttonSeekForward
                 );
 
                 this.player.dummyContainer.remove_child(this.player.buttonMenu);

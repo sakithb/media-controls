@@ -28,6 +28,18 @@
     <key name="show-next-icon" type="b">
       <default>true</default>
     </key>
+    <key name="seek-interval-secs" type="i">
+      <default>5</default>
+    </key>
+    <key name="prefer-using-seek" type="b">
+      <default>false</default>
+    </key>
+    <key name="show-seek-back" type="b">
+      <default>true</default>
+    </key>
+    <key name="show-seek-forward" type="b">
+      <default>true</default>
+    </key>
     <key name="show-sources-menu" type="b">
       <default>true</default>
     </key>

@@ -6,6 +6,8 @@ const metadataKeys = {
     "xesam:title": "title",
     "mpris:artUrl": "image",
     "xesam:url": "url",
+    "mpris:trackid": "trackid",
+    "mpris:length": "length"
 };
 
 var parseMetadata = (_metadata) => {

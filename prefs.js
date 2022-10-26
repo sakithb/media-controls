@@ -182,12 +182,12 @@ const signalHandler = {
 
         let trackLabelArray = [
             trackLabelOptKeys[trackLabelStart.get_active()] ||
-                currentTrackLabel[0],
+            currentTrackLabel[0],
             trackLabelSepText !== null || trackLabelSepText !== undefined
                 ? trackLabelSepText
                 : currentTrackLabel[1],
             trackLabelOptKeys[trackLabelEnd.get_active()] ||
-                currentTrackLabel[2],
+            currentTrackLabel[2],
         ];
 
         settings.set_strv("track-label", trackLabelArray);
@@ -243,6 +243,30 @@ function bindSettings() {
     settings.bind(
         "show-next-icon",
         builder.get_object("show-next-icon"),
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "seek-interval-secs",
+        builder.get_object("seek-interval-secs"),
+        "value",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "prefer-using-seek",
+        builder.get_object("prefer-using-seek"),
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "show-seek-back",
+        builder.get_object("show-seek-back"),
+        "active",
+        Gio.SettingsBindFlags.DEFAULT
+    );
+    settings.bind(
+        "show-seek-forward",
+        builder.get_object("show-seek-forward"),
         "active",
         Gio.SettingsBindFlags.DEFAULT
     );

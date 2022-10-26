@@ -18,6 +18,10 @@ var Settings = class Settings {
         );
         this.showPrevButton = this._settings.get_boolean("show-prev-icon");
         this.showNextButton = this._settings.get_boolean("show-next-icon");
+        this.seekInterval = this._settings.get_int("seek-interval-secs")
+        this.preferNativeSeek = this._settings.get_boolean("prefer-using-seek");
+        this.showSeekBack = this._settings.get_boolean("show-seek-back");
+        this.showSeekForward = this._settings.get_boolean("show-seek-forward");
         this.extensionPosition =
             this._settings.get_string("extension-position");
         this.extensionIndex = this._settings.get_int("extension-index");
@@ -115,6 +119,42 @@ var Settings = class Settings {
             () => {
                 this.showNextButton =
                     this._settings.get_boolean("show-next-icon");
+                this._extension.removeWidgets();
+                this._extension.addWidgets();
+            }
+        );
+
+        this._onSeekIntervalChanged = this._settings.connect(
+            "changed::seek-interval-secs",
+            () => {
+                this.seekInterval =
+                    this._settings.get_int("seek-interval-secs");
+            }
+        );
+
+        this._onPreferSeekChanged = this._settings.connect(
+            "changed::prefer-using-seek",
+            () => {
+                this.preferNativeSeek =
+                    this._settings.get_boolean("prefer-using-seek");
+            }
+        );
+
+        this._onShowSeekBackChanged = this._settings.connect(
+            "changed::show-seek-back",
+            () => {
+                this.showSeekBack =
+                    this._settings.get_boolean("show-seek-back");
+                this._extension.removeWidgets();
+                this._extension.addWidgets();
+            }
+        );
+
+        this._onShowSeekForwardChanged = this._settings.connect(
+            "changed::show-seek-forward",
+            () => {
+                this.showSeekForward =
+                    this._settings.get_boolean("show-seek-forward");
                 this._extension.removeWidgets();
                 this._extension.addWidgets();
             }
@@ -232,6 +272,10 @@ var Settings = class Settings {
         this._settings.disconnect(this._onShowPlayPauseButtonChanged);
         this._settings.disconnect(this._onShowNextButtonChanged);
         this._settings.disconnect(this._onShowPrevButtonChanged);
+        this._settings.disconnect(this._onSeekIntervalChanged);
+        this._settings.disconnect(this._onPreferSeekChanged);
+        this._settings.disconnect(this._onShowSeekBackChanged);
+        this._settings.disconnect(this._onShowSeekForwardChanged);
         this._settings.disconnect(this._onExtensionIndexChanged);
         this._settings.disconnect(this._onShowSourcesInInfoMenuChanged);
         this._settings.disconnect(this._onColoredPlayerIconChanged);

@@ -159,6 +159,10 @@ var Player = GObject.registerClass(
 
             // Player controls
 
+            this.iconSeekBack = new St.Icon({
+                icon_name: "media-seek-backward-symbolic",
+                style_class: "system-status-icon"
+            });
             this.iconPrev = new St.Icon({
                 icon_name: "media-skip-backward-symbolic",
                 style_class: "system-status-icon",
@@ -173,7 +177,14 @@ var Player = GObject.registerClass(
                 icon_name: "media-skip-forward-symbolic",
                 style_class: "system-status-icon",
             });
+            this.iconSeekForward = new St.Icon({
+                icon_name: "media-seek-forward-symbolic",
+                style_class: "system-status-icon"
+            });
 
+            this.buttonSeekBack = new St.Button({
+                style_class: "panel-button no-vertical-spacing",
+            });
             this.buttonPrev = new St.Button({
                 style_class: "panel-button no-vertical-spacing",
             });
@@ -182,6 +193,13 @@ var Player = GObject.registerClass(
             });
             this.buttonNext = new St.Button({
                 style_class: "panel-button no-vertical-spacing",
+            });
+            this.buttonSeekForward = new St.Button({
+                style_class: "panel-button no-vertical-spacing",
+            });
+
+            this.buttonSeekBack.connect("button-release-event", () => {
+                this._seekBack();
             });
 
             this.buttonPrev.connect("button-release-event", () => {
@@ -196,9 +214,15 @@ var Player = GObject.registerClass(
                 this._playerProxy.NextRemote();
             });
 
+            this.buttonSeekForward.connect("button-release-event", () => {
+                this._seekForward();
+            });
+
+            this.buttonSeekBack.set_child(this.iconSeekBack);
             this.buttonNext.set_child(this.iconNext);
             this.buttonPlayPause.set_child(this.iconPlayPause);
             this.buttonPrev.set_child(this.iconPrev);
+            this.buttonSeekForward.set_child(this.iconSeekForward);
 
             this.containerControls = new St.BoxLayout();
 
@@ -223,6 +247,70 @@ var Player = GObject.registerClass(
             this._updateShuffleIcon();
             this.updateWidgetWidths();
             this.updateIconEffects();
+        }
+
+        _getPosition() {
+            try {
+                const position = this._playerProxy.get_connection().call_sync(
+                    this.busName,
+                    "/org/mpris/MediaPlayer2",
+                    "org.freedesktop.DBus.Properties",
+                    "Get",
+                    new GLib.Variant("(ss)", ["org.mpris.MediaPlayer2.Player", "Position"]),
+                    null,
+                    Gio.DBusCallFlags.NONE,
+                    -1,
+                    null
+                );
+
+                if (position instanceof GLib.Variant) {
+                    return position.recursiveUnpack()[0];
+                } else {
+                    return undefined;
+                }
+            } catch (error) {
+                return undefined;
+            }
+        }
+
+        _seekBack() {
+            const offset = this._extension.settings.seekInterval * 1_000_000;
+
+            if (this._extension.settings.preferNativeSeek) {
+                this._playerProxy.SeekRemote(-offset);
+            } else {
+                const position = this._getPosition();
+                const metadata = parseMetadata(this._playerProxy.Metadata);
+
+                if (
+                    position !== undefined &&
+                    metadata !== undefined &&
+                    metadata.trackid !== undefined
+                ) {
+                    const newPosition = Math.max(position - offset, 0);
+                    this._playerProxy.SetPositionRemote(metadata.trackid, newPosition);
+                }
+            }
+        }
+
+        _seekForward() {
+            const offset = this._extension.settings.seekInterval * 1_000_000;
+
+            if (this._extension.settings.preferNativeSeek) {
+                this._playerProxy.SeekRemote(offset);
+            } else {
+                const position = this._getPosition();
+                const metadata = parseMetadata(this._playerProxy.Metadata);
+
+                if (
+                    position !== undefined &&
+                    metadata !== undefined &&
+                    metadata.trackid !== undefined
+                ) {
+                    const newPosition = Math.min(position + offset, metadata.length);
+                    this._playerProxy.SetPositionRemote(metadata.trackid, newPosition);
+                }
+            }
         }
 
         _playerPropsChanged(proxy, changed, invalidated) {
@@ -563,9 +651,41 @@ var Player = GObject.registerClass(
                     })
                 );
 
+                const buttonSeekBack = new St.Button({
+                    style_class: "popup-menu-button",
+                });
+
+                buttonSeekBack.connect("button-release-event", () => {
+                    this._seekBack();
+                });
+
+                buttonSeekBack.set_child(
+                    new St.Icon({
+                        icon_name: "media-seek-backward-symbolic",
+                        style_class: "popup-menu-icon"
+                    })
+                );
+
+                const buttonSeekForward = new St.Button({
+                    style_class: "popup-menu-button",
+                });
+
+                buttonSeekForward.connect("button-release-event", () => {
+                    this._seekForward();
+                });
+
+                buttonSeekForward.set_child(
+                    new St.Icon({
+                        icon_name: "media-seek-forward-symbolic",
+                        style_class: "popup-menu-icon"
+                    })
+                );
+
+                mainControlButtons.add(buttonSeekBack);
                 mainControlButtons.add(buttonPrev);
                 mainControlButtons.add(buttonPlayPause);
                 mainControlButtons.add(buttonNext);
+                mainControlButtons.add(buttonSeekForward)
 
                 this.infoShuffleIcon = new St.Icon({
                     icon_name: "media-playlist-shuffle-symbolic",

@@ -11,6 +11,11 @@
     <property name="step-increment">1</property>
     <property name="page-increment">10</property>
   </object>
+  <object class="GtkAdjustment" id="seek_interval_secs">
+    <property name="upper">30</property>
+    <property name="lower">5</property>
+    <property name="step-increment">1</property>
+  </object>
   <object class="GtkNotebook" id="main_prefs">
     <child>
       <object class="GtkNotebookPage">
@@ -58,13 +63,57 @@
                       <object class="GtkLabel">
                         <property name="can-focus">1</property>
                         <property name="halign">start</property>
+                        <property name="label" translatable="yes">Seek time (seconds)</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSpinButton" id="seek-interval-secs">
+                        <property name="halign">end</property>
+                        <property name="text" translatable="yes">0</property>
+                        <property name="adjustment">seek_interval_secs</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="can-focus">1</property>
+                        <property name="halign">start</property>
+                        <property name="label" translatable="yes">&lt;b&gt;Use native seek&lt;/b&gt;
+&lt;span size=&quot;small&quot;&gt;&lt;i&gt;Some players do not support seek.&lt;/i&gt;&lt;/span&gt;</property>
+                        <property name="use-markup">1</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSwitch" id="prefer-using-seek">
+                        <property name="halign">end</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">2</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="can-focus">1</property>
+                        <property name="halign">start</property>
                         <property name="label" translatable="yes">Track label</property>
                         <attributes>
                           <attribute name="weight" value="bold"></attribute>
                         </attributes>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">2</property>
+                          <property name="row">4</property>
                         </layout>
                       </object>
                     </child>
@@ -106,7 +155,7 @@
                         </child>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">3</property>
+                          <property name="row">5</property>
                         </layout>
                       </object>
                     </child>
@@ -165,7 +214,7 @@
                         </child>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">5</property>
+                          <property name="row">7</property>
                         </layout>
                       </object>
                     </child>
@@ -326,7 +375,7 @@
                         </child>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">4</property>
+                          <property name="row">6</property>
                         </layout>
                       </object>
                     </child>
@@ -337,7 +386,7 @@
                         <property name="label" translatable="yes">Hide the default media notification</property>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">1</property>
+                          <property name="row">3</property>
                         </layout>
                       </object>
                     </child>
@@ -346,7 +395,7 @@
                         <property name="halign">end</property>
                         <layout>
                           <property name="column">0</property>
-                          <property name="row">1</property>
+                          <property name="row">3</property>
                         </layout>
                       </object>
                     </child>
@@ -640,6 +689,46 @@
                                 <layout>
                                   <property name="column">0</property>
                                   <property name="row">2</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="can-focus">1</property>
+                                <property name="halign">start</property>
+                                <property name="label" translatable="yes">Seek back button</property>
+                                <layout>
+                                  <property name="column">0</property>
+                                  <property name="row">3</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkSwitch" id="show-seek-back">
+                                <property name="halign">end</property>
+                                <layout>
+                                  <property name="column">0</property>
+                                  <property name="row">3</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="can-focus">1</property>
+                                <property name="halign">start</property>
+                                <property name="label" translatable="yes">Seek forward button</property>
+                                <layout>
+                                  <property name="column">0</property>
+                                  <property name="row">4</property>
+                                </layout>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkSwitch" id="show-seek-forward">
+                                <property name="halign">end</property>
+                                <layout>
+                                  <property name="column">0</property>
+                                  <property name="row">4</property>
                                 </layout>
                               </object>
                             </child>
