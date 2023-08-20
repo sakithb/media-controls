@@ -11,15 +11,17 @@ install() {
 }
 
 build() {
-    git archive -o Release.zip HEAD;
-    zip -d Release.zip README.md;
-    zip -d Release.zip images/*;
-    zip -d Release.zip images/;
-    zip -d Release.zip .gitignore;
-    zip -d Release.zip build.sh;
-    zip -d Release.zip install.sh;
-    zip -d Release.zip .github/*;
-    zip -d Release.zip .github/;
+    #git archive -o Release.zip HEAD;
+    gnome-extensions pack --podir=po/ --extra-source=dbus.js --extra-source=player.js --extra-source=settings.js --extra-source=utils.js --extra-source=widget.js --extra-source=prefs3.ui --extra-source=prefs4.ui --extra-source=LICENSE
+    mv mediacontrols@cliffniff.github.com.shell-extension.zip Release.zip
+    #zip -d Release.zip README.md;
+    #zip -d Release.zip images/*;
+    #zip -d Release.zip images/;
+    #zip -d Release.zip .gitignore;
+    #zip -d Release.zip build.sh;
+    #zip -d Release.zip install.sh;
+    #zip -d Release.zip .github/*;
+    #zip -d Release.zip .github/;
     VERSION=$(cat metadata.json | grep '\"version\"' | sed 's/[^0-9]*//g');
 
     if [[ `git status --porcelain` ]]; then
