@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-22 19:05+0200\n"
+"POT-Creation-Date: 2023-08-24 18:28+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,300 +25,210 @@ msgstr ""
 msgid "[MediaControls] Disabling"
 msgstr ""
 
-#: prefs.js:19
-msgid "left"
-msgstr ""
-
-#: prefs.js:19
-msgid "center"
-msgstr ""
-
-#: prefs.js:19
-msgid "right"
-msgstr ""
-
-#: prefs.js:22 prefs.js:67
-msgid "None"
-msgstr ""
-
-#: prefs.js:23
-msgid "Toggle play/pause"
-msgstr ""
-
-#: prefs.js:24
-msgid "Play"
-msgstr ""
-
-#: prefs.js:25
-msgid "Pause"
-msgstr ""
-
-#: prefs.js:26
-msgid "Next"
-msgstr ""
-
-#: prefs.js:27
-msgid "Previous"
-msgstr ""
-
-#: prefs.js:28
-msgid "Cycle loop options"
-msgstr ""
-
-#: prefs.js:29
-msgid "Toggle shuffle"
-msgstr ""
-
-#: prefs.js:30
-msgid "Open sources menu"
-msgstr ""
-
-#: prefs.js:31
-msgid "Open track information menu"
-msgstr ""
-
-#: prefs.js:32
-msgid "Raise player"
-msgstr ""
-
-#: prefs.js:33
-msgid "Quit player"
-msgstr ""
-
-#: prefs.js:53 prefs4.ui:588
-msgid "Player icon"
-msgstr ""
-
-#: prefs.js:54
-msgid "Track title"
-msgstr ""
-
-#: prefs.js:55
-msgid "Control icons"
-msgstr ""
-
-#: prefs.js:56 prefs4.ui:610
-msgid "Sources menu"
-msgstr ""
-
-#: prefs.js:61
+#: prefs.js:25 prefs.js:147
 msgid "Track"
 msgstr ""
 
-#: prefs.js:62
+#: prefs.js:26 prefs.js:148
 msgid "Artist"
 msgstr ""
 
-#: prefs.js:63
+#: prefs.js:27 prefs.js:149
 msgid "URL"
 msgstr ""
 
-#: prefs.js:64
+#: prefs.js:28 prefs.js:150
 msgid "Player name"
 msgstr ""
 
-#: prefs.js:65
+#: prefs.js:29 prefs.js:151
 msgid "Playback status"
 msgstr ""
 
-#: prefs.js:66
+#: prefs.js:30 prefs.js:152
 msgid "Filename"
 msgstr ""
 
-#: prefs.js:72
+#: prefs.js:31 prefs.js:153 prefs.js:193
+msgid "None"
+msgstr ""
+
+#: prefs.js:91
+msgid "left"
+msgstr ""
+
+#: prefs.js:91
+msgid "center"
+msgstr ""
+
+#: prefs.js:91
+msgid "right"
+msgstr ""
+
+#: prefs.js:102
+msgid "Player icon"
+msgstr ""
+
+#: prefs.js:103
+msgid "Track title"
+msgstr ""
+
+#: prefs.js:104
+msgid "Control icons"
+msgstr ""
+
+#: prefs.js:105
+msgid "Sources menu"
+msgstr ""
+
+#: prefs.js:170
 msgid "Left click"
 msgstr ""
 
-#: prefs.js:73
+#: prefs.js:171
 msgid "Right click"
 msgstr ""
 
-#: prefs.js:74
+#: prefs.js:172
 msgid "Middle click"
 msgstr ""
 
-#: prefs.js:75
+#: prefs.js:173
 msgid "Left double click"
 msgstr ""
 
-#: prefs.js:76
+#: prefs.js:174
 msgid "Right double click"
 msgstr ""
 
-#: prefs.js:77
+#: prefs.js:175
 msgid "Scroll up"
 msgstr ""
 
-#: prefs.js:78
+#: prefs.js:176
 msgid "Scroll down"
 msgstr ""
 
-#: prefs.js:79
+#: prefs.js:177
 msgid "Hover <i><span size='smaller'>(unstable)</span></i>"
 msgstr ""
 
-#: prefs4.ui:42
-msgid ""
-"<b>Max widget width</b>\n"
-"<span size=\"small\"><i>0 to disable</i></span>"
+#: prefs.js:194
+msgid "Toggle play/pause"
 msgstr ""
 
-#: prefs4.ui:54 prefs4.ui:76 prefs4.ui:837
-msgid "0"
+#: prefs.js:195
+msgid "Play"
 msgstr ""
 
-#: prefs4.ui:66
-msgid "Seek time (seconds)"
+#: prefs.js:196
+msgid "Pause"
 msgstr ""
 
-#: prefs4.ui:88
-msgid ""
-"<b>Use native seek</b>\n"
-"<span size=\"small\"><i>Some players do not support seek.</i></span>"
+#: prefs.js:197
+msgid "Next"
 msgstr ""
 
-#: prefs4.ui:110
-msgid "Track label"
+#: prefs.js:198
+msgid "Previous"
 msgstr ""
 
-#: prefs4.ui:184
-msgid "Report a issue"
+#: prefs.js:199
+msgid "Cycle loop options"
 msgstr ""
 
-#: prefs4.ui:208
-msgid "Extension home page"
+#: prefs.js:200
+msgid "Toggle shuffle"
 msgstr ""
 
-#: prefs4.ui:253
-msgid "You can now hide the media notification in the notification menu"
+#: prefs.js:201
+msgid "Open sources menu"
 msgstr ""
 
-#: prefs4.ui:293
-msgid "What's new in v20?"
+#: prefs.js:202
+msgid "Open track information menu"
 msgstr ""
 
-#: prefs4.ui:308
-msgid "Support for GNOME 41 and GNOME 3.36"
+#: prefs.js:203
+msgid "Raise player"
 msgstr ""
 
-#: prefs4.ui:336
-msgid "You can manually hide players now"
+#: prefs.js:204
+msgid "Quit player"
 msgstr ""
 
-#: prefs4.ui:367
-msgid "Release Notes"
-msgstr ""
-
-#: prefs4.ui:386
-msgid "Hide the default media notification"
-msgstr ""
-
-#: prefs4.ui:411
+#: prefs.js:346
 msgid "General"
 msgstr ""
 
-#: prefs4.ui:439
-msgid "Colored player icon"
+#: prefs.js:352
+msgid "Settings"
 msgstr ""
 
-#: prefs4.ui:457
-msgid "Preset"
+#: prefs.js:357
+msgid "Max widget width"
 msgstr ""
 
-#: prefs4.ui:469
-msgid "Custom"
+#: prefs.js:358
+msgid "0 to disable"
 msgstr ""
 
-#: prefs4.ui:496
-msgid "Seperator characters"
+#: prefs.js:376
+msgid "Seek time (seconds)"
 msgstr ""
 
-#: prefs4.ui:509
-msgid "<...>"
+#: prefs.js:394
+msgid "Use native seek"
 msgstr ""
 
-#: prefs4.ui:539
-msgid "Title/Track name"
+#: prefs.js:395
+msgid "Some players do not support seek."
 msgstr ""
 
-#: prefs4.ui:568
-msgid "Seperators"
+#: prefs.js:412
+msgid "Hide the default media notification"
 msgstr ""
 
-#: prefs4.ui:599
-msgid "Player controls"
+#: prefs.js:429
+msgid "Track label"
 msgstr ""
 
-#: prefs4.ui:639
-msgid "Play/pause button"
+#: prefs.js:452
+msgid "Github"
 msgstr ""
 
-#: prefs4.ui:659
-msgid "Previous track button"
+#: prefs.js:457
+msgid "Release Notes"
 msgstr ""
 
-#: prefs4.ui:670
-msgid "Next track button"
+#: prefs.js:458 prefs.js:469 prefs.js:478
+msgid "Click to open"
 msgstr ""
 
-#: prefs4.ui:699
-msgid "Seek back button"
+#: prefs.js:468
+msgid "Report a issue"
 msgstr ""
 
-#: prefs4.ui:719
-msgid "Seek forward button"
+#: prefs.js:477
+msgid "Extension home page"
 msgstr ""
 
-#: prefs4.ui:751
-msgid "show/hide elements"
-msgstr ""
-
-#: prefs4.ui:788
+#: prefs.js:491
 msgid "Visibility"
 msgstr ""
 
-#: prefs4.ui:816
-msgid "Extension position"
-msgstr ""
-
-#: prefs4.ui:827
-msgid "Extension index"
-msgstr ""
-
-#: prefs4.ui:849
-msgid "Element order"
-msgstr ""
-
-#: prefs4.ui:899
+#: prefs.js:498
 msgid "Position"
 msgstr ""
 
-#: prefs4.ui:927
-msgid "Mouse actions"
-msgstr ""
-
-#: prefs4.ui:942
-msgid "Cache images"
-msgstr ""
-
-#: prefs4.ui:956
-msgid ""
-"Media Controls caches album art so they don't need to be redownloaded "
-"everytime. You can clear your cache here."
-msgstr ""
-
-#: prefs4.ui:971
-msgid "Clear cache"
-msgstr ""
-
-#: prefs4.ui:985
-msgid "0 MB"
-msgstr ""
-
-#: prefs4.ui:1040
-msgid "Blacklist players"
-msgstr ""
-
-#: prefs4.ui:1079
+#: prefs.js:505
 msgid "Other"
+msgstr ""
+
+#: prefs.js:533
+msgid "Preset"
+msgstr ""
+
+#: prefs.js:534
+msgid "Custom"
 msgstr ""
