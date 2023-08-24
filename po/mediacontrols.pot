@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-08-24 18:28+0200\n"
+"POT-Creation-Date: 2023-08-24 22:21+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,210 +25,258 @@ msgstr ""
 msgid "[MediaControls] Disabling"
 msgstr ""
 
-#: prefs.js:25 prefs.js:147
+#: prefs.js:23 prefs.js:175
 msgid "Track"
 msgstr ""
 
-#: prefs.js:26 prefs.js:148
+#: prefs.js:24 prefs.js:176
 msgid "Artist"
 msgstr ""
 
-#: prefs.js:27 prefs.js:149
+#: prefs.js:25 prefs.js:177
 msgid "URL"
 msgstr ""
 
-#: prefs.js:28 prefs.js:150
+#: prefs.js:26 prefs.js:178
 msgid "Player name"
 msgstr ""
 
-#: prefs.js:29 prefs.js:151
+#: prefs.js:27 prefs.js:179
 msgid "Playback status"
 msgstr ""
 
-#: prefs.js:30 prefs.js:152
+#: prefs.js:28 prefs.js:180
 msgid "Filename"
 msgstr ""
 
-#: prefs.js:31 prefs.js:153 prefs.js:193
+#: prefs.js:29 prefs.js:181 prefs.js:221
 msgid "None"
 msgstr ""
 
-#: prefs.js:91
+#: prefs.js:59 prefs.js:557 prefs.js:610 prefs.js:636 prefs.js:654
+msgid "Custom"
+msgstr ""
+
+#: prefs.js:119
 msgid "left"
 msgstr ""
 
-#: prefs.js:91
+#: prefs.js:119
 msgid "center"
 msgstr ""
 
-#: prefs.js:91
+#: prefs.js:119
 msgid "right"
 msgstr ""
 
-#: prefs.js:102
+#: prefs.js:130 prefs.js:503
 msgid "Player icon"
 msgstr ""
 
-#: prefs.js:103
+#: prefs.js:131
 msgid "Track title"
 msgstr ""
 
-#: prefs.js:104
+#: prefs.js:132
 msgid "Control icons"
 msgstr ""
 
-#: prefs.js:105
+#: prefs.js:133 prefs.js:519
 msgid "Sources menu"
 msgstr ""
 
-#: prefs.js:170
+#: prefs.js:198
 msgid "Left click"
 msgstr ""
 
-#: prefs.js:171
+#: prefs.js:199
 msgid "Right click"
 msgstr ""
 
-#: prefs.js:172
+#: prefs.js:200
 msgid "Middle click"
 msgstr ""
 
-#: prefs.js:173
+#: prefs.js:201
 msgid "Left double click"
 msgstr ""
 
-#: prefs.js:174
+#: prefs.js:202
 msgid "Right double click"
 msgstr ""
 
-#: prefs.js:175
+#: prefs.js:203
 msgid "Scroll up"
 msgstr ""
 
-#: prefs.js:176
+#: prefs.js:204
 msgid "Scroll down"
 msgstr ""
 
-#: prefs.js:177
+#: prefs.js:205
 msgid "Hover <i><span size='smaller'>(unstable)</span></i>"
 msgstr ""
 
-#: prefs.js:194
+#: prefs.js:222
 msgid "Toggle play/pause"
 msgstr ""
 
-#: prefs.js:195
+#: prefs.js:223
 msgid "Play"
 msgstr ""
 
-#: prefs.js:196
+#: prefs.js:224
 msgid "Pause"
 msgstr ""
 
-#: prefs.js:197
+#: prefs.js:225
 msgid "Next"
 msgstr ""
 
-#: prefs.js:198
+#: prefs.js:226
 msgid "Previous"
 msgstr ""
 
-#: prefs.js:199
+#: prefs.js:227
 msgid "Cycle loop options"
 msgstr ""
 
-#: prefs.js:200
+#: prefs.js:228
 msgid "Toggle shuffle"
 msgstr ""
 
-#: prefs.js:201
+#: prefs.js:229
 msgid "Open sources menu"
 msgstr ""
 
-#: prefs.js:202
+#: prefs.js:230
 msgid "Open track information menu"
 msgstr ""
 
-#: prefs.js:203
+#: prefs.js:231
 msgid "Raise player"
 msgstr ""
 
-#: prefs.js:204
+#: prefs.js:232
 msgid "Quit player"
 msgstr ""
 
-#: prefs.js:346
+#: prefs.js:283
 msgid "General"
 msgstr ""
 
-#: prefs.js:352
+#: prefs.js:289
 msgid "Settings"
 msgstr ""
 
-#: prefs.js:357
+#: prefs.js:294
 msgid "Max widget width"
 msgstr ""
 
-#: prefs.js:358
+#: prefs.js:295
 msgid "0 to disable"
 msgstr ""
 
-#: prefs.js:376
+#: prefs.js:313
 msgid "Seek time (seconds)"
 msgstr ""
 
-#: prefs.js:394
+#: prefs.js:331
 msgid "Use native seek"
 msgstr ""
 
-#: prefs.js:395
+#: prefs.js:332
 msgid "Some players do not support seek."
 msgstr ""
 
-#: prefs.js:412
+#: prefs.js:349
 msgid "Hide the default media notification"
 msgstr ""
 
-#: prefs.js:429
+#: prefs.js:366
 msgid "Track label"
 msgstr ""
 
-#: prefs.js:452
+#: prefs.js:389
 msgid "Github"
 msgstr ""
 
-#: prefs.js:457
+#: prefs.js:394
 msgid "Release Notes"
 msgstr ""
 
-#: prefs.js:458 prefs.js:469 prefs.js:478
+#: prefs.js:395 prefs.js:406 prefs.js:415
 msgid "Click to open"
 msgstr ""
 
-#: prefs.js:468
+#: prefs.js:405
 msgid "Report a issue"
 msgstr ""
 
-#: prefs.js:477
+#: prefs.js:414
 msgid "Extension home page"
 msgstr ""
 
-#: prefs.js:491
+#: prefs.js:428
 msgid "Visibility"
 msgstr ""
 
-#: prefs.js:498
-msgid "Position"
+#: prefs.js:433
+msgid "show/hide elements"
 msgstr ""
 
-#: prefs.js:505
-msgid "Other"
+#: prefs.js:438
+msgid "Title/Track name"
 msgstr ""
 
-#: prefs.js:533
+#: prefs.js:446
+msgid "Player controls"
+msgstr ""
+
+#: prefs.js:457
+msgid "Play/pause button"
+msgstr ""
+
+#: prefs.js:468
+msgid "Previous track button"
+msgstr ""
+
+#: prefs.js:476
+msgid "Next track button"
+msgstr ""
+
+#: prefs.js:484
+msgid "Seek back button"
+msgstr ""
+
+#: prefs.js:492
+msgid "Seek forward button"
+msgstr ""
+
+#: prefs.js:511
+msgid "Seperators"
+msgstr ""
+
+#: prefs.js:530
+msgid "Colors"
+msgstr ""
+
+#: prefs.js:535
+msgid "Colored player icon"
+msgstr ""
+
+#: prefs.js:546
+msgid "Seperator characters"
+msgstr ""
+
+#: prefs.js:550 prefs.js:653
 msgid "Preset"
 msgstr ""
 
-#: prefs.js:534
-msgid "Custom"
+#: prefs.js:578
+msgid "Position"
+msgstr ""
+
+#: prefs.js:585
+msgid "Other"
 msgstr ""
