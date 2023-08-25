@@ -91,7 +91,7 @@ export const Player = GObject.registerClass(
 
       this.labelSeperatorStart = new St.Label({
         text: this._extension.sepChars[0],
-        style: "padding: 3px 0px 0px 0px; margin: 0px auto;",
+        style: "padding: 0px 3px 0px 0px; margin: 0px auto;",
         y_align: Clutter.ActorAlign.CENTER,
       });
 
