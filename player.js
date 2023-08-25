@@ -90,13 +90,13 @@ export const Player = GObject.registerClass(
       });
 
       this.labelSeperatorStart = new St.Label({
-        text: this._extension.settings.sepChars[0],
+        text: this._extension.sepChars[0],
         style: "padding: 3px 0px 0px 0px; margin: 0px auto;",
         y_align: Clutter.ActorAlign.CENTER,
       });
 
       this.labelSeperatorEnd = new St.Label({
-        text: this._extension.settings.sepChars[1],
+        text: this._extension.sepChars[1],
         style: "padding: 0px 0px 0px 3px; margin: 0px auto;",
         y_align: Clutter.ActorAlign.CENTER,
       });
@@ -278,9 +278,9 @@ export const Player = GObject.registerClass(
     }
 
     _seekBack() {
-      const offset = this._extension.settings.seekInterval * 1_000_000;
+      const offset = this._extension.seekInterval * 1_000_000;
 
-      if (this._extension.settings.preferNativeSeek) {
+      if (this._extension.preferNativeSeek) {
         this._playerProxy.SeekRemote(-offset);
       } else {
         const position = this._getPosition();
@@ -298,9 +298,9 @@ export const Player = GObject.registerClass(
     }
 
     _seekForward() {
-      const offset = this._extension.settings.seekInterval * 1_000_000;
+      const offset = this._extension.seekInterval * 1_000_000;
 
-      if (this._extension.settings.preferNativeSeek) {
+      if (this._extension.preferNativeSeek) {
         this._playerProxy.SeekRemote(offset);
       } else {
         const position = this._getPosition();
@@ -456,12 +456,12 @@ export const Player = GObject.registerClass(
         this.infoTitleLabel.set_style(
           `font-size: large; ${this.maxWidthStyle}`
         );
-        this._infoIcon.set_icon_size(this._extension.settings.maxWidgetWidth);
+        this._infoIcon.set_icon_size(this._extension.maxWidgetWidth);
       }
     }
 
     updateIconEffects() {
-      if (this._extension.settings.coloredPlayerIcon) {
+      if (this._extension.coloredPlayerIcon) {
         this.iconPlayer.clear_effects();
         this.iconPlayer.set_style(
           "margin: 0px auto; padding: 0px auto; -st-icon-style: requested;"
@@ -720,7 +720,7 @@ export const Player = GObject.registerClass(
     }
 
     async _saveImage() {
-      if (this._extension.settings.cacheImages) {
+      if (this._extension.cacheImages) {
         try {
           if (urlRegexp.test(this.image)) {
             const destination = GLib.build_filenamev([
@@ -789,7 +789,7 @@ export const Player = GObject.registerClass(
     }
 
     _mouseAction(index) {
-      switch (this._extension.settings.mouseActions[index]) {
+      switch (this._extension.mouseActions[index]) {
         case "toggle_play":
           this._playerProxy.PlayPauseRemote();
           break;
@@ -935,7 +935,7 @@ export const Player = GObject.registerClass(
     }
 
     get maxWidthStyle() {
-      let maxWidth = this._extension.settings.maxWidgetWidth;
+      let maxWidth = this._extension.maxWidgetWidth;
 
       if (maxWidth !== 0) {
         maxWidth = `max-width: ${maxWidth}px;`;
@@ -973,7 +973,7 @@ export const Player = GObject.registerClass(
         none: null,
       };
 
-      let trackLabelSetting = this._extension.settings.trackLabel;
+      let trackLabelSetting = this._extension.trackLabel;
 
       let startLabel = labelEls[trackLabelSetting[0]] || "";
       let endLabel = labelEls[trackLabelSetting[2]] || "";

@@ -4,7 +4,6 @@
  */
 import { createProxy } from "./dbus.js";
 import { Player } from "./player.js";
-import { Settings } from "./settings.js";
 
 import GObject from "gi://GObject";
 import Gio from "gi://Gio";
@@ -28,11 +27,280 @@ export const MediaControls = GObject.registerClass(
       this.dataDir = GLib.get_user_config_dir();
     }
 
-    enable(Me) {
-      this.settings = new Settings(Me);
+    connectSignals() {
+      this._onMaxWidgetWidthChanged = this._settings.connect(
+        "changed::max-widget-width",
+        () => {
+          this.maxWidgetWidth = this._settings.get_int("max-widget-width");
+          this.player.updateWidgetWidths();
+        }
+      );
 
-      let mouseActions = this.settings.mouseActions;
-      let defaultMouseActions = this.settings._settings
+      this._onUpdateDelayChanged = this._settings.connect(
+        "changed::update-delay",
+        () => {
+          this.updateDelay = this._settings.get_int("update-delay");
+        }
+      );
+
+      this._onShowTrackNameChanged = this._settings.connect(
+        "changed::show-text",
+        () => {
+          this.showTrackName = this._settings.get_boolean("show-text");
+          this.removeWidgets();
+          this.addWidgets();
+        }
+      );
+
+      this._onShowPlayerIconChanged = this._settings.connect(
+        "changed::show-player-icon",
+        () => {
+          this.showPlayerIcon = this._settings.get_boolean("show-player-icon");
+          this.removeWidgets();
+          this.addWidgets();
+        }
+      );
+
+      this._onShowControlsChanged = this._settings.connect(
+        "changed::show-control-icons",
+        () => {
+          this.showControls = this._settings.get_boolean("show-control-icons");
+          this.removeWidgets();
+          this.addWidgets();
+        }
+      );
+
+      this._onShowSeperatorsChanged = this._settings.connect(
+        "changed::show-seperators",
+        () => {
+          this.showSeperators = this._settings.get_boolean("show-seperators");
+          this.removeWidgets();
+          this.addWidgets();
+        }
+      );
+
+      this._onShowPlayPauseButtonChanged = this._settings.connect(
+        "changed::show-playpause-icon",
+        () => {
+          this.showPlayPauseButton = this._settings.get_boolean(
+            "show-playpause-icon"
+          );
+          this.removeWidgets();
+          this.addWidgets();
+        }
+      );
+      this._onShowPrevButtonChanged = this._settings.connect(
+        "changed::show-prev-icon",
+        () => {
+          this.showPrevButton = this._settings.get_boolean("show-prev-icon");
+          this.removeWidgets();
+          this.addWidgets();
+        }
+      );
+      this._onShowNextButtonChanged = this._settings.connect(
+        "changed::show-next-icon",
+        () => {
+          this.showNextButton = this._settings.get_boolean("show-next-icon");
+          this.removeWidgets();
+          this.addWidgets();
+        }
+      );
+
+      this._onSeekIntervalChanged = this._settings.connect(
+        "changed::seek-interval-secs",
+        () => {
+          this.seekInterval = this._settings.get_int("seek-interval-secs");
+        }
+      );
+
+      this._onPreferSeekChanged = this._settings.connect(
+        "changed::prefer-using-seek",
+        () => {
+          this.preferNativeSeek =
+            this._settings.get_boolean("prefer-using-seek");
+        }
+      );
+
+      this._onShowSeekBackChanged = this._settings.connect(
+        "changed::show-seek-back",
+        () => {
+          this.showSeekBack = this._settings.get_boolean("show-seek-back");
+          this.removeWidgets();
+          this.addWidgets();
+        }
+      );
+
+      this._onShowSeekForwardChanged = this._settings.connect(
+        "changed::show-seek-forward",
+        () => {
+          this.showSeekForward =
+            this._settings.get_boolean("show-seek-forward");
+          this.removeWidgets();
+          this.addWidgets();
+        }
+      );
+
+      this._onShowMenuChanged = this._settings.connect(
+        "changed::show-sources-menu",
+        () => {
+          this.showMenu = this._settings.get_boolean("show-sources-menu");
+          this.removeWidgets();
+          this.addWidgets();
+        }
+      );
+
+      this._onExtensionPositionChanged = this._settings.connect(
+        "changed::extension-position",
+        () => {
+          this.removeWidgets();
+          this.extensionPosition =
+            this._settings.get_string("extension-position");
+          this.addWidgets();
+        }
+      );
+
+      this._onExtensionIndexChanged = this._settings.connect(
+        "changed::extension-index",
+        () => {
+          this.extensionIndex = this._settings.get_int("extension-index");
+          this.removeWidgets();
+          this.addWidgets();
+        }
+      );
+
+      this._onColoredPlayerIconChanged = this._settings.connect(
+        "changed::colored-player-icon",
+        () => {
+          this.coloredPlayerIcon = this._settings.get_boolean(
+            "colored-player-icon"
+          );
+          this.player.updateIconEffects();
+        }
+      );
+
+      this._onSepCharsChanged = this._settings.connect(
+        "changed::seperator-chars",
+        () => {
+          this.sepChars = this._settings.get_strv("seperator-chars");
+          this.player.labelSeperatorStart.set_text(this.sepChars[0]);
+          this.player.labelSeperatorEnd.set_text(this.sepChars[1]);
+        }
+      );
+
+      this._onMouseActionsChanged = this._settings.connect(
+        "changed::mouse-actions",
+        () => {
+          this.mouseActions = this._settings.get_strv("mouse-actions");
+        }
+      );
+
+      this._onElementOrderChanged = this._settings.connect(
+        "changed::element-order",
+        () => {
+          this.elementOrder = this._settings.get_strv("element-order");
+          this.removeWidgets();
+          this.addWidgets();
+        }
+      );
+
+      this._onTrackLabelChanged = this._settings.connect(
+        "changed::track-label",
+        () => {
+          this.trackLabel = this._settings.get_strv("track-label");
+          this.player.updateWidgets();
+        }
+      );
+
+      this._onCacheImagesChanged = this._settings.connect(
+        "changed::cache-images",
+        () => {
+          this.cacheImages = this._settings.get_boolean("cache-images");
+        }
+      );
+
+      this._onBacklistAppsChanged = this._settings.connect(
+        "changed::backlist-apps",
+        () => {
+          this.blacklistApps = this._settings.get_strv("backlist-apps");
+        }
+      );
+
+      this._onHideMediaNotificationChanged = this._settings.connect(
+        "changed::hide-media-notification",
+        () => {
+          this.hideMediaNotification = this._settings.get_boolean(
+            "hide-media-notification"
+          );
+
+          this.updateMediaNotification();
+        }
+      );
+    }
+
+    disconnectSignals() {
+      this._settings.disconnect(this._onMaxWidgetWidthChanged);
+      this._settings.disconnect(this._onUpdateDelayChanged);
+      this._settings.disconnect(this._onShowControlsChanged);
+      this._settings.disconnect(this._onShowPlayerIconChanged);
+      this._settings.disconnect(this._onShowTrackNameChanged);
+      this._settings.disconnect(this._onShowSeperatorsChanged);
+      this._settings.disconnect(this._onExtensionPositionChanged);
+      this._settings.disconnect(this._onShowPlayPauseButtonChanged);
+      this._settings.disconnect(this._onShowNextButtonChanged);
+      this._settings.disconnect(this._onShowPrevButtonChanged);
+      this._settings.disconnect(this._onSeekIntervalChanged);
+      this._settings.disconnect(this._onPreferSeekChanged);
+      this._settings.disconnect(this._onShowSeekBackChanged);
+      this._settings.disconnect(this._onShowSeekForwardChanged);
+      this._settings.disconnect(this._onExtensionIndexChanged);
+      this._settings.disconnect(this._onShowSourcesInInfoMenuChanged);
+      this._settings.disconnect(this._onColoredPlayerIconChanged);
+      this._settings.disconnect(this._onMouseActionsChanged);
+      this._settings.disconnect(this._onSepCharsChanged);
+      this._settings.disconnect(this._onElementOrderChanged);
+      this._settings.disconnect(this._onTrackLabelChanged);
+      this._settings.disconnect(this._onCacheImagesChanged);
+      this._settings.disconnect(this._onBacklistAppsChanged);
+      this._settings.disconnect(this._onHideMediaNotificationChanged);
+    }
+
+    enable(Me) {
+      this._settings = Me.getSettings();
+      this.connectSignals();
+
+      this.maxWidgetWidth = this._settings.get_int("max-widget-width");
+      this.updateDelay = this._settings.get_int("update-delay");
+      this.showTrackName = this._settings.get_boolean("show-text");
+      this.showPlayerIcon = this._settings.get_boolean("show-player-icon");
+      this.showControls = this._settings.get_boolean("show-control-icons");
+      this.showSeperators = this._settings.get_boolean("show-seperators");
+      this.showMenu = this._settings.get_boolean("show-sources-menu");
+      this.showPlayPauseButton = this._settings.get_boolean(
+        "show-playpause-icon"
+      );
+      this.showPrevButton = this._settings.get_boolean("show-prev-icon");
+      this.showNextButton = this._settings.get_boolean("show-next-icon");
+      this.seekInterval = this._settings.get_int("seek-interval-secs");
+      this.preferNativeSeek = this._settings.get_boolean("prefer-using-seek");
+      this.showSeekBack = this._settings.get_boolean("show-seek-back");
+      this.showSeekForward = this._settings.get_boolean("show-seek-forward");
+      this.extensionPosition = this._settings.get_string("extension-position");
+      this.extensionIndex = this._settings.get_int("extension-index");
+      this.coloredPlayerIcon = this._settings.get_boolean(
+        "colored-player-icon"
+      );
+      this.mouseActions = this._settings.get_strv("mouse-actions");
+      this.sepChars = this._settings.get_strv("seperator-chars");
+      this.elementOrder = this._settings.get_strv("element-order");
+      this.trackLabel = this._settings.get_strv("track-label");
+      this.cacheImages = this._settings.get_boolean("cache-images");
+      this.blacklistApps = this._settings.get_strv("backlist-apps");
+      this.hideMediaNotification = this._settings.get_boolean(
+        "hide-media-notification"
+      );
+
+      let mouseActions = this.mouseActions;
+      let defaultMouseActions = this._settings
         .get_default_value("mouse-actions")
         .recursiveUnpack();
 
@@ -42,7 +310,7 @@ export const MediaControls = GObject.registerClass(
         }
       });
 
-      this.settings._settings.set_strv("mouse-actions", mouseActions);
+      this._settings.set_strv("mouse-actions", mouseActions);
 
       this.clutterSettings = Clutter.Settings.get_default();
       this.clutterSettings.double_click_time = 200;
@@ -115,7 +383,7 @@ export const MediaControls = GObject.registerClass(
 
     disable() {
       this.removeWidgets();
-      this.settings.disconnectSignals();
+      this.disconnectSignals();
 
       for (let playerObj of Object.values(this._players)) {
         playerObj.destroy();
@@ -129,52 +397,52 @@ export const MediaControls = GObject.registerClass(
       Main.panel.addToStatusArea(
         "media_controls_extension",
         this,
-        this.settings.extensionIndex,
-        this.settings.extensionPosition
+        this.extensionIndex,
+        this.extensionPosition
       );
 
       this.add_child(this.player.container);
 
-      this.settings.elementOrder.forEach((element) => {
-        if (element === "icon" && this.settings.showPlayerIcon) {
+      this.elementOrder.forEach((element) => {
+        if (element === "icon" && this.showPlayerIcon) {
           this.player.dummyContainer.add_child(this.player.buttonPlayer);
-        } else if (element === "title" && this.settings.showTrackName) {
+        } else if (element === "title" && this.showTrackName) {
           this.player.dummyContainer.add_child(
             this.player.containerButtonLabel
           );
-          if (this.settings.showSeperators) {
+          if (this.showSeperators) {
             this.player.subContainerLabel.add_child(
               this.player.labelSeperatorStart
             );
           }
           this.player.subContainerLabel.add_child(this.player.labelTitle);
-          if (this.settings.showSeperators) {
+          if (this.showSeperators) {
             this.player.subContainerLabel.add_child(
               this.player.labelSeperatorEnd
             );
           }
-        } else if (element === "controls" && this.settings.showControls) {
+        } else if (element === "controls" && this.showControls) {
           this.player.dummyContainer.add_child(this.player.containerControls);
-          if (this.settings.showSeekBack) {
+          if (this.showSeekBack) {
             this.player.containerControls.add_child(this.player.buttonSeekBack);
           }
-          if (this.settings.showPrevButton) {
+          if (this.showPrevButton) {
             this.player.containerControls.add_child(this.player.buttonPrev);
           }
-          if (this.settings.showPlayPauseButton) {
+          if (this.showPlayPauseButton) {
             this.player.containerControls.add_child(
               this.player.buttonPlayPause
             );
           }
-          if (this.settings.showNextButton) {
+          if (this.showNextButton) {
             this.player.containerControls.add_child(this.player.buttonNext);
           }
-          if (this.settings.showSeekForward) {
+          if (this.showSeekForward) {
             this.player.containerControls.add_child(
               this.player.buttonSeekForward
             );
           }
-        } else if (element === "menu" && this.settings.showMenu) {
+        } else if (element === "menu" && this.showMenu) {
           this.player.dummyContainer.add_child(this.player.buttonMenu);
         }
       });
@@ -220,7 +488,7 @@ export const MediaControls = GObject.registerClass(
       try {
         let playerObj = await new Player(busName, this);
         if (
-          this.settings.blacklistApps.every(
+          this.blacklistApps.every(
             (app) => !playerObj.name.toLowerCase().includes(app.toLowerCase())
           )
         ) {
@@ -399,7 +667,7 @@ export const MediaControls = GObject.registerClass(
     }
 
     updateMediaNotification() {
-      if (this.settings.hideMediaNotification) {
+      if (this.hideMediaNotification) {
         this._mediaSectionAdd = Mpris.MediaSection.prototype._addPlayer;
         Mpris.MediaSection.prototype._addPlayer = function () {
           return;

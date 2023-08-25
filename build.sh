@@ -12,7 +12,7 @@ install() {
 
 build() {
     #git archive -o Release.zip HEAD;
-    gnome-extensions pack --podir=po/ --extra-source=dbus.js --extra-source=player.js --extra-source=settings.js --extra-source=utils.js --extra-source=widget.js --extra-source=LICENSE
+    gnome-extensions pack --podir=po/ --extra-source=dbus.js --extra-source=player.js --extra-source=utils.js --extra-source=widget.js --extra-source=LICENSE
     mv mediacontrols@cliffniff.github.com.shell-extension.zip Release.zip
     #zip -d Release.zip README.md;
     #zip -d Release.zip images/*;
