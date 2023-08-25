@@ -57,7 +57,8 @@ OR
 
 Install from source
 
-- Download and extract the zip file in the releases tab
-- Rename the extracted folder to `mediacontrols@cliffniff.github.com`
-- Move it to `~/.local/share/gnome-shell/extensions/`
-- Enable the extension in the Extensions app or type `gnome-extensions enable mediacontrols@cliffniff.github.com` in the terminal
+- Download "extension.zip" file from the releases tab
+- Open a terminal in the path of extension.zip
+- Install and enable the extension by executing
+  <br> `gnome-extensions install extension.zip --force` <br>
+  in the terminal
