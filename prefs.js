@@ -757,6 +757,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
       label: "0 MB",
       valign: Gtk.Align.CENTER,
     });
+    this._initCacheSize(widgetCacheSize);
     const clearcachespinner = new Gtk.Spinner({
       valign: Gtk.Align.CENTER,
     });
