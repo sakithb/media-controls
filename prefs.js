@@ -858,6 +858,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
       clearcachespinner.stop();
     } catch (error) {
       widgetCacheSize.set_text(_("Failed to clear cache"));
+      clearcachespinner.stop();
     }
   }
 
