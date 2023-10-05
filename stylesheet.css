@@ -21,3 +21,8 @@
     margin: 0px auto;
     padding: 0px auto;
 }
+
+.track_menu_info {
+    display: flex;
+    align-items: center;
+}
