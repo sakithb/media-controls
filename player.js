@@ -496,6 +496,7 @@ export const Player = GObject.registerClass(
         this._infoItem.set_track_hover(false);
 
         this.infoItemContainer = new St.BoxLayout({
+          style_class: "track_menu_info",
           vertical: true,
           x_expand: true,
         });
