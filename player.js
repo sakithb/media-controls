@@ -13,7 +13,7 @@ import { createProxy } from "./dbus.js";
 import { parseMetadata, stripInstanceNumbers, getRequest } from "./utils.js";
 
 const urlRegexp = new RegExp(
-  /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/
+  /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+~#?&/=]*)/
 );
 
 let doubleClick = false;
@@ -595,7 +595,6 @@ export const Player = GObject.registerClass(
         });
 
         const buttonPlayPause = new St.Button({
-          style_class: "message-icon",
           style_class: "popup-menu-button",
         });
 
@@ -738,7 +737,7 @@ export const Player = GObject.registerClass(
                   0o744
                 ) === 0
               ) {
-                let [success, tag] = cacheFile.replace_contents(
+                let [success] = cacheFile.replace_contents(
                   remoteIcon,
                   null,
                   false,
@@ -981,12 +980,10 @@ export const Player = GObject.registerClass(
 
       if (!(startLabel && endLabel)) {
         sepLabel = "";
+      } else if (!sepLabel) {
+        sepLabel = " ";
       } else {
-        if (!sepLabel) {
-          sepLabel = " ";
-        } else {
-          sepLabel = ` ${sepLabel} `;
-        }
+        sepLabel = ` ${sepLabel} `;
       }
 
       label = startLabel + sepLabel + endLabel;
@@ -1005,9 +1002,7 @@ export const Player = GObject.registerClass(
           this._strippedName.substr(1);
       }
 
-      return (
-        (this._otherProxy && this._otherProxy.Identity) || this._strippedName
-      );
+      return this._otherProxy?.Identity || this._strippedName;
     }
 
     get title() {
