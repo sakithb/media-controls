@@ -1,5 +1,3 @@
-**If anyone's willing to continue the development of this extension, contact me!**
-
 ## What does this extension do?
 
 Show controls and information of the currently playing media in the panel.
