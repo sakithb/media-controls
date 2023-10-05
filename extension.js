@@ -1,23 +1,22 @@
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
-const Gettext = imports.gettext.domain("mediacontrols");
-const _ = Gettext.gettext;
-const MediaControls = Me.imports.widget.MediaControls;
+import { MediaControls } from "./widget.js";
 
-let extension;
+let mc_extension;
 
-function init() {
-  ExtensionUtils.initTranslations("mediacontrols");
-}
+import {
+  Extension,
+  gettext as _,
+} from "resource:///org/gnome/shell/extensions/extension.js";
 
-function enable() {
-  log(_("[MediaControls] Enabling"));
-  extension = new MediaControls();
-  extension.enable();
-}
+export default class MediaControlsExtension extends Extension {
+  enable() {
+    log(_("[MediaControls] Enabling"));
+    mc_extension = new MediaControls();
+    mc_extension.enable(this);
+  }
 
-function disable() {
-  log(_("[MediaControls] Disabling"));
-  extension.disable();
-  extension = null;
+  disable() {
+    log(_("[MediaControls] Disabling"));
+    mc_extension.disable();
+    mc_extension = null;
+  }
 }

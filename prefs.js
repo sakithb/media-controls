@@ -1,141 +1,829 @@
-// Based on https://github.com/mheine/gnome-shell-spotify-label/blob/master/prefs.js
-
 "use strict";
 
-const { Gio, Gtk, GObject, GLib } = imports.gi;
+import Gio from "gi://Gio";
+import Gtk from "gi://Gtk";
+import GLib from "gi://GLib";
+import Adw from "gi://Adw";
 
-const ExtensionUtils = imports.misc.extensionUtils;
-const Me = ExtensionUtils.getCurrentExtension();
+import { Utf8ArrayToStr, execCommunicate } from "./utils.js";
 
-const Gettext = imports.gettext.domain("mediacontrols");
-const _ = Gettext.gettext;
+import {
+  ExtensionPreferences,
+  gettext as _,
+} from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
-const { Utf8ArrayToStr, execCommunicate } = Me.imports.utils;
+export default class MediaControlsPreferences extends ExtensionPreferences {
+  _ontracklabelchanged(
+    settings,
+    trackLabelOptKeys,
+    trackLabelSep,
+    trackLabelStart,
+    trackLabelEnd
+  ) {
+    let currentTrackLabel = settings.get_strv("track-label");
+    let trackLabelSepText = trackLabelSep.get_text();
+    let trackLabelArray = [
+      trackLabelOptKeys[trackLabelStart.get_active()] || currentTrackLabel[0],
+      trackLabelSepText !== null || trackLabelSepText !== undefined
+        ? trackLabelSepText
+        : currentTrackLabel[1],
+      trackLabelOptKeys[trackLabelEnd.get_active()] || currentTrackLabel[2],
+    ];
+    settings.set_strv("track-label", trackLabelArray);
+  }
 
-const Config = imports.misc.config;
-const [major] = Config.PACKAGE_VERSION.split(".");
-const shellVersion = Number.parseInt(major);
+  _initTrackLabelWidgets(
+    settings,
+    trackLabelStart,
+    trackLabelSep,
+    trackLabelEnd
+  ) {
+    const trackLabelOpts = {
+      track: _("Track"),
+      artist: _("Artist"),
+      url: _("URL"),
+      name: _("Player name"),
+      status: _("Playback status"),
+      file: _("Filename"),
+      none: _("None"),
+    };
+    const trackLabelOptKeys = Object.keys(trackLabelOpts);
+    trackLabelOptKeys.forEach((opt) => {
+      trackLabelStart.append(opt, _(trackLabelOpts[opt]));
+      trackLabelEnd.append(opt, _(trackLabelOpts[opt]));
+    });
 
-const positions = [_("left"), _("center"), _("right")];
+    let tracklabelSetting = settings.get_strv("track-label");
 
-const mouseActionNamesMap = {
-  none: _("None"),
-  toggle_play: _("Toggle play/pause"),
-  play: _("Play"),
-  pause: _("Pause"),
-  next: _("Next"),
-  previous: _("Previous"),
-  toggle_loop: _("Cycle loop options"),
-  toggle_shuffle: _("Toggle shuffle"),
-  toggle_menu: _("Open sources menu"),
-  toggle_info: _("Open track information menu"),
-  raise: _("Raise player"),
-  quit: _("Quit player"),
-};
-let mouseActionNameIds = Object.keys(mouseActionNamesMap);
+    trackLabelSep.set_text(tracklabelSetting[1]);
+    trackLabelStart.set_active(trackLabelOptKeys.indexOf(tracklabelSetting[0]));
+    trackLabelEnd.set_active(trackLabelOptKeys.indexOf(tracklabelSetting[2]));
 
-const presetSepChars = [
-  "|...|",
-  "[...]",
-  "(...)",
-  "{...}",
-  "/...\\",
-  "\\.../",
-  ":...:",
-  "-...-",
-  "_..._",
-  "=...=",
-  "•...•",
-  "█...█",
-];
+    trackLabelSep.connect(
+      "changed",
+      this._ontracklabelchanged.bind(
+        this,
+        settings,
+        trackLabelOptKeys,
+        trackLabelSep,
+        trackLabelStart,
+        trackLabelEnd
+      )
+    );
+    trackLabelStart.connect(
+      "changed",
+      this._ontracklabelchanged.bind(
+        this,
+        settings,
+        trackLabelOptKeys,
+        trackLabelSep,
+        trackLabelStart,
+        trackLabelEnd
+      )
+    );
+    trackLabelEnd.connect(
+      "changed",
+      this._ontracklabelchanged.bind(
+        this,
+        settings,
+        trackLabelOptKeys,
+        trackLabelSep,
+        trackLabelStart,
+        trackLabelEnd
+      )
+    );
+  }
 
-const elements = {
-  icon: _("Player icon"),
-  title: _("Track title"),
-  controls: _("Control icons"),
-  menu: _("Sources menu"),
-};
-const elementIds = Object.keys(elements);
+  _initSeperatorwidgets(settings, widgetPreset, widgetCustom) {
+    // Init presets combobox
+    const presetSepChars = [
+      "|...|",
+      "[...]",
+      "(...)",
+      "{...}",
+      "/...\\",
+      "\\.../",
+      ":...:",
+      "-...-",
+      "_..._",
+      "=...=",
+      "•...•",
+      "█...█",
+      _("Custom"),
+    ];
+    presetSepChars.forEach((preset) => {
+      widgetPreset.append(preset, preset);
+    });
+    let savedSepChars = settings.get_strv("seperator-chars");
+    let sepChars = `${savedSepChars[0]}...${savedSepChars[1]}`;
+    if (presetSepChars.includes(sepChars)) {
+      widgetPreset.set_active(presetSepChars.indexOf(sepChars));
+    } else {
+      widgetCustom.set_text(sepChars);
+      widgetPreset.set_active(presetSepChars.length - 1);
+    }
+    widgetPreset.connect(
+      "changed",
+      this._onseperatorpresetchanged.bind(this, widgetPreset)
+    );
+    widgetCustom.connect(
+      "changed",
+      this._onseperatorcustomchanged.bind(this, widgetCustom, widgetPreset)
+    );
+  }
 
-const trackLabelOpts = {
-  track: _("Track"),
-  artist: _("Artist"),
-  url: _("URL"),
-  name: _("Player name"),
-  status: _("Playback status"),
-  file: _("Filename"),
-  none: _("None"),
-};
-const trackLabelOptKeys = Object.keys(trackLabelOpts);
+  _onextensionpositionchanged(settings, widget, positions) {
+    settings.set_string("extension-position", positions[widget.get_active()]);
+  }
 
-const mouseActionLabels = [
-  _("Left click"),
-  _("Right click"),
-  _("Middle click"),
-  _("Left double click"),
-  _("Right double click"),
-  _("Scroll up"),
-  _("Scroll down"),
-  _("Hover <i><span size='smaller'>(unstable)</span></i>"),
-];
+  _initExtensionPos(settings, widgetExtensionPos) {
+    // Init extension position combobox
+    const positionsOpts = {
+      left: _("left"),
+      center: _("center"),
+      right: _("right"),
+    };
+    const positionsOptsKeys = Object.keys(positionsOpts);
+    positionsOptsKeys.forEach((position) => {
+      widgetExtensionPos.append(position, _(positionsOpts[position]));
+    });
+    widgetExtensionPos.set_active(
+      positionsOptsKeys.indexOf(settings.get_string("extension-position"))
+    );
+    widgetExtensionPos.connect(
+      "changed",
+      this._onextensionpositionchanged.bind(
+        this,
+        settings,
+        widgetExtensionPos,
+        positionsOptsKeys
+      )
+    );
+  }
 
-let settings,
-  builder,
-  MediaControlsBuilderScope,
-  widgetPreset,
-  widgetCustom,
-  widgetCacheSize,
-  widgetElementOrder,
-  elementOrderWidgets,
-  trackLabelStart,
-  trackLabelSep,
-  trackLabelEnd,
-  widgetBacklistBox;
+  _onElementOrderChanged(settings, index, elementOrderWidgets, elementIds) {
+    let newElementOrder = [];
+    let elementOrder = settings.get_strv("element-order");
+    elementOrderWidgets.forEach((_widget, index) => {
+      let val = elementIds[_widget.get_active()];
 
-let elementOrder, trackLabelLock;
-
-// Create a builder scope of the version id 40 or greater
-if (shellVersion >= 40) {
-  MediaControlsBuilderScope = GObject.registerClass(
-    { Implements: [Gtk.BuilderScope] },
-    class MediaControlsBuilderScope extends GObject.Object {
-      vfunc_create_closure(builder, handlerName, flags, connectObject) {
-        if (typeof signalHandler[handlerName] !== "undefined") {
-          return signalHandler[handlerName].bind(connectObject || this);
+      if (newElementOrder.includes(val)) {
+        let _index = newElementOrder.indexOf(val);
+        if (elementOrder[_index] === val) {
+          newElementOrder[_index] = elementOrder[index];
+          elementOrderWidgets[_index].set_active(
+            elementIds.indexOf(elementOrder[index])
+          );
+        } else {
+          val = elementOrder[_index];
+          _widget.set_active(elementIds.indexOf(val));
         }
       }
-    }
-  );
-}
+      newElementOrder.push(val);
+    });
+    settings.set_strv("element-order", newElementOrder);
+  }
 
-const signalHandler = {
-  // Disable the opposite inputs from the selected and apply changes
-  on_seperator_character_group_changed: (widget) => {
-    let label = widget.get_label();
-    let strlabelP = _("Preset");
-    let strlabelC = _("Custom");
-    let active = widget.get_active();
-    if (label === strlabelP && active) {
-      widgetCustom.set_sensitive(false);
-      widgetPreset.set_sensitive(true);
-      signalHandler.on_seperator_preset_changed(widgetPreset);
-    } else if (label === strlabelC && active) {
-      widgetPreset.set_sensitive(false);
-      widgetCustom.set_sensitive(true);
-      signalHandler.on_seperator_custom_changed(widgetCustom);
+  _initElementOrder(settings, group, elementOrderWidgets) {
+    let adwrow;
+    let elementOrder = settings.get_strv("element-order");
+    const elements = {
+      icon: _("Player icon"),
+      title: _("Track title"),
+      controls: _("Control icons"),
+      menu: _("Sources menu"),
+    };
+    const elementIds = Object.keys(elements);
+    elementIds.forEach((element, index) => {
+      adwrow = new Adw.ActionRow({ title: _("Element") + " " + index });
+      group.add(adwrow);
+      let widget = new Gtk.ComboBoxText({
+        valign: Gtk.Align.CENTER,
+        visible: true,
+        can_focus: false,
+      });
+      adwrow.add_suffix(widget);
+      adwrow.activatable_widget = widget;
+      elementIds.forEach((_element) => {
+        widget.append(_element, _(elements[_element]));
+      });
+
+      widget.set_active(elementIds.indexOf(elementOrder[index]));
+
+      widget.connect(
+        "changed",
+        this._onElementOrderChanged.bind(
+          this,
+          settings,
+          index,
+          elementOrderWidgets,
+          elementIds
+        )
+      );
+      elementOrderWidgets.push(widget);
+    });
+  }
+
+  _onMouseActionChanged(settings, index, widget, mouseActionNameIds) {
+    let currentMouseActions = settings.get_strv("mouse-actions");
+    currentMouseActions[widget.index] = mouseActionNameIds[widget.get_active()];
+    settings.set_strv("mouse-actions", currentMouseActions);
+  }
+
+  _initMouseActions(settings, group) {
+    let mouseActions = settings.get_strv("mouse-actions");
+    const mouseActionLabels = [
+      _("Left click"),
+      _("Right click"),
+      _("Middle click"),
+      _("Left double click"),
+      _("Right double click"),
+      _("Scroll up"),
+      _("Scroll down"),
+      _("Hover"),
+    ];
+    mouseActionLabels.forEach((label, index) => {
+      let adwrow = new Adw.ActionRow({
+        title: label,
+      });
+      if (label === _("Hover")) {
+        adwrow.set_subtitle(_("unstable"));
+      }
+      let widgetCombobox = new Gtk.ComboBoxText({
+        visible: true,
+        halign: Gtk.Align.END,
+        valign: Gtk.Align.CENTER,
+        can_focus: false,
+      });
+      adwrow.add_suffix(widgetCombobox);
+      adwrow.activatable_widget = widgetCombobox;
+      group.add(adwrow);
+      const mouseActionNamesMap = {
+        none: _("None"),
+        toggle_play: _("Toggle play/pause"),
+        play: _("Play"),
+        pause: _("Pause"),
+        next: _("Next"),
+        previous: _("Previous"),
+        toggle_loop: _("Cycle loop options"),
+        toggle_shuffle: _("Toggle shuffle"),
+        toggle_menu: _("Open sources menu"),
+        toggle_info: _("Open track information menu"),
+        raise: _("Raise player"),
+        quit: _("Quit player"),
+      };
+      let mouseActionNameIds = Object.keys(mouseActionNamesMap);
+      mouseActionNameIds.forEach((action) => {
+        widgetCombobox.append(action, _(mouseActionNamesMap[action]));
+      });
+
+      widgetCombobox.set_active(
+        mouseActionNameIds.indexOf(mouseActions[index])
+      );
+      widgetCombobox.index = index;
+      widgetCombobox.connect(
+        "changed",
+        this._onMouseActionChanged.bind(
+          this,
+          settings,
+          index,
+          widgetCombobox,
+          mouseActionNameIds
+        )
+      );
+    });
+  }
+
+  _onblacklistdelete(settings, group, adwrow, widget) {
+    let currentBlacklistApps = settings.get_strv("backlist-apps");
+    currentBlacklistApps.splice(currentBlacklistApps.indexOf(widget.app), 1);
+    settings.set_strv("backlist-apps", currentBlacklistApps);
+    group.remove(adwrow);
+  }
+
+  _onblacklistaddrow(settings, app, group) {
+    const adwrow = new Adw.ActionRow({
+      title: app,
+    });
+    group.add(adwrow);
+
+    let deleteButton = Gtk.Button.new_from_icon_name(
+      "edit-delete-symbolic",
+      Gtk.IconSize.BUTTON || Gtk.IconSize.NORMAL
+    );
+    deleteButton.set_valign(Gtk.Align.CENTER);
+    adwrow.add_suffix(deleteButton);
+    adwrow.activatable_widget = deleteButton;
+    deleteButton.visible = true;
+    deleteButton.app = app;
+
+    deleteButton.connect(
+      "clicked",
+      this._onblacklistdelete.bind(this, settings, group, adwrow, deleteButton)
+    );
+  }
+
+  _onblacklistentryadd(settings, group, entry) {
+    if (entry.get_text() == "") {
+      log("_onblacklistentryadd: player cannot be empty");
+      return false;
     }
-  },
-  on_seperator_preset_changed: (widget) => {
-    if (builder.get_object("preset-radio-btn").get_active()) {
+    let currentBlacklistApps = settings.get_strv("backlist-apps");
+    currentBlacklistApps.push(entry.get_text());
+    this._onblacklistaddrow(settings, entry.get_text(), group);
+    settings.set_strv("backlist-apps", currentBlacklistApps);
+    entry.set_text("");
+  }
+
+  _initblacklistapps(settings, group) {
+    let currentBlacklistApps = settings.get_strv("backlist-apps");
+
+    currentBlacklistApps.forEach((app) => {
+      this._onblacklistaddrow(settings, app, group);
+    });
+  }
+
+  async _initCacheSize(widgetCacheSize) {
+    widgetCacheSize.set_text(await this._getCacheSize());
+  }
+
+  _createGtkSwitch(settings, strSetting) {
+    const gtkswitch = new Gtk.Switch({
+      active: settings.get_boolean(strSetting),
+      valign: Gtk.Align.CENTER,
+    });
+    settings.bind(
+      strSetting,
+      gtkswitch,
+      "active",
+      Gio.SettingsBindFlags.DEFAULT
+    );
+    return gtkswitch;
+  }
+
+  _fillpage1(page1, settings) {
+    let adwrow;
+    page1.set_title(_("General"));
+    page1.set_name("mediacontrols_page1");
+    page1.set_icon_name("preferences-system-symbolic");
+
+    // group1
+    const group1 = Adw.PreferencesGroup.new();
+    group1.set_title(_("Settings"));
+    group1.set_name("mediacontrols_settings");
+    page1.add(group1);
+    //row1
+    adwrow = new Adw.ActionRow({
+      title: _("Max widget width"),
+      subtitle: _("0 to disable"),
+    });
+    const maxwidgetwidth = new Gtk.SpinButton({ valign: Gtk.Align.CENTER });
+    maxwidgetwidth.set_sensitive(true);
+    maxwidgetwidth.set_range(0, 500);
+    maxwidgetwidth.set_value(200);
+    maxwidgetwidth.set_increments(1, 10);
+    settings.bind(
+      "max-widget-width",
+      maxwidgetwidth,
+      "value",
+      Gio.SettingsBindFlags.DEFAULT
+    );
+    adwrow.add_suffix(maxwidgetwidth);
+    adwrow.activatable_widget = maxwidgetwidth;
+    group1.add(adwrow);
+    //row2
+    adwrow = new Adw.ActionRow({
+      title: _("Seek time (seconds)"),
+    });
+    const seekintervalsecs = new Gtk.SpinButton({ valign: Gtk.Align.CENTER });
+    seekintervalsecs.set_sensitive(true);
+    seekintervalsecs.set_range(5, 30);
+    seekintervalsecs.set_value(5);
+    seekintervalsecs.set_increments(1, 1);
+    settings.bind(
+      "seek-interval-secs",
+      seekintervalsecs,
+      "value",
+      Gio.SettingsBindFlags.DEFAULT
+    );
+    adwrow.add_suffix(seekintervalsecs);
+    adwrow.activatable_widget = seekintervalsecs;
+    group1.add(adwrow);
+    //row3
+    adwrow = new Adw.ActionRow({
+      title: _("Use native seek"),
+      subtitle: _("Some players do not support seek."),
+    });
+    const preferusingseek = new Gtk.Switch({
+      active: settings.get_boolean("prefer-using-seek"),
+      valign: Gtk.Align.CENTER,
+    });
+    settings.bind(
+      "prefer-using-seek",
+      preferusingseek,
+      "active",
+      Gio.SettingsBindFlags.DEFAULT
+    );
+    adwrow.add_suffix(preferusingseek);
+    adwrow.activatable_widget = preferusingseek;
+    group1.add(adwrow);
+    //row4
+    adwrow = new Adw.ActionRow({
+      title: _("Hide the default media notification"),
+    });
+    const hidemedianotification = new Gtk.Switch({
+      active: settings.get_boolean("hide-media-notification"),
+      valign: Gtk.Align.CENTER,
+    });
+    settings.bind(
+      "hide-media-notification",
+      hidemedianotification,
+      "active",
+      Gio.SettingsBindFlags.DEFAULT
+    );
+    adwrow.add_suffix(hidemedianotification);
+    adwrow.activatable_widget = hidemedianotification;
+    group1.add(adwrow);
+    // group2
+    const group2 = Adw.PreferencesGroup.new();
+    group2.set_title(_("Track label"));
+    group2.set_name("mediacontrols_tracklabel");
+    page1.add(group2);
+    //row1
+    adwrow = new Adw.ActionRow({});
+    const trackLabelStart = new Gtk.ComboBoxText({ valign: Gtk.Align.CENTER });
+    adwrow.add_suffix(trackLabelStart);
+    adwrow.activatable_widget = trackLabelStart;
+    const trackLabelSep = new Gtk.Entry({ valign: Gtk.Align.CENTER });
+    adwrow.add_suffix(trackLabelSep);
+    adwrow.activatable_widget = trackLabelSep;
+    const trackLabelEnd = new Gtk.ComboBoxText({ valign: Gtk.Align.CENTER });
+    adwrow.add_suffix(trackLabelEnd);
+    adwrow.activatable_widget = trackLabelEnd;
+    group2.add(adwrow);
+    this._initTrackLabelWidgets(
+      settings,
+      trackLabelStart,
+      trackLabelSep,
+      trackLabelEnd
+    );
+    // group3
+    const group3 = Adw.PreferencesGroup.new();
+    group3.set_title(_("Github"));
+    group3.set_name("mediacontrols_github");
+    page1.add(group3);
+    //row1
+    adwrow = new Adw.ActionRow({
+      title: _("Release Notes"),
+      subtitle: _("Click to open"),
+    });
+    const relnotes = new Gtk.LinkButton({ valign: Gtk.Align.CENTER });
+    relnotes.set_uri(
+      "https://github.com/cliffniff/media-controls/releases/latest"
+    );
+    adwrow.add_suffix(relnotes);
+    adwrow.activatable_widget = relnotes;
+    group3.add(adwrow);
+    adwrow = new Adw.ActionRow({
+      title: _("Report a issue"),
+      subtitle: _("Click to open"),
+    });
+    const repissue = new Gtk.LinkButton({ valign: Gtk.Align.CENTER });
+    repissue.set_uri("https://github.com/cliffniff/media-controls/issues");
+    adwrow.add_suffix(repissue);
+    adwrow.activatable_widget = repissue;
+    group3.add(adwrow);
+    adwrow = new Adw.ActionRow({
+      title: _("Extension home page"),
+      subtitle: _("Click to open"),
+    });
+    const exthomepage = new Gtk.LinkButton({ valign: Gtk.Align.CENTER });
+    exthomepage.set_uri(
+      "https://github.com/cliffniff/media-controls/blob/main/README.md"
+    );
+    adwrow.add_suffix(exthomepage);
+    adwrow.activatable_widget = exthomepage;
+    group3.add(adwrow);
+  }
+
+  _fillpage2(page2, settings) {
+    let adwrow;
+    page2.set_title(_("Visibility"));
+    page2.set_name("mediacontrols_page2");
+    page2.set_icon_name("video-display-symbolic");
+    // group1
+    const group1 = Adw.PreferencesGroup.new();
+    group1.set_title(_("show/hide elements"));
+    group1.set_name("mediacontrols_showhide");
+    page2.add(group1);
+    //row1
+    adwrow = new Adw.ActionRow({
+      title: _("Title/Track name"),
+    });
+    const showtext = this._createGtkSwitch(settings, "show-text");
+    adwrow.add_suffix(showtext);
+    adwrow.activatable_widget = showtext;
+    group1.add(adwrow);
+    //row2
+    adwrow = new Adw.ActionRow({
+      title: _("Player controls"),
+    });
+    const showcontrolicons = this._createGtkSwitch(
+      settings,
+      "show-control-icons"
+    );
+    adwrow.add_suffix(showcontrolicons);
+    adwrow.activatable_widget = showcontrolicons;
+    group1.add(adwrow);
+    //row3
+    adwrow = new Adw.ActionRow({
+      subtitle: _("Play/pause button"),
+    });
+    const showplaypauseicon = this._createGtkSwitch(
+      settings,
+      "show-playpause-icon"
+    );
+    adwrow.add_suffix(showplaypauseicon);
+    adwrow.activatable_widget = showplaypauseicon;
+    group1.add(adwrow);
+    //row4
+    adwrow = new Adw.ActionRow({
+      subtitle: _("Previous track button"),
+    });
+    const showprevicon = this._createGtkSwitch(settings, "show-prev-icon");
+    adwrow.add_suffix(showprevicon);
+    adwrow.activatable_widget = showprevicon;
+    group1.add(adwrow);
+    //row5
+    adwrow = new Adw.ActionRow({
+      subtitle: _("Next track button"),
+    });
+    const shownexticon = this._createGtkSwitch(settings, "show-next-icon");
+    adwrow.add_suffix(shownexticon);
+    adwrow.activatable_widget = shownexticon;
+    group1.add(adwrow);
+    //row6
+    adwrow = new Adw.ActionRow({
+      subtitle: _("Seek back button"),
+    });
+    const showseekback = this._createGtkSwitch(settings, "show-seek-back");
+    adwrow.add_suffix(showseekback);
+    adwrow.activatable_widget = showseekback;
+    group1.add(adwrow);
+    //row7
+    adwrow = new Adw.ActionRow({
+      subtitle: _("Seek forward button"),
+    });
+    const showseekforward = this._createGtkSwitch(
+      settings,
+      "show-seek-forward"
+    );
+    adwrow.add_suffix(showseekforward);
+    adwrow.activatable_widget = showseekforward;
+    group1.add(adwrow);
+    //row8
+    adwrow = new Adw.ActionRow({
+      title: _("Player icon"),
+    });
+    const showplayericon = this._createGtkSwitch(settings, "show-player-icon");
+    adwrow.add_suffix(showplayericon);
+    adwrow.activatable_widget = showplayericon;
+    group1.add(adwrow);
+    //row9
+    adwrow = new Adw.ActionRow({
+      title: _("Seperators"),
+    });
+    const showseperators = this._createGtkSwitch(settings, "show-seperators");
+    adwrow.add_suffix(showseperators);
+    adwrow.activatable_widget = showseperators;
+    group1.add(adwrow);
+    //row10
+    adwrow = new Adw.ActionRow({
+      title: _("Sources menu"),
+    });
+    const showsourcesmenu = this._createGtkSwitch(
+      settings,
+      "show-sources-menu"
+    );
+    adwrow.add_suffix(showsourcesmenu);
+    adwrow.activatable_widget = showsourcesmenu;
+    group1.add(adwrow);
+    // group2
+    const group2 = Adw.PreferencesGroup.new();
+    group2.set_title(_("Colors"));
+    group2.set_name("mediacontrols_color");
+    page2.add(group2);
+    //row1
+    adwrow = new Adw.ActionRow({
+      title: _("Colored player icon"),
+    });
+    const coloredplayericon = this._createGtkSwitch(
+      settings,
+      "colored-player-icon"
+    );
+    adwrow.add_suffix(coloredplayericon);
+    adwrow.activatable_widget = coloredplayericon;
+    group2.add(adwrow);
+    // group3
+    const group3 = Adw.PreferencesGroup.new();
+    group3.set_title(_("Seperator characters"));
+    group3.set_name("mediacontrols_seperator");
+    page2.add(group3);
+    //row1
+    adwrow = new Adw.ActionRow({ title: _("Preset") });
+    const widgetPreset = new Gtk.ComboBoxText({
+      valign: Gtk.Align.CENTER,
+    });
+    adwrow.add_suffix(widgetPreset);
+    adwrow.activatable_widget = widgetPreset;
+    group3.add(adwrow);
+    adwrow = new Adw.ActionRow({
+      title: _("Custom"),
+      subtitle: _("To use it choose 'Custom' under 'Preset' selection"),
+    });
+    const widgetCustom = new Gtk.Entry({
+      valign: Gtk.Align.CENTER,
+    });
+    widgetCustom.set_text("<...>");
+    adwrow.add_suffix(widgetCustom);
+    adwrow.activatable_widget = widgetCustom;
+    group3.add(adwrow);
+    this._initSeperatorwidgets(settings, widgetPreset, widgetCustom);
+  }
+
+  _fillpage3(page3, settings) {
+    let adwrow;
+    page3.set_title(_("Appearance"));
+    page3.set_name("mediacontrols_page3");
+    page3.set_icon_name("video-single-display-symbolic");
+    // group1
+    const group1 = Adw.PreferencesGroup.new();
+    group1.set_title(_("Position"));
+    group1.set_name("mediacontrols_position");
+    page3.add(group1);
+    //row1
+    adwrow = new Adw.ActionRow({
+      title: _("Extension position"),
+    });
+    const widgetExtensionPos = new Gtk.ComboBoxText({
+      valign: Gtk.Align.CENTER,
+    });
+    this._initExtensionPos(settings, widgetExtensionPos);
+    adwrow.add_suffix(widgetExtensionPos);
+    adwrow.activatable_widget = widgetExtensionPos;
+    group1.add(adwrow);
+    //row2
+    adwrow = new Adw.ActionRow({
+      title: _("Extension index"),
+    });
+    const extensionindex = new Gtk.SpinButton({ valign: Gtk.Align.CENTER });
+    extensionindex.set_sensitive(true);
+    extensionindex.set_range(0, 100);
+    extensionindex.set_value(0);
+    extensionindex.set_increments(1, 10);
+    settings.bind(
+      "extension-index",
+      extensionindex,
+      "value",
+      Gio.SettingsBindFlags.DEFAULT
+    );
+    adwrow.add_suffix(extensionindex);
+    adwrow.activatable_widget = extensionindex;
+    group1.add(adwrow);
+    const group2 = Adw.PreferencesGroup.new();
+    group2.set_title(_("Element order"));
+    group2.set_name("mediacontrols_elementorder");
+    page3.add(group2);
+    let elementOrderWidgets = [];
+    this._initElementOrder(settings, group2, elementOrderWidgets);
+  }
+
+  _fillpage4(page4, settings) {
+    let adwrow;
+    page4.set_title(_("Other"));
+    page4.set_name("mediacontrols_page4");
+    page4.set_icon_name("preferences-other-symbolic");
+    // group1
+    const group1 = Adw.PreferencesGroup.new();
+    group1.set_title(_("Mouse actions"));
+    group1.set_name("mediacontrols_mouseactions");
+    page4.add(group1);
+    this._initMouseActions(settings, group1);
+    // group2
+    const group2 = Adw.PreferencesGroup.new();
+    group2.set_title(_("Blacklist players"));
+    group2.set_name("mediacontrols_blacklistplayers");
+    page4.add(group2);
+    //row1
+    adwrow = new Adw.ActionRow({ title: _("Player") });
+    const blacklistentry = new Gtk.Entry({ valign: Gtk.Align.CENTER });
+    adwrow.add_suffix(blacklistentry);
+    adwrow.activatable_widget = blacklistentry;
+    group2.add(adwrow);
+    const blacklistbuttonadd = Gtk.Button.new_from_icon_name(
+      "list-add-symbolic",
+      Gtk.IconSize.BUTTON || Gtk.IconSize.NORMAL
+    );
+    blacklistbuttonadd.set_valign(Gtk.Align.CENTER);
+    adwrow.add_suffix(blacklistbuttonadd);
+    adwrow.activatable_widget = blacklistbuttonadd;
+    blacklistbuttonadd.connect(
+      "clicked",
+      this._onblacklistentryadd.bind(this, settings, group2, blacklistentry)
+    );
+    this._initblacklistapps(settings, group2);
+    // group3
+    const group3 = Adw.PreferencesGroup.new();
+    group3.set_title(_("Cache"));
+    group3.set_name("mediacontrols_cache");
+    page4.add(group3);
+    //row1
+    adwrow = new Adw.ActionRow({
+      title: _("Cache images"),
+    });
+    const cacheimages = this._createGtkSwitch(settings, "cache-images");
+    adwrow.add_suffix(cacheimages);
+    adwrow.activatable_widget = cacheimages;
+    group3.add(adwrow);
+    //row2
+    adwrow = new Adw.ActionRow({
+      title: _(
+        "Media Controls caches album art so they don't need to be redownloaded everytime. You can clear your cache here."
+      ),
+    });
+    group3.add(adwrow);
+    adwrow = new Adw.ActionRow();
+    const widgetCacheSize = new Gtk.Label({
+      label: "0 MB",
+      valign: Gtk.Align.CENTER,
+    });
+    this._initCacheSize(widgetCacheSize);
+    const clearcachespinner = new Gtk.Spinner({
+      valign: Gtk.Align.CENTER,
+    });
+    const deletecachebutton = new Gtk.Button({
+      label: _("Clear cache"),
+      valign: Gtk.Align.CENTER,
+    });
+    adwrow.activatable_widget = deletecachebutton;
+    deletecachebutton.connect(
+      "clicked",
+      this._onclearcacheclicked.bind(this, widgetCacheSize, clearcachespinner)
+    );
+    adwrow.add_suffix(deletecachebutton);
+    adwrow.add_suffix(clearcachespinner);
+    adwrow.add_suffix(widgetCacheSize);
+    group3.add(adwrow);
+  }
+
+  fillPreferencesWindow(window) {
+    window.set_default_size(675, 750);
+    window._settings = this.getSettings();
+
+    const page1 = Adw.PreferencesPage.new();
+    this._fillpage1(page1, window._settings);
+    const page2 = Adw.PreferencesPage.new();
+    this._fillpage2(page2, window._settings);
+    const page3 = Adw.PreferencesPage.new();
+    this._fillpage3(page3, window._settings);
+    const page4 = Adw.PreferencesPage.new();
+    this._fillpage4(page4, window._settings);
+    window.add(page1);
+    window.add(page2);
+    window.add(page3);
+    window.add(page4);
+  }
+
+  _onseperatorpresetchanged(widget) {
+    let label = widget.get_label();
+    let strlabelC = _("Custom");
+    if (label !== strlabelC) {
+      const presetSepChars = [
+        "|...|",
+        "[...]",
+        "(...)",
+        "{...}",
+        "/...\\",
+        "\\.../",
+        ":...:",
+        "-...-",
+        "_..._",
+        "=...=",
+        "•...•",
+        "█...█",
+      ];
       let presetValue = presetSepChars[widget.get_active()];
       settings.set_strv("seperator-chars", [
         presetValue.charAt(0),
         presetValue.charAt(presetValue.length - 1),
       ]);
     }
-  },
-  on_seperator_custom_changed: (widget) => {
-    if (builder.get_object("custom-radio-btn").get_active()) {
+  }
+
+  _onseperatorcustomchanged(widget, widgetPreset) {
+    let label = widgetPreset.get_label();
+    let strlabelC = _("Custom");
+    if (label === strlabelC) {
       let customValues = widget.get_text().split("...");
       if (customValues[0] && customValues[1]) {
         settings.set_strv("seperator-chars", [
@@ -144,385 +832,37 @@ const signalHandler = {
         ]);
       }
     }
-  },
+  }
 
-  // on_mouse_actions_left_changed: (widget) => {
-  //     let currentMouseActions = settings.get_strv("mouse-actions");
-  //     currentMouseActions[0] = mouseActionNameIds[widget.get_active()];
-  //     settings.set_strv("mouse-actions", currentMouseActions);
-  // },
-  // on_mouse_actions_right_changed: (widget) => {
-  //     let currentMouseActions = settings.get_strv("mouse-actions");
-  //     currentMouseActions[1] = mouseActionNameIds[widget.get_active()];
-  //     settings.set_strv("mouse-actions", currentMouseActions);
-  // },
-  on_extension_position_changed: (widget) => {
-    settings.set_string("extension-position", positions[widget.get_active()]);
-  },
+  async _getCacheSize() {
+    // Command: du -hs [data_directory]/media-controls | awk '{NF=1}1'
+    try {
+      let dir = GLib.get_user_config_dir() + "/media-controls";
+      const result = await execCommunicate([
+        "/bin/bash",
+        "-c",
+        `du -hs ${dir} | awk '{NF=1}1'`,
+      ]);
+      return result || "0K";
+    } catch (error) {
+      logError(error);
+    }
+  }
 
-  on_clear_cache_clicked: () => {
+  async _clearcache(widgetCacheSize, clearcachespinner) {
     let dir = GLib.get_user_config_dir() + "/media-controls";
     try {
-      (async () => {
-        builder.get_object("clear-cache-spinner").start();
-        await execCommunicate(["rm", "-r", dir]);
-        widgetCacheSize.set_text(await getCacheSize());
-        builder.get_object("clear-cache-spinner").stop();
-      })();
+      clearcachespinner.start();
+      await execCommunicate(["rm", "-r", dir]);
+      widgetCacheSize.set_text(await this._getCacheSize());
+      clearcachespinner.stop();
     } catch (error) {
-      widgetCacheSize.set_text("Failed to clear cache");
+      widgetCacheSize.set_text(_("Failed to clear cache"));
+      clearcachespinner.stop();
     }
-  },
-  on_track_label_changed: () => {
-    let currentTrackLabel = settings.get_strv("track-label");
-
-    let trackLabelSepText = trackLabelSep.get_text();
-
-    let trackLabelArray = [
-      trackLabelOptKeys[trackLabelStart.get_active()] || currentTrackLabel[0],
-      trackLabelSepText !== null || trackLabelSepText !== undefined
-        ? trackLabelSepText
-        : currentTrackLabel[1],
-      trackLabelOptKeys[trackLabelEnd.get_active()] || currentTrackLabel[2],
-    ];
-
-    settings.set_strv("track-label", trackLabelArray);
-  },
-
-  on_backlist_entry_changed: (entry) => {
-    let currentBacklistApps = settings.get_strv("backlist-apps");
-    currentBacklistApps.push(entry.get_text());
-    addToBacklistListBox(entry.get_text());
-    settings.set_strv("backlist-apps", currentBacklistApps);
-    entry.set_text("");
-  },
-};
-
-function bindSettings() {
-  settings.bind(
-    "max-widget-width",
-    builder.get_object("max-widget-width"),
-    "value",
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  // settings.bind("update-delay", builder.get_object("update-delay"), "value", Gio.SettingsBindFlags.DEFAULT);
-  settings.bind(
-    "show-text",
-    builder.get_object("show-text"),
-    "active",
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  settings.bind(
-    "show-player-icon",
-    builder.get_object("show-player-icon"),
-    "active",
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  settings.bind(
-    "show-control-icons",
-    builder.get_object("show-control-icons"),
-    "active",
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  settings.bind(
-    "show-playpause-icon",
-    builder.get_object("show-playpause-icon"),
-    "active",
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  settings.bind(
-    "show-prev-icon",
-    builder.get_object("show-prev-icon"),
-    "active",
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  settings.bind(
-    "show-next-icon",
-    builder.get_object("show-next-icon"),
-    "active",
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  settings.bind(
-    "seek-interval-secs",
-    builder.get_object("seek-interval-secs"),
-    "value",
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  settings.bind(
-    "prefer-using-seek",
-    builder.get_object("prefer-using-seek"),
-    "active",
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  settings.bind(
-    "show-seek-back",
-    builder.get_object("show-seek-back"),
-    "active",
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  settings.bind(
-    "show-seek-forward",
-    builder.get_object("show-seek-forward"),
-    "active",
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  settings.bind(
-    "show-seperators",
-    builder.get_object("show-seperators"),
-    "active",
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  settings.bind(
-    "colored-player-icon",
-    builder.get_object("colored-player-icon"),
-    "active",
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  settings.bind(
-    "extension-index",
-    builder.get_object("extension-index"),
-    "value",
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  settings.bind(
-    "show-sources-menu",
-    builder.get_object("show-sources-menu"),
-    "active",
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  settings.bind(
-    "cache-images",
-    builder.get_object("cache-images"),
-    "active",
-    Gio.SettingsBindFlags.DEFAULT
-  );
-  settings.bind(
-    "hide-media-notification",
-    builder.get_object("hide-media-notification"),
-    "active",
-    Gio.SettingsBindFlags.DEFAULT
-  );
-}
-
-function initWidgets() {
-  // Init presets combobox
-  presetSepChars.forEach((preset) => {
-    widgetPreset.append(preset, preset);
-  });
-  let savedSepChars = settings.get_strv("seperator-chars");
-  let sepChars = `${savedSepChars[0]}...${savedSepChars[1]}`;
-  if (presetSepChars.includes(sepChars)) {
-    builder.get_object("preset-radio-btn").set_active(true);
-    widgetPreset.set_active(presetSepChars.indexOf(sepChars));
-    widgetCustom.set_sensitive(false);
-  } else {
-    builder.get_object("custom-radio-btn").set_active(true);
-    widgetCustom.set_text(sepChars);
-    widgetPreset.set_active(0);
-    widgetPreset.set_sensitive(false);
   }
 
-  // Init extension position combobox
-  let widgetExtensionPos = builder.get_object("extension-position");
-  positions.forEach((position) => {
-    widgetExtensionPos.append(position, _(position));
-  });
-  widgetExtensionPos.set_active(
-    positions.indexOf(settings.get_string("extension-position"))
-  );
-
-  elementOrder = settings.get_strv("element-order");
-
-  elementIds.forEach((element, index) => {
-    let widget = new Gtk.ComboBoxText({
-      visible: true,
-      can_focus: false,
-    });
-
-    elementIds.forEach((_element) => {
-      widget.append(_element, _(elements[_element]));
-    });
-
-    widget.set_active(elementIds.indexOf(elementOrder[index]));
-
-    widget.connect("changed", () => {
-      let newElementOrder = [];
-      elementOrder = settings.get_strv("element-order");
-      elementOrderWidgets.forEach((_widget, index) => {
-        let val = elementIds[_widget.get_active()];
-
-        if (newElementOrder.includes(val)) {
-          let _index = newElementOrder.indexOf(val);
-          if (elementOrder[_index] === val) {
-            newElementOrder[_index] = elementOrder[index];
-            elementOrderWidgets[_index].set_active(
-              elementIds.indexOf(elementOrder[index])
-            );
-          } else {
-            val = elementOrder[_index];
-            _widget.set_active(elementIds.indexOf(val));
-          }
-        }
-        newElementOrder.push(val);
-      });
-      settings.set_strv("element-order", newElementOrder);
-    });
-
-    widgetElementOrder.attach(widget, 1, index, 1, 1);
-    elementOrderWidgets.push(widget);
-  });
-
-  // Init mouse action comboboxes
-  // let widgetMouseActionLeft = builder.get_object("mouse-actions-left");
-  // let widgetMouseActionRight = builder.get_object("mouse-actions-right");
-  // mouseActionNameIds.forEach((action) => {
-  //     widgetMouseActionLeft.append(action, mouseActionNamesMap[action]);
-  //     widgetMouseActionRight.append(action, mouseActionNamesMap[action]);
-  // });
-  // widgetMouseActionLeft.set_active(mouseActionNameIds.indexOf(mouseActions[0]));
-  // widgetMouseActionRight.set_active(mouseActionNameIds.indexOf(mouseActions[1]));
-
-  trackLabelOptKeys.forEach((opt) => {
-    trackLabelStart.append(opt, _(trackLabelOpts[opt]));
-    trackLabelEnd.append(opt, _(trackLabelOpts[opt]));
-  });
-
-  let tracklabelSetting = settings.get_strv("track-label");
-
-  trackLabelSep.set_text(tracklabelSetting[1]);
-  trackLabelStart.set_active(trackLabelOptKeys.indexOf(tracklabelSetting[0]));
-  trackLabelEnd.set_active(trackLabelOptKeys.indexOf(tracklabelSetting[2]));
-
-  // trackLabelStart.set_active();
-
-  let mouseActions = settings.get_strv("mouse-actions");
-  let widgetMouseActionsGrid = builder.get_object("mouse-actions-grid");
-
-  mouseActionLabels.forEach((label, index) => {
-    let widgetLabel = new Gtk.Label({
-      use_markup: true,
-      label,
-      visible: true,
-      halign: Gtk.Align.START,
-    });
-
-    let widgetCombobox = new Gtk.ComboBoxText({
-      visible: true,
-      halign: Gtk.Align.END,
-      can_focus: false,
-    });
-
-    mouseActionNameIds.forEach((action) => {
-      widgetCombobox.append(action, _(mouseActionNamesMap[action]));
-    });
-
-    widgetCombobox.set_active(mouseActionNameIds.indexOf(mouseActions[index]));
-
-    widgetCombobox.index = index;
-
-    widgetCombobox.connect("changed", (widget) => {
-      let currentMouseActions = settings.get_strv("mouse-actions");
-      currentMouseActions[widget.index] =
-        mouseActionNameIds[widget.get_active()];
-      settings.set_strv("mouse-actions", currentMouseActions);
-    });
-
-    widgetMouseActionsGrid.attach(widgetLabel, 0, index, 1, 1);
-    widgetMouseActionsGrid.attach(widgetCombobox, 1, index, 1, 1);
-  });
-
-  let currentBacklistApps = settings.get_strv("backlist-apps");
-
-  currentBacklistApps.forEach((app) => {
-    addToBacklistListBox(app);
-  });
-
-  (async () => {
-    widgetCacheSize.set_text(await getCacheSize());
-  })();
-}
-
-function init() {
-  ExtensionUtils.initTranslations("mediacontrols");
-  settings = ExtensionUtils.getSettings();
-}
-
-function buildPrefsWidget() {
-  builder = new Gtk.Builder();
-  if (shellVersion < 40) {
-    builder.add_from_file(Me.dir.get_path() + "/prefs3.ui");
-    builder.connect_signals_full((builder, object, signal, handler) => {
-      object.connect(signal, signalHandler[handler].bind(this));
-    });
-  } else {
-    builder.set_scope(new MediaControlsBuilderScope());
-    builder.add_from_file(Me.dir.get_path() + "/prefs4.ui");
+  _onclearcacheclicked(widgetCacheSize, clearcachespinner) {
+    this._clearcache(widgetCacheSize, clearcachespinner);
   }
-  widgetPreset = builder.get_object("sepchars-preset");
-  widgetCustom = builder.get_object("sepchars-custom");
-  trackLabelStart = builder.get_object("track-label-start");
-  trackLabelSep = builder.get_object("track-label-sep");
-  trackLabelEnd = builder.get_object("track-label-end");
-  widgetCacheSize = builder.get_object("cache-size");
-  widgetElementOrder = builder.get_object("element-order");
-
-  widgetBacklistBox = builder.get_object("backlist-listbox");
-
-  elementOrderWidgets = [];
-  initWidgets();
-  bindSettings();
-  return builder.get_object("main_prefs");
 }
-
-const getCacheSize = async () => {
-  // Command: du -hs [data_directory]/media-controls | awk '{NF=1}1'
-  try {
-    let dir = GLib.get_user_config_dir() + "/media-controls";
-    const result = await execCommunicate([
-      "/bin/bash",
-      "-c",
-      `du -hs ${dir} | awk '{NF=1}1'`,
-    ]);
-    return result || "0K";
-  } catch (error) {
-    logError(error);
-  }
-};
-
-const addToBacklistListBox = (app) => {
-  let box = new Gtk.Box({
-    visible: true,
-  });
-
-  let label = new Gtk.Label({
-    visible: true,
-    label: app,
-    hexpand: true,
-    halign: Gtk.Align.START,
-  });
-
-  let deleteButton = Gtk.Button.new_from_icon_name(
-    "edit-delete-symbolic",
-    Gtk.IconSize.BUTTON || Gtk.IconSize.NORMAL
-  );
-
-  deleteButton.visible = true;
-  deleteButton.app = app;
-
-  deleteButton.connect("clicked", (widget) => {
-    let currentBacklistApps = settings.get_strv("backlist-apps");
-    currentBacklistApps.splice(currentBacklistApps.indexOf(widget.app), 1);
-    settings.set_strv("backlist-apps", currentBacklistApps);
-    widgetBacklistBox.remove(widget.get_parent().get_parent());
-  });
-
-  if (shellVersion < 40) {
-    box.add(label);
-    box.add(deleteButton);
-    widgetBacklistBox.insert(box, -1);
-  } else {
-    box.append(label);
-    box.append(deleteButton);
-    widgetBacklistBox.append(box);
-  }
-};

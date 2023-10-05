@@ -1,8 +1,8 @@
 "use strict";
 
-const { Gio, GLib } = imports.gi;
+import Gio from "gi://Gio";
 
-var ifacesXml = `
+const ifacesXml = `
     <node>
         <interface name="org.mpris.MediaPlayer2.Player">
             <method name="Next" />
@@ -45,29 +45,36 @@ var ifacesXml = `
 
 const nodeInfo = Gio.DBusNodeInfo.new_for_xml(ifacesXml);
 
-var createProxy = (ifaceName, busName, objectPath, flags = Gio.DBusProxyFlags.NONE) => {
-    return new Promise((resolve, reject) => {
-        let ifaceInfo = nodeInfo.interfaces.find((iface) => iface.name == ifaceName);
-        if (ifaceInfo) {
-            Gio.DBusProxy.new(
-                Gio.DBus.session,
-                flags,
-                ifaceInfo,
-                busName,
-                objectPath,
-                ifaceName,
-                null,
-                (source, result) => {
-                    try {
-                        let proxy = Gio.DBusProxy.new_finish(result);
-                        resolve(proxy);
-                    } catch (error) {
-                        reject(error);
-                    }
-                }
-            );
-        } else {
-            reject(new Error("Interface not found"));
+export var createProxy = (
+  ifaceName,
+  busName,
+  objectPath,
+  flags = Gio.DBusProxyFlags.NONE
+) => {
+  return new Promise((resolve, reject) => {
+    let ifaceInfo = nodeInfo.interfaces.find(
+      (iface) => iface.name == ifaceName
+    );
+    if (ifaceInfo) {
+      Gio.DBusProxy.new(
+        Gio.DBus.session,
+        flags,
+        ifaceInfo,
+        busName,
+        objectPath,
+        ifaceName,
+        null,
+        (source, result) => {
+          try {
+            let proxy = Gio.DBusProxy.new_finish(result);
+            resolve(proxy);
+          } catch (error) {
+            reject(error);
+          }
         }
-    });
+      );
+    } else {
+      reject(new Error("Interface not found"));
+    }
+  });
 };
