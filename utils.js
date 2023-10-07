@@ -59,17 +59,24 @@ export var stripInstanceNumbers = (busName) => {
 
 export var getRequest = (url) => {
   return new Promise((resolve, reject) => {
-    let _session = new Soup.SessionAsync();
-    let request = Soup.Message.new("GET", url);
-    _session.queue_message(request, (session, message) => {
-      if (message.status_code === 200) {
-        let buffer = message.response_body.flatten();
-        let bytes = buffer.get_data();
-        resolve(bytes);
-      } else {
-        reject();
+    let _session = new Soup.Session();
+    let _request = Soup.Message.new("GET", url);
+    _session.send_and_read_async(
+      _request,
+      GLib.PRIORITY_DEFAULT,
+      null,
+      (_session, result) => {
+        if (_request.get_status() === Soup.Status.OK) {
+          let bytes = _session.send_and_read_finish(result);
+          let decoder = new TextDecoder("utf-8");
+          let response = decoder.decode(bytes.get_data());
+          resolve(response);
+        } else {
+          log("Soup request not resolved");
+          reject();
+        }
       }
-    });
+    );
   });
 };
 
