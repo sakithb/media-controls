@@ -82,7 +82,7 @@ export const Player = GObject.registerClass(
         }
 
         initWidgets() {
-            // Title/artist and seperators
+            // Title/artist and separators
 
             this.labelTitle = new St.Label({
                 text: this.label || "No track",
