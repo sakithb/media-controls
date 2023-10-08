@@ -587,7 +587,7 @@ class AdwPrefs {
         group1.add(adwrow);
         //row2
         adwrow = new Adw.ActionRow({
-            subtitle: _("Seperators"),
+            subtitle: _("Separators"),
         });
         const showseperators = this._createGtkSwitch(
             settings,
@@ -693,7 +693,7 @@ class AdwPrefs {
         group2.add(adwrow);
         // group3
         const group3 = Adw.PreferencesGroup.new();
-        group3.set_title(_("Seperator characters"));
+        group3.set_title(_("Separator characters"));
         group3.set_name("mediacontrols_seperator");
         page2.add(group3);
         //row1
@@ -798,7 +798,7 @@ class AdwPrefs {
         //row2
         adwrow = new Adw.ActionRow({
             title: _(
-                "Media Controls caches album art so they don't need to be redownloaded everytime. You can clear your cache here."
+                "Media Controls caches album art so they don't need to be redownloaded every time. You can clear your cache here."
             ),
         });
         group1.add(adwrow);
