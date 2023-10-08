@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-04-22 19:05+0200\n"
-"PO-Revision-Date: 2023-04-22 19:07+0200\n"
+"POT-Creation-Date: 2023-08-25 16:54+0200\n"
+"PO-Revision-Date: 2023-08-25 16:57+0200\n"
 "Last-Translator: Christian Lauinger <christian@lauinger-clan.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -26,287 +26,312 @@ msgstr "[MediaControls] aktivieren"
 msgid "[MediaControls] Disabling"
 msgstr "[MediaControls] deaktivieren"
 
-#: prefs.js:19
-msgid "left"
-msgstr "links"
-
-#: prefs.js:19
-msgid "center"
-msgstr "zentral"
-
-#: prefs.js:19
-msgid "right"
-msgstr "rechts"
-
-#: prefs.js:22 prefs.js:67
-msgid "None"
-msgstr "Keine"
-
-#: prefs.js:23
-msgid "Toggle play/pause"
-msgstr "Abspielen/Pause umschalten"
-
-#: prefs.js:24
-msgid "Play"
-msgstr "Abspielen"
-
-#: prefs.js:25
-msgid "Pause"
-msgstr "Pause"
-
-#: prefs.js:26
-msgid "Next"
-msgstr "Nächstes"
-
-#: prefs.js:27
-msgid "Previous"
-msgstr "Verheriges"
-
-#: prefs.js:28
-msgid "Cycle loop options"
-msgstr "Optionen für Zyklusschleifen"
-
-#: prefs.js:29
-msgid "Toggle shuffle"
-msgstr "Zufallswiedergabe umschalten"
-
-#: prefs.js:30
-msgid "Open sources menu"
-msgstr "Öffne Quellenmenü"
-
-#: prefs.js:31
-msgid "Open track information menu"
-msgstr "Öffne Spurinformationsmenü"
-
-#: prefs.js:32
-msgid "Raise player"
-msgstr "Spieler anheben"
-
-#: prefs.js:33
-msgid "Quit player"
-msgstr "Spieler beenden"
-
-#: prefs.js:53 prefs4.ui:588
-msgid "Player icon"
-msgstr "Spielersymbol"
-
-#: prefs.js:54
-msgid "Track title"
-msgstr "Spurtitel"
-
-#: prefs.js:55
-msgid "Control icons"
-msgstr "Kontrollsymbole"
-
-#: prefs.js:56 prefs4.ui:610
-msgid "Sources menu"
-msgstr "Quellenmenü"
-
-#: prefs.js:61
+#: prefs.js:42
 msgid "Track"
 msgstr "Spur"
 
-#: prefs.js:62
+#: prefs.js:43
 msgid "Artist"
 msgstr "Künstler"
 
-#: prefs.js:63
+#: prefs.js:44
 msgid "URL"
 msgstr "URL"
 
-#: prefs.js:64
+#: prefs.js:45
 msgid "Player name"
 msgstr "Abspielername"
 
-#: prefs.js:65
+#: prefs.js:46
 msgid "Playback status"
 msgstr "Wiedergabestatus"
 
-#: prefs.js:66
+#: prefs.js:47
 msgid "Filename"
 msgstr "Dateiname"
 
-#: prefs.js:72
-msgid "Left click"
-msgstr "Linksklick"
+#: prefs.js:48 prefs.js:257
+msgid "None"
+msgstr "Keine"
 
-#: prefs.js:73
-msgid "Right click"
-msgstr "Rechtsklick"
-
-#: prefs.js:74
-msgid "Middle click"
-msgstr "Mittelklick"
-
-#: prefs.js:75
-msgid "Left double click"
-msgstr "Doppelklick links"
-
-#: prefs.js:76
-msgid "Right double click"
-msgstr "Doppelklick rechts"
-
-#: prefs.js:77
-msgid "Scroll up"
-msgstr "Hochscrollen"
-
-#: prefs.js:78
-msgid "Scroll down"
-msgstr "Runterrscrollen"
-
-#: prefs.js:79
-msgid "Hover <i><span size='smaller'>(unstable)</span></i>"
-msgstr "Schweben <i><span size='smaller'>(instabil)</span></i>"
-
-#: prefs4.ui:42
-msgid ""
-"<b>Max widget width</b>\n"
-"<span size=\"small\"><i>0 to disable</i></span>"
-msgstr ""
-"<b>Max Widget Grösse</b>\n"
-"<span size=\"small\"><i>0 deaktiviert</i></span>"
-
-#: prefs4.ui:54 prefs4.ui:76 prefs4.ui:837
-msgid "0"
-msgstr "0"
-
-#: prefs4.ui:66
-msgid "Seek time (seconds)"
-msgstr "Suchzeit (Sekunden)"
-
-#: prefs4.ui:88
-msgid ""
-"<b>Use native seek</b>\n"
-"<span size=\"small\"><i>Some players do not support seek.</i></span>"
-msgstr ""
-"<b>Benutze native Suche</b>\n"
-"<span size=\"small\"><i>Nicht alle Abspieler unterstützen es.</i></span>"
-
-#: prefs4.ui:110
-msgid "Track label"
-msgstr "Spur Beschriftung"
-
-#: prefs4.ui:184
-msgid "Report a issue"
-msgstr "Ein Problem melden"
-
-#: prefs4.ui:208
-msgid "Extension home page"
-msgstr "Erweiterungs Homepage"
-
-#: prefs4.ui:253
-msgid "You can now hide the media notification in the notification menu"
-msgstr "Sie können jetzt die Medienbenachrichtigung im Menü verstecken"
-
-#: prefs4.ui:293
-msgid "What's new in v20?"
-msgstr "Was ist neu in v20?"
-
-#: prefs4.ui:308
-msgid "Support for GNOME 41 and GNOME 3.36"
-msgstr "Unterstützung für GNOME 41 und GNOME 3.36"
-
-#: prefs4.ui:336
-msgid "You can manually hide players now"
-msgstr "Sie können jetzt Abspieler manuell verstecken"
-
-#: prefs4.ui:367
-msgid "Release Notes"
-msgstr "Release Notes"
-
-#: prefs4.ui:386
-msgid "Hide the default media notification"
-msgstr "Verstecke die Standard-Medienbenachrichtigung"
-
-#: prefs4.ui:411
-msgid "General"
-msgstr "Generell"
-
-#: prefs4.ui:439
-msgid "Colored player icon"
-msgstr "Farbiges Spieler-Symbol"
-
-#: prefs4.ui:457
-msgid "Preset"
-msgstr "Voreinstellung"
-
-#: prefs4.ui:469
+#: prefs.js:112 prefs.js:636 prefs.js:793 prefs.js:819
 msgid "Custom"
 msgstr "Benutzerdefiniert"
 
-#: prefs4.ui:496
-msgid "Seperator characters"
-msgstr "Seperator Zeichen"
+#: prefs.js:141
+msgid "left"
+msgstr "links"
 
-#: prefs4.ui:509
-msgid "<...>"
-msgstr "<...>"
+#: prefs.js:141
+msgid "center"
+msgstr "zentral"
 
-#: prefs4.ui:539
-msgid "Title/Track name"
-msgstr "Titel/Spurname"
+#: prefs.js:141
+msgid "right"
+msgstr "rechts"
 
-#: prefs4.ui:568
-msgid "Seperators"
-msgstr "Seperatoren"
+#: prefs.js:186 prefs.js:581
+msgid "Player icon"
+msgstr "Abspielersymbol"
 
-#: prefs4.ui:599
-msgid "Player controls"
-msgstr "Spielersteuerung"
+#: prefs.js:187
+msgid "Track title"
+msgstr "Spurtitel"
 
-#: prefs4.ui:639
-msgid "Play/pause button"
-msgstr "Abspielen/Pause-Button"
+#: prefs.js:188
+msgid "Control icons"
+msgstr "Kontrollsymbole"
 
-#: prefs4.ui:659
-msgid "Previous track button"
-msgstr "Vorherige Spur-Button"
+#: prefs.js:189 prefs.js:597
+msgid "Sources menu"
+msgstr "Quellenmenü"
 
-#: prefs4.ui:670
-msgid "Next track button"
-msgstr "Nächste Spur-Button"
+#: prefs.js:193
+msgid "Element"
+msgstr "Element"
 
-#: prefs4.ui:699
-msgid "Seek back button"
-msgstr "Rückwärtssuche-Taste"
+#: prefs.js:231
+msgid "Left click"
+msgstr "Linksklick"
 
-#: prefs4.ui:719
-msgid "Seek forward button"
-msgstr "Vorwärtssuche-Taste"
+#: prefs.js:232
+msgid "Right click"
+msgstr "Rechtsklick"
 
-#: prefs4.ui:751
-msgid "show/hide elements"
-msgstr "Anzeige/verstecke Elemente"
+#: prefs.js:233
+msgid "Middle click"
+msgstr "Mittelklick"
 
-#: prefs4.ui:788
+#: prefs.js:234
+msgid "Left double click"
+msgstr "Doppelklick links"
+
+#: prefs.js:235
+msgid "Right double click"
+msgstr "Doppelklick rechts"
+
+#: prefs.js:236
+msgid "Scroll up"
+msgstr "Hochscrollen"
+
+#: prefs.js:237
+msgid "Scroll down"
+msgstr "Runterrscrollen"
+
+#: prefs.js:238 prefs.js:244
+msgid "Hover"
+msgstr "Schweben"
+
+#: prefs.js:245
+msgid "unstable"
+msgstr "instabil"
+
+#: prefs.js:258
+msgid "Toggle play/pause"
+msgstr "Abspielen/Pause umschalten"
+
+#: prefs.js:259
+msgid "Play"
+msgstr "Abspielen"
+
+#: prefs.js:260
+msgid "Pause"
+msgstr "Pause"
+
+#: prefs.js:261
+msgid "Next"
+msgstr "Nächstes"
+
+#: prefs.js:262
+msgid "Previous"
+msgstr "Verheriges"
+
+#: prefs.js:263
+msgid "Cycle loop options"
+msgstr "Optionen für Zyklusschleifen"
+
+#: prefs.js:264
+msgid "Toggle shuffle"
+msgstr "Zufallswiedergabe umschalten"
+
+#: prefs.js:265
+msgid "Open sources menu"
+msgstr "Öffne Quellenmenü"
+
+#: prefs.js:266
+msgid "Open track information menu"
+msgstr "Öffne Spurinformationsmenü"
+
+#: prefs.js:267
+msgid "Raise player"
+msgstr "Abspieler anheben"
+
+#: prefs.js:268
+msgid "Quit player"
+msgstr "Abspieler beenden"
+
+#: prefs.js:361
+msgid "General"
+msgstr "Generell"
+
+#: prefs.js:367
+msgid "Settings"
+msgstr "Einstellungen"
+
+#: prefs.js:372
+msgid "Max widget width"
+msgstr "Max Widget Grösse"
+
+#: prefs.js:373
+msgid "0 to disable"
+msgstr "0 deaktiviert"
+
+#: prefs.js:391
+msgid "Seek time (seconds)"
+msgstr "Suchzeit (Sekunden)"
+
+#: prefs.js:409
+msgid "Use native seek"
+msgstr "Benutze native Suche"
+
+#: prefs.js:410
+msgid "Some players do not support seek."
+msgstr "Nicht alle Abspieler unterstützen es."
+
+#: prefs.js:427
+msgid "Hide the default media notification"
+msgstr "Verstecke die Standard-Medienbenachrichtigung"
+
+#: prefs.js:444
+msgid "Track label"
+msgstr "Spur Beschriftung"
+
+#: prefs.js:467
+msgid "Github"
+msgstr "Github"
+
+#: prefs.js:472
+msgid "Release Notes"
+msgstr "Release Notes"
+
+#: prefs.js:473 prefs.js:484 prefs.js:493
+msgid "Click to open"
+msgstr "Zum Öffnen klicken"
+
+#: prefs.js:483
+msgid "Report a issue"
+msgstr "Ein Problem melden"
+
+#: prefs.js:492
+msgid "Extension home page"
+msgstr "Erweiterungs Homepage"
+
+#: prefs.js:506
 msgid "Visibility"
 msgstr "Sichtbarkeit"
 
-#: prefs4.ui:816
-msgid "Extension position"
-msgstr "Erweiterungsposition"
+#: prefs.js:511
+msgid "show/hide elements"
+msgstr "Anzeige/verstecke Elemente"
 
-#: prefs4.ui:827
-msgid "Extension index"
-msgstr "Erweiterungsindex"
+#: prefs.js:516
+msgid "Title/Track name"
+msgstr "Titel/Spurname"
 
-#: prefs4.ui:849
-msgid "Element order"
-msgstr "Elementanordnung"
+#: prefs.js:524
+msgid "Player controls"
+msgstr "Spielersteuerung"
 
-#: prefs4.ui:899
+#: prefs.js:535
+msgid "Play/pause button"
+msgstr "Abspielen/Pause-Button"
+
+#: prefs.js:546
+msgid "Previous track button"
+msgstr "Vorherige Spur-Button"
+
+#: prefs.js:554
+msgid "Next track button"
+msgstr "Nächste Spur-Button"
+
+#: prefs.js:562
+msgid "Seek back button"
+msgstr "Rückwärtssuche-Taste"
+
+#: prefs.js:570
+msgid "Seek forward button"
+msgstr "Vorwärtssuche-Taste"
+
+#: prefs.js:589
+msgid "Seperators"
+msgstr "Seperatoren"
+
+#: prefs.js:608
+msgid "Colors"
+msgstr "Farben"
+
+#: prefs.js:613
+msgid "Colored player icon"
+msgstr "Farbiges Spieler-Symbol"
+
+#: prefs.js:624
+msgid "Seperator characters"
+msgstr "Seperator Zeichen"
+
+#: prefs.js:628
+msgid "Preset"
+msgstr "Voreinstellung"
+
+#: prefs.js:637
+msgid "To use it choose 'Custom' under 'Preset' selection"
+msgstr ""
+"Um es zu benutzen 'Benutzerdefiniert' unter 'Voreinstellung' auswählen"
+
+#: prefs.js:651
+msgid "Appearance"
+msgstr "Darstellung"
+
+#: prefs.js:656
 msgid "Position"
 msgstr "Position"
 
-#: prefs4.ui:927
+#: prefs.js:661
+msgid "Extension position"
+msgstr "Erweiterungsposition"
+
+#: prefs.js:672
+msgid "Extension index"
+msgstr "Erweiterungsindex"
+
+#: prefs.js:689
+msgid "Element order"
+msgstr "Elementanordnung"
+
+#: prefs.js:698
+msgid "Other"
+msgstr "Andere"
+
+#: prefs.js:703
 msgid "Mouse actions"
 msgstr "Mausaktionen"
 
-#: prefs4.ui:942
+#: prefs.js:709
+msgid "Blacklist players"
+msgstr "Abspieler auf die schwarze Liste setzen"
+
+#: prefs.js:713
+msgid "Player"
+msgstr "Abspieler"
+
+#: prefs.js:732
+msgid "Cache"
+msgstr "Zwischenspeicher"
+
+#: prefs.js:737
 msgid "Cache images"
 msgstr "Bilderzwischenspeicher"
 
-#: prefs4.ui:956
+#: prefs.js:746
 msgid ""
 "Media Controls caches album art so they don't need to be redownloaded "
 "everytime. You can clear your cache here."
@@ -314,18 +339,48 @@ msgstr ""
 "Media Controls speichert Albumcover zwischen so das nicht um runtergeladen "
 "werden muss. Sie können den Zwischenspeicher hier leeren."
 
-#: prefs4.ui:971
+#: prefs.js:759
 msgid "Clear cache"
 msgstr "Zwischenspeicher leeren"
 
-#: prefs4.ui:985
-msgid "0 MB"
-msgstr "0 MB"
+#: prefs.js:854
+msgid "Failed to clear cache"
+msgstr "Zwischenspeicher konnte nicht geleert werden"
 
-#: prefs4.ui:1040
-msgid "Blacklist players"
-msgstr "Spieler auf die schwarze Liste setzen"
+#~ msgid "Hover <i><span size='smaller'>(unstable)</span></i>"
+#~ msgstr "Schweben <i><span size='smaller'>(instabil)</span></i>"
 
-#: prefs4.ui:1079
-msgid "Other"
-msgstr "Andere"
+#~ msgid ""
+#~ "<b>Max widget width</b>\n"
+#~ "<span size=\"small\"><i>0 to disable</i></span>"
+#~ msgstr ""
+#~ "<b>Max Widget Grösse</b>\n"
+#~ "<span size=\"small\"><i>0 deaktiviert</i></span>"
+
+#~ msgid "0"
+#~ msgstr "0"
+
+#~ msgid ""
+#~ "<b>Use native seek</b>\n"
+#~ "<span size=\"small\"><i>Some players do not support seek.</i></span>"
+#~ msgstr ""
+#~ "<b>Benutze native Suche</b>\n"
+#~ "<span size=\"small\"><i>Nicht alle Abspieler unterstützen es.</i></span>"
+
+#~ msgid "You can now hide the media notification in the notification menu"
+#~ msgstr "Sie können jetzt die Medienbenachrichtigung im Menü verstecken"
+
+#~ msgid "What's new in v20?"
+#~ msgstr "Was ist neu in v20?"
+
+#~ msgid "Support for GNOME 41 and GNOME 3.36"
+#~ msgstr "Unterstützung für GNOME 41 und GNOME 3.36"
+
+#~ msgid "You can manually hide players now"
+#~ msgstr "Sie können jetzt Abspieler manuell verstecken"
+
+#~ msgid "<...>"
+#~ msgstr "<...>"
+
+#~ msgid "0 MB"
+#~ msgstr "0 MB"
