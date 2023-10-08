@@ -18,7 +18,7 @@ var Settings = class Settings {
         );
         this.showPrevButton = this._settings.get_boolean("show-prev-icon");
         this.showNextButton = this._settings.get_boolean("show-next-icon");
-        this.seekInterval = this._settings.get_int("seek-interval-secs")
+        this.seekInterval = this._settings.get_int("seek-interval-secs");
         this.preferNativeSeek = this._settings.get_boolean("prefer-using-seek");
         this.showSeekBack = this._settings.get_boolean("show-seek-back");
         this.showSeekForward = this._settings.get_boolean("show-seek-forward");
@@ -287,4 +287,4 @@ var Settings = class Settings {
         this._settings.disconnect(this._onBacklistAppsChanged);
         this._settings.disconnect(this._onHideMediaNotificationChanged);
     }
-}
+};

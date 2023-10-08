@@ -7,17 +7,17 @@ const MediaControls = Me.imports.widget.MediaControls;
 let extension;
 
 function init() {
-  ExtensionUtils.initTranslations("mediacontrols");
+    ExtensionUtils.initTranslations("mediacontrols");
 }
 
 function enable() {
-  log(_("[MediaControls] Enabling"));
-  extension = new MediaControls();
-  extension.enable();
+    log(_("[MediaControls] Enabling"));
+    extension = new MediaControls();
+    extension.enable();
 }
 
 function disable() {
-  log(_("[MediaControls] Disabling"));
-  extension.disable();
-  extension = null;
+    log(_("[MediaControls] Disabling"));
+    extension.disable();
+    extension = null;
 }

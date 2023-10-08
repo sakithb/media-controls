@@ -103,8 +103,7 @@ var MediaControls = GObject.registerClass(
                         "NameOwnerChanged",
                         (...[, , [busName, ,]]) => {
                             if (
-                                busName &&
-                                busName.includes("org.mpris.MediaPlayer2") &&
+                                busName?.includes("org.mpris.MediaPlayer2") &&
                                 !this._players[busName]
                             ) {
                                 (async () => {
@@ -451,12 +450,9 @@ var MediaControls = GObject.registerClass(
                 Mpris.MediaSection.prototype._addPlayer = function () {
                     return;
                 };
-            } else {
-                if (this._mediaSectionAdd !== undefined) {
-                    Mpris.MediaSection.prototype._addPlayer =
-                        this._mediaSectionAdd;
-                    this._mediaSectionAdd = undefined;
-                }
+            } else if (this._mediaSectionAdd !== undefined) {
+                Mpris.MediaSection.prototype._addPlayer = this._mediaSectionAdd;
+                this._mediaSectionAdd = undefined;
             }
         }
 
@@ -492,9 +488,9 @@ var MediaControls = GObject.registerClass(
                        |                        |
                       / \                      /|\__________buttonNext
                      /   \       buttonPrev___/  \                  |
-                    /     \           |           \                  \  
+                    /     \           |           \                  \
             iconPlayer   labelTitle   |          buttonPlayPause      \
-                                      |               |                iconNext 
+                                      |               |                iconNext
                                       |           iconPlayPause
                                   iconPrev
 */

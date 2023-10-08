@@ -45,9 +45,16 @@ var ifacesXml = `
 
 const nodeInfo = Gio.DBusNodeInfo.new_for_xml(ifacesXml);
 
-var createProxy = (ifaceName, busName, objectPath, flags = Gio.DBusProxyFlags.NONE) => {
+var createProxy = (
+    ifaceName,
+    busName,
+    objectPath,
+    flags = Gio.DBusProxyFlags.NONE
+) => {
     return new Promise((resolve, reject) => {
-        let ifaceInfo = nodeInfo.interfaces.find((iface) => iface.name == ifaceName);
+        let ifaceInfo = nodeInfo.interfaces.find(
+            (iface) => iface.name == ifaceName
+        );
         if (ifaceInfo) {
             Gio.DBusProxy.new(
                 Gio.DBus.session,
