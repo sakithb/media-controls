@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-10-08 23:53+0800\n"
-"PO-Revision-Date: 2023-10-08 10:37+0200\n"
+"PO-Revision-Date: 2023-10-08 18:04+0200\n"
 "Last-Translator: Christian Lauinger <christian@lauinger-clan.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -239,9 +239,8 @@ msgid "Title/Track name"
 msgstr "Titel/Spurname"
 
 #: prefs.js:558
-#, fuzzy
 msgid "Separators"
-msgstr "Seperatoren"
+msgstr "Separatoren"
 
 #: prefs.js:569
 msgid "Player controls"
@@ -276,9 +275,8 @@ msgid "Colored player icon"
 msgstr "Farbiges Spieler-Symbol"
 
 #: prefs.js:664
-#, fuzzy
 msgid "Separator characters"
-msgstr "Seperator Zeichen"
+msgstr "Separator Zeichen"
 
 #: prefs.js:668
 msgid "Preset"
@@ -329,7 +327,6 @@ msgid "Cache images"
 msgstr "Bilderzwischenspeicher"
 
 #: prefs.js:769
-#, fuzzy
 msgid ""
 "Media Controls caches album art so they don't need to be redownloaded every "
 "time. You can clear your cache here."
