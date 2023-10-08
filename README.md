@@ -60,3 +60,9 @@ Install from source
 - Install and enable the extension by executing
   <br> `gnome-extensions install extension.zip --force` <br>
   in the terminal
+
+## Developing
+
+Pull requests are welcome.
+
+To update the translation files run ./update-translation-po-files.sh in the extensions directory after your code changes are finished. This will update the files in po folder. Then poedit (https://poedit.net/download) can be used to translate the strings. poedit can also be used to create new localization files.
