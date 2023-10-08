@@ -526,6 +526,14 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
     group1.add(adwrow);
     //row2
     adwrow = new Adw.ActionRow({
+      subtitle: _("Seperators"),
+    });
+    const showseperators = this._createGtkSwitch(settings, "show-seperators");
+    adwrow.add_suffix(showseperators);
+    adwrow.activatable_widget = showseperators;
+    group1.add(adwrow);
+    //row3
+    adwrow = new Adw.ActionRow({
       title: _("Player controls"),
     });
     const showcontrolicons = this._createGtkSwitch(
@@ -535,7 +543,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
     adwrow.add_suffix(showcontrolicons);
     adwrow.activatable_widget = showcontrolicons;
     group1.add(adwrow);
-    //row3
+    //row4
     adwrow = new Adw.ActionRow({
       subtitle: _("Play/pause button"),
     });
@@ -546,7 +554,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
     adwrow.add_suffix(showplaypauseicon);
     adwrow.activatable_widget = showplaypauseicon;
     group1.add(adwrow);
-    //row4
+    //row5
     adwrow = new Adw.ActionRow({
       subtitle: _("Previous track button"),
     });
@@ -554,7 +562,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
     adwrow.add_suffix(showprevicon);
     adwrow.activatable_widget = showprevicon;
     group1.add(adwrow);
-    //row5
+    //row6
     adwrow = new Adw.ActionRow({
       subtitle: _("Next track button"),
     });
@@ -562,7 +570,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
     adwrow.add_suffix(shownexticon);
     adwrow.activatable_widget = shownexticon;
     group1.add(adwrow);
-    //row6
+    //row7
     adwrow = new Adw.ActionRow({
       subtitle: _("Seek back button"),
     });
@@ -570,7 +578,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
     adwrow.add_suffix(showseekback);
     adwrow.activatable_widget = showseekback;
     group1.add(adwrow);
-    //row7
+    //row8
     adwrow = new Adw.ActionRow({
       subtitle: _("Seek forward button"),
     });
@@ -581,21 +589,13 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
     adwrow.add_suffix(showseekforward);
     adwrow.activatable_widget = showseekforward;
     group1.add(adwrow);
-    //row8
+    //row9
     adwrow = new Adw.ActionRow({
       title: _("Player icon"),
     });
     const showplayericon = this._createGtkSwitch(settings, "show-player-icon");
     adwrow.add_suffix(showplayericon);
     adwrow.activatable_widget = showplayericon;
-    group1.add(adwrow);
-    //row9
-    adwrow = new Adw.ActionRow({
-      title: _("Seperators"),
-    });
-    const showseperators = this._createGtkSwitch(settings, "show-seperators");
-    adwrow.add_suffix(showseperators);
-    adwrow.activatable_widget = showseperators;
     group1.add(adwrow);
     //row10
     adwrow = new Adw.ActionRow({
