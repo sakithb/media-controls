@@ -699,44 +699,27 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
   }
 
   _fillpage4(page4, settings) {
-    let adwrow;
-    page4.set_title(_("Other"));
+    page4.set_title(_("Appliance"));
     page4.set_name("mediacontrols_page4");
-    page4.set_icon_name("preferences-other-symbolic");
+    page4.set_icon_name("input-mouse-symbolic");
     // group1
     const group1 = Adw.PreferencesGroup.new();
     group1.set_title(_("Mouse actions"));
     group1.set_name("mediacontrols_mouseactions");
     page4.add(group1);
     this._initMouseActions(settings, group1);
-    // group2
-    const group2 = Adw.PreferencesGroup.new();
-    group2.set_title(_("Blacklist players"));
-    group2.set_name("mediacontrols_blacklistplayers");
-    page4.add(group2);
-    //row1
-    adwrow = new Adw.ActionRow({ title: _("Player") });
-    const blacklistentry = new Gtk.Entry({ valign: Gtk.Align.CENTER });
-    adwrow.add_suffix(blacklistentry);
-    adwrow.activatable_widget = blacklistentry;
-    group2.add(adwrow);
-    const blacklistbuttonadd = Gtk.Button.new_from_icon_name(
-      "list-add-symbolic",
-      Gtk.IconSize.BUTTON || Gtk.IconSize.NORMAL
-    );
-    blacklistbuttonadd.set_valign(Gtk.Align.CENTER);
-    adwrow.add_suffix(blacklistbuttonadd);
-    adwrow.activatable_widget = blacklistbuttonadd;
-    blacklistbuttonadd.connect(
-      "clicked",
-      this._onblacklistentryadd.bind(this, settings, group2, blacklistentry)
-    );
-    this._initblacklistapps(settings, group2);
-    // group3
-    const group3 = Adw.PreferencesGroup.new();
-    group3.set_title(_("Cache"));
-    group3.set_name("mediacontrols_cache");
-    page4.add(group3);
+  }
+
+  _fillpage5(page5, settings) {
+    let adwrow;
+    page5.set_title(_("Other"));
+    page5.set_name("mediacontrols_page5");
+    page5.set_icon_name("preferences-other-symbolic");
+    // group1
+    const group1 = Adw.PreferencesGroup.new();
+    group1.set_title(_("Cache"));
+    group1.set_name("mediacontrols_cache");
+    page5.add(group1);
     //row1
     adwrow = new Adw.ActionRow({
       title: _("Cache images"),
@@ -744,14 +727,14 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
     const cacheimages = this._createGtkSwitch(settings, "cache-images");
     adwrow.add_suffix(cacheimages);
     adwrow.activatable_widget = cacheimages;
-    group3.add(adwrow);
+    group1.add(adwrow);
     //row2
     adwrow = new Adw.ActionRow({
       title: _(
         "Media Controls caches album art so they don't need to be redownloaded everytime. You can clear your cache here."
       ),
     });
-    group3.add(adwrow);
+    group1.add(adwrow);
     adwrow = new Adw.ActionRow();
     const widgetCacheSize = new Gtk.Label({
       label: "0 MB",
@@ -773,7 +756,30 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
     adwrow.add_suffix(deletecachebutton);
     adwrow.add_suffix(clearcachespinner);
     adwrow.add_suffix(widgetCacheSize);
-    group3.add(adwrow);
+    group1.add(adwrow);
+    // group2
+    const group2 = Adw.PreferencesGroup.new();
+    group2.set_title(_("Blacklist players"));
+    group2.set_name("mediacontrols_blacklistplayers");
+    page5.add(group2);
+    //row1
+    adwrow = new Adw.ActionRow({ title: _("Player") });
+    const blacklistentry = new Gtk.Entry({ valign: Gtk.Align.CENTER });
+    adwrow.add_suffix(blacklistentry);
+    adwrow.activatable_widget = blacklistentry;
+    group2.add(adwrow);
+    const blacklistbuttonadd = Gtk.Button.new_from_icon_name(
+      "list-add-symbolic",
+      Gtk.IconSize.BUTTON || Gtk.IconSize.NORMAL
+    );
+    blacklistbuttonadd.set_valign(Gtk.Align.CENTER);
+    adwrow.add_suffix(blacklistbuttonadd);
+    adwrow.activatable_widget = blacklistbuttonadd;
+    blacklistbuttonadd.connect(
+      "clicked",
+      this._onblacklistentryadd.bind(this, settings, group2, blacklistentry)
+    );
+    this._initblacklistapps(settings, group2);
   }
 
   fillPreferencesWindow(window) {
@@ -788,10 +794,13 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
     this._fillpage3(page3, window._settings);
     const page4 = Adw.PreferencesPage.new();
     this._fillpage4(page4, window._settings);
+    const page5 = Adw.PreferencesPage.new();
+    this._fillpage5(page5, window._settings);
     window.add(page1);
     window.add(page2);
     window.add(page3);
     window.add(page4);
+    window.add(page5);
   }
 
   _onseperatorpresetchanged(widget) {
