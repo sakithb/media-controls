@@ -12,8 +12,7 @@ install() {
 
 build() {
     #git archive -o Release.zip HEAD;
-    gnome-extensions pack --podir=po/ --extra-source=dbus.js --extra-source=player.js --extra-source=settings.js --extra-source=utils.js --extra-source=widget.js --extra-source=prefs3.ui --extra-source=prefs4.ui --extra-source=LICENSE
-    mv mediacontrols@cliffniff.github.com.shell-extension.zip Release.zip
+    gnome-extensions pack --podir=po/ --extra-source=dbus.js --extra-source=player.js --extra-source=utils.js --extra-source=widget.js --extra-source=LICENSE
     #zip -d Release.zip README.md;
     #zip -d Release.zip images/*;
     #zip -d Release.zip images/;
@@ -22,18 +21,18 @@ build() {
     #zip -d Release.zip install.sh;
     #zip -d Release.zip .github/*;
     #zip -d Release.zip .github/;
-    VERSION=$(cat metadata.json | grep '\"version\"' | sed 's/[^0-9]*//g');
+    VERSION=$(cat metadata.json | grep '"version"' | sed 's/[^0-9]*//g');
 
     if [[ `git status --porcelain` ]]; then
         VERSION="~$VERSION~"  ;
     fi
 
     mkdir -p "./builds/v$VERSION";
-    mv Release.zip "./builds/v$VERSION/extension.zip";
+    mv mediacontrols@cliffniff.github.com.shell-extension.zip "./builds/v$VERSION/extension.zip";
 }
 
 restart() {
-    busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta.restart("Restarting…")';
+    pkill -HUP gnome-shell;
 }
 
 copy() {
