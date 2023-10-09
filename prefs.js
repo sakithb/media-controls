@@ -281,8 +281,8 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
                 previous: _("Previous"),
                 toggle_loop: _("Cycle loop options"),
                 toggle_shuffle: _("Toggle shuffle"),
-                toggle_menu: _("Open sources menu"),
-                toggle_info: _("Open track information menu"),
+                toggle_menu: _("Toggle sources menu"),
+                toggle_info: _("Toggle track information menu"),
                 raise: _("Raise player"),
                 quit: _("Quit player"),
             };
