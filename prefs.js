@@ -8,7 +8,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 const Gettext = imports.gettext.domain("mediacontrols");
 const _ = Gettext.gettext;
 
-const { Utf8ArrayToStr, execCommunicate } = Me.imports.utils;
+const { execCommunicate } = Me.imports.utils;
 
 function init() {
     ExtensionUtils.initTranslations("mediacontrols");
