@@ -5,7 +5,7 @@ import Gtk from "gi://Gtk";
 import GLib from "gi://GLib";
 import Adw from "gi://Adw";
 
-import { Utf8ArrayToStr, execCommunicate } from "./utils.js";
+import { execCommunicate } from "./utils.js";
 
 import {
     ExtensionPreferences,
