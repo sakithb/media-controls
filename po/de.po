@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-08 23:53+0800\n"
-"PO-Revision-Date: 2023-10-08 18:04+0200\n"
+"POT-Creation-Date: 2023-10-09 18:35+0200\n"
+"PO-Revision-Date: 2023-10-09 18:36+0200\n"
 "Last-Translator: Christian Lauinger <christian@lauinger-clan.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -155,12 +155,12 @@ msgid "Toggle shuffle"
 msgstr "Zufallswiedergabe umschalten"
 
 #: prefs.js:284
-msgid "Open sources menu"
-msgstr "Öffne Quellenmenü"
+msgid "Toggle sources menu"
+msgstr "Quellenmenü umschalten"
 
 #: prefs.js:285
-msgid "Open track information menu"
-msgstr "Öffne Spurinformationsmenü"
+msgid "Toggle track information menu"
+msgstr "Spurinformationsmenü umschalten"
 
 #: prefs.js:286
 msgid "Raise player"

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-08 23:53+0800\n"
+"POT-Creation-Date: 2023-10-09 18:35+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -154,11 +154,11 @@ msgid "Toggle shuffle"
 msgstr ""
 
 #: prefs.js:284
-msgid "Open sources menu"
+msgid "Toggle sources menu"
 msgstr ""
 
 #: prefs.js:285
-msgid "Open track information menu"
+msgid "Toggle track information menu"
 msgstr ""
 
 #: prefs.js:286
