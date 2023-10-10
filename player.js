@@ -10,7 +10,12 @@ import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
 import * as BoxPointer from "resource:///org/gnome/shell/ui/boxpointer.js";
 
 import { createProxy } from "./dbus.js";
-import { parseMetadata, stripInstanceNumbers, getRequest } from "./utils.js";
+import {
+    parseMetadata,
+    stripInstanceNumbers,
+    getRequest,
+    wrappingText,
+} from "./utils.js";
 
 const urlRegexp = new RegExp(
     /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+~#?&/=]*)/
@@ -577,11 +582,19 @@ export const Player = GObject.registerClass(
                     x_align: Clutter.ActorAlign.CENTER,
                     style: "font-size: large;",
                 });
+                wrappingText(
+                    !this._extension.cliptextsmenu,
+                    this.infoTitleLabel
+                );
 
                 this.infoArtistLabel = new St.Label({
                     text: this.artist || "",
                     x_align: Clutter.ActorAlign.CENTER,
                 });
+                wrappingText(
+                    !this._extension.cliptextsmenu,
+                    this.infoArtistLabel
+                );
 
                 this.infoItemContainer.add(this.infoTitleLabel);
                 this.infoItemContainer.add(this.infoArtistLabel);

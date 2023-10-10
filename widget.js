@@ -250,6 +250,13 @@ export const MediaControls = GObject.registerClass(
                     this.updateMediaNotification();
                 }
             );
+            this._onClipTextsMenuChanged = this._settings.connect(
+                "changed::clip-texts-menu",
+                () => {
+                    this.cliptextsmenu =
+                        this._settings.get_boolean("clip-texts-menu");
+                }
+            );
         }
 
         disconnectSignals() {
@@ -277,6 +284,7 @@ export const MediaControls = GObject.registerClass(
             this._settings.disconnect(this._onCacheImagesChanged);
             this._settings.disconnect(this._onBacklistAppsChanged);
             this._settings.disconnect(this._onHideMediaNotificationChanged);
+            this._settings.disconnect(this._onClipTextsMenuChanged);
         }
 
         enable(Me) {
@@ -318,6 +326,7 @@ export const MediaControls = GObject.registerClass(
             this.hideMediaNotification = this._settings.get_boolean(
                 "hide-media-notification"
             );
+            this.cliptextsmenu = this._settings.get_boolean("clip-texts-menu");
 
             let mouseActions = this.mouseActions;
             let defaultMouseActions = this._settings

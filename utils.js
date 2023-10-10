@@ -1,6 +1,7 @@
 import GLib from "gi://GLib";
 import Gio from "gi://Gio";
 import Soup from "gi://Soup";
+import Pango from "gi://Pango";
 
 const metadataKeys = {
     "xesam:artist": "artist",
@@ -127,3 +128,19 @@ export var execCommunicate = async (argv, input = null, cancellable = null) => {
         });
     });
 };
+
+function wrappingText(wrapping, widget) {
+    if (wrapping) {
+        widget.clutter_text.single_line_mode = false;
+        widget.clutter_text.activatable = false;
+        widget.clutter_text.line_wrap = true;
+        widget.clutter_text.line_wrap_mode = Pango.WrapMode.WORD_CHAR;
+    } else {
+        widget.clutter_text.single_line_mode = true;
+        widget.clutter_text.activatable = false;
+        widget.clutter_text.line_wrap = false;
+    }
+    return true;
+}
+
+export { wrappingText };

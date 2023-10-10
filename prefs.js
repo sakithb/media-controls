@@ -469,6 +469,24 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         adwrow.add_suffix(hidemedianotification);
         adwrow.activatable_widget = hidemedianotification;
         group1.add(adwrow);
+        //row5
+        adwrow = new Adw.ActionRow({
+            title: _("Clip texts in track info menu"),
+            subtitle: _("Disable will use wrapping instead (multiline)"),
+        });
+        const cliptextsmenu = new Gtk.Switch({
+            active: settings.get_boolean("clip-texts-menu"),
+            valign: Gtk.Align.CENTER,
+        });
+        settings.bind(
+            "clip-texts-menu",
+            cliptextsmenu,
+            "active",
+            Gio.SettingsBindFlags.DEFAULT
+        );
+        adwrow.add_suffix(cliptextsmenu);
+        adwrow.activatable_widget = cliptextsmenu;
+        group1.add(adwrow);
         // group2
         const group2 = Adw.PreferencesGroup.new();
         group2.set_title(_("Track label"));
