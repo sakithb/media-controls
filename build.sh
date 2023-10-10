@@ -11,7 +11,8 @@ install() {
 }
 
 build() {
-    #git archive -o Release.zip HEAD;
+    # compile schemas is needed when gnome43 or older is supported - starting with gnome44 it is not necessary any more
+    glib-compile-schemas schemas/
     gnome-extensions pack --podir=po/ --extra-source=dbus.js --extra-source=player.js --extra-source=utils.js --extra-source=widget.js --extra-source=LICENSE
     #zip -d Release.zip README.md;
     #zip -d Release.zip images/*;
