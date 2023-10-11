@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-10 20:05+0200\n"
+"POT-Creation-Date: 2023-10-11 02:08+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -53,7 +53,7 @@ msgstr ""
 msgid "None"
 msgstr ""
 
-#: prefs.js:118 prefs.js:694 prefs.js:870 prefs.js:896
+#: prefs.js:118 prefs.js:694 prefs.js:942 prefs.js:968
 msgid "Custom"
 msgstr ""
 
@@ -321,36 +321,52 @@ msgstr ""
 msgid "Mouse actions"
 msgstr ""
 
-#: prefs.js:768
+#: prefs.js:766 prefs.js:770
+msgid "Hotkey"
+msgstr ""
+
+#: prefs.js:771
+msgid "Hotkey to toggle the track info menu"
+msgstr ""
+
+#: prefs.js:774
+msgid "Select a hotkey"
+msgstr ""
+
+#: prefs.js:794
+msgid "New hotkey"
+msgstr ""
+
+#: prefs.js:840
 msgid "Other"
 msgstr ""
 
-#: prefs.js:773
+#: prefs.js:845
 msgid "Cache"
 msgstr ""
 
-#: prefs.js:778
+#: prefs.js:850
 msgid "Cache images"
 msgstr ""
 
-#: prefs.js:787
+#: prefs.js:859
 msgid ""
 "Media Controls caches album art so they don't need to be redownloaded every "
 "time. You can clear your cache here."
 msgstr ""
 
-#: prefs.js:801
+#: prefs.js:873
 msgid "Clear cache"
 msgstr ""
 
-#: prefs.js:819
+#: prefs.js:891
 msgid "Blacklist players"
 msgstr ""
 
-#: prefs.js:823
+#: prefs.js:895
 msgid "Player"
 msgstr ""
 
-#: prefs.js:931
+#: prefs.js:1003
 msgid "Failed to clear cache"
 msgstr ""

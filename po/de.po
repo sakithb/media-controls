@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-10 20:05+0200\n"
-"PO-Revision-Date: 2023-10-10 20:06+0200\n"
+"POT-Creation-Date: 2023-10-11 02:08+0200\n"
+"PO-Revision-Date: 2023-10-11 02:10+0200\n"
 "Last-Translator: Christian Lauinger <christian@lauinger-clan.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -54,7 +54,7 @@ msgstr "Dateiname"
 msgid "None"
 msgstr "Keine"
 
-#: prefs.js:118 prefs.js:694 prefs.js:870 prefs.js:896
+#: prefs.js:118 prefs.js:694 prefs.js:942 prefs.js:968
 msgid "Custom"
 msgstr "Benutzerdefiniert"
 
@@ -322,19 +322,35 @@ msgstr "Bedienung"
 msgid "Mouse actions"
 msgstr "Mausaktionen"
 
-#: prefs.js:768
+#: prefs.js:766 prefs.js:770
+msgid "Hotkey"
+msgstr "Tastenkürzel"
+
+#: prefs.js:771
+msgid "Hotkey to toggle the track info menu"
+msgstr "Tastenkürzel um das Spurinformationsmenü umzuschalten"
+
+#: prefs.js:774
+msgid "Select a hotkey"
+msgstr "Tastenkürzel auswählen"
+
+#: prefs.js:794
+msgid "New hotkey"
+msgstr "Neues Tastenkürzel"
+
+#: prefs.js:840
 msgid "Other"
 msgstr "Andere"
 
-#: prefs.js:773
+#: prefs.js:845
 msgid "Cache"
 msgstr "Zwischenspeicher"
 
-#: prefs.js:778
+#: prefs.js:850
 msgid "Cache images"
 msgstr "Bilderzwischenspeicher"
 
-#: prefs.js:787
+#: prefs.js:859
 msgid ""
 "Media Controls caches album art so they don't need to be redownloaded every "
 "time. You can clear your cache here."
@@ -342,19 +358,19 @@ msgstr ""
 "Media Controls speichert Albumcover zwischen so das nicht um runtergeladen "
 "werden muss. Sie können den Zwischenspeicher hier leeren."
 
-#: prefs.js:801
+#: prefs.js:873
 msgid "Clear cache"
 msgstr "Zwischenspeicher leeren"
 
-#: prefs.js:819
+#: prefs.js:891
 msgid "Blacklist players"
 msgstr "Abspieler auf die schwarze Liste setzen"
 
-#: prefs.js:823
+#: prefs.js:895
 msgid "Player"
 msgstr "Abspieler"
 
-#: prefs.js:931
+#: prefs.js:1003
 msgid "Failed to clear cache"
 msgstr "Zwischenspeicher konnte nicht geleert werden"
 
