@@ -66,9 +66,7 @@ var getRequest = (url) => {
             (_session, result) => {
                 if (_request.get_status() === Soup.Status.OK) {
                     let bytes = _session.send_and_read_finish(result);
-                    let decoder = new TextDecoder("utf-8");
-                    let response = decoder.decode(bytes.get_data());
-                    resolve(response);
+                    resolve(bytes);
                 } else {
                     reject(new Error("Soup request not resolved"));
                 }
