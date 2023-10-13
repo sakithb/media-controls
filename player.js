@@ -3,6 +3,7 @@ import GObject from "gi://GObject";
 import St from "gi://St";
 import Clutter from "gi://Clutter";
 import GLib from "gi://GLib";
+import Shell from "gi://Shell";
 
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
@@ -1006,10 +1007,16 @@ export const Player = GObject.registerClass(
                 icon = this._otherProxy.DesktopEntry;
             } else {
                 icon = this.name.toLowerCase().split(" ");
-
                 icon = icon[icon.length - 1];
             }
-
+            if (!icon.includes(".")) {
+                let appsys = Shell.AppSystem.get_default();
+                for (let app of appsys.get_running()) {
+                    if (app.get_name().toLowerCase().includes(icon)) {
+                        icon = app.get_id().replace(".desktop", "");
+                    }
+                }
+            }
             return icon;
         }
 
