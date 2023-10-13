@@ -76,5 +76,8 @@
     <key name="clip-texts-menu" type="b">
       <default>true</default>
     </key>
+    <key name="mediacontrols-toggle-trackinfomenu" type="as">
+      <default><![CDATA[['<Ctrl><Alt><Super>m']]]></default>
+    </key>
   </schema>
 </schemalist>

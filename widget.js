@@ -9,10 +9,13 @@ import GObject from "gi://GObject";
 import Gio from "gi://Gio";
 import GLib from "gi://GLib";
 import Clutter from "gi://Clutter";
+import Shell from "gi://Shell";
+import Meta from "gi://Meta";
 
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
+import * as BoxPointer from "resource:///org/gnome/shell/ui/boxpointer.js";
 import * as Mpris from "resource:///org/gnome/shell/ui/mpris.js";
 
 export const MediaControls = GObject.registerClass(
@@ -424,6 +427,11 @@ export const MediaControls = GObject.registerClass(
             this.destroy();
         }
 
+        toggleTrackInfoMenu() {
+            this.menu.close(BoxPointer.PopupAnimation.FULL);
+            this.player.menu.toggle();
+        }
+
         addWidgets() {
             delete Main.panel.statusArea["media_controls_extension"];
             Main.panel.addToStatusArea(
@@ -432,7 +440,13 @@ export const MediaControls = GObject.registerClass(
                 this.extensionIndex,
                 this.extensionPosition
             );
-
+            Main.wm.addKeybinding(
+                "mediacontrols-toggle-trackinfomenu",
+                this._settings,
+                Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
+                Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW,
+                this.toggleTrackInfoMenu.bind(this)
+            );
             this.add_child(this.player.container);
 
             this.elementOrder.forEach((element) => {
@@ -495,6 +509,7 @@ export const MediaControls = GObject.registerClass(
         }
 
         removeWidgets() {
+            Main.wm.removeKeybinding("mediacontrols-toggle-trackinfomenu");
             delete Main.panel.statusArea["media_controls_extension"];
 
             if (this.player) {

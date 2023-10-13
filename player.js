@@ -780,13 +780,15 @@ export const Player = GObject.registerClass(
                                     0o744
                                 ) === 0
                             ) {
-                                let [success] = cacheFile.replace_contents(
-                                    remoteIcon,
-                                    null,
-                                    false,
-                                    Gio.FileCreateFlags.REPLACE_DESTINATION,
-                                    null
-                                );
+                                let success =
+                                    cacheFile.replace_contents_bytes_async(
+                                        remoteIcon,
+                                        null,
+                                        false,
+                                        Gio.FileCreateFlags.REPLACE_DESTINATION,
+                                        null,
+                                        null
+                                    );
 
                                 if (!success) {
                                     throw new Error("Failed to save icon.");
