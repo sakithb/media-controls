@@ -35,6 +35,8 @@ let mouseActionTypes = {
     HOVER: 7,
 };
 
+let timeoutSourceId = null;
+
 export const Player = GObject.registerClass(
     class Player extends PanelMenu.Button {
         _init(busName, parent) {
@@ -873,7 +875,7 @@ export const Player = GObject.registerClass(
         _mouseActionButton(widget, event) {
             let button = event.get_button();
             if (!clicked) {
-                GLib.timeout_add(
+                timeoutSourceId = GLib.timeout_add(
                     GLib.PRIORITY_HIGH,
                     this._extension.clutterSettings.double_click_time,
                     () => {
@@ -922,6 +924,11 @@ export const Player = GObject.registerClass(
         }
 
         destroy() {
+            if (timeoutSourceId) {
+                GLib.Source.remove(timeoutSourceId);
+                timeoutSourceId = null;
+            }
+
             this._extension = null;
             this._playerProxy = null;
             this._otherProxy = null;

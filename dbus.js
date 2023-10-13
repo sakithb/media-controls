@@ -45,7 +45,7 @@ const ifacesXml = `
 
 const nodeInfo = Gio.DBusNodeInfo.new_for_xml(ifacesXml);
 
-export var createProxy = (
+export const createProxy = (
     ifaceName,
     busName,
     objectPath,

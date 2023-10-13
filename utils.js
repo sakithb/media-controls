@@ -12,7 +12,7 @@ const metadataKeys = {
     "mpris:length": "length",
 };
 
-export var parseMetadata = (_metadata) => {
+export const parseMetadata = (_metadata) => {
     if (!_metadata) {
         return _metadata;
     }
@@ -54,11 +54,11 @@ export var parseMetadata = (_metadata) => {
     return metadata;
 };
 
-export var stripInstanceNumbers = (busName) => {
+export const stripInstanceNumbers = (busName) => {
     return busName.replace(/\.instance\d+$/, "");
 };
 
-export var getRequest = (url) => {
+export const getRequest = (url) => {
     return new Promise((resolve, reject) => {
         let _session = new Soup.Session();
         let _request = Soup.Message.new("GET", url);
@@ -87,7 +87,11 @@ export var getRequest = (url) => {
  * @param {boolean?} cancellable whether the operation is cancellable
  * @returns
  */
-export var execCommunicate = async (argv, input = null, cancellable = null) => {
+export const execCommunicate = async (
+    argv,
+    input = null,
+    cancellable = null
+) => {
     let cancelId = 0;
     let flags =
         Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE;
