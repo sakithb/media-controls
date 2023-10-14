@@ -1,4 +1,4 @@
-const { Gio, GObject, St, Clutter, GLib } = imports.gi;
+const { Gio, GObject, St, Clutter, GLib, Shell } = imports.gi;
 
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
@@ -989,10 +989,16 @@ var Player = GObject.registerClass(
                 icon = this._otherProxy.DesktopEntry;
             } else {
                 icon = this.name.toLowerCase().split(" ");
-
                 icon = icon[icon.length - 1];
             }
-
+            if (!icon.includes(".")) {
+                let appsys = Shell.AppSystem.get_default();
+                for (let app of appsys.get_running()) {
+                    if (app.get_name().toLowerCase().includes(icon)) {
+                        icon = app.get_id().replace(".desktop", "");
+                    }
+                }
+            }
             return icon;
         }
 
