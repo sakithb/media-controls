@@ -39,7 +39,7 @@ var Player = GObject.registerClass(
             this.setSensitive(false);
 
             this.busName = busName;
-
+            this._timeoutSourceId = null;
             this._extension = parent;
 
             return (async () => {
@@ -865,7 +865,7 @@ var Player = GObject.registerClass(
         _mouseActionButton(widget, event) {
             let button = event.get_button();
             if (!clicked) {
-                GLib.timeout_add(
+                this._timeoutSourceId = GLib.timeout_add(
                     GLib.PRIORITY_HIGH,
                     this._extension.clutterSettings.double_click_time,
                     () => {
@@ -914,6 +914,10 @@ var Player = GObject.registerClass(
         }
 
         destroy() {
+            if (this._timeoutSourceId) {
+                GLib.Source.remove(this._timeoutSourceId);
+                this._timeoutSourceId = null;
+            }
             this._extension = null;
             this._playerProxy = null;
             this._otherProxy = null;
