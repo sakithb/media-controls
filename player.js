@@ -96,13 +96,13 @@ export const Player = GObject.registerClass(
 
             this.labelSeperatorStart = new St.Label({
                 text: this._extension.sepChars[0],
-                style: "padding: 0px 3px 0px 0px; margin: 0px auto;",
+                style: "padding: 0px 3px 0px 0px; margin: 0px;",
                 y_align: Clutter.ActorAlign.CENTER,
             });
 
             this.labelSeperatorEnd = new St.Label({
                 text: this._extension.sepChars[1],
-                style: "padding: 0px 0px 0px 3px; margin: 0px auto;",
+                style: "padding: 0px 0px 0px 3px; margin: 0px;",
                 y_align: Clutter.ActorAlign.CENTER,
             });
 
@@ -112,7 +112,7 @@ export const Player = GObject.registerClass(
 
             this.containerButtonLabel = new St.Button({
                 style_class: "panel-button",
-                style: "padding: 0px 5px; margin: 0px auto;",
+                style: "padding: 0px 5px; margin: 0px;",
             });
 
             this.containerButtonLabel.connect(
@@ -135,7 +135,7 @@ export const Player = GObject.registerClass(
             // Player icon
 
             this.buttonPlayer = new St.Button({
-                style_class: "panel-button no-vertical-spacing",
+                style_class: "popup-menu-button",
             });
 
             this.iconPlayer = new St.Icon({
@@ -232,8 +232,7 @@ export const Player = GObject.registerClass(
 
             // Sources dropdown button
             this.buttonMenu = new St.Button({
-                style_class: "panel-button",
-                style: "padding: 0px 3px; margin: 0px auto;",
+                style_class: "popup-menu-button",
             });
 
             this.buttonMenu.set_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
@@ -469,7 +468,7 @@ export const Player = GObject.registerClass(
         updateWidgetWidths() {
             if (this.labelTitle) {
                 this.labelTitle.set_style(
-                    `${this.maxWidthStyle} margin: 0px auto; padding: 0px auto;`
+                    `${this.maxWidthStyle} margin: 0px; padding: 0px;`
                 );
             }
             if (this.menuItem) {
@@ -488,7 +487,7 @@ export const Player = GObject.registerClass(
             if (this._extension.coloredPlayerIcon) {
                 this.iconPlayer.clear_effects();
                 this.iconPlayer.set_style(
-                    "margin: 0px auto; padding: 0px auto; -st-icon-style: requested;"
+                    "margin: 0px; padding: 0px; -st-icon-style: requested;"
                 );
                 this.iconPlayer.set_fallback_icon_name("audio-x-generic");
 
@@ -501,7 +500,7 @@ export const Player = GObject.registerClass(
                 );
             } else {
                 this.iconPlayer.set_style(
-                    "margin: 0px auto; padding: 0px auto; -st-icon-style: symbolic;"
+                    "margin: 0px; padding: 0px; -st-icon-style: symbolic;"
                 );
                 this.iconPlayer.add_effect(new Clutter.DesaturateEffect());
                 this.iconPlayer.set_fallback_icon_name(
