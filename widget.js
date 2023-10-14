@@ -513,47 +513,69 @@ export const MediaControls = GObject.registerClass(
             delete Main.panel.statusArea["media_controls_extension"];
 
             if (this.player) {
-                this.remove_child(this.player.container);
-
-                this.player.dummyContainer.remove_child(
-                    this.player.buttonPlayer
-                );
-
-                this.player.dummyContainer.remove_child(
-                    this.player.containerButtonLabel
-                );
-
-                this.player.subContainerLabel.remove_child(
-                    this.player.labelTitle
-                );
-                this.player.subContainerLabel.remove_child(
-                    this.player.labelSeperatorStart
-                );
-                this.player.subContainerLabel.remove_child(
-                    this.player.labelSeperatorEnd
-                );
-
-                this.player.dummyContainer.remove_child(
-                    this.player.containerControls
-                );
-
-                this.player.containerControls.remove_child(
-                    this.player.buttonSeekBack
-                );
-                this.player.containerControls.remove_child(
-                    this.player.buttonPrev
-                );
-                this.player.containerControls.remove_child(
-                    this.player.buttonPlayPause
-                );
-                this.player.containerControls.remove_child(
-                    this.player.buttonNext
-                );
-                this.player.containerControls.remove_child(
-                    this.player.buttonSeekForward
-                );
-
-                this.player.dummyContainer.remove_child(this.player.buttonMenu);
+                if (this.player.container.get_parent()) {
+                    this.remove_child(this.player.container);
+                }
+                if (this.player.buttonPlayer.get_parent()) {
+                    this.player.dummyContainer.remove_child(
+                        this.player.buttonPlayer
+                    );
+                }
+                if (this.player.containerButtonLabel.get_parent()) {
+                    this.player.dummyContainer.remove_child(
+                        this.player.containerButtonLabel
+                    );
+                }
+                if (this.player.labelTitle.get_parent()) {
+                    this.player.subContainerLabel.remove_child(
+                        this.player.labelTitle
+                    );
+                }
+                if (this.player.labelSeperatorStart.get_parent()) {
+                    this.player.subContainerLabel.remove_child(
+                        this.player.labelSeperatorStart
+                    );
+                }
+                if (this.player.labelSeperatorEnd.get_parent()) {
+                    this.player.subContainerLabel.remove_child(
+                        this.player.labelSeperatorEnd
+                    );
+                }
+                if (this.player.containerControls.get_parent()) {
+                    this.player.dummyContainer.remove_child(
+                        this.player.containerControls
+                    );
+                }
+                if (this.player.buttonSeekBack.get_parent()) {
+                    this.player.containerControls.remove_child(
+                        this.player.buttonSeekBack
+                    );
+                }
+                if (this.player.buttonPrev.get_parent()) {
+                    this.player.containerControls.remove_child(
+                        this.player.buttonPrev
+                    );
+                }
+                if (this.player.buttonPlayPause.get_parent()) {
+                    this.player.containerControls.remove_child(
+                        this.player.buttonPlayPause
+                    );
+                }
+                if (this.player.buttonNext.get_parent()) {
+                    this.player.containerControls.remove_child(
+                        this.player.buttonNext
+                    );
+                }
+                if (this.player.buttonSeekForward.get_parent()) {
+                    this.player.containerControls.remove_child(
+                        this.player.buttonSeekForward
+                    );
+                }
+                if (this.player.buttonMenu.get_parent()) {
+                    this.player.dummyContainer.remove_child(
+                        this.player.buttonMenu
+                    );
+                }
             } else {
                 this.remove_all_children();
             }
