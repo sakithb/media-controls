@@ -22,9 +22,6 @@ const urlRegexp = new RegExp(
     /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+~#?&/=]*)/
 );
 
-let doubleClick = false;
-let clicked = false;
-
 let mouseActionTypes = {
     LEFT_CLICK: 0,
     RIGHT_CLICK: 1,
@@ -36,8 +33,6 @@ let mouseActionTypes = {
     HOVER: 7,
 };
 
-let timeoutSourceId = null;
-
 export const Player = GObject.registerClass(
     class Player extends PanelMenu.Button {
         _init(busName, parent) {
@@ -46,7 +41,9 @@ export const Player = GObject.registerClass(
             this.setSensitive(false);
 
             this.busName = busName;
-
+            this._timeoutSourceId = null;
+            this._doubleClick = false;
+            this._clicked = false;
             this._extension = parent;
 
             return (async () => {
@@ -877,12 +874,12 @@ export const Player = GObject.registerClass(
 
         _mouseActionButton(widget, event) {
             let button = event.get_button();
-            if (!clicked) {
-                timeoutSourceId = GLib.timeout_add(
+            if (!this._clicked) {
+                this._timeoutSourceId = GLib.timeout_add(
                     GLib.PRIORITY_HIGH,
                     this._extension.clutterSettings.double_click_time,
                     () => {
-                        if (!doubleClick) {
+                        if (!this._doubleClick) {
                             if (button === 1) {
                                 this._mouseAction(mouseActionTypes.LEFT_CLICK);
                             } else if (button === 2) {
@@ -893,23 +890,23 @@ export const Player = GObject.registerClass(
                                 this._mouseAction(mouseActionTypes.RIGHT_CLICK);
                             }
                         }
-                        doubleClick = false;
-                        clicked = false;
+                        this._doubleClick = false;
+                        this._clicked = false;
                         return GLib.SOURCE_REMOVE;
                     }
                 );
             } else {
-                doubleClick = true;
+                this._doubleClick = true;
                 if (button === 1) {
                     this._mouseAction(mouseActionTypes.LEFT_DBL_CLICK);
                 } else if (button === 3) {
                     this._mouseAction(mouseActionTypes.RIGHT_DBL_CLICK);
                 }
-                clicked = false;
+                this._clicked = false;
                 return;
             }
 
-            clicked = true;
+            this._clicked = true;
         }
 
         _mouseActionScroll(widget, event) {
@@ -927,14 +924,15 @@ export const Player = GObject.registerClass(
         }
 
         destroy() {
-            if (timeoutSourceId) {
-                GLib.Source.remove(timeoutSourceId);
-                timeoutSourceId = null;
+            if (this._timeoutSourceId) {
+                GLib.Source.remove(this._timeoutSourceId);
+                this._timeoutSourceId = null;
             }
-
             this._extension = null;
             this._playerProxy = null;
             this._otherProxy = null;
+            this._doubleClick = null;
+            this._clicked = null;
             super.destroy();
         }
 
