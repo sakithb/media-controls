@@ -21,9 +21,13 @@ Show controls and information of the currently playing media in the panel.
 
 ## Known issues
 
--   GNOME 45 review is pending on https://extensions.gnome.org/review/
 -   Flatpak installed apps might not show the correct player icon ([#47](https://github.com/sakithb/media-controls/issues/47))
 -   Some browsers have the issue when the tab which played media is closed, the media controls do not disappear ([#35](https://github.com/sakithb/media-controls/issues/35))
+
+## Reporting issues
+
+-   Please attach a screenshot when you report something about visuals
+-   Please include version of the extension, gnome version and linux distribution
 
 ---
 
