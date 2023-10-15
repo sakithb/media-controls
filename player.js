@@ -883,7 +883,7 @@ var Player = GObject.registerClass(
                                     0o744
                                 ) === 0
                             ) {
-                                await cacheFile.replace_contents_bytes_async(
+                                cacheFile.replace_contents_bytes_async(
                                     remoteIcon,
                                     null,
                                     false,
