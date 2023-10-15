@@ -766,19 +766,14 @@ var Player = GObject.registerClass(
                                     0o744
                                 ) === 0
                             ) {
-                                let success =
-                                    cacheFile.replace_contents_bytes_async(
-                                        remoteIcon,
-                                        null,
-                                        false,
-                                        Gio.FileCreateFlags.REPLACE_DESTINATION,
-                                        null,
-                                        null
-                                    );
-
-                                if (!success) {
-                                    throw new Error("Failed to save icon.");
-                                }
+                                await cacheFile.replace_contents_bytes_async(
+                                    remoteIcon,
+                                    null,
+                                    false,
+                                    Gio.FileCreateFlags.REPLACE_DESTINATION,
+                                    null,
+                                    null
+                                );
                             } else {
                                 throw new Error("Failed to save icon.");
                             }
@@ -806,14 +801,6 @@ var Player = GObject.registerClass(
                     return null;
                 }
             } catch (error) {
-                if (
-                    !(
-                        error.toString().includes("Expected type") ||
-                        error.toString().includes("Error opening file")
-                    )
-                ) {
-                    logError(error);
-                }
                 return null;
             }
         }
