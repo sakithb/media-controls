@@ -7,6 +7,7 @@ import Shell from "gi://Shell";
 
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
+import * as Slider from "resource:///org/gnome/shell/ui/slider.js";
 
 import * as BoxPointer from "resource:///org/gnome/shell/ui/boxpointer.js";
 
@@ -16,6 +17,7 @@ import {
     stripInstanceNumbers,
     getRequest,
     wrappingText,
+    msToHHMMSS,
 } from "./utils.js";
 
 const urlRegexp = new RegExp(
@@ -38,10 +40,9 @@ export const Player = GObject.registerClass(
         _init(busName, parent) {
             super._init(0.5, "Media Controls Track Information");
 
-            this.setSensitive(false);
-
             this.busName = busName;
             this._timeoutSourceId = null;
+            this._intervalSourceId = null;
             this._doubleClick = false;
             this._clicked = false;
             this._extension = parent;
@@ -75,6 +76,11 @@ export const Player = GObject.registerClass(
                     this._otherProxy.connect(
                         "g-properties-changed",
                         this._otherPropsChanged.bind(this)
+                    );
+
+                    this.menu.connect(
+                        "open-state-changed",
+                        this._updatePosition.bind(this)
                     );
 
                     this._saveImage();
@@ -115,6 +121,9 @@ export const Player = GObject.registerClass(
                 style: "padding: 0px 5px; margin: 0px;",
             });
 
+            this.containerButtonLabel.set_track_hover(false);
+            this.containerButtonLabel.set_can_focus(false);
+
             this.containerButtonLabel.connect(
                 "button-release-event",
                 this._mouseActionButton.bind(this)
@@ -137,6 +146,9 @@ export const Player = GObject.registerClass(
             this.buttonPlayer = new St.Button({
                 style_class: "popup-menu-button",
             });
+
+            this.buttonPlayer.set_track_hover(false);
+            this.buttonPlayer.set_can_focus(false);
 
             this.iconPlayer = new St.Icon({
                 fallback_icon_name: "audio-x-generic",
@@ -252,6 +264,40 @@ export const Player = GObject.registerClass(
             this.updateIconEffects();
         }
 
+        // Not taking rate into account
+        _updatePosition(_, open) {
+            if (!this.infoSlider) return;
+
+            if (open) {
+                const length = this._metadata.length;
+                this.infoTt.set_text(msToHHMMSS(length));
+
+                const timerFunc = () => {
+                    const position = this._getPosition();
+
+                    this.infoSlider.value = position / length;
+                    this.infoEt.set_text(msToHHMMSS(position));
+
+                    return GLib.SOURCE_CONTINUE;
+                };
+
+                timerFunc();
+
+                this._intervalSourceId = GLib.timeout_add(
+                    GLib.PRIORITY_HIGH,
+                    1000,
+                    timerFunc
+                );
+            } else if (this._intervalSourceId) {
+                GLib.source_remove(this._intervalSourceId);
+                this._intervalSourceId = null;
+            }
+        }
+
+        _handleSliderDragEnd(event) {
+            this._setPosition(event._value * this._metadata.length);
+        }
+
         _getPosition() {
             try {
                 const position = this._playerProxy
@@ -279,6 +325,13 @@ export const Player = GObject.registerClass(
             } catch (error) {
                 return undefined;
             }
+        }
+
+        _setPosition(position) {
+            this._playerProxy.SetPositionRemote(
+                this._metadata.trackid,
+                position
+            );
         }
 
         _seekBack() {
@@ -322,7 +375,7 @@ export const Player = GObject.registerClass(
                         position + offset,
                         metadata.length
                     );
-                    this._playerProxy.SetPositionRemote(
+                    this._playerProxy.setPositionRemote(
                         metadata.trackid,
                         newPosition
                     );
@@ -521,20 +574,21 @@ export const Player = GObject.registerClass(
 
         _addInfoMenuItems() {
             if (!this._infoItem) {
-                this._infoItem = new PopupMenu.PopupBaseMenuItem();
-                this._infoItem.set_track_hover(false);
-
-                this.infoItemContainer = new St.BoxLayout({
-                    style_class: "track_menu_info",
-                    vertical: true,
-                    x_expand: true,
+                this._infoItem = new PopupMenu.PopupBaseMenuItem({
+                    activate: false,
+                    style_class: "info-item",
                 });
+
+                this._infoItem.remove_style_class_name("popup-menu-item");
+                this._infoItem.setOrnament(PopupMenu.Ornament.DOT);
+
+                this._infoItem.set_track_hover(false);
+                this._infoItem.set_vertical(true);
 
                 // Player icon and name
 
                 const playerIconLabelContainer = new St.BoxLayout({
                     x_align: Clutter.ActorAlign.CENTER,
-                    // style: "padding-bottom: 10px;",
                     reactive: false,
                 });
 
@@ -556,12 +610,12 @@ export const Player = GObject.registerClass(
 
                 playerIconLabelContainer.add(this.infoMenuPlayerName);
 
-                this.infoItemContainer.add(playerIconLabelContainer);
+                this._infoItem.add(playerIconLabelContainer);
 
-                // const nameSep = ;
-                this.infoItemContainer.add(
-                    new PopupMenu.PopupSeparatorMenuItem()
-                );
+                // Seperator
+
+                const separator = new PopupMenu.PopupSeparatorMenuItem();
+                this._infoItem.add(separator);
 
                 // Album art
 
@@ -572,7 +626,7 @@ export const Player = GObject.registerClass(
                     // icon_size: 80,
                 });
 
-                this.infoItemContainer.add(this._infoIcon);
+                this._infoItem.add(this._infoIcon);
 
                 // Track title and artist
 
@@ -595,8 +649,59 @@ export const Player = GObject.registerClass(
                     this.infoArtistLabel
                 );
 
-                this.infoItemContainer.add(this.infoTitleLabel);
-                this.infoItemContainer.add(this.infoArtistLabel);
+                this._infoItem.add(this.infoTitleLabel);
+                this._infoItem.add(this.infoArtistLabel);
+
+                // Spacer
+
+                const spacer = new St.BoxLayout({
+                    style: "padding-top: 10px;",
+                });
+                this._infoItem.add(spacer);
+
+                if (this._getPosition() !== undefined) {
+                    // Elapsed time and total time
+
+                    const rtttContainer = new St.BoxLayout();
+
+                    this.infoEt = new St.Label({
+                        text: "00:00",
+                        x_expand: true,
+                        x_align: Clutter.ActorAlign.START,
+                        style: "font-size: small;",
+                    });
+                    this.infoTt = new St.Label({
+                        text: "00:00",
+                        x_expand: true,
+                        x_align: Clutter.ActorAlign.END,
+                        style: "font-size: small;",
+                    });
+
+                    rtttContainer.add(this.infoEt);
+                    rtttContainer.add(this.infoTt);
+
+                    this._infoItem.add(rtttContainer);
+
+                    // Slider
+
+                    const sliderContainer = new PopupMenu.PopupBaseMenuItem({
+                        activate: false,
+                    });
+
+                    sliderContainer.remove_style_class_name("popup-menu-item");
+                    sliderContainer.set_track_hover(false);
+
+                    this.infoSlider = new Slider.Slider(1);
+
+                    this.infoSlider.connect(
+                        "drag-end",
+                        this._handleSliderDragEnd.bind(this)
+                    );
+
+                    sliderContainer.add(this.infoSlider);
+                    sliderContainer.setOrnament(PopupMenu.Ornament.DOT);
+                    this._infoItem.add(sliderContainer);
+                }
 
                 // Controls
 
@@ -730,9 +835,7 @@ export const Player = GObject.registerClass(
 
                 mainControlButtons.add(this.infoShuffleButton);
 
-                this.infoItemContainer.add(mainControlButtons);
-
-                this._infoItem.add(this.infoItemContainer);
+                this._infoItem.add(mainControlButtons);
 
                 this.menu.addMenuItem(this._infoItem);
             }
@@ -785,6 +888,8 @@ export const Player = GObject.registerClass(
                                     null,
                                     null
                                 );
+                            } else {
+                                throw new Error("Failed to save icon.");
                             }
                         }
                     }
@@ -810,14 +915,6 @@ export const Player = GObject.registerClass(
                     return null;
                 }
             } catch (error) {
-                if (
-                    !(
-                        error.toString().includes("Expected type") ||
-                        error.toString().includes("Error opening file")
-                    )
-                ) {
-                    logError(error);
-                }
                 return null;
             }
         }
@@ -920,6 +1017,12 @@ export const Player = GObject.registerClass(
                 GLib.Source.remove(this._timeoutSourceId);
                 this._timeoutSourceId = null;
             }
+
+            if (this._intervalSourceId) {
+                GLib.source_remove(this._intervalSourceId);
+                this._intervalSourceId = null;
+            }
+
             this._extension = null;
             this._playerProxy = null;
             this._otherProxy = null;
