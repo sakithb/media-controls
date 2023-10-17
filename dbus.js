@@ -19,6 +19,7 @@ var ifacesXml = `
             <property name="LoopStatus" type="s" access="readwrite" />
             <property name="Shuffle" type="b" access="readwrite" />
             <property name="CanControl" type="b" access="read" />
+            <property name="Volume" type="d" access="readwrite" />
             <method name="SetPosition">
                 <arg type="o" />
                 <arg type="x" />

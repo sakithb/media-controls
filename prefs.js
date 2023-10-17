@@ -311,6 +311,8 @@ class AdwPrefs {
                 pause: _("Pause"),
                 next: _("Next"),
                 previous: _("Previous"),
+                volume_up: _("Volume up"),
+                volume_down: _("Volume down"),
                 toggle_loop: _("Cycle loop options"),
                 toggle_shuffle: _("Toggle shuffle"),
                 toggle_menu: _("Toggle sources menu"),
