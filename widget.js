@@ -507,12 +507,12 @@ var MediaControls = GObject.registerClass(
                              /     \
                             /       \
                    buttonLabel     containerControls
-                       |                        |
+                       |             seekBwd____|____seekFwd
                       / \                      /|\__________buttonNext
-                     /   \       buttonPrev___/  \                  |
-                    /     \           |           \                  \
-            iconPlayer   labelTitle   |          buttonPlayPause      \
-                                      |               |                iconNext
-                                      |           iconPlayPause
-                                  iconPrev
+                     /   \       buttonPrev___/  \                  
+                    /     \                       \                  
+            iconPlayer   labelTitle                buttonPlayPause      
+                                                                  
+                                                 
+                                  
 */

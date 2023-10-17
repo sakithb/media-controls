@@ -22,7 +22,10 @@
     padding: 0px auto;
 }
 
-.track_menu_info {
-    display: flex;
-    align-items: center;
+.info-item {
+    padding: 10px;
+}
+
+.test{
+     background-color: rgba(160, 160, 160, 0.2);
 }
