@@ -413,8 +413,6 @@ var Player = GObject.registerClass(
             if (changed.Shuffle !== undefined) {
                 this._updateShuffleIcon();
             }
-
-            console.log(changed);
         }
 
         _otherPropsChanged(proxy, changed, invalidated) {
