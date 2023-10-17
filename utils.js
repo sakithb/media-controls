@@ -31,6 +31,10 @@ var msToHHMMSS = (ms) => {
         return minutes + ":" + seconds;
     }
 
+    if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
+        return "--";
+    }
+
     return hours + ":" + minutes + ":" + seconds;
 };
 

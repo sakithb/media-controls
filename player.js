@@ -261,6 +261,8 @@ var Player = GObject.registerClass(
 
         // Not taking rate into account
         _updatePosition(_, open) {
+            if (!this.infoSlider) return;
+
             if (open) {
                 const length = this._metadata.length;
                 this.infoTt.set_text(msToHHMMSS(length));
@@ -269,10 +271,6 @@ var Player = GObject.registerClass(
                     GLib.PRIORITY_HIGH,
                     1000,
                     () => {
-                        // this.positionItem.set_text(
-                        //     msToHHMMSS(this._getPosition())
-                        // );
-
                         const position = this._getPosition();
 
                         this.infoSlider.value = position / length;
@@ -649,51 +647,53 @@ var Player = GObject.registerClass(
                 });
                 this._infoItem.add(spacer);
 
-                // Elapsed time and total time
+                if (this._getPosition() !== undefined) {
+                    // Elapsed time and total time
 
-                const rtttContainer = new St.BoxLayout();
+                    const rtttContainer = new St.BoxLayout();
 
-                this.infoEt = new St.Label({
-                    text: "00:00",
-                    x_expand: true,
-                    x_align: Clutter.ActorAlign.START,
-                    style: "font-size: small;",
-                });
-                this.infoTt = new St.Label({
-                    text: "00:00",
-                    x_expand: true,
-                    x_align: Clutter.ActorAlign.END,
-                    style: "font-size: small;",
-                });
+                    this.infoEt = new St.Label({
+                        text: "00:00",
+                        x_expand: true,
+                        x_align: Clutter.ActorAlign.START,
+                        style: "font-size: small;",
+                    });
+                    this.infoTt = new St.Label({
+                        text: "00:00",
+                        x_expand: true,
+                        x_align: Clutter.ActorAlign.END,
+                        style: "font-size: small;",
+                    });
 
-                rtttContainer.add(this.infoEt);
-                rtttContainer.add(this.infoTt);
+                    rtttContainer.add(this.infoEt);
+                    rtttContainer.add(this.infoTt);
 
-                this._infoItem.add(rtttContainer);
+                    this._infoItem.add(rtttContainer);
 
-                // Slider
+                    // Slider
 
-                const sliderContainer = new PopupMenu.PopupBaseMenuItem({
-                    activate: false,
-                });
+                    const sliderContainer = new PopupMenu.PopupBaseMenuItem({
+                        activate: false,
+                    });
 
-                sliderContainer.remove_style_class_name("popup-menu-item");
-                sliderContainer.set_track_hover(false);
+                    sliderContainer.remove_style_class_name("popup-menu-item");
+                    sliderContainer.set_track_hover(false);
 
-                this.infoSlider = new Slider.Slider(1);
+                    this.infoSlider = new Slider.Slider(1);
 
-                this.infoSlider.connect(
-                    "drag-end",
-                    this._handleSliderDragEnd.bind(this)
-                );
+                    this.infoSlider.connect(
+                        "drag-end",
+                        this._handleSliderDragEnd.bind(this)
+                    );
 
-                sliderContainer.add(this.infoSlider);
+                    sliderContainer.add(this.infoSlider);
 
-                sliderContainer._ornamentLabel.remove_style_class_name(
-                    "popup-menu-ornament"
-                );
+                    sliderContainer._ornamentLabel.remove_style_class_name(
+                        "popup-menu-ornament"
+                    );
 
-                this._infoItem.add(sliderContainer);
+                    this._infoItem.add(sliderContainer);
+                }
 
                 // Controls
 
