@@ -267,17 +267,21 @@ var Player = GObject.registerClass(
                 const length = this._metadata.length;
                 this.infoTt.set_text(msToHHMMSS(length));
 
+                const timerFunc = () => {
+                    const position = this._getPosition();
+
+                    this.infoSlider.value = position / length;
+                    this.infoEt.set_text(msToHHMMSS(position));
+
+                    return GLib.SOURCE_CONTINUE;
+                };
+
+                timerFunc();
+
                 this._intervalSourceId = GLib.timeout_add(
                     GLib.PRIORITY_HIGH,
                     1000,
-                    () => {
-                        const position = this._getPosition();
-
-                        this.infoSlider.value = position / length;
-                        this.infoEt.set_text(msToHHMMSS(position));
-
-                        return GLib.SOURCE_CONTINUE;
-                    }
+                    timerFunc
                 );
             } else {
                 if (this._intervalSourceId) {
