@@ -799,6 +799,18 @@ export const Player = GObject.registerClass(
                 case "pause":
                     this._playerProxy.PauseRemote();
                     break;
+                case "volume_up":
+                    this._playerProxy.Volume = Math.min(
+                        this._playerProxy.Volume + 0.05,
+                        1
+                    );
+                    break;
+                case "volume_down":
+                    this._playerProxy.Volume = Math.max(
+                        this._playerProxy.Volume - 0.05,
+                        0
+                    );
+                    break;
                 case "toggle_menu":
                     this.menu.close(BoxPointer.PopupAnimation.FULL);
                     this._extension.menu.toggle();
