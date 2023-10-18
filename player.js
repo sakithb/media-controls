@@ -373,6 +373,8 @@ export const Player = GObject.registerClass(
                 this._infoIcon.set_gicon(this.trackIcon);
                 this.infoTitleLabel.set_text(this.title);
                 this.infoArtistLabel.set_text(this.artist);
+
+                this._updateInfoIcon();
             }
         }
 
@@ -423,6 +425,11 @@ export const Player = GObject.registerClass(
             }
         }
 
+        _updateInfoIcon() {
+            const iconSize = Math.max(200, this.infoTitleLabel.width, this.infoArtistLabel.width);
+            this._infoIcon.set_icon_size(iconSize);
+        }
+
         updateWidgetWidths() {
             if (this.labelTitle) {
                 this.labelTitle.set_style(`${this.maxWidthStyle} margin: 0px; padding: 0px;`);
@@ -433,7 +440,12 @@ export const Player = GObject.registerClass(
             if (this._infoItem) {
                 this.infoArtistLabel.set_style(this.maxWidthStyle);
                 this.infoTitleLabel.set_style(`font-size: large; ${this.maxWidthStyle}`);
-                this._infoIcon.set_icon_size(this._extension.maxWidgetWidth);
+
+                if (this._extension.maxWidgetWidth !== 0) {
+                    this._infoIcon.set_icon_size(this._extension.maxWidgetWidth);
+                } else {
+                    this._updateInfoIcon();
+                }
             }
         }
 
@@ -800,16 +812,10 @@ export const Player = GObject.registerClass(
                     this._playerProxy.PauseRemote();
                     break;
                 case "volume_up":
-                    this._playerProxy.Volume = Math.min(
-                        this._playerProxy.Volume + 0.05,
-                        1
-                    );
+                    this._playerProxy.Volume = Math.min(this._playerProxy.Volume + 0.05, 1);
                     break;
                 case "volume_down":
-                    this._playerProxy.Volume = Math.max(
-                        this._playerProxy.Volume - 0.05,
-                        0
-                    );
+                    this._playerProxy.Volume = Math.max(this._playerProxy.Volume - 0.05, 0);
                     break;
                 case "toggle_menu":
                     this.menu.close(BoxPointer.PopupAnimation.FULL);
