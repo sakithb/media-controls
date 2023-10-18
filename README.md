@@ -37,15 +37,9 @@ Show controls and information of the currently playing media in the panel.
 
 [<img src="./images/get-ego.png" height="100">](https://extensions.gnome.org/extension/4470/media-controls/)
 
-OR
-
-#### Fedora
-
-`dnf install gnome-shell-extension-mediacontrols`
-
 #### Arch Linux (AUR)
 
-`yay -S gnome-shell-extension-media-controls` _Stable release_
+`yay -S gnome-shell-extension-media-controls` _Stable release_ (Outdated)
 
 `yay -S gnome-shell-extension-media-controls-git` _Build of the main branch_
 
