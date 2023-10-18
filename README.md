@@ -21,8 +21,7 @@ Show controls and information of the currently playing media in the panel.
 
 ## Known issues
 
--   Flatpak installed apps might not show the correct player icon ([#47](https://github.com/sakithb/media-controls/issues/47))
--   Some browsers have the issue when the tab which played media is closed, the media controls do not disappear ([#35](https://github.com/sakithb/media-controls/issues/35))
+-   The extension does not detect when a tab is closed on some browsers. ([#35](https://github.com/sakithb/media-controls/issues/35))
 
 ## Reporting issues
 
