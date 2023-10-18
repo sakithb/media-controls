@@ -10,8 +10,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 const { createProxy } = Me.imports.dbus;
-const { parseMetadata, stripInstanceNumbers, getRequest, msToHHMMSS } =
-    Me.imports.utils;
+const { parseMetadata, stripInstanceNumbers, getRequest, msToHHMMSS } = Me.imports.utils;
 
 const urlRegexp = new RegExp(
     /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+~#?&/=]*)/
@@ -50,33 +49,17 @@ var Player = GObject.registerClass(
                         "/org/mpris/MediaPlayer2"
                     );
 
-                    this._otherProxy = createProxy(
-                        "org.mpris.MediaPlayer2",
-                        busName,
-                        "/org/mpris/MediaPlayer2"
-                    );
+                    this._otherProxy = createProxy("org.mpris.MediaPlayer2", busName, "/org/mpris/MediaPlayer2");
 
-                    [this._playerProxy, this._otherProxy] = await Promise.all([
-                        this._playerProxy,
-                        this._otherProxy,
-                    ]);
+                    [this._playerProxy, this._otherProxy] = await Promise.all([this._playerProxy, this._otherProxy]);
 
                     this._metadata = parseMetadata(this._playerProxy.Metadata);
                     this._status = this._playerProxy.PlaybackStatus;
 
-                    this._playerProxy.connect(
-                        "g-properties-changed",
-                        this._playerPropsChanged.bind(this)
-                    );
-                    this._otherProxy.connect(
-                        "g-properties-changed",
-                        this._otherPropsChanged.bind(this)
-                    );
+                    this._playerProxy.connect("g-properties-changed", this._playerPropsChanged.bind(this));
+                    this._otherProxy.connect("g-properties-changed", this._otherPropsChanged.bind(this));
 
-                    this.menu.connect(
-                        "open-state-changed",
-                        this._updatePosition.bind(this)
-                    );
+                    this.menu.connect("open-state-changed", this._updatePosition.bind(this));
 
                     this._saveImage();
                 } catch (error) {
@@ -119,20 +102,11 @@ var Player = GObject.registerClass(
             this.containerButtonLabel.set_track_hover(false);
             this.containerButtonLabel.set_can_focus(false);
 
-            this.containerButtonLabel.connect(
-                "button-release-event",
-                this._mouseActionButton.bind(this)
-            );
+            this.containerButtonLabel.connect("button-release-event", this._mouseActionButton.bind(this));
 
-            this.containerButtonLabel.connect(
-                "scroll-event",
-                this._mouseActionScroll.bind(this)
-            );
+            this.containerButtonLabel.connect("scroll-event", this._mouseActionScroll.bind(this));
 
-            this.containerButtonLabel.connect(
-                "enter-event",
-                this._mouseActionHover.bind(this)
-            );
+            this.containerButtonLabel.connect("enter-event", this._mouseActionHover.bind(this));
 
             this.containerButtonLabel.set_child(this.subContainerLabel);
 
@@ -153,20 +127,11 @@ var Player = GObject.registerClass(
 
             this.buttonPlayer.set_child(this.iconPlayer);
 
-            this.buttonPlayer.connect(
-                "button-release-event",
-                this._mouseActionButton.bind(this)
-            );
+            this.buttonPlayer.connect("button-release-event", this._mouseActionButton.bind(this));
 
-            this.buttonPlayer.connect(
-                "scroll-event",
-                this._mouseActionScroll.bind(this)
-            );
+            this.buttonPlayer.connect("scroll-event", this._mouseActionScroll.bind(this));
 
-            this.buttonPlayer.connect(
-                "enter-event",
-                this._mouseActionHover.bind(this)
-            );
+            this.buttonPlayer.connect("enter-event", this._mouseActionHover.bind(this));
 
             // Player controls
 
@@ -179,9 +144,7 @@ var Player = GObject.registerClass(
                 style_class: "system-status-icon",
             });
             this.iconPlayPause = new St.Icon({
-                icon_name: this.isPlaying
-                    ? "media-playback-pause-symbolic"
-                    : "media-playback-start-symbolic",
+                icon_name: this.isPlaying ? "media-playback-pause-symbolic" : "media-playback-start-symbolic",
                 style_class: "system-status-icon",
             });
             this.iconNext = new St.Icon({
@@ -278,11 +241,7 @@ var Player = GObject.registerClass(
 
                 timerFunc();
 
-                this._intervalSourceId = GLib.timeout_add(
-                    GLib.PRIORITY_HIGH,
-                    1000,
-                    timerFunc
-                );
+                this._intervalSourceId = GLib.timeout_add(GLib.PRIORITY_HIGH, 1000, timerFunc);
             } else {
                 if (this._intervalSourceId) {
                     GLib.source_remove(this._intervalSourceId);
@@ -304,10 +263,7 @@ var Player = GObject.registerClass(
                         "/org/mpris/MediaPlayer2",
                         "org.freedesktop.DBus.Properties",
                         "Get",
-                        new GLib.Variant("(ss)", [
-                            "org.mpris.MediaPlayer2.Player",
-                            "Position",
-                        ]),
+                        new GLib.Variant("(ss)", ["org.mpris.MediaPlayer2.Player", "Position"]),
                         null,
                         Gio.DBusCallFlags.NONE,
                         -1,
@@ -325,10 +281,7 @@ var Player = GObject.registerClass(
         }
 
         _setPosition(position) {
-            this._playerProxy.SetPositionRemote(
-                this._metadata.trackid,
-                position
-            );
+            this._playerProxy.SetPositionRemote(this._metadata.trackid, position);
         }
 
         _seekBack() {
@@ -340,16 +293,9 @@ var Player = GObject.registerClass(
                 const position = this._getPosition();
                 const metadata = parseMetadata(this._playerProxy.Metadata);
 
-                if (
-                    position !== undefined &&
-                    metadata !== undefined &&
-                    metadata.trackid !== undefined
-                ) {
+                if (position !== undefined && metadata !== undefined && metadata.trackid !== undefined) {
                     const newPosition = Math.max(position - offset, 0);
-                    this._playerProxy.SetPositionRemote(
-                        metadata.trackid,
-                        newPosition
-                    );
+                    this._playerProxy.SetPositionRemote(metadata.trackid, newPosition);
                 }
             }
         }
@@ -363,19 +309,9 @@ var Player = GObject.registerClass(
                 const position = this._getPosition();
                 const metadata = parseMetadata(this._playerProxy.Metadata);
 
-                if (
-                    position !== undefined &&
-                    metadata !== undefined &&
-                    metadata.trackid !== undefined
-                ) {
-                    const newPosition = Math.min(
-                        position + offset,
-                        metadata.length
-                    );
-                    this._playerProxy.setPositionRemote(
-                        metadata.trackid,
-                        newPosition
-                    );
+                if (position !== undefined && metadata !== undefined && metadata.trackid !== undefined) {
+                    const newPosition = Math.min(position + offset, metadata.length);
+                    this._playerProxy.setPositionRemote(metadata.trackid, newPosition);
                 }
             }
         }
@@ -388,6 +324,7 @@ var Player = GObject.registerClass(
                     if (this.hidden) {
                         this._extension.unhidePlayer(this.busName);
                     }
+
                     this.updateWidgets();
                     this._saveImage();
                 } else {
@@ -397,11 +334,7 @@ var Player = GObject.registerClass(
 
             if (changed.PlaybackStatus) {
                 this._status = changed.PlaybackStatus;
-                if (
-                    this.isPlaying &&
-                    !this._extension.isFixedPlayer &&
-                    !this._active
-                ) {
+                if (this.isPlaying && !this._extension.isFixedPlayer && !this._active) {
                     this._extension.updatePlayer(this.busName);
                 }
 
@@ -443,22 +376,20 @@ var Player = GObject.registerClass(
                 this._infoIcon.set_gicon(this.trackIcon);
                 this.infoTitleLabel.set_text(this.title);
                 this.infoArtistLabel.set_text(this.artist);
+
+                this._updateInfoIcon();
             }
         }
 
         _updateStatusIcons() {
             if (this.iconPlayPause) {
                 this.iconPlayPause.set_icon_name(
-                    this.isPlaying
-                        ? "media-playback-pause-symbolic"
-                        : "media-playback-start-symbolic"
+                    this.isPlaying ? "media-playback-pause-symbolic" : "media-playback-start-symbolic"
                 );
             }
             if (this.infoIconPlayPause) {
                 this.infoIconPlayPause.set_icon_name(
-                    this.isPlaying
-                        ? "media-playback-pause-symbolic"
-                        : "media-playback-start-symbolic"
+                    this.isPlaying ? "media-playback-pause-symbolic" : "media-playback-start-symbolic"
                 );
             }
         }
@@ -467,107 +398,81 @@ var Player = GObject.registerClass(
             if (this._playerProxy.LoopStatus) {
                 switch (this._playerProxy.LoopStatus) {
                     case "None":
-                        this.infoIconLoop.set_icon_name(
-                            "media-playlist-consecutive-symbolic"
-                        );
-                        this.infoButtonLoop.remove_style_class_name(
-                            "popup-menu-button-active"
-                        );
+                        this.infoIconLoop.set_icon_name("media-playlist-consecutive-symbolic");
+                        this.infoButtonLoop.remove_style_class_name("popup-menu-button-active");
                         break;
                     case "Track":
-                        this.infoIconLoop.set_icon_name(
-                            "media-playlist-repeat-song-symbolic"
-                        );
-                        this.infoButtonLoop.add_style_class_name(
-                            "popup-menu-button-active"
-                        );
+                        this.infoIconLoop.set_icon_name("media-playlist-repeat-song-symbolic");
+                        this.infoButtonLoop.add_style_class_name("popup-menu-button-active");
                         break;
                     case "Playlist":
-                        this.infoIconLoop.set_icon_name(
-                            "media-playlist-repeat-symbolic"
-                        );
-                        this.infoButtonLoop.add_style_class_name(
-                            "popup-menu-button-active"
-                        );
+                        this.infoIconLoop.set_icon_name("media-playlist-repeat-symbolic");
+                        this.infoButtonLoop.add_style_class_name("popup-menu-button-active");
                         break;
                     default:
                         break;
                 }
             } else {
                 this.infoButtonLoop.set_reactive(false);
-                this.infoButtonLoop.remove_style_class_name(
-                    "popup-menu-button-active"
-                );
+                this.infoButtonLoop.remove_style_class_name("popup-menu-button-active");
             }
         }
 
         _updateShuffleIcon() {
             if (this._playerProxy.Shuffle === true) {
-                this.infoShuffleButton.add_style_class_name(
-                    "popup-menu-button-active"
-                );
+                this.infoShuffleButton.add_style_class_name("popup-menu-button-active");
             } else if (this._playerProxy.Shuffle === false) {
-                this.infoShuffleButton.remove_style_class_name(
-                    "popup-menu-button-active"
-                );
+                this.infoShuffleButton.remove_style_class_name("popup-menu-button-active");
             } else {
                 this.infoShuffleButton.set_reactive(false);
             }
         }
 
+        _updateInfoIcon() {
+            const iconSize = Math.max(200, this.infoTitleLabel.width, this.infoArtistLabel.width);
+            console.log(this.infoTitleLabel.width, this.infoArtistLabel.width);
+            console.log(iconSize);
+            this._infoIcon.set_icon_size(iconSize);
+        }
+
         updateWidgetWidths() {
             if (this.labelTitle) {
-                this.labelTitle.set_style(
-                    `${this.maxWidthStyle} margin: 0px; padding: 0px;`
-                );
+                this.labelTitle.set_style(`${this.maxWidthStyle} margin: 0px; padding: 0px;`);
             }
+
             if (this.menuItem) {
                 this._menuLabel.set_style(this.maxWidthStyle);
             }
+
             if (this._infoItem) {
                 this.infoArtistLabel.set_style(this.maxWidthStyle);
-                this.infoTitleLabel.set_style(
-                    `font-size: large; ${this.maxWidthStyle}`
-                );
-                this._infoIcon.set_icon_size(
-                    this._extension.settings.maxWidgetWidth
-                );
+                this.infoTitleLabel.set_style(`font-size: large; ${this.maxWidthStyle}`);
+
+                if (this._extension.settings.maxWidgetWidth !== 0) {
+                    this._infoIcon.set_icon_size(this._extension.settings.maxWidgetWidth);
+                } else {
+                    this._updateInfoIcon();
+                }
             }
         }
 
         updateIconEffects() {
             if (this._extension.settings.coloredPlayerIcon) {
                 this.iconPlayer.clear_effects();
-                this.iconPlayer.set_style(
-                    "margin: 0px; padding: 0px; -st-icon-style: requested;"
-                );
+                this.iconPlayer.set_style("margin: 0px; padding: 0px; -st-icon-style: requested;");
                 this.iconPlayer.set_fallback_icon_name("audio-x-generic");
 
                 this.infoMenuPlayerIcon.clear_effects();
-                this.infoMenuPlayerIcon.set_style(
-                    "-st-icon-style: requested; padding-right: 6px;"
-                );
-                this.infoMenuPlayerIcon.set_fallback_icon_name(
-                    "audio-x-generic"
-                );
+                this.infoMenuPlayerIcon.set_style("-st-icon-style: requested; padding-right: 6px;");
+                this.infoMenuPlayerIcon.set_fallback_icon_name("audio-x-generic");
             } else {
-                this.iconPlayer.set_style(
-                    "margin: 0px; padding: 0px; -st-icon-style: symbolic;"
-                );
+                this.iconPlayer.set_style("margin: 0px; padding: 0px; -st-icon-style: symbolic;");
                 this.iconPlayer.add_effect(new Clutter.DesaturateEffect());
-                this.iconPlayer.set_fallback_icon_name(
-                    "audio-x-generic-symbolic"
-                );
+                this.iconPlayer.set_fallback_icon_name("audio-x-generic-symbolic");
 
-                this.infoMenuPlayerIcon.set_style(
-                    "-st-icon-style: symbolic;  padding-right: 6px;"
-                );
-                this.infoMenuPlayerIcon.add_effect(
-                    new Clutter.DesaturateEffect()
-                );
-                this.infoMenuPlayerIcon.set_fallback_icon_name(
-                    "audio-x-generic-symbolic"
-                );
+                this.infoMenuPlayerIcon.set_style("-st-icon-style: symbolic;  padding-right: 6px;");
+                this.infoMenuPlayerIcon.add_effect(new Clutter.DesaturateEffect());
+                this.infoMenuPlayerIcon.set_fallback_icon_name("audio-x-generic-symbolic");
             }
         }
 
@@ -620,10 +525,8 @@ var Player = GObject.registerClass(
                 // Album art
 
                 this._infoIcon = new St.Icon({
-                    x_expand: true,
                     gicon: this.trackIcon,
                     style: "padding-bottom: 10px;",
-                    // icon_size: 80,
                 });
 
                 this._infoItem.add(this._infoIcon);
@@ -685,16 +588,11 @@ var Player = GObject.registerClass(
 
                     this.infoSlider = new Slider.Slider(1);
 
-                    this.infoSlider.connect(
-                        "drag-end",
-                        this._handleSliderDragEnd.bind(this)
-                    );
+                    this.infoSlider.connect("drag-end", this._handleSliderDragEnd.bind(this));
 
                     sliderContainer.add(this.infoSlider);
 
-                    sliderContainer._ornamentLabel.remove_style_class_name(
-                        "popup-menu-ornament"
-                    );
+                    sliderContainer._ornamentLabel.remove_style_class_name("popup-menu-ornament");
 
                     this._infoItem.add(sliderContainer);
                 }
@@ -719,19 +617,14 @@ var Player = GObject.registerClass(
                     style_class: "popup-menu-button",
                 });
 
-                this.infoButtonLoop.connect(
-                    "button-press-event",
-                    this._changeLoop.bind(this)
-                );
+                this.infoButtonLoop.connect("button-press-event", this._changeLoop.bind(this));
 
                 this.infoButtonLoop.set_child(this.infoIconLoop);
 
                 mainControlButtons.add(this.infoButtonLoop);
 
                 this.infoIconPlayPause = new St.Icon({
-                    icon_name: this.isPlaying
-                        ? "media-playback-pause-symbolic"
-                        : "media-playback-start-symbolic",
+                    icon_name: this.isPlaying ? "media-playback-pause-symbolic" : "media-playback-start-symbolic",
                     style_class: "popup-menu-icon",
                 });
 
@@ -822,10 +715,7 @@ var Player = GObject.registerClass(
                     style_class: "popup-menu-button",
                 });
 
-                this.infoShuffleButton.connect(
-                    "button-press-event",
-                    this._toggleShuffle.bind(this)
-                );
+                this.infoShuffleButton.connect("button-press-event", this._toggleShuffle.bind(this));
 
                 this.infoShuffleButton.set_child(this.infoShuffleIcon);
 
@@ -881,12 +771,7 @@ var Player = GObject.registerClass(
                         const cacheFile = Gio.File.new_for_path(destination);
                         if (!cacheFile.query_exists(null)) {
                             const remoteIcon = await getRequest(this.image);
-                            if (
-                                GLib.mkdir_with_parents(
-                                    cacheFile.get_parent().get_path(),
-                                    0o744
-                                ) === 0
-                            ) {
+                            if (GLib.mkdir_with_parents(cacheFile.get_parent().get_path(), 0o744) === 0) {
                                 cacheFile.replace_contents_bytes_async(
                                     remoteIcon,
                                     null,
@@ -944,16 +829,10 @@ var Player = GObject.registerClass(
                     this._playerProxy.PauseRemote();
                     break;
                 case "volume_up":
-                    this._playerProxy.Volume = Math.min(
-                        this._playerProxy.Volume + 0.05,
-                        1
-                    );
+                    this._playerProxy.Volume = Math.min(this._playerProxy.Volume + 0.05, 1);
                     break;
                 case "volume_down":
-                    this._playerProxy.Volume = Math.max(
-                        this._playerProxy.Volume - 0.05,
-                        0
-                    );
+                    this._playerProxy.Volume = Math.max(this._playerProxy.Volume - 0.05, 0);
                     break;
                 case "toggle_menu":
                     this.menu.close(BoxPointer.PopupAnimation.FULL);
@@ -991,9 +870,7 @@ var Player = GObject.registerClass(
                             if (button === 1) {
                                 this._mouseAction(mouseActionTypes.LEFT_CLICK);
                             } else if (button === 2) {
-                                this._mouseAction(
-                                    mouseActionTypes.MIDDLE_CLICK
-                                );
+                                this._mouseAction(mouseActionTypes.MIDDLE_CLICK);
                             } else if (button === 3) {
                                 this._mouseAction(mouseActionTypes.RIGHT_CLICK);
                             }
@@ -1020,9 +897,7 @@ var Player = GObject.registerClass(
         _mouseActionScroll(widget, event) {
             if (event.get_scroll_direction() === Clutter.ScrollDirection.UP) {
                 this._mouseAction(mouseActionTypes.SCROLL_UP);
-            } else if (
-                event.get_scroll_direction() === Clutter.ScrollDirection.DOWN
-            ) {
+            } else if (event.get_scroll_direction() === Clutter.ScrollDirection.DOWN) {
                 this._mouseAction(mouseActionTypes.SCROLL_DOWN);
             }
         }
@@ -1088,12 +963,7 @@ var Player = GObject.registerClass(
         }
 
         get trackIcon() {
-            return (
-                this._getImage() ||
-                Gio.icon_new_for_string(
-                    this.image || "audio-x-generic-symbolic"
-                )
-            );
+            return this._getImage() || Gio.icon_new_for_string(this.image || "audio-x-generic-symbolic");
         }
 
         get isPlaying() {
@@ -1166,13 +1036,8 @@ var Player = GObject.registerClass(
 
         get name() {
             if (!this._strippedName) {
-                this._strippedName = stripInstanceNumbers(this.busName).replace(
-                    "org.mpris.MediaPlayer2.",
-                    ""
-                );
-                this._strippedName =
-                    this._strippedName.charAt(0).toUpperCase() +
-                    this._strippedName.substr(1);
+                this._strippedName = stripInstanceNumbers(this.busName).replace("org.mpris.MediaPlayer2.", "");
+                this._strippedName = this._strippedName.charAt(0).toUpperCase() + this._strippedName.substr(1);
             }
 
             return this._otherProxy?.Identity || this._strippedName;
@@ -1184,10 +1049,7 @@ var Player = GObject.registerClass(
 
         get artist() {
             let artist = this._metadata["artist"];
-            return (
-                (Array.isArray(artist) ? artist.join(", ") : artist) ||
-                "Unknown artist"
-            );
+            return (Array.isArray(artist) ? artist.join(", ") : artist) || "Unknown artist";
         }
 
         get image() {
