@@ -6,6 +6,7 @@
     "singleQuote": false,
     "jsxSingleQuote": false,
     "indent_style": "space",
-    "useTabs": false
+    "useTabs": false,
+    "printWidth": 120
 }
 
