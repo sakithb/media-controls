@@ -386,6 +386,9 @@ export const Player = GObject.registerClass(
             if (this._scrollSourceId) {
                 GLib.source_remove(this._scrollSourceId);
             }
+            if (!this._extension.scrolltracklabel) {
+                return false;
+            }
 
             const maxWidgetWidth = this._extension.maxWidgetWidth;
             const labelLength = this.label.length;

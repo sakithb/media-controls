@@ -7,39 +7,21 @@ import Adw from "gi://Adw";
 
 import { execCommunicate } from "./utils.js";
 
-import {
-    ExtensionPreferences,
-    gettext as _,
-} from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
+import { ExtensionPreferences, gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
 export default class MediaControlsPreferences extends ExtensionPreferences {
-    _ontracklabelchanged(
-        settings,
-        trackLabelOptKeys,
-        trackLabelSep,
-        trackLabelStart,
-        trackLabelEnd
-    ) {
+    _ontracklabelchanged(settings, trackLabelOptKeys, trackLabelSep, trackLabelStart, trackLabelEnd) {
         let currentTrackLabel = settings.get_strv("track-label");
         let trackLabelSepText = trackLabelSep.get_text();
         let trackLabelArray = [
-            trackLabelOptKeys[trackLabelStart.get_active()] ||
-                currentTrackLabel[0],
-            trackLabelSepText !== null || trackLabelSepText !== undefined
-                ? trackLabelSepText
-                : currentTrackLabel[1],
-            trackLabelOptKeys[trackLabelEnd.get_active()] ||
-                currentTrackLabel[2],
+            trackLabelOptKeys[trackLabelStart.get_active()] || currentTrackLabel[0],
+            trackLabelSepText !== null || trackLabelSepText !== undefined ? trackLabelSepText : currentTrackLabel[1],
+            trackLabelOptKeys[trackLabelEnd.get_active()] || currentTrackLabel[2],
         ];
         settings.set_strv("track-label", trackLabelArray);
     }
 
-    _initTrackLabelWidgets(
-        settings,
-        trackLabelStart,
-        trackLabelSep,
-        trackLabelEnd
-    ) {
+    _initTrackLabelWidgets(settings, trackLabelStart, trackLabelSep, trackLabelEnd) {
         const trackLabelOpts = {
             track: _("Track"),
             artist: _("Artist"),
@@ -58,12 +40,8 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         let tracklabelSetting = settings.get_strv("track-label");
 
         trackLabelSep.set_text(tracklabelSetting[1]);
-        trackLabelStart.set_active(
-            trackLabelOptKeys.indexOf(tracklabelSetting[0])
-        );
-        trackLabelEnd.set_active(
-            trackLabelOptKeys.indexOf(tracklabelSetting[2])
-        );
+        trackLabelStart.set_active(trackLabelOptKeys.indexOf(tracklabelSetting[0]));
+        trackLabelEnd.set_active(trackLabelOptKeys.indexOf(tracklabelSetting[2]));
 
         trackLabelSep.connect(
             "changed",
@@ -128,25 +106,12 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             widgetCustom.set_text(sepChars);
             widgetPreset.set_active(presetSepChars.length - 1);
         }
-        widgetPreset.connect(
-            "changed",
-            this._onseperatorpresetchanged.bind(this, widgetPreset)
-        );
-        widgetCustom.connect(
-            "changed",
-            this._onseperatorcustomchanged.bind(
-                this,
-                widgetCustom,
-                widgetPreset
-            )
-        );
+        widgetPreset.connect("changed", this._onseperatorpresetchanged.bind(this, widgetPreset));
+        widgetCustom.connect("changed", this._onseperatorcustomchanged.bind(this, widgetCustom, widgetPreset));
     }
 
     _onextensionpositionchanged(settings, widget, positions) {
-        settings.set_string(
-            "extension-position",
-            positions[widget.get_active()]
-        );
+        settings.set_string("extension-position", positions[widget.get_active()]);
     }
 
     _initExtensionPos(settings, widgetExtensionPos) {
@@ -160,17 +125,10 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         positionsOptsKeys.forEach((position) => {
             widgetExtensionPos.append(position, _(positionsOpts[position]));
         });
-        widgetExtensionPos.set_active(
-            positionsOptsKeys.indexOf(settings.get_string("extension-position"))
-        );
+        widgetExtensionPos.set_active(positionsOptsKeys.indexOf(settings.get_string("extension-position")));
         widgetExtensionPos.connect(
             "changed",
-            this._onextensionpositionchanged.bind(
-                this,
-                settings,
-                widgetExtensionPos,
-                positionsOptsKeys
-            )
+            this._onextensionpositionchanged.bind(this, settings, widgetExtensionPos, positionsOptsKeys)
         );
     }
 
@@ -184,9 +142,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
                 let _index = newElementOrder.indexOf(val);
                 if (elementOrder[_index] === val) {
                     newElementOrder[_index] = elementOrder[index];
-                    elementOrderWidgets[_index].set_active(
-                        elementIds.indexOf(elementOrder[index])
-                    );
+                    elementOrderWidgets[_index].set_active(elementIds.indexOf(elementOrder[index]));
                 } else {
                     val = elementOrder[_index];
                     _widget.set_active(elementIds.indexOf(val));
@@ -225,13 +181,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
 
             widget.connect(
                 "changed",
-                this._onElementOrderChanged.bind(
-                    this,
-                    settings,
-                    index,
-                    elementOrderWidgets,
-                    elementIds
-                )
+                this._onElementOrderChanged.bind(this, settings, index, elementOrderWidgets, elementIds)
             );
             elementOrderWidgets.push(widget);
         });
@@ -239,8 +189,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
 
     _onMouseActionChanged(settings, index, widget, mouseActionNameIds) {
         let currentMouseActions = settings.get_strv("mouse-actions");
-        currentMouseActions[widget.index] =
-            mouseActionNameIds[widget.get_active()];
+        currentMouseActions[widget.index] = mouseActionNameIds[widget.get_active()];
         settings.set_strv("mouse-actions", currentMouseActions);
     }
 
@@ -293,29 +242,18 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
                 widgetCombobox.append(action, _(mouseActionNamesMap[action]));
             });
 
-            widgetCombobox.set_active(
-                mouseActionNameIds.indexOf(mouseActions[index])
-            );
+            widgetCombobox.set_active(mouseActionNameIds.indexOf(mouseActions[index]));
             widgetCombobox.index = index;
             widgetCombobox.connect(
                 "changed",
-                this._onMouseActionChanged.bind(
-                    this,
-                    settings,
-                    index,
-                    widgetCombobox,
-                    mouseActionNameIds
-                )
+                this._onMouseActionChanged.bind(this, settings, index, widgetCombobox, mouseActionNameIds)
             );
         });
     }
 
     _onblacklistdelete(settings, group, adwrow, widget) {
         let currentBlacklistApps = settings.get_strv("backlist-apps");
-        currentBlacklistApps.splice(
-            currentBlacklistApps.indexOf(widget.app),
-            1
-        );
+        currentBlacklistApps.splice(currentBlacklistApps.indexOf(widget.app), 1);
         settings.set_strv("backlist-apps", currentBlacklistApps);
         group.remove(adwrow);
     }
@@ -336,16 +274,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         deleteButton.visible = true;
         deleteButton.app = app;
 
-        deleteButton.connect(
-            "clicked",
-            this._onblacklistdelete.bind(
-                this,
-                settings,
-                group,
-                adwrow,
-                deleteButton
-            )
-        );
+        deleteButton.connect("clicked", this._onblacklistdelete.bind(this, settings, group, adwrow, deleteButton));
     }
 
     _onblacklistentryadd(settings, group, entry) {
@@ -377,12 +306,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             active: settings.get_boolean(strSetting),
             valign: Gtk.Align.CENTER,
         });
-        settings.bind(
-            strSetting,
-            gtkswitch,
-            "active",
-            Gio.SettingsBindFlags.DEFAULT
-        );
+        settings.bind(strSetting, gtkswitch, "active", Gio.SettingsBindFlags.DEFAULT);
         return gtkswitch;
     }
 
@@ -407,12 +331,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         maxwidgetwidth.set_range(0, 500);
         maxwidgetwidth.set_value(200);
         maxwidgetwidth.set_increments(1, 10);
-        settings.bind(
-            "max-widget-width",
-            maxwidgetwidth,
-            "value",
-            Gio.SettingsBindFlags.DEFAULT
-        );
+        settings.bind("max-widget-width", maxwidgetwidth, "value", Gio.SettingsBindFlags.DEFAULT);
         adwrow.add_suffix(maxwidgetwidth);
         adwrow.activatable_widget = maxwidgetwidth;
         group1.add(adwrow);
@@ -427,12 +346,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         seekintervalsecs.set_range(5, 30);
         seekintervalsecs.set_value(5);
         seekintervalsecs.set_increments(1, 1);
-        settings.bind(
-            "seek-interval-secs",
-            seekintervalsecs,
-            "value",
-            Gio.SettingsBindFlags.DEFAULT
-        );
+        settings.bind("seek-interval-secs", seekintervalsecs, "value", Gio.SettingsBindFlags.DEFAULT);
         adwrow.add_suffix(seekintervalsecs);
         adwrow.activatable_widget = seekintervalsecs;
         group1.add(adwrow);
@@ -445,12 +359,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             active: settings.get_boolean("prefer-using-seek"),
             valign: Gtk.Align.CENTER,
         });
-        settings.bind(
-            "prefer-using-seek",
-            preferusingseek,
-            "active",
-            Gio.SettingsBindFlags.DEFAULT
-        );
+        settings.bind("prefer-using-seek", preferusingseek, "active", Gio.SettingsBindFlags.DEFAULT);
         adwrow.add_suffix(preferusingseek);
         adwrow.activatable_widget = preferusingseek;
         group1.add(adwrow);
@@ -462,12 +371,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             active: settings.get_boolean("hide-media-notification"),
             valign: Gtk.Align.CENTER,
         });
-        settings.bind(
-            "hide-media-notification",
-            hidemedianotification,
-            "active",
-            Gio.SettingsBindFlags.DEFAULT
-        );
+        settings.bind("hide-media-notification", hidemedianotification, "active", Gio.SettingsBindFlags.DEFAULT);
         adwrow.add_suffix(hidemedianotification);
         adwrow.activatable_widget = hidemedianotification;
         group1.add(adwrow);
@@ -480,14 +384,22 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             active: settings.get_boolean("clip-texts-menu"),
             valign: Gtk.Align.CENTER,
         });
-        settings.bind(
-            "clip-texts-menu",
-            cliptextsmenu,
-            "active",
-            Gio.SettingsBindFlags.DEFAULT
-        );
+        settings.bind("clip-texts-menu", cliptextsmenu, "active", Gio.SettingsBindFlags.DEFAULT);
         adwrow.add_suffix(cliptextsmenu);
         adwrow.activatable_widget = cliptextsmenu;
+        group1.add(adwrow);
+        //row6
+        adwrow = new Adw.ActionRow({
+            title: _("Scroll track label"),
+            subtitle: _("Make track label scroll if wider than max widget width"),
+        });
+        const scrolltracklabel = new Gtk.Switch({
+            active: settings.get_boolean("scroll-track-label"),
+            valign: Gtk.Align.CENTER,
+        });
+        settings.bind("scroll-track-label", scrolltracklabel, "active", Gio.SettingsBindFlags.DEFAULT);
+        adwrow.add_suffix(scrolltracklabel);
+        adwrow.activatable_widget = scrolltracklabel;
         group1.add(adwrow);
         // group2
         const group2 = Adw.PreferencesGroup.new();
@@ -510,12 +422,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         adwrow.add_suffix(trackLabelEnd);
         adwrow.activatable_widget = trackLabelEnd;
         group2.add(adwrow);
-        this._initTrackLabelWidgets(
-            settings,
-            trackLabelStart,
-            trackLabelSep,
-            trackLabelEnd
-        );
+        this._initTrackLabelWidgets(settings, trackLabelStart, trackLabelSep, trackLabelEnd);
         // group3
         const group3 = Adw.PreferencesGroup.new();
         group3.set_title(_("Github"));
@@ -527,9 +434,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             subtitle: _("Click to open"),
         });
         const relnotes = new Gtk.LinkButton({ valign: Gtk.Align.CENTER });
-        relnotes.set_uri(
-            "https://github.com/cliffniff/media-controls/releases/latest"
-        );
+        relnotes.set_uri("https://github.com/cliffniff/media-controls/releases/latest");
         adwrow.add_suffix(relnotes);
         adwrow.activatable_widget = relnotes;
         group3.add(adwrow);
@@ -547,9 +452,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             subtitle: _("Click to open"),
         });
         const exthomepage = new Gtk.LinkButton({ valign: Gtk.Align.CENTER });
-        exthomepage.set_uri(
-            "https://github.com/cliffniff/media-controls/blob/main/README.md"
-        );
+        exthomepage.set_uri("https://github.com/cliffniff/media-controls/blob/main/README.md");
         adwrow.add_suffix(exthomepage);
         adwrow.activatable_widget = exthomepage;
         group3.add(adwrow);
@@ -577,10 +480,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         adwrow = new Adw.ActionRow({
             subtitle: _("Separators"),
         });
-        const showseperators = this._createGtkSwitch(
-            settings,
-            "show-seperators"
-        );
+        const showseperators = this._createGtkSwitch(settings, "show-seperators");
         adwrow.add_suffix(showseperators);
         adwrow.activatable_widget = showseperators;
         group1.add(adwrow);
@@ -588,10 +488,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         adwrow = new Adw.ActionRow({
             title: _("Player controls"),
         });
-        const showcontrolicons = this._createGtkSwitch(
-            settings,
-            "show-control-icons"
-        );
+        const showcontrolicons = this._createGtkSwitch(settings, "show-control-icons");
         adwrow.add_suffix(showcontrolicons);
         adwrow.activatable_widget = showcontrolicons;
         group1.add(adwrow);
@@ -599,10 +496,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         adwrow = new Adw.ActionRow({
             subtitle: _("Play/pause button"),
         });
-        const showplaypauseicon = this._createGtkSwitch(
-            settings,
-            "show-playpause-icon"
-        );
+        const showplaypauseicon = this._createGtkSwitch(settings, "show-playpause-icon");
         adwrow.add_suffix(showplaypauseicon);
         adwrow.activatable_widget = showplaypauseicon;
         group1.add(adwrow);
@@ -634,10 +528,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         adwrow = new Adw.ActionRow({
             subtitle: _("Seek forward button"),
         });
-        const showseekforward = this._createGtkSwitch(
-            settings,
-            "show-seek-forward"
-        );
+        const showseekforward = this._createGtkSwitch(settings, "show-seek-forward");
         adwrow.add_suffix(showseekforward);
         adwrow.activatable_widget = showseekforward;
         group1.add(adwrow);
@@ -645,10 +536,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         adwrow = new Adw.ActionRow({
             title: _("Player icon"),
         });
-        const showplayericon = this._createGtkSwitch(
-            settings,
-            "show-player-icon"
-        );
+        const showplayericon = this._createGtkSwitch(settings, "show-player-icon");
         adwrow.add_suffix(showplayericon);
         adwrow.activatable_widget = showplayericon;
         group1.add(adwrow);
@@ -656,10 +544,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         adwrow = new Adw.ActionRow({
             title: _("Sources menu"),
         });
-        const showsourcesmenu = this._createGtkSwitch(
-            settings,
-            "show-sources-menu"
-        );
+        const showsourcesmenu = this._createGtkSwitch(settings, "show-sources-menu");
         adwrow.add_suffix(showsourcesmenu);
         adwrow.activatable_widget = showsourcesmenu;
         group1.add(adwrow);
@@ -672,10 +557,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         adwrow = new Adw.ActionRow({
             title: _("Colored player icon"),
         });
-        const coloredplayericon = this._createGtkSwitch(
-            settings,
-            "colored-player-icon"
-        );
+        const coloredplayericon = this._createGtkSwitch(settings, "colored-player-icon");
         adwrow.add_suffix(coloredplayericon);
         adwrow.activatable_widget = coloredplayericon;
         group2.add(adwrow);
@@ -736,12 +618,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         extensionindex.set_range(0, 100);
         extensionindex.set_value(0);
         extensionindex.set_increments(1, 10);
-        settings.bind(
-            "extension-index",
-            extensionindex,
-            "value",
-            Gio.SettingsBindFlags.DEFAULT
-        );
+        settings.bind("extension-index", extensionindex, "value", Gio.SettingsBindFlags.DEFAULT);
         adwrow.add_suffix(extensionindex);
         adwrow.activatable_widget = extensionindex;
         group1.add(adwrow);
@@ -774,16 +651,12 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         }); //row9
         const shortcutLabel = new Gtk.ShortcutLabel({
             disabled_text: _("Select a hotkey"),
-            accelerator: settings.get_strv(
-                "mediacontrols-toggle-trackinfomenu"
-            )[0],
+            accelerator: settings.get_strv("mediacontrols-toggle-trackinfomenu")[0],
             valign: Gtk.Align.CENTER,
             halign: Gtk.Align.CENTER,
         });
         settings.connect("changed::mediacontrols-toggle-trackinfomenu", () => {
-            shortcutLabel.set_accelerator(
-                settings.get_strv("mediacontrols-toggle-trackinfomenu")[0]
-            );
+            shortcutLabel.set_accelerator(settings.get_strv("mediacontrols-toggle-trackinfomenu")[0]);
         });
         adwrow.connect("activated", () => {
             const ctl = new Gtk.EventControllerKey();
@@ -808,19 +681,11 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
                     editor.close();
                     return Gdk.EVENT_STOP;
                 }
-                if (
-                    !isValidBinding$1(mask, keycode, keyval) ||
-                    !isValidAccel$1(mask, keyval)
-                ) {
+                if (!isValidBinding$1(mask, keycode, keyval) || !isValidAccel$1(mask, keyval)) {
                     return Gdk.EVENT_STOP;
                 }
                 settings.set_strv("shortcuts-toggle-overview", [
-                    Gtk.accelerator_name_with_keycode(
-                        null,
-                        keyval,
-                        keycode,
-                        mask
-                    ),
+                    Gtk.accelerator_name_with_keycode(null, keyval, keycode, mask),
                 ]);
                 editor.destroy();
                 return Gdk.EVENT_STOP;
@@ -871,14 +736,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             valign: Gtk.Align.CENTER,
         });
         adwrow.activatable_widget = deletecachebutton;
-        deletecachebutton.connect(
-            "clicked",
-            this._onclearcacheclicked.bind(
-                this,
-                widgetCacheSize,
-                clearcachespinner
-            )
-        );
+        deletecachebutton.connect("clicked", this._onclearcacheclicked.bind(this, widgetCacheSize, clearcachespinner));
         adwrow.add_suffix(deletecachebutton);
         adwrow.add_suffix(clearcachespinner);
         adwrow.add_suffix(widgetCacheSize);
@@ -901,15 +759,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         blacklistbuttonadd.set_valign(Gtk.Align.CENTER);
         adwrow.add_suffix(blacklistbuttonadd);
         adwrow.activatable_widget = blacklistbuttonadd;
-        blacklistbuttonadd.connect(
-            "clicked",
-            this._onblacklistentryadd.bind(
-                this,
-                settings,
-                group2,
-                blacklistentry
-            )
-        );
+        blacklistbuttonadd.connect("clicked", this._onblacklistentryadd.bind(this, settings, group2, blacklistentry));
         this._initblacklistapps(settings, group2);
     }
 
@@ -953,10 +803,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
                 "█...█",
             ];
             let presetValue = presetSepChars[widget.get_active()];
-            settings.set_strv("seperator-chars", [
-                presetValue.charAt(0),
-                presetValue.charAt(presetValue.length - 1),
-            ]);
+            settings.set_strv("seperator-chars", [presetValue.charAt(0), presetValue.charAt(presetValue.length - 1)]);
         }
     }
 
@@ -966,10 +813,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         if (label === strlabelC) {
             let customValues = widget.get_text().split("...");
             if (customValues[0] && customValues[1]) {
-                settings.set_strv("seperator-chars", [
-                    customValues[0],
-                    customValues[1],
-                ]);
+                settings.set_strv("seperator-chars", [customValues[0], customValues[1]]);
             }
         }
     }
@@ -978,11 +822,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         // Command: du -hs [data_directory]/media-controls | awk '{NF=1}1'
         try {
             let dir = GLib.get_user_config_dir() + "/media-controls";
-            const result = await execCommunicate([
-                "/bin/bash",
-                "-c",
-                `du -hs ${dir} | awk '{NF=1}1'`,
-            ]);
+            const result = await execCommunicate(["/bin/bash", "-c", `du -hs ${dir} | awk '{NF=1}1'`]);
             return result || "0K";
         } catch (error) {
             logError(error);
@@ -1025,10 +865,7 @@ const keyvalIsForbidden$1 = (keyval) => {
 };
 
 const isValidAccel$1 = (mask, keyval) => {
-    return (
-        Gtk.accelerator_valid(keyval, mask) ||
-        (keyval === Gdk.KEY_Tab && mask !== 0)
-    );
+    return Gtk.accelerator_valid(keyval, mask) || (keyval === Gdk.KEY_Tab && mask !== 0);
 };
 
 const isValidBinding$1 = (mask, keycode, keyval) => {
@@ -1039,20 +876,13 @@ const isValidBinding$1 = (mask, keycode, keyval) => {
             ((keyval >= Gdk.KEY_a && keyval <= Gdk.KEY_z) ||
                 (keyval >= Gdk.KEY_A && keyval <= Gdk.KEY_Z) ||
                 (keyval >= Gdk.KEY_0 && keyval <= Gdk.KEY_9) ||
-                (keyval >= Gdk.KEY_kana_fullstop &&
-                    keyval <= Gdk.KEY_semivoicedsound) ||
-                (keyval >= Gdk.KEY_Arabic_comma &&
-                    keyval <= Gdk.KEY_Arabic_sukun) ||
-                (keyval >= Gdk.KEY_Serbian_dje &&
-                    keyval <= Gdk.KEY_Cyrillic_HARDSIGN) ||
-                (keyval >= Gdk.KEY_Greek_ALPHAaccent &&
-                    keyval <= Gdk.KEY_Greek_omega) ||
-                (keyval >= Gdk.KEY_hebrew_doublelowline &&
-                    keyval <= Gdk.KEY_hebrew_taf) ||
-                (keyval >= Gdk.KEY_Thai_kokai &&
-                    keyval <= Gdk.KEY_Thai_lekkao) ||
-                (keyval >= Gdk.KEY_Hangul_Kiyeog &&
-                    keyval <= Gdk.KEY_Hangul_J_YeorinHieuh) ||
+                (keyval >= Gdk.KEY_kana_fullstop && keyval <= Gdk.KEY_semivoicedsound) ||
+                (keyval >= Gdk.KEY_Arabic_comma && keyval <= Gdk.KEY_Arabic_sukun) ||
+                (keyval >= Gdk.KEY_Serbian_dje && keyval <= Gdk.KEY_Cyrillic_HARDSIGN) ||
+                (keyval >= Gdk.KEY_Greek_ALPHAaccent && keyval <= Gdk.KEY_Greek_omega) ||
+                (keyval >= Gdk.KEY_hebrew_doublelowline && keyval <= Gdk.KEY_hebrew_taf) ||
+                (keyval >= Gdk.KEY_Thai_kokai && keyval <= Gdk.KEY_Thai_lekkao) ||
+                (keyval >= Gdk.KEY_Hangul_Kiyeog && keyval <= Gdk.KEY_Hangul_J_YeorinHieuh) ||
                 (keyval === Gdk.KEY_space && mask === 0) ||
                 keyvalIsForbidden$1(keyval)))
     );

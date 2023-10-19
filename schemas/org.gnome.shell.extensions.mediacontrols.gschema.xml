@@ -79,5 +79,8 @@
     <key name="mediacontrols-toggle-trackinfomenu" type="as">
       <default><![CDATA[['<Ctrl><Alt><Super>m']]]></default>
     </key>
+    <key name="scroll-track-label" type="b">
+      <default>false</default>
+    </key>
   </schema>
 </schemalist>
