@@ -107,29 +107,31 @@ var Player = GObject.registerClass(
             this.subContainerLabel.add(this.dummyLabelTitle);
             this.dummyLabelTitle.hide();
 
-            this.containerButtonLabel = new St.Button({
-                style_class: "panel-button no-spacing",
+            this.containerButtonLabel = new St.Bin({
+                style_class: "panel-button",
+                style: "padding: 0px 5px; margin: 0px;",
             });
 
-            this.containerButtonLabel.set_track_hover(false);
-            this.containerButtonLabel.set_can_focus(false);
+            // this.containerButtonLabel.set_track_hover(false);
+            // this.containerButtonLabel.set_can_focus(false);
 
-            this.containerButtonLabel.connect("button-release-event", this._mouseActionButton.bind(this));
+            // this.containerButtonLabel.connect("button-release-event", this._mouseActionButton.bind(this));
 
-            this.containerButtonLabel.connect("scroll-event", this._mouseActionScroll.bind(this));
+            // this.containerButtonLabel.connect("scroll-event", this._mouseActionScroll.bind(this));
 
-            this.containerButtonLabel.connect("enter-event", this._mouseActionHover.bind(this));
+            // this.containerButtonLabel.connect("enter-event", this._mouseActionHover.bind(this));
 
             this.containerButtonLabel.set_child(this.subContainerLabel);
 
             // Player icon
 
-            this.buttonPlayer = new St.Button({
+            this.buttonPlayer = new St.Bin({
                 style_class: "popup-menu-button",
+                style: "padding: 0px 5px; margin: 0px;",
             });
 
-            this.buttonPlayer.set_track_hover(false);
-            this.buttonPlayer.set_can_focus(false);
+            // this.buttonPlayer.set_track_hover(false);
+            // this.buttonPlayer.set_can_focus(false);
 
             this.iconPlayer = new St.Icon({
                 fallback_icon_name: "audio-x-generic",
@@ -139,11 +141,11 @@ var Player = GObject.registerClass(
 
             this.buttonPlayer.set_child(this.iconPlayer);
 
-            this.buttonPlayer.connect("button-release-event", this._mouseActionButton.bind(this));
+            // this.buttonPlayer.connect("button-release-event", this._mouseActionButton.bind(this));
 
-            this.buttonPlayer.connect("scroll-event", this._mouseActionScroll.bind(this));
+            // this.buttonPlayer.connect("scroll-event", this._mouseActionScroll.bind(this));
 
-            this.buttonPlayer.connect("enter-event", this._mouseActionHover.bind(this));
+            // this.buttonPlayer.connect("enter-event", this._mouseActionHover.bind(this));
 
             // Player controls
 
@@ -204,6 +206,26 @@ var Player = GObject.registerClass(
                 this._seekForward();
             });
 
+            this.buttonSeekBack.connect("touch-event", () => {
+                this._seekBack();
+            });
+
+            this.buttonPrev.connect("touch-event", () => {
+                this._playerProxy.PreviousRemote();
+            });
+
+            this.buttonPlayPause.connect("touch-event", () => {
+                this._playerProxy.PlayPauseRemote();
+            });
+
+            this.buttonNext.connect("touch-event", () => {
+                this._playerProxy.NextRemote();
+            });
+
+            this.buttonSeekForward.connect("touch-event", () => {
+                this._seekForward();
+            });
+
             this.buttonSeekBack.set_child(this.iconSeekBack);
             this.buttonNext.set_child(this.iconNext);
             this.buttonPlayPause.set_child(this.iconPlayPause);
@@ -220,7 +242,12 @@ var Player = GObject.registerClass(
             });
 
             this.buttonMenu.set_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
+
             this.buttonMenu.connect("button-release-event", () => {
+                this._extension.menu.toggle();
+            });
+
+            this.buttonMenu.connect("touch-event", () => {
                 this._extension.menu.toggle();
             });
 
@@ -683,6 +710,7 @@ var Player = GObject.registerClass(
                 });
 
                 this.infoButtonLoop.connect("button-press-event", this._changeLoop.bind(this));
+                this.infoButtonLoop.connect("touch-event", this._changeLoop.bind(this));
 
                 this.infoButtonLoop.set_child(this.infoIconLoop);
 
@@ -701,13 +729,17 @@ var Player = GObject.registerClass(
                     this._playerProxy.PlayPauseRemote();
                 });
 
+                buttonPlayPause.connect("touch-event", () => {
+                    this._playerProxy.PlayPauseRemote();
+                });
+
                 buttonPlayPause.set_child(this.infoIconPlayPause);
 
                 const buttonPrev = new St.Button({
                     style_class: "popup-menu-button",
                 });
 
-                buttonPrev.connect("button-press-event", () => {
+                buttonPrev.connect("touch-event", () => {
                     this._playerProxy.PreviousRemote();
                 });
 
@@ -722,7 +754,7 @@ var Player = GObject.registerClass(
                     style_class: "popup-menu-button",
                 });
 
-                buttonNext.connect("button-press-event", () => {
+                buttonNext.connect("touch-event", () => {
                     this._playerProxy.NextRemote();
                 });
 
@@ -741,6 +773,10 @@ var Player = GObject.registerClass(
                     this._seekBack();
                 });
 
+                buttonSeekBack.connect("touch-event", () => {
+                    this._seekBack();
+                });
+
                 buttonSeekBack.set_child(
                     new St.Icon({
                         icon_name: "media-seek-backward-symbolic",
@@ -753,6 +789,10 @@ var Player = GObject.registerClass(
                 });
 
                 buttonSeekForward.connect("button-release-event", () => {
+                    this._seekForward();
+                });
+
+                buttonSeekForward.connect("touch-event", () => {
                     this._seekForward();
                 });
 
@@ -781,6 +821,7 @@ var Player = GObject.registerClass(
                 });
 
                 this.infoShuffleButton.connect("button-press-event", this._toggleShuffle.bind(this));
+                this.infoShuffleButton.connect("touch-event", this._toggleShuffle.bind(this));
 
                 this.infoShuffleButton.set_child(this.infoShuffleIcon);
 
@@ -926,6 +967,7 @@ var Player = GObject.registerClass(
 
         _mouseActionButton(widget, event) {
             let button = event.get_button();
+            console.log(button);
             if (!this._clicked) {
                 this._timeoutSourceId = GLib.timeout_add(
                     GLib.PRIORITY_HIGH,
@@ -973,7 +1015,7 @@ var Player = GObject.registerClass(
 
         destroy() {
             if (this._timeoutSourceId) {
-                GLib.Source.remove(this._timeoutSourceId);
+                GLib.source_remove(this._timeoutSourceId);
                 this._timeoutSourceId = null;
             }
 
@@ -993,6 +1035,27 @@ var Player = GObject.registerClass(
             this._doubleClick = null;
             this._clicked = null;
             super.destroy();
+        }
+
+        vfunc_event(event) {
+            if (
+                event.type() === Clutter.EventType.BUTTON_PRESS ||
+                event.type() === Clutter.EventType.TOUCH_BEGIN ||
+                event.type() === Clutter.EventType.KEY_PRESS
+            ) {
+                console.log(event.type());
+                this._mouseActionButton(this, event);
+            }
+
+            if (event.type() === Clutter.EventType.SCROLL) {
+                this._mouseActionScroll(this, event);
+            }
+
+            if (event.type() === Clutter.EventType.ENTER) {
+                this._mouseActionHover();
+            }
+
+            return Clutter.EVENT_PROPAGATE;
         }
 
         get menuItem() {
