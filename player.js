@@ -4,6 +4,7 @@ import St from "gi://St";
 import Clutter from "gi://Clutter";
 import GLib from "gi://GLib";
 import Shell from "gi://Shell";
+import Pango from "gi://Pango";
 
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
@@ -37,6 +38,7 @@ export const Player = GObject.registerClass(
             this.busName = busName;
             this._timeoutSourceId = null;
             this._intervalSourceId = null;
+            this._scrollSourceId = null;
             this._doubleClick = false;
             this._clicked = false;
             this._extension = parent;
@@ -59,7 +61,7 @@ export const Player = GObject.registerClass(
                     this._playerProxy.connect("g-properties-changed", this._playerPropsChanged.bind(this));
                     this._otherProxy.connect("g-properties-changed", this._otherPropsChanged.bind(this));
 
-                    this.menu.connect("open-state-changed", this._updatePosition.bind(this));
+                    this.menu.connect("open-state-changed", this._menuOpenStateChanged.bind(this));
 
                     this._saveImage();
                 } catch (error) {
@@ -76,7 +78,16 @@ export const Player = GObject.registerClass(
             this.labelTitle = new St.Label({
                 text: this.label || "No track",
                 y_align: Clutter.ActorAlign.CENTER,
+                style: "text-align: center;",
+                style_class: "no-spacing",
             });
+
+            this.dummyLabelTitle = new St.Label({
+                text: this.label || "No track",
+                y_align: Clutter.ActorAlign.CENTER,
+            });
+
+            this.dummyLabelTitle.clutter_text.ellipsize = Pango.EllipsizeMode.NONE;
 
             this.labelSeperatorStart = new St.Label({
                 text: this._extension.sepChars[0],
@@ -91,12 +102,14 @@ export const Player = GObject.registerClass(
             });
 
             this.subContainerLabel = new St.BoxLayout({
-                style: "padding: 0px; margin: 0px;",
+                style_class: "no-spacing",
             });
 
+            this.subContainerLabel.add(this.dummyLabelTitle);
+            this.dummyLabelTitle.hide();
+
             this.containerButtonLabel = new St.Button({
-                style_class: "panel-button",
-                style: "padding: 0px 5px; margin: 0px;",
+                style_class: "panel-button no-spacing",
             });
 
             this.containerButtonLabel.set_track_hover(false);
@@ -157,19 +170,19 @@ export const Player = GObject.registerClass(
             });
 
             this.buttonSeekBack = new St.Button({
-                style_class: "panel-button no-vertical-spacing",
+                style_class: "panel-button no-spacing",
             });
             this.buttonPrev = new St.Button({
-                style_class: "panel-button no-vertical-spacing",
+                style_class: "panel-button no-spacing",
             });
             this.buttonPlayPause = new St.Button({
-                style_class: "panel-button no-vertical-spacing",
+                style_class: "panel-button no-spacing",
             });
             this.buttonNext = new St.Button({
-                style_class: "panel-button no-vertical-spacing",
+                style_class: "panel-button no-spacing",
             });
             this.buttonSeekForward = new St.Button({
-                style_class: "panel-button no-vertical-spacing",
+                style_class: "panel-button no-spacing",
             });
 
             this.buttonSeekBack.connect("button-release-event", () => {
@@ -198,7 +211,9 @@ export const Player = GObject.registerClass(
             this.buttonPrev.set_child(this.iconPrev);
             this.buttonSeekForward.set_child(this.iconSeekForward);
 
-            this.containerControls = new St.BoxLayout();
+            this.containerControls = new St.BoxLayout({
+                style_class: "no-spacing",
+            });
 
             // Sources dropdown button
             this.buttonMenu = new St.Button({
@@ -211,15 +226,20 @@ export const Player = GObject.registerClass(
             });
 
             this.dummyContainer = new St.BoxLayout();
-            this.add_style_class_name("no-vertical-spacing");
+            this.add_style_class_name("no-spacing");
             this.add_child(this.dummyContainer);
 
             this._addInfoMenuItems();
-
             this._updateLoopIcon();
             this._updateShuffleIcon();
+            this._addScrollingTimer();
+
             this.updateWidgetWidths();
             this.updateIconEffects();
+        }
+
+        _menuOpenStateChanged(menu, open) {
+            this._updatePosition(null, open);
         }
 
         // Not taking rate into account
@@ -316,6 +336,7 @@ export const Player = GObject.registerClass(
 
         _playerPropsChanged(proxy, changed, invalidated) {
             changed = changed.recursiveUnpack();
+
             if (changed.Metadata) {
                 this._metadata = parseMetadata(changed.Metadata);
                 if (this._metadata["title"]) {
@@ -356,11 +377,57 @@ export const Player = GObject.registerClass(
             }
         }
 
+        _widthToPos(text, width) {
+            this.dummyLabelTitle.set_text(text);
+            return this.dummyLabelTitle.clutter_text.coords_to_position(width, 0);
+        }
+
+        _addScrollingTimer() {
+            if (this._scrollSourceId) {
+                GLib.source_remove(this._scrollSourceId);
+            }
+
+            const maxWidgetWidth = this._extension.maxWidgetWidth;
+            const labelLength = this.label.length;
+            const duplicatedLabel = `${this.label} ${this.label}`;
+            let offset = 0;
+
+            this._scrollSourceId = GLib.timeout_add(GLib.PRIORITY_LOW, 250, () => {
+                if (!this.isPlaying) {
+                    return GLib.SOURCE_CONTINUE;
+                }
+
+                if (offset === labelLength) {
+                    offset = 0;
+                }
+
+                const labelMaxPos = this._widthToPos(duplicatedLabel.slice(offset), maxWidgetWidth);
+                const endOffset = offset + labelMaxPos;
+
+                let newLabel = this.label.slice(offset, Math.min(labelLength, endOffset));
+
+                if (endOffset >= labelLength) {
+                    const extraOffset = endOffset - labelLength;
+                    const extraLabel = this.label.slice(0, extraOffset);
+
+                    newLabel += " ";
+                    newLabel += extraLabel;
+                }
+
+                this.labelTitle.set_text(newLabel);
+
+                offset++;
+
+                return GLib.SOURCE_CONTINUE;
+            });
+        }
+
         updateWidgets() {
             if (this.iconPlayer) {
                 this.iconPlayer.set_icon_name(this.icon);
                 this.labelTitle.set_text(this.label);
 
+                this._addScrollingTimer();
                 this._updateStatusIcons();
             }
 
@@ -432,7 +499,7 @@ export const Player = GObject.registerClass(
 
         updateWidgetWidths() {
             if (this.labelTitle) {
-                this.labelTitle.set_style(`${this.maxWidthStyle} margin: 0px; padding: 0px;`);
+                this.labelTitle.width = this._extension.maxWidgetWidth;
             }
             if (this.menuItem) {
                 this._menuLabel.set_style(this.maxWidthStyle);
@@ -898,6 +965,11 @@ export const Player = GObject.registerClass(
             if (this._intervalSourceId) {
                 GLib.source_remove(this._intervalSourceId);
                 this._intervalSourceId = null;
+            }
+
+            if (this._scrollSourceId) {
+                GLib.source_remove(this._scrollSourceId);
+                this._scrollSourceId = null;
             }
 
             this._extension = null;
