@@ -22,7 +22,7 @@ Show controls and information of the currently playing media in the panel.
 ## Known issues
 
 -   The extension does not detect when a tab is closed on some browsers. ([#35](https://github.com/sakithb/media-controls/issues/35))
--   The volume control does not work with browers, only with native apps.
+-   The volume control does not work with web browsers, only with native apps.
 
 ## Reporting issues
 
