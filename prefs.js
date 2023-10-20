@@ -1,6 +1,6 @@
 "use strict";
 
-const { Gio, Gtk, GObject, GLib, Adw } = imports.gi;
+const { Gio, Gdk, Gtk, GObject, GLib, Adw } = imports.gi;
 
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
@@ -703,7 +703,7 @@ class AdwPrefs {
             });
             const editor = new Adw.Window({
                 modal: true,
-                transient_for: page1.get_root(),
+                transient_for: page4.get_root(),
                 hide_on_close: true,
                 width_request: 320,
                 height_request: 240,
