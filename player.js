@@ -10,7 +10,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
 const { createProxy } = Me.imports.dbus;
-const { parseMetadata, stripInstanceNumbers, getRequest, msToHHMMSS } = Me.imports.utils;
+const { parseMetadata, stripInstanceNumbers, getRequest, msToHHMMSS, wrappingText } = Me.imports.utils;
 
 const urlRegexp = new RegExp(
     /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+~#?&/=]*)/
@@ -270,7 +270,7 @@ var Player = GObject.registerClass(
                 this._intervalSourceId = GLib.timeout_add(GLib.PRIORITY_LOW, 1000, timerFunc);
             } else {
                 if (this._intervalSourceId) {
-                    GLib.source_remove(this._intervalSourceId);
+                    GLib.Source.remove(this._intervalSourceId);
                     this._intervalSourceId = null;
                 }
             }
@@ -392,8 +392,13 @@ var Player = GObject.registerClass(
         }
 
         _addScrollingTimer() {
+            console.log("scrolling");
             if (this._scrollSourceId) {
-                GLib.source_remove(this._scrollSourceId);
+                GLib.Source.remove(this._scrollSourceId);
+            }
+
+            if (!this._extension.settings.scrolltracklabel) {
+                return false;
             }
 
             const maxWidgetWidth = this._extension.settings.maxWidgetWidth;
@@ -518,6 +523,9 @@ var Player = GObject.registerClass(
             if (this._infoItem) {
                 this.infoArtistLabel.set_style(this.maxWidthStyle);
                 this.infoTitleLabel.set_style(`font-size: large; ${this.maxWidthStyle}`);
+
+                wrappingText(!this._extension.settings.cliptextsmenu, this.infoTitleLabel);
+                wrappingText(!this._extension.settings.cliptextsmenu, this.infoArtistLabel);
 
                 if (this._extension.settings.maxWidgetWidth !== 0) {
                     this._infoIcon.set_icon_size(this._extension.settings.maxWidgetWidth);
@@ -982,17 +990,17 @@ var Player = GObject.registerClass(
 
         destroy() {
             if (this._timeoutSourceId) {
-                GLib.source_remove(this._timeoutSourceId);
+                GLib.Source.remove(this._timeoutSourceId);
                 this._timeoutSourceId = null;
             }
 
             if (this._intervalSourceId) {
-                GLib.source_remove(this._intervalSourceId);
+                GLib.Source.remove(this._intervalSourceId);
                 this._intervalSourceId = null;
             }
 
             if (this._scrollSourceId) {
-                GLib.source_remove(this._scrollSourceId);
+                GLib.Source.remove(this._scrollSourceId);
                 this._scrollSourceId = null;
             }
 

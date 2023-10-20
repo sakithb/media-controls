@@ -58,6 +58,7 @@ if [[ " ${PARAMS[*]} " =~ " -i " ]]; then
 fi
 
 if [[ " ${PARAMS[*]} " =~ " -r " ]]; then
+    glib-compile-schemas schemas/;
     copy;
     restart;
 fi

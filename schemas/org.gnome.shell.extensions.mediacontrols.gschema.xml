@@ -73,5 +73,11 @@
     <key name="hide-media-notification" type="b">
       <default>false</default>
     </key>
+    <key name="clip-texts-menu" type="b">
+      <default>true</default>
+    </key>
+    <key name="scroll-track-label" type="b">
+      <default>false</default>
+    </key>
   </schema>
 </schemalist>
