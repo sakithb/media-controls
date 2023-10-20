@@ -10,13 +10,13 @@ const { createProxy } = Me.imports.dbus;
 const { Player } = Me.imports.player;
 const { Settings } = Me.imports.settings;
 
-const { GObject, Gio, St, GLib, Clutter } = imports.gi;
+const { GObject, Gio, St, GLib, Clutter, Shell, Meta } = imports.gi;
 
 const Main = imports.ui.main;
 
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
-
+const BoxPointer = imports.ui.boxpointer;
 const Mpris = imports.ui.mpris;
 
 var MediaControls = GObject.registerClass(
@@ -35,9 +35,7 @@ var MediaControls = GObject.registerClass(
             this.settings = new Settings(this);
 
             let mouseActions = this.settings.mouseActions;
-            let defaultMouseActions = this.settings._settings
-                .get_default_value("mouse-actions")
-                .recursiveUnpack();
+            let defaultMouseActions = this.settings._settings.get_default_value("mouse-actions").recursiveUnpack();
 
             defaultMouseActions.forEach((action, index) => {
                 if (!mouseActions[index]) {
@@ -50,10 +48,7 @@ var MediaControls = GObject.registerClass(
             this.clutterSettings = Clutter.Settings.get_default();
             this.clutterSettings.double_click_time = 200;
 
-            this._automaticUpdateToggle = new PopupMenu.PopupSwitchMenuItem(
-                "Determine player automatically",
-                true
-            );
+            this._automaticUpdateToggle = new PopupMenu.PopupSwitchMenuItem("Determine player automatically", true);
 
             this._automaticUpdateToggle.track_hover = false;
 
@@ -82,11 +77,7 @@ var MediaControls = GObject.registerClass(
                             (async () => {
                                 try {
                                     for (let name of names[0]) {
-                                        if (
-                                            name.includes(
-                                                "org.mpris.MediaPlayer2"
-                                            )
-                                        ) {
+                                        if (name.includes("org.mpris.MediaPlayer2")) {
                                             await this._addPlayer(name);
                                         }
                                     }
@@ -99,20 +90,14 @@ var MediaControls = GObject.registerClass(
                         }
                     });
 
-                    this._playersProxy.connectSignal(
-                        "NameOwnerChanged",
-                        (...[, , [busName, ,]]) => {
-                            if (
-                                busName?.includes("org.mpris.MediaPlayer2") &&
-                                !this._players[busName]
-                            ) {
-                                (async () => {
-                                    await this._addPlayer(busName);
-                                    this.updatePlayer(null);
-                                })();
-                            }
+                    this._playersProxy.connectSignal("NameOwnerChanged", (...[, , [busName, ,]]) => {
+                        if (busName?.includes("org.mpris.MediaPlayer2") && !this._players[busName]) {
+                            (async () => {
+                                await this._addPlayer(busName);
+                                this.updatePlayer(null);
+                            })();
                         }
-                    );
+                    });
                 } catch (error) {
                     logError(error);
                 }
@@ -130,6 +115,11 @@ var MediaControls = GObject.registerClass(
             this.destroy();
         }
 
+        toggleTrackInfoMenu() {
+            this.menu.close(BoxPointer.PopupAnimation.FULL);
+            this.player.menu.toggle();
+        }
+
         addWidgets() {
             delete Main.panel.statusArea["media_controls_extension"];
             Main.panel.addToStatusArea(
@@ -138,72 +128,52 @@ var MediaControls = GObject.registerClass(
                 this.settings.extensionIndex,
                 this.settings.extensionPosition
             );
-
+            Main.wm.addKeybinding(
+                "mediacontrols-toggle-trackinfomenu",
+                this.settings._settings,
+                Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
+                Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW,
+                this.toggleTrackInfoMenu.bind(this)
+            );
             this.add_child(this.player.container);
 
             this.settings.elementOrder.forEach((element) => {
                 if (element === "icon" && this.settings.showPlayerIcon) {
-                    this.player.dummyContainer.add_child(
-                        this.player.buttonPlayer
-                    );
+                    this.player.dummyContainer.add_child(this.player.buttonPlayer);
                 } else if (element === "title" && this.settings.showTrackName) {
-                    this.player.dummyContainer.add_child(
-                        this.player.containerButtonLabel
-                    );
+                    this.player.dummyContainer.add_child(this.player.containerButtonLabel);
                     if (this.settings.showSeperators) {
-                        this.player.subContainerLabel.add_child(
-                            this.player.labelSeperatorStart
-                        );
+                        this.player.subContainerLabel.add_child(this.player.labelSeperatorStart);
                     }
-                    this.player.subContainerLabel.add_child(
-                        this.player.labelTitle
-                    );
+                    this.player.subContainerLabel.add_child(this.player.labelTitle);
                     if (this.settings.showSeperators) {
-                        this.player.subContainerLabel.add_child(
-                            this.player.labelSeperatorEnd
-                        );
+                        this.player.subContainerLabel.add_child(this.player.labelSeperatorEnd);
                     }
-                } else if (
-                    element === "controls" &&
-                    this.settings.showControls
-                ) {
-                    this.player.dummyContainer.add_child(
-                        this.player.containerControls
-                    );
+                } else if (element === "controls" && this.settings.showControls) {
+                    this.player.dummyContainer.add_child(this.player.containerControls);
                     if (this.settings.showSeekBack) {
-                        this.player.containerControls.add_child(
-                            this.player.buttonSeekBack
-                        );
+                        this.player.containerControls.add_child(this.player.buttonSeekBack);
                     }
                     if (this.settings.showPrevButton) {
-                        this.player.containerControls.add_child(
-                            this.player.buttonPrev
-                        );
+                        this.player.containerControls.add_child(this.player.buttonPrev);
                     }
                     if (this.settings.showPlayPauseButton) {
-                        this.player.containerControls.add_child(
-                            this.player.buttonPlayPause
-                        );
+                        this.player.containerControls.add_child(this.player.buttonPlayPause);
                     }
                     if (this.settings.showNextButton) {
-                        this.player.containerControls.add_child(
-                            this.player.buttonNext
-                        );
+                        this.player.containerControls.add_child(this.player.buttonNext);
                     }
                     if (this.settings.showSeekForward) {
-                        this.player.containerControls.add_child(
-                            this.player.buttonSeekForward
-                        );
+                        this.player.containerControls.add_child(this.player.buttonSeekForward);
                     }
                 } else if (element === "menu" && this.settings.showMenu) {
-                    this.player.dummyContainer.add_child(
-                        this.player.buttonMenu
-                    );
+                    this.player.dummyContainer.add_child(this.player.buttonMenu);
                 }
             });
         }
 
         removeWidgets() {
+            Main.wm.removeKeybinding("mediacontrols-toggle-trackinfomenu");
             delete Main.panel.statusArea["media_controls_extension"];
 
             if (this.player) {
@@ -211,64 +181,40 @@ var MediaControls = GObject.registerClass(
                     this.remove_child(this.player.container);
                 }
                 if (this.player.buttonPlayer.get_parent()) {
-                    this.player.dummyContainer.remove_child(
-                        this.player.buttonPlayer
-                    );
+                    this.player.dummyContainer.remove_child(this.player.buttonPlayer);
                 }
                 if (this.player.containerButtonLabel.get_parent()) {
-                    this.player.dummyContainer.remove_child(
-                        this.player.containerButtonLabel
-                    );
+                    this.player.dummyContainer.remove_child(this.player.containerButtonLabel);
                 }
                 if (this.player.labelTitle.get_parent()) {
-                    this.player.subContainerLabel.remove_child(
-                        this.player.labelTitle
-                    );
+                    this.player.subContainerLabel.remove_child(this.player.labelTitle);
                 }
                 if (this.player.labelSeperatorStart.get_parent()) {
-                    this.player.subContainerLabel.remove_child(
-                        this.player.labelSeperatorStart
-                    );
+                    this.player.subContainerLabel.remove_child(this.player.labelSeperatorStart);
                 }
                 if (this.player.labelSeperatorEnd.get_parent()) {
-                    this.player.subContainerLabel.remove_child(
-                        this.player.labelSeperatorEnd
-                    );
+                    this.player.subContainerLabel.remove_child(this.player.labelSeperatorEnd);
                 }
                 if (this.player.containerControls.get_parent()) {
-                    this.player.dummyContainer.remove_child(
-                        this.player.containerControls
-                    );
+                    this.player.dummyContainer.remove_child(this.player.containerControls);
                 }
                 if (this.player.buttonSeekBack.get_parent()) {
-                    this.player.containerControls.remove_child(
-                        this.player.buttonSeekBack
-                    );
+                    this.player.containerControls.remove_child(this.player.buttonSeekBack);
                 }
                 if (this.player.buttonPrev.get_parent()) {
-                    this.player.containerControls.remove_child(
-                        this.player.buttonPrev
-                    );
+                    this.player.containerControls.remove_child(this.player.buttonPrev);
                 }
                 if (this.player.buttonPlayPause.get_parent()) {
-                    this.player.containerControls.remove_child(
-                        this.player.buttonPlayPause
-                    );
+                    this.player.containerControls.remove_child(this.player.buttonPlayPause);
                 }
                 if (this.player.buttonNext.get_parent()) {
-                    this.player.containerControls.remove_child(
-                        this.player.buttonNext
-                    );
+                    this.player.containerControls.remove_child(this.player.buttonNext);
                 }
                 if (this.player.buttonSeekForward.get_parent()) {
-                    this.player.containerControls.remove_child(
-                        this.player.buttonSeekForward
-                    );
+                    this.player.containerControls.remove_child(this.player.buttonSeekForward);
                 }
                 if (this.player.buttonMenu.get_parent()) {
-                    this.player.dummyContainer.remove_child(
-                        this.player.buttonMenu
-                    );
+                    this.player.dummyContainer.remove_child(this.player.buttonMenu);
                 }
             } else {
                 this.remove_all_children();
@@ -280,10 +226,7 @@ var MediaControls = GObject.registerClass(
                 let playerObj = await new Player(busName, this);
                 if (
                     this.settings.blacklistApps.every(
-                        (app) =>
-                            !playerObj.name
-                                .toLowerCase()
-                                .includes(app.toLowerCase())
+                        (app) => !playerObj.name.toLowerCase().includes(app.toLowerCase())
                     )
                 ) {
                     let menuItem = playerObj.menuItem;
@@ -292,17 +235,11 @@ var MediaControls = GObject.registerClass(
                         this.toggleActivatePlayer(menuItem.busName);
                     });
 
-                    menuItem.closeButton.connect(
-                        "button-release-event",
-                        (closeButton) => {
-                            this.playerVanished(
-                                null,
-                                closeButton.get_parent().busName
-                            );
+                    menuItem.closeButton.connect("button-release-event", (closeButton) => {
+                        this.playerVanished(null, closeButton.get_parent().busName);
 
-                            this.menu.close();
-                        }
-                    );
+                        this.menu.close();
+                    });
 
                     this.menu.addMenuItem(menuItem);
                     this._players[busName] = playerObj;
@@ -358,10 +295,7 @@ var MediaControls = GObject.registerClass(
                 }
             }
 
-            if (
-                player &&
-                (player instanceof Player || typeof player === "string")
-            ) {
+            if (player && (player instanceof Player || typeof player === "string")) {
                 if (this.player) {
                     this.player.active = false;
                     this.removeWidgets();
@@ -370,8 +304,7 @@ var MediaControls = GObject.registerClass(
                     Main.panel.menuManager.removeMenu(this.player.menu);
                 }
 
-                this.player =
-                    typeof player === "string" ? this._players[player] : player;
+                this.player = typeof player === "string" ? this._players[player] : player;
 
                 if (!this.player.dummyContainer) {
                     this.player.initWidgets();
@@ -397,11 +330,7 @@ var MediaControls = GObject.registerClass(
         }
 
         toggleActivatePlayer(busName) {
-            if (
-                this.isFixedPlayer &&
-                this.player &&
-                busName === this.player.busName
-            ) {
+            if (this.isFixedPlayer && this.player && busName === this.player.busName) {
                 this.fixedPlayer = false;
                 this.updatePlayer();
             } else {
@@ -421,18 +350,10 @@ var MediaControls = GObject.registerClass(
 
                 playerObj.hidden = true;
 
-                if (
-                    this.player &&
-                    this.player.busName === busName &&
-                    this.fixedPlayer
-                ) {
+                if (this.player && this.player.busName === busName && this.fixedPlayer) {
                     this.fixedPlayer = false;
                     this.updatePlayer();
-                } else if (
-                    this.player &&
-                    this.player.busName !== busName &&
-                    this.fixedPlayer
-                ) {
+                } else if (this.player && this.player.busName !== busName && this.fixedPlayer) {
                     this.updatePlayer(this.player);
                 } else {
                     this.updatePlayer();
@@ -472,9 +393,15 @@ var MediaControls = GObject.registerClass(
                 Mpris.MediaSection.prototype._addPlayer = function () {
                     return;
                 };
-            } else if (this._mediaSectionAdd !== undefined) {
+
+                Main.panel.statusArea["dateMenu"]._messageList._mediaSection._players.forEach((player) => {
+                    player._close();
+                });
+            } else {
                 Mpris.MediaSection.prototype._addPlayer = this._mediaSectionAdd;
                 this._mediaSectionAdd = undefined;
+
+                Main.panel.statusArea["dateMenu"]._messageList._mediaSection._onProxyReady();
             }
         }
 
@@ -509,10 +436,10 @@ var MediaControls = GObject.registerClass(
                    buttonLabel     containerControls
                        |             seekBwd____|____seekFwd
                       / \                      /|\__________buttonNext
-                     /   \       buttonPrev___/  \                  
-                    /     \                       \                  
-            iconPlayer   labelTitle                buttonPlayPause      
-                                                                  
-                                                 
-                                  
+                     /   \       buttonPrev___/  \
+                    /     \                       \
+            iconPlayer   labelTitle                buttonPlayPause
+
+
+
 */

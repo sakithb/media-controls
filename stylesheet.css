@@ -17,7 +17,7 @@
     background-color: rgba(160, 160, 160, 0.2);
 }
 
-.no-vertical-spacing {
+.no-spacing {
     margin: 0px;
     padding: 0px;
 }
@@ -27,5 +27,5 @@
 }
 
 .test{
-     background-color: rgba(160, 160, 160, 0.2);
+     background-color: rgba(160, 160, 160, 0.75);
 }

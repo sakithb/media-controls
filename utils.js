@@ -1,4 +1,4 @@
-const { GLib, Gio, Soup } = imports.gi;
+const { GLib, Gio, Soup, Pango } = imports.gi;
 
 const metadataKeys = {
     "xesam:artist": "artist",
@@ -7,6 +7,20 @@ const metadataKeys = {
     "xesam:url": "url",
     "mpris:trackid": "trackid",
     "mpris:length": "length",
+};
+
+var wrappingText = (wrapping, widget) => {
+    if (wrapping) {
+        widget.clutter_text.single_line_mode = false;
+        widget.clutter_text.activatable = false;
+        widget.clutter_text.line_wrap = true;
+        widget.clutter_text.line_wrap_mode = Pango.WrapMode.WORD_CHAR;
+    } else {
+        widget.clutter_text.single_line_mode = true;
+        widget.clutter_text.activatable = false;
+        widget.clutter_text.line_wrap = false;
+    }
+    return true;
 };
 
 var msToHHMMSS = (ms) => {
@@ -46,8 +60,7 @@ var parseMetadata = (_metadata) => {
     let metadata = {};
     for (let key in metadataKeys) {
         let val = _metadata[key];
-        metadata[metadataKeys[key]] =
-            val instanceof GLib.Variant ? val.recursiveUnpack() : val;
+        metadata[metadataKeys[key]] = val instanceof GLib.Variant ? val.recursiveUnpack() : val;
     }
 
     let title = metadata.title || metadata.url || metadata.id;
@@ -68,10 +81,7 @@ var parseMetadata = (_metadata) => {
     let image = metadata.image;
 
     if (image) {
-        image = image.replace(
-            "https://open.spotify.com/image/",
-            "https://i.scdn.co/image/"
-        );
+        image = image.replace("https://open.spotify.com/image/", "https://i.scdn.co/image/");
     }
 
     metadata.title = title;
@@ -88,19 +98,14 @@ var getRequest = (url) => {
     return new Promise((resolve, reject) => {
         let _session = new Soup.Session();
         let _request = Soup.Message.new("GET", url);
-        _session.send_and_read_async(
-            _request,
-            GLib.PRIORITY_DEFAULT,
-            null,
-            (_session, result) => {
-                if (_request.get_status() === Soup.Status.OK) {
-                    let bytes = _session.send_and_read_finish(result);
-                    resolve(bytes);
-                } else {
-                    reject(new Error("Soup request not resolved"));
-                }
+        _session.send_and_read_async(_request, GLib.PRIORITY_DEFAULT, null, (_session, result) => {
+            if (_request.get_status() === Soup.Status.OK) {
+                let bytes = _session.send_and_read_finish(result);
+                resolve(bytes);
+            } else {
+                reject(new Error("Soup request not resolved"));
             }
-        );
+        });
     });
 };
 
@@ -113,8 +118,7 @@ var getRequest = (url) => {
  */
 var execCommunicate = async (argv, input = null, cancellable = null) => {
     let cancelId = 0;
-    let flags =
-        Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE;
+    let flags = Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE;
 
     if (input !== null) flags |= Gio.SubprocessFlags.STDIN_PIPE;
 
