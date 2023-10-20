@@ -2,6 +2,7 @@
 
 import Gio from "gi://Gio";
 import Gtk from "gi://Gtk";
+import Gdk from "gi://Gdk";
 import GLib from "gi://GLib";
 import Adw from "gi://Adw";
 
@@ -666,7 +667,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             });
             const editor = new Adw.Window({
                 modal: true,
-                transient_for: page1.get_root(),
+                transient_for: page4.get_root(),
                 hide_on_close: true,
                 width_request: 320,
                 height_request: 240,
