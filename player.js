@@ -101,6 +101,11 @@ export const Player = GObject.registerClass(
                 y_align: Clutter.ActorAlign.CENTER,
             });
 
+            this.containerButtonLabel = new St.Bin({
+                style_class: "panel-button",
+                style: "padding: 0px 5px; margin: 0px;",
+            });
+
             this.subContainerLabel = new St.BoxLayout({
                 style_class: "no-spacing",
             });
@@ -112,25 +117,14 @@ export const Player = GObject.registerClass(
                 style_class: "panel-button no-spacing",
             });
 
-            this.containerButtonLabel.set_track_hover(false);
-            this.containerButtonLabel.set_can_focus(false);
-
-            this.containerButtonLabel.connect("button-release-event", this._mouseActionButton.bind(this));
-
-            this.containerButtonLabel.connect("scroll-event", this._mouseActionScroll.bind(this));
-
-            this.containerButtonLabel.connect("enter-event", this._mouseActionHover.bind(this));
-
             this.containerButtonLabel.set_child(this.subContainerLabel);
 
             // Player icon
 
-            this.buttonPlayer = new St.Button({
+            this.buttonPlayer = new St.Bin({
                 style_class: "popup-menu-button",
+                style: "padding: 0px 5px; margin: 0px;",
             });
-
-            this.buttonPlayer.set_track_hover(false);
-            this.buttonPlayer.set_can_focus(false);
 
             this.iconPlayer = new St.Icon({
                 fallback_icon_name: "audio-x-generic",
@@ -139,12 +133,6 @@ export const Player = GObject.registerClass(
             });
 
             this.buttonPlayer.set_child(this.iconPlayer);
-
-            this.buttonPlayer.connect("button-release-event", this._mouseActionButton.bind(this));
-
-            this.buttonPlayer.connect("scroll-event", this._mouseActionScroll.bind(this));
-
-            this.buttonPlayer.connect("enter-event", this._mouseActionHover.bind(this));
 
             // Player controls
 
@@ -205,6 +193,26 @@ export const Player = GObject.registerClass(
                 this._seekForward();
             });
 
+            this.buttonSeekBack.connect("touch-event", () => {
+                this._seekBack();
+            });
+
+            this.buttonPrev.connect("touch-event", () => {
+                this._playerProxy.PreviousRemote();
+            });
+
+            this.buttonPlayPause.connect("touch-event", () => {
+                this._playerProxy.PlayPauseRemote();
+            });
+
+            this.buttonNext.connect("touch-event", () => {
+                this._playerProxy.NextRemote();
+            });
+
+            this.buttonSeekForward.connect("touch-event", () => {
+                this._seekForward();
+            });
+
             this.buttonSeekBack.set_child(this.iconSeekBack);
             this.buttonNext.set_child(this.iconNext);
             this.buttonPlayPause.set_child(this.iconPlayPause);
@@ -222,6 +230,10 @@ export const Player = GObject.registerClass(
 
             this.buttonMenu.set_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
             this.buttonMenu.connect("button-release-event", () => {
+                this._extension.menu.toggle();
+            });
+
+            this.buttonMenu.connect("touch-event", () => {
                 this._extension.menu.toggle();
             });
 
@@ -682,6 +694,7 @@ export const Player = GObject.registerClass(
                 });
 
                 this.infoButtonLoop.connect("button-press-event", this._changeLoop.bind(this));
+                this.infoButtonLoop.connect("touch-event", this._changeLoop.bind(this));
 
                 this.infoButtonLoop.set_child(this.infoIconLoop);
 
@@ -699,6 +712,9 @@ export const Player = GObject.registerClass(
                 buttonPlayPause.connect("button-press-event", () => {
                     this._playerProxy.PlayPauseRemote();
                 });
+                buttonPlayPause.connect("touch-event", () => {
+                    this._playerProxy.PlayPauseRemote();
+                });
 
                 buttonPlayPause.set_child(this.infoIconPlayPause);
 
@@ -707,6 +723,9 @@ export const Player = GObject.registerClass(
                 });
 
                 buttonPrev.connect("button-press-event", () => {
+                    this._playerProxy.PreviousRemote();
+                });
+                buttonPrev.connect("touch-event", () => {
                     this._playerProxy.PreviousRemote();
                 });
 
@@ -724,6 +743,9 @@ export const Player = GObject.registerClass(
                 buttonNext.connect("button-press-event", () => {
                     this._playerProxy.NextRemote();
                 });
+                buttonNext.connect("touch-event", () => {
+                    this._playerProxy.NextRemote();
+                });
 
                 buttonNext.set_child(
                     new St.Icon({
@@ -739,6 +761,9 @@ export const Player = GObject.registerClass(
                 buttonSeekBack.connect("button-release-event", () => {
                     this._seekBack();
                 });
+                buttonSeekBack.connect("touch-event", () => {
+                    this._seekBack();
+                });
 
                 buttonSeekBack.set_child(
                     new St.Icon({
@@ -749,6 +774,9 @@ export const Player = GObject.registerClass(
 
                 const buttonSeekForward = new St.Button({
                     style_class: "popup-menu-button",
+                });
+                buttonSeekForward.connect("touch-event", () => {
+                    this._seekForward();
                 });
 
                 buttonSeekForward.connect("button-release-event", () => {
@@ -780,6 +808,7 @@ export const Player = GObject.registerClass(
                 });
 
                 this.infoShuffleButton.connect("button-press-event", this._toggleShuffle.bind(this));
+                this.infoShuffleButton.connect("touch-event", this._toggleShuffle.bind(this));
 
                 this.infoShuffleButton.set_child(this.infoShuffleIcon);
 
@@ -981,6 +1010,27 @@ export const Player = GObject.registerClass(
             this._doubleClick = null;
             this._clicked = null;
             super.destroy();
+        }
+
+        vfunc_event(event) {
+            if (
+                event.type() === Clutter.EventType.BUTTON_PRESS ||
+                event.type() === Clutter.EventType.TOUCH_BEGIN ||
+                event.type() === Clutter.EventType.KEY_PRESS
+            ) {
+                console.log(event.type());
+                this._mouseActionButton(this, event);
+            }
+
+            if (event.type() === Clutter.EventType.SCROLL) {
+                this._mouseActionScroll(this, event);
+            }
+
+            if (event.type() === Clutter.EventType.ENTER) {
+                this._mouseActionHover();
+            }
+
+            return Clutter.EVENT_PROPAGATE;
         }
 
         get menuItem() {
