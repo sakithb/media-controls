@@ -2,7 +2,7 @@
 
 reffile=mediacontrols.pot
 
-xgettext --from-code=UTF-8 --output=po/"$reffile" *.js prefs4.ui ./schemas/*.xml
+xgettext --from-code=UTF-8 --output=po/"$reffile" *.js ./schemas/*.xml
 
 cd po
 

@@ -268,11 +268,9 @@ var Player = GObject.registerClass(
                 timerFunc();
 
                 this._intervalSourceId = GLib.timeout_add(GLib.PRIORITY_LOW, 1000, timerFunc);
-            } else {
-                if (this._intervalSourceId) {
-                    GLib.Source.remove(this._intervalSourceId);
-                    this._intervalSourceId = null;
-                }
+            } else if (this._intervalSourceId) {
+                GLib.Source.remove(this._intervalSourceId);
+                this._intervalSourceId = null;
             }
         }
 

@@ -10,13 +10,13 @@ const { createProxy } = Me.imports.dbus;
 const { Player } = Me.imports.player;
 const { Settings } = Me.imports.settings;
 
-const { GObject, Gio, St, GLib, Clutter } = imports.gi;
+const { GObject, Gio, St, GLib, Clutter, Shell, Meta } = imports.gi;
 
 const Main = imports.ui.main;
 
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
-
+const BoxPointer = imports.ui.boxpointer;
 const Mpris = imports.ui.mpris;
 
 var MediaControls = GObject.registerClass(
@@ -115,6 +115,11 @@ var MediaControls = GObject.registerClass(
             this.destroy();
         }
 
+        toggleTrackInfoMenu() {
+            this.menu.close(BoxPointer.PopupAnimation.FULL);
+            this.player.menu.toggle();
+        }
+
         addWidgets() {
             delete Main.panel.statusArea["media_controls_extension"];
             Main.panel.addToStatusArea(
@@ -123,7 +128,13 @@ var MediaControls = GObject.registerClass(
                 this.settings.extensionIndex,
                 this.settings.extensionPosition
             );
-
+            Main.wm.addKeybinding(
+                "mediacontrols-toggle-trackinfomenu",
+                this.settings._settings,
+                Meta.KeyBindingFlags.IGNORE_AUTOREPEAT,
+                Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW,
+                this.toggleTrackInfoMenu.bind(this)
+            );
             this.add_child(this.player.container);
 
             this.settings.elementOrder.forEach((element) => {
@@ -162,6 +173,7 @@ var MediaControls = GObject.registerClass(
         }
 
         removeWidgets() {
+            Main.wm.removeKeybinding("mediacontrols-toggle-trackinfomenu");
             delete Main.panel.statusArea["media_controls_extension"];
 
             if (this.player) {
@@ -424,10 +436,10 @@ var MediaControls = GObject.registerClass(
                    buttonLabel     containerControls
                        |             seekBwd____|____seekFwd
                       / \                      /|\__________buttonNext
-                     /   \       buttonPrev___/  \                  
-                    /     \                       \                  
-            iconPlayer   labelTitle                buttonPlayPause      
-                                                                  
-                                                 
-                                  
+                     /   \       buttonPrev___/  \
+                    /     \                       \
+            iconPlayer   labelTitle                buttonPlayPause
+
+
+
 */
