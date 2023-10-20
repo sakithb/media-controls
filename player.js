@@ -32,8 +32,6 @@ var Player = GObject.registerClass(
         _init(busName, parent) {
             super._init(0.5, "Media Controls Track Information");
 
-            // this.setSensitive(false);
-
             this.busName = busName;
             this._timeoutSourceId = null;
             this._intervalSourceId = null;
@@ -112,15 +110,6 @@ var Player = GObject.registerClass(
                 style: "padding: 0px 5px; margin: 0px;",
             });
 
-            // this.containerButtonLabel.set_track_hover(false);
-            // this.containerButtonLabel.set_can_focus(false);
-
-            // this.containerButtonLabel.connect("button-release-event", this._mouseActionButton.bind(this));
-
-            // this.containerButtonLabel.connect("scroll-event", this._mouseActionScroll.bind(this));
-
-            // this.containerButtonLabel.connect("enter-event", this._mouseActionHover.bind(this));
-
             this.containerButtonLabel.set_child(this.subContainerLabel);
 
             // Player icon
@@ -130,9 +119,6 @@ var Player = GObject.registerClass(
                 style: "padding: 0px 5px; margin: 0px;",
             });
 
-            // this.buttonPlayer.set_track_hover(false);
-            // this.buttonPlayer.set_can_focus(false);
-
             this.iconPlayer = new St.Icon({
                 fallback_icon_name: "audio-x-generic",
                 icon_name: this.icon,
@@ -140,12 +126,6 @@ var Player = GObject.registerClass(
             });
 
             this.buttonPlayer.set_child(this.iconPlayer);
-
-            // this.buttonPlayer.connect("button-release-event", this._mouseActionButton.bind(this));
-
-            // this.buttonPlayer.connect("scroll-event", this._mouseActionScroll.bind(this));
-
-            // this.buttonPlayer.connect("enter-event", this._mouseActionHover.bind(this));
 
             // Player controls
 
@@ -528,7 +508,6 @@ var Player = GObject.registerClass(
 
         updateWidgetWidths() {
             if (this.labelTitle) {
-                // this.labelTitle.set_style(`${this.maxWidthStyle} margin: 0px; padding: 0px;`);
                 this.labelTitle.width = this._extension.settings.maxWidgetWidth;
             }
 
@@ -829,19 +808,8 @@ var Player = GObject.registerClass(
 
                 this._infoItem.add(mainControlButtons);
 
-                // this._infoItem.add(this.infoItemContainer);
-
                 this.menu.addMenuItem(this._infoItem);
             }
-
-            // Album Art
-
-            // const infoIconItem = new PopupMenu.PopupImageMenuItem(
-            //     "",
-            //     this.trackIcon
-            // );
-
-            // this.menu.addMenuItem(infoIconItem);
         }
 
         _toggleShuffle() {
@@ -967,7 +935,6 @@ var Player = GObject.registerClass(
 
         _mouseActionButton(widget, event) {
             let button = event.get_button();
-            console.log(button);
             if (!this._clicked) {
                 this._timeoutSourceId = GLib.timeout_add(
                     GLib.PRIORITY_HIGH,
@@ -1043,7 +1010,6 @@ var Player = GObject.registerClass(
                 event.type() === Clutter.EventType.TOUCH_BEGIN ||
                 event.type() === Clutter.EventType.KEY_PRESS
             ) {
-                console.log(event.type());
                 this._mouseActionButton(this, event);
             }
 
