@@ -330,7 +330,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         page1.add(group1);
         //row1
         adwrow = new Adw.ActionRow({
-            title: _("Max widget width"),
+            title: _("Maximum widget width"),
             subtitle: _("0 to disable"),
         });
         const maxwidgetwidth = new Gtk.SpinButton({ valign: Gtk.Align.CENTER });
@@ -344,7 +344,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         group1.add(adwrow);
         //row2
         adwrow = new Adw.ActionRow({
-            title: _("Seek time (seconds)"),
+            title: _("No. of seconds to seek by"),
         });
         const seekintervalsecs = new Gtk.SpinButton({
             valign: Gtk.Align.CENTER,
@@ -360,7 +360,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         //row3
         adwrow = new Adw.ActionRow({
             title: _("Use native seek"),
-            subtitle: _("Some players do not support seek."),
+            subtitle: _("Disable this if seeking is not working"),
         });
         const preferusingseek = new Gtk.Switch({
             active: settings.get_boolean("prefer-using-seek"),
@@ -372,7 +372,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         group1.add(adwrow);
         //row4
         adwrow = new Adw.ActionRow({
-            title: _("Hide the default media notification"),
+            title: _("Hide the media notification"),
         });
         const hidemedianotification = new Gtk.Switch({
             active: settings.get_boolean("hide-media-notification"),
@@ -384,8 +384,8 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         group1.add(adwrow);
         //row5
         adwrow = new Adw.ActionRow({
-            title: _("Clip texts in track info menu"),
-            subtitle: _("Disable will use wrapping instead (multiline)"),
+            title: _("Clip title and artist in track information menu"),
+            subtitle: _("Disable this to use wrapping instead"),
         });
         const cliptextsmenu = new Gtk.Switch({
             active: settings.get_boolean("clip-texts-menu"),
@@ -397,8 +397,8 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         group1.add(adwrow);
         //row6
         adwrow = new Adw.ActionRow({
-            title: _("Scroll track label"),
-            subtitle: _("Make track label scroll if wider than max widget width"),
+            title: _("Scroll the track label in the panel"),
+            subtitle: _("Enable this to scroll the panel label instead of clipping"),
         });
         const scrolltracklabel = new Gtk.Switch({
             active: settings.get_boolean("scroll-track-label"),
@@ -414,20 +414,23 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         group2.set_name("mediacontrols_tracklabel");
         page1.add(group2);
         //row1
-        adwrow = new Adw.ActionRow({});
+        adwrow = new Adw.ActionRow({ title: "Starting label" });
         const trackLabelStart = new Gtk.ComboBoxText({
             valign: Gtk.Align.CENTER,
         });
         adwrow.add_suffix(trackLabelStart);
-        adwrow.activatable_widget = trackLabelStart;
+        group2.add(adwrow);
+        //row2
+        adwrow = new Adw.ActionRow({ title: "Seperating label" });
         const trackLabelSep = new Gtk.Entry({ valign: Gtk.Align.CENTER });
         adwrow.add_suffix(trackLabelSep);
-        adwrow.activatable_widget = trackLabelSep;
+        group2.add(adwrow);
+        //row3
+        adwrow = new Adw.ActionRow({ title: "Ending label" });
         const trackLabelEnd = new Gtk.ComboBoxText({
             valign: Gtk.Align.CENTER,
         });
         adwrow.add_suffix(trackLabelEnd);
-        adwrow.activatable_widget = trackLabelEnd;
         group2.add(adwrow);
         this._initTrackLabelWidgets(settings, trackLabelStart, trackLabelSep, trackLabelEnd);
         // group3
@@ -438,27 +441,24 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         //row1
         adwrow = new Adw.ActionRow({
             title: _("Release Notes"),
-            subtitle: _("Click to open"),
         });
-        const relnotes = new Gtk.LinkButton({ valign: Gtk.Align.CENTER });
+        const relnotes = new Gtk.LinkButton({ valign: Gtk.Align.CENTER, icon_name: "link-symbolic" });
         relnotes.set_uri("https://github.com/cliffniff/media-controls/releases/latest");
         adwrow.add_suffix(relnotes);
         adwrow.activatable_widget = relnotes;
         group3.add(adwrow);
         adwrow = new Adw.ActionRow({
             title: _("Report a issue"),
-            subtitle: _("Click to open"),
         });
-        const repissue = new Gtk.LinkButton({ valign: Gtk.Align.CENTER });
+        const repissue = new Gtk.LinkButton({ valign: Gtk.Align.CENTER, icon_name: "link-symbolic" });
         repissue.set_uri("https://github.com/cliffniff/media-controls/issues");
         adwrow.add_suffix(repissue);
         adwrow.activatable_widget = repissue;
         group3.add(adwrow);
         adwrow = new Adw.ActionRow({
-            title: _("Extension home page"),
-            subtitle: _("Click to open"),
+            title: _("Homepage"),
         });
-        const exthomepage = new Gtk.LinkButton({ valign: Gtk.Align.CENTER });
+        const exthomepage = new Gtk.LinkButton({ valign: Gtk.Align.CENTER, icon_name: "link-symbolic" });
         exthomepage.set_uri("https://github.com/cliffniff/media-controls/blob/main/README.md");
         adwrow.add_suffix(exthomepage);
         adwrow.activatable_widget = exthomepage;
@@ -653,8 +653,8 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         group2.set_name("shortcuts_group2");
         page4.add(group2);
         let adwrow = new Adw.ActionRow({
-            title: _("Hotkey"),
-            subtitle: _("Hotkey to toggle the track info menu"),
+            title: _("Hot key"),
+            subtitle: _("Hot key to toggle the track information menu"),
         }); //row9
         const shortcutLabel = new Gtk.ShortcutLabel({
             disabled_text: _("Select a hotkey"),
@@ -754,7 +754,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         group2.set_name("mediacontrols_blacklistplayers");
         page5.add(group2);
         //row1
-        adwrow = new Adw.ActionRow({ title: _("Player") });
+        adwrow = new Adw.ActionRow({ title: _("Add player") });
         const blacklistentry = new Gtk.Entry({ valign: Gtk.Align.CENTER });
         adwrow.add_suffix(blacklistentry);
         adwrow.activatable_widget = blacklistentry;
