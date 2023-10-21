@@ -105,10 +105,16 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             widgetPreset.set_active(presetSepChars.indexOf(sepChars));
         } else {
             widgetCustom.set_text(sepChars);
-            widgetPreset.set_active(presetSepChars.length - 1);
+            widgetPreset.set_active(presetSepChars.indexOf(_("Custom")));
         }
-        widgetPreset.connect("changed", this._onseperatorpresetchanged.bind(this, widgetPreset));
-        widgetCustom.connect("changed", this._onseperatorcustomchanged.bind(this, widgetCustom, widgetPreset));
+        widgetPreset.connect(
+            "changed",
+            this._onseperatorpresetchanged.bind(this, widgetPreset, widgetCustom, settings)
+        );
+        widgetCustom.connect(
+            "changed",
+            this._onseperatorcustomchanged.bind(this, widgetCustom, widgetPreset, settings)
+        );
     }
 
     _onextensionpositionchanged(settings, widget, positions) {
@@ -785,8 +791,8 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         window.add(page5);
     }
 
-    _onseperatorpresetchanged(widget) {
-        let label = widget.get_label();
+    _onseperatorpresetchanged(widget, widgetCustom, settings) {
+        let label = widget.get_active_text();
         let strlabelC = _("Custom");
         if (label !== strlabelC) {
             const presetSepChars = [
@@ -805,11 +811,13 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             ];
             let presetValue = presetSepChars[widget.get_active()];
             settings.set_strv("seperator-chars", [presetValue.charAt(0), presetValue.charAt(presetValue.length - 1)]);
+        } else {
+            this._onseperatorcustomchanged(widgetCustom, widget, settings);
         }
     }
 
-    _onseperatorcustomchanged(widget, widgetPreset) {
-        let label = widgetPreset.get_label();
+    _onseperatorcustomchanged(widget, widgetPreset, settings) {
+        let label = widgetPreset.get_active_text();
         let strlabelC = _("Custom");
         if (label === strlabelC) {
             let customValues = widget.get_text().split("...");
