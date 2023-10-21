@@ -414,23 +414,26 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         group2.set_name("mediacontrols_tracklabel");
         page1.add(group2);
         //row1
-        adwrow = new Adw.ActionRow({ title: "Starting label" });
+        adwrow = new Adw.ActionRow({ title: _("Starting label") });
         const trackLabelStart = new Gtk.ComboBoxText({
             valign: Gtk.Align.CENTER,
         });
         adwrow.add_suffix(trackLabelStart);
+        adwrow.activatable_widget = trackLabelStart;
         group2.add(adwrow);
         //row2
-        adwrow = new Adw.ActionRow({ title: "Seperating label" });
+        adwrow = new Adw.ActionRow({ title: _("Separating label") });
         const trackLabelSep = new Gtk.Entry({ valign: Gtk.Align.CENTER });
         adwrow.add_suffix(trackLabelSep);
+        adwrow.activatable_widget = trackLabelSep;
         group2.add(adwrow);
         //row3
-        adwrow = new Adw.ActionRow({ title: "Ending label" });
+        adwrow = new Adw.ActionRow({ title: _("Ending label") });
         const trackLabelEnd = new Gtk.ComboBoxText({
             valign: Gtk.Align.CENTER,
         });
         adwrow.add_suffix(trackLabelEnd);
+        adwrow.activatable_widget = trackLabelEnd;
         group2.add(adwrow);
         this._initTrackLabelWidgets(settings, trackLabelStart, trackLabelSep, trackLabelEnd);
         // group3
