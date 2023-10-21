@@ -138,8 +138,14 @@ class AdwPrefs {
             widgetCustom.set_text(sepChars);
             widgetPreset.set_active(presetSepChars.length - 1);
         }
-        widgetPreset.connect("changed", this._onseperatorpresetchanged.bind(this, widgetPreset));
-        widgetCustom.connect("changed", this._onseperatorcustomchanged.bind(this, widgetCustom, widgetPreset));
+        widgetPreset.connect(
+            "changed",
+            this._onseperatorpresetchanged.bind(this, widgetPreset, widgetCustom, settings)
+        );
+        widgetCustom.connect(
+            "changed",
+            this._onseperatorcustomchanged.bind(this, widgetCustom, widgetPreset, settings)
+        );
     }
 
     _onextensionpositionchanged(settings, widget, positions) {
@@ -800,8 +806,8 @@ class AdwPrefs {
         this._initblacklistapps(settings, group2);
     }
 
-    _onseperatorpresetchanged(widget) {
-        let label = widget.get_label();
+    _onseperatorpresetchanged(widget, widgetCustom, settings) {
+        let label = widget.get_active_text();
         let strlabelC = _("Custom");
         if (label !== strlabelC) {
             const presetSepChars = [
@@ -820,11 +826,13 @@ class AdwPrefs {
             ];
             let presetValue = presetSepChars[widget.get_active()];
             settings.set_strv("seperator-chars", [presetValue.charAt(0), presetValue.charAt(presetValue.length - 1)]);
+        } else {
+            this._onseperatorcustomchanged(widgetCustom, widget, settings);
         }
     }
 
-    _onseperatorcustomchanged(widget, widgetPreset) {
-        let label = widgetPreset.get_label();
+    _onseperatorcustomchanged(widget, widgetPreset, settings) {
+        let label = widgetPreset.get_active_text();
         let strlabelC = _("Custom");
         if (label === strlabelC) {
             let customValues = widget.get_text().split("...");
