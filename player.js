@@ -101,11 +101,6 @@ export const Player = GObject.registerClass(
                 y_align: Clutter.ActorAlign.CENTER,
             });
 
-            this.containerButtonLabel = new St.Bin({
-                style_class: "panel-button",
-                style: "padding: 0px 5px; margin: 0px;",
-            });
-
             this.subContainerLabel = new St.BoxLayout({
                 style_class: "no-spacing",
             });
@@ -113,8 +108,9 @@ export const Player = GObject.registerClass(
             this.subContainerLabel.add(this.dummyLabelTitle);
             this.dummyLabelTitle.hide();
 
-            this.containerButtonLabel = new St.Button({
-                style_class: "panel-button no-spacing",
+            this.containerButtonLabel = new St.Bin({
+                style_class: "panel-button",
+                style: "padding: 0px 5px; margin: 0px;",
             });
 
             this.containerButtonLabel.set_child(this.subContainerLabel);
@@ -229,6 +225,7 @@ export const Player = GObject.registerClass(
             });
 
             this.buttonMenu.set_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
+
             this.buttonMenu.connect("button-release-event", () => {
                 this._extension.menu.toggle();
             });
@@ -273,9 +270,9 @@ export const Player = GObject.registerClass(
 
                 timerFunc();
 
-                this._intervalSourceId = GLib.timeout_add(GLib.PRIORITY_HIGH, 1000, timerFunc);
+                this._intervalSourceId = GLib.timeout_add(GLib.PRIORITY_LOW, 1000, timerFunc);
             } else if (this._intervalSourceId) {
-                GLib.source_remove(this._intervalSourceId);
+                GLib.Source.remove(this._intervalSourceId);
                 this._intervalSourceId = null;
             }
         }
@@ -355,6 +352,7 @@ export const Player = GObject.registerClass(
                     if (this.hidden) {
                         this._extension.unhidePlayer(this.busName);
                     }
+
                     this.updateWidgets();
                     this._saveImage();
                 } else {
@@ -396,7 +394,7 @@ export const Player = GObject.registerClass(
 
         _addScrollingTimer() {
             if (this._scrollSourceId) {
-                GLib.source_remove(this._scrollSourceId);
+                GLib.Source.remove(this._scrollSourceId);
             }
             if (!this._extension.scrolltracklabel) {
                 return false;
@@ -516,12 +514,17 @@ export const Player = GObject.registerClass(
             if (this.labelTitle) {
                 this.labelTitle.width = this._extension.maxWidgetWidth;
             }
+
             if (this.menuItem) {
                 this._menuLabel.set_style(this.maxWidthStyle);
             }
+
             if (this._infoItem) {
                 this.infoArtistLabel.set_style(this.maxWidthStyle);
                 this.infoTitleLabel.set_style(`font-size: large; ${this.maxWidthStyle}`);
+
+                wrappingText(!this._extension.settings.cliptextsmenu, this.infoTitleLabel);
+                wrappingText(!this._extension.settings.cliptextsmenu, this.infoArtistLabel);
 
                 if (this._extension.maxWidgetWidth !== 0) {
                     this._infoIcon.set_icon_size(this._extension.maxWidgetWidth);
@@ -559,7 +562,7 @@ export const Player = GObject.registerClass(
                 });
 
                 this._infoItem.remove_style_class_name("popup-menu-item");
-                this._infoItem.setOrnament(PopupMenu.Ornament.NONE);
+                this._infoItem.remove_child(this._infoItem._ornamentIcon);
 
                 this._infoItem.set_track_hover(false);
                 this._infoItem.set_vertical(true);
@@ -599,10 +602,8 @@ export const Player = GObject.registerClass(
                 // Album art
 
                 this._infoIcon = new St.Icon({
-                    x_expand: true,
                     gicon: this.trackIcon,
                     style: "padding-bottom: 10px;",
-                    // icon_size: 80,
                 });
 
                 this._infoItem.add(this._infoIcon);
@@ -614,13 +615,11 @@ export const Player = GObject.registerClass(
                     x_align: Clutter.ActorAlign.CENTER,
                     style: "font-size: large;",
                 });
-                wrappingText(!this._extension.cliptextsmenu, this.infoTitleLabel);
 
                 this.infoArtistLabel = new St.Label({
                     text: this.artist || "",
                     x_align: Clutter.ActorAlign.CENTER,
                 });
-                wrappingText(!this._extension.cliptextsmenu, this.infoArtistLabel);
 
                 this._infoItem.add(this.infoTitleLabel);
                 this._infoItem.add(this.infoArtistLabel);
@@ -669,7 +668,9 @@ export const Player = GObject.registerClass(
                     this.infoSlider.connect("drag-end", this._handleSliderDragEnd.bind(this));
 
                     sliderContainer.add(this.infoSlider);
-                    sliderContainer.setOrnament(PopupMenu.Ornament.DOT);
+
+                    sliderContainer._ornamentLabel.remove_style_class_name("popup-menu-ornament");
+
                     this._infoItem.add(sliderContainer);
                 }
 
@@ -712,6 +713,7 @@ export const Player = GObject.registerClass(
                 buttonPlayPause.connect("button-press-event", () => {
                     this._playerProxy.PlayPauseRemote();
                 });
+
                 buttonPlayPause.connect("touch-event", () => {
                     this._playerProxy.PlayPauseRemote();
                 });
@@ -725,6 +727,7 @@ export const Player = GObject.registerClass(
                 buttonPrev.connect("button-press-event", () => {
                     this._playerProxy.PreviousRemote();
                 });
+
                 buttonPrev.connect("touch-event", () => {
                     this._playerProxy.PreviousRemote();
                 });
@@ -743,6 +746,7 @@ export const Player = GObject.registerClass(
                 buttonNext.connect("button-press-event", () => {
                     this._playerProxy.NextRemote();
                 });
+
                 buttonNext.connect("touch-event", () => {
                     this._playerProxy.NextRemote();
                 });
@@ -775,11 +779,12 @@ export const Player = GObject.registerClass(
                 const buttonSeekForward = new St.Button({
                     style_class: "popup-menu-button",
                 });
-                buttonSeekForward.connect("touch-event", () => {
+
+                buttonSeekForward.connect("button-release-event", () => {
                     this._seekForward();
                 });
 
-                buttonSeekForward.connect("button-release-event", () => {
+                buttonSeekForward.connect("touch-event", () => {
                     this._seekForward();
                 });
 
@@ -995,12 +1000,12 @@ export const Player = GObject.registerClass(
             }
 
             if (this._intervalSourceId) {
-                GLib.source_remove(this._intervalSourceId);
+                GLib.Source.remove(this._intervalSourceId);
                 this._intervalSourceId = null;
             }
 
             if (this._scrollSourceId) {
-                GLib.source_remove(this._scrollSourceId);
+                GLib.Source.remove(this._scrollSourceId);
                 this._scrollSourceId = null;
             }
 
@@ -1018,7 +1023,6 @@ export const Player = GObject.registerClass(
                 event.type() === Clutter.EventType.TOUCH_BEGIN ||
                 event.type() === Clutter.EventType.KEY_PRESS
             ) {
-                console.log(event.type());
                 this._mouseActionButton(this, event);
             }
 
