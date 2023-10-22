@@ -658,6 +658,7 @@ export const Player = GObject.registerClass(
 
                     const sliderContainer = new PopupMenu.PopupBaseMenuItem({
                         activate: false,
+                        style_class: "custom-popup-menu-item",
                     });
 
                     sliderContainer.remove_style_class_name("popup-menu-item");
@@ -669,7 +670,10 @@ export const Player = GObject.registerClass(
 
                     sliderContainer.add(this.infoSlider);
 
-                    sliderContainer._ornamentLabel.remove_style_class_name("popup-menu-ornament");
+                    // sliderContainer._ornamentIcon.remove_style_class_name("popup-menu-ornament");
+                    // sliderContainer.setOrnament(PopupMenu.Ornament.DOT);
+                    sliderContainer.remove_child(sliderContainer._ornamentIcon);
+                    // sliderContainer.add_style_class_name("popup-ornamented-menu-item");
 
                     this._infoItem.add(sliderContainer);
                 }
@@ -765,6 +769,7 @@ export const Player = GObject.registerClass(
                 buttonSeekBack.connect("button-release-event", () => {
                     this._seekBack();
                 });
+
                 buttonSeekBack.connect("touch-event", () => {
                     this._seekBack();
                 });

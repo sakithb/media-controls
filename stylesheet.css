@@ -26,6 +26,6 @@
     padding: 10px;
 }
 
-.test{
-     background-color: rgba(160, 160, 160, 0.75);
+.custom-popup-menu-item {
+    height: 16px;
 }
