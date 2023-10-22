@@ -390,7 +390,6 @@ var Player = GObject.registerClass(
         }
 
         _addScrollingTimer() {
-            console.log("scrolling");
             if (this._scrollSourceId) {
                 GLib.Source.remove(this._scrollSourceId);
             }
@@ -724,6 +723,10 @@ var Player = GObject.registerClass(
                     style_class: "popup-menu-button",
                 });
 
+                buttonPrev.connect("button-press-event", () => {
+                    this._playerProxy.PreviousRemote();
+                });
+
                 buttonPrev.connect("touch-event", () => {
                     this._playerProxy.PreviousRemote();
                 });
@@ -737,6 +740,10 @@ var Player = GObject.registerClass(
 
                 const buttonNext = new St.Button({
                     style_class: "popup-menu-button",
+                });
+
+                buttonNext.connect("button-press-event", () => {
+                    this._playerProxy.NextRemote();
                 });
 
                 buttonNext.connect("touch-event", () => {
