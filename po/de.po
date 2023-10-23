@@ -59,15 +59,15 @@ msgid "Custom"
 msgstr "Benutzerdefiniert"
 
 #: prefs.js:127
-msgid "left"
+msgid "Left"
 msgstr "links"
 
 #: prefs.js:128
-msgid "center"
+msgid "Center"
 msgstr "zentral"
 
 #: prefs.js:129
-msgid "right"
+msgid "Right"
 msgstr "rechts"
 
 #: prefs.js:167 prefs.js:547
