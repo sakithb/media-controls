@@ -33,7 +33,7 @@ export const MediaControls = GObject.registerClass(
         connectSignals() {
             this._onMaxWidgetWidthChanged = this._settings.connect("changed::max-widget-width", () => {
                 this.maxWidgetWidth = this._settings.get_int("max-widget-width");
-                this.player.updateWidgetWidths();
+                this.player.updateWidgets();
             });
 
             this._onUpdateDelayChanged = this._settings.connect("changed::update-delay", () => {
