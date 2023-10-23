@@ -571,14 +571,22 @@ export const MediaControls = GObject.registerClass(
         }
 
         updateMediaNotification() {
-            if (this.hideMediaNotification) {
+            if (this.settings.hideMediaNotification) {
                 this._mediaSectionAdd = Mpris.MediaSection.prototype._addPlayer;
                 Mpris.MediaSection.prototype._addPlayer = function () {
                     return;
                 };
-            } else if (this._mediaSectionAdd !== undefined) {
-                Mpris.MediaSection.prototype._addPlayer = this._mediaSectionAdd;
-                this._mediaSectionAdd = undefined;
+
+                Main.panel.statusArea["dateMenu"]._messageList._mediaSection._players.forEach((player) => {
+                    player._close();
+                });
+            } else {
+                if (this._mediaSectionAdd) {
+                    Mpris.MediaSection.prototype._addPlayer = this._mediaSectionAdd;
+                    this._mediaSectionAdd = undefined;
+
+                    Main.panel.statusArea["dateMenu"]._messageList._mediaSection._onProxyReady().catch();
+                }
             }
         }
 
