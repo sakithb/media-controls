@@ -37,7 +37,7 @@ var Settings = class Settings {
     connectSignals() {
         this._onMaxWidgetWidthChanged = this._settings.connect("changed::max-widget-width", () => {
             this.maxWidgetWidth = this._settings.get_int("max-widget-width");
-            this._extension.player.updateWidgetWidths();
+            this._extension.player.updateWidgets();
         });
 
         this._onUpdateDelayChanged = this._settings.connect("changed::update-delay", () => {

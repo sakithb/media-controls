@@ -394,13 +394,27 @@ var Player = GObject.registerClass(
                 GLib.Source.remove(this._scrollSourceId);
             }
 
-            if (!this._extension.settings.scrolltracklabel) {
-                return false;
+            if (this._extension.settings.scrolltracklabel) {
+                this.labelTitle.set_style(`text-align: center;`);
+                this.labelTitle.width = this._extension.settings.maxWidgetWidth;
+            } else {
+                this.labelTitle.set_style(`text-align: center; ${this.maxWidthStyle}`);
+                this.labelTitle.width = -1;
+                return;
+            }
+
+            const label = this.label;
+            const labelLength = label.length;
+
+            this.dummyLabelTitle.set_text(label);
+            const lastPosX = this.dummyLabelTitle.clutter_text.position_to_coords(labelLength)[1];
+            if (lastPosX <= this._extension.settings.maxWidgetWidth) {
+                this.labelTitle.width = lastPosX;
+                return;
             }
 
             const maxWidgetWidth = this._extension.settings.maxWidgetWidth;
-            const labelLength = this.label.length;
-            const duplicatedLabel = `${this.label} ${this.label}`;
+            const duplicatedLabel = `${label} ${label}`;
             let offset = 0;
 
             this._scrollSourceId = GLib.timeout_add(GLib.PRIORITY_LOW, 250, () => {
@@ -415,11 +429,11 @@ var Player = GObject.registerClass(
                 const labelMaxPos = this._widthToPos(duplicatedLabel.slice(offset), maxWidgetWidth);
                 const endOffset = offset + labelMaxPos;
 
-                let newLabel = this.label.slice(offset, Math.min(labelLength, endOffset));
+                let newLabel = label.slice(offset, Math.min(labelLength, endOffset));
 
                 if (endOffset >= labelLength) {
                     const extraOffset = endOffset - labelLength;
-                    const extraLabel = this.label.slice(0, extraOffset);
+                    const extraLabel = label.slice(0, extraOffset);
 
                     newLabel += " ";
                     newLabel += extraLabel;
@@ -509,9 +523,9 @@ var Player = GObject.registerClass(
         }
 
         updateWidgetWidths() {
-            if (this.labelTitle) {
-                this.labelTitle.width = this._extension.settings.maxWidgetWidth;
-            }
+            // if (this.labelTitle) {
+            //     this.labelTitle.width = this._extension.settings.maxWidgetWidth;
+            // }
 
             if (this.menuItem) {
                 this._menuLabel.set_style(this.maxWidthStyle);
