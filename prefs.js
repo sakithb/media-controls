@@ -155,9 +155,9 @@ class AdwPrefs {
     _initExtensionPos(settings, widgetExtensionPos) {
         // Init extension position combobox
         const positionsOpts = {
-            left: _("left"),
-            center: _("center"),
-            right: _("right"),
+            left: _("Left"),
+            center: _("Center"),
+            right: _("Right"),
         };
         const positionsOptsKeys = Object.keys(positionsOpts);
         positionsOptsKeys.forEach((position) => {
@@ -519,7 +519,7 @@ class AdwPrefs {
         group1.add(adwrow);
         //row2
         adwrow = new Adw.ActionRow({
-            title: _("      Separators"),
+            title: "        " + _("Separators"),
         });
 
         const showseperators = this._createGtkSwitch(settings, "show-seperators");
@@ -536,7 +536,7 @@ class AdwPrefs {
         group1.add(adwrow);
         //row4
         adwrow = new Adw.ActionRow({
-            title: _("      Play/pause button"),
+            title: "        " + _("Play/pause button"),
         });
 
         const showplaypauseicon = this._createGtkSwitch(settings, "show-playpause-icon");
@@ -545,7 +545,7 @@ class AdwPrefs {
         group1.add(adwrow);
         //row5
         adwrow = new Adw.ActionRow({
-            title: _("      Previous track button"),
+            title: "        " + _("Previous track button"),
         });
 
         const showprevicon = this._createGtkSwitch(settings, "show-prev-icon");
@@ -554,7 +554,7 @@ class AdwPrefs {
         group1.add(adwrow);
         //row6
         adwrow = new Adw.ActionRow({
-            title: _("      Next track button"),
+            title: "        " + _("Next track button"),
         });
 
         const shownexticon = this._createGtkSwitch(settings, "show-next-icon");
@@ -563,7 +563,7 @@ class AdwPrefs {
         group1.add(adwrow);
         //row7
         adwrow = new Adw.ActionRow({
-            title: _("      Seek back button"),
+            title: "        " + _("Seek back button"),
         });
 
         const showseekback = this._createGtkSwitch(settings, "show-seek-back");
@@ -572,7 +572,7 @@ class AdwPrefs {
         group1.add(adwrow);
         //row8
         adwrow = new Adw.ActionRow({
-            title: _("      Seek forward button"),
+            title: "        " + _("Seek forward button"),
         });
 
         const showseekforward = this._createGtkSwitch(settings, "show-seek-forward");

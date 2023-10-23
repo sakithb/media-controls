@@ -58,6 +58,7 @@ msgstr "Keine"
 msgid "Custom"
 msgstr "Benutzerdefiniert"
 
+<<<<<<< HEAD
 #: prefs.js:158
 msgid "left"
 msgstr "links"
@@ -68,6 +69,18 @@ msgstr "zentral"
 
 #: prefs.js:160
 msgid "right"
+=======
+#: prefs.js:152
+msgid "Left"
+msgstr "links"
+
+#: prefs.js:153
+msgid "Center"
+msgstr "zentral"
+
+#: prefs.js:154
+msgid "Right"
+>>>>>>> 7040d76 (better translation support in pref.js)
 msgstr "rechts"
 
 #: prefs.js:198 prefs.js:584
@@ -270,33 +283,33 @@ msgstr "Anzeige/verstecke Elemente"
 msgid "Title/Track name"
 msgstr "Titel/Spurname"
 
-#: prefs.js:522
-msgid "      Separators"
-msgstr "      Separatoren"
+#: prefs.js:513
+msgid "Separators"
+msgstr "Separatoren"
 
 #: prefs.js:531
 msgid "Player controls"
 msgstr "Spielersteuerung"
 
+#: prefs.js:530
+msgid "Play/pause button"
+msgstr "Abspielen/Pause-Button"
+
 #: prefs.js:539
-msgid "      Play/pause button"
-msgstr "      Abspielen/Pause-Button"
+msgid "Previous track button"
+msgstr "Vorherige Spur-Button"
 
 #: prefs.js:548
-msgid "      Previous track button"
-msgstr "      Vorherige Spur-Button"
+msgid "Next track button"
+msgstr "Nächste Spur-Button"
 
 #: prefs.js:557
-msgid "      Next track button"
-msgstr "      Nächste Spur-Button"
+msgid "Seek back button"
+msgstr "Rückwärtssuche-Taste"
 
 #: prefs.js:566
-msgid "      Seek back button"
-msgstr "      Rückwärtssuche-Taste"
-
-#: prefs.js:575
-msgid "      Seek forward button"
-msgstr "      Vorwärtssuche-Taste"
+msgid "Seek forward button"
+msgstr "Vorwärtssuche-Taste"
 
 #: prefs.js:600
 msgid "Colors"
