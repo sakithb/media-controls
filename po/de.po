@@ -58,18 +58,6 @@ msgstr "Keine"
 msgid "Custom"
 msgstr "Benutzerdefiniert"
 
-<<<<<<< HEAD
-#: prefs.js:158
-msgid "left"
-msgstr "links"
-
-#: prefs.js:159
-msgid "center"
-msgstr "zentral"
-
-#: prefs.js:160
-msgid "right"
-=======
 #: prefs.js:152
 msgid "Left"
 msgstr "links"
@@ -80,7 +68,6 @@ msgstr "zentral"
 
 #: prefs.js:154
 msgid "Right"
->>>>>>> 7040d76 (better translation support in pref.js)
 msgstr "rechts"
 
 #: prefs.js:198 prefs.js:584
