@@ -398,10 +398,12 @@ var MediaControls = GObject.registerClass(
                     player._close();
                 });
             } else {
-                Mpris.MediaSection.prototype._addPlayer = this._mediaSectionAdd;
-                this._mediaSectionAdd = undefined;
+                if (this._mediaSectionAdd) {
+                    Mpris.MediaSection.prototype._addPlayer = this._mediaSectionAdd;
+                    this._mediaSectionAdd = undefined;
 
-                Main.panel.statusArea["dateMenu"]._messageList._mediaSection._onProxyReady();
+                    Main.panel.statusArea["dateMenu"]._messageList._mediaSection._onProxyReady().catch();
+                }
             }
         }
 
