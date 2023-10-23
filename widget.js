@@ -571,7 +571,7 @@ export const MediaControls = GObject.registerClass(
         }
 
         updateMediaNotification() {
-            if (this.settings.hideMediaNotification) {
+            if (this.hideMediaNotification) {
                 this._mediaSectionAdd = Mpris.MediaSection.prototype._addPlayer;
                 Mpris.MediaSection.prototype._addPlayer = function () {
                     return;
