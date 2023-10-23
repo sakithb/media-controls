@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-21 22:26+0200\n"
+"POT-Creation-Date: 2023-10-23 16:31+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -58,15 +58,15 @@ msgid "Custom"
 msgstr ""
 
 #: prefs.js:158
-msgid "left"
+msgid "Left"
 msgstr ""
 
 #: prefs.js:159
-msgid "center"
+msgid "Center"
 msgstr ""
 
 #: prefs.js:160
-msgid "right"
+msgid "Right"
 msgstr ""
 
 #: prefs.js:198 prefs.js:584
@@ -270,7 +270,7 @@ msgid "Title/Track name"
 msgstr ""
 
 #: prefs.js:522
-msgid "      Separators"
+msgid "Separators"
 msgstr ""
 
 #: prefs.js:531
@@ -278,23 +278,23 @@ msgid "Player controls"
 msgstr ""
 
 #: prefs.js:539
-msgid "      Play/pause button"
+msgid "Play/pause button"
 msgstr ""
 
 #: prefs.js:548
-msgid "      Previous track button"
+msgid "Previous track button"
 msgstr ""
 
 #: prefs.js:557
-msgid "      Next track button"
+msgid "Next track button"
 msgstr ""
 
 #: prefs.js:566
-msgid "      Seek back button"
+msgid "Seek back button"
 msgstr ""
 
 #: prefs.js:575
-msgid "      Seek forward button"
+msgid "Seek forward button"
 msgstr ""
 
 #: prefs.js:600

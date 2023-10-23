@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-21 22:26+0200\n"
-"PO-Revision-Date: 2023-10-21 22:28+0200\n"
+"POT-Creation-Date: 2023-10-23 16:31+0530\n"
+"PO-Revision-Date: 2023-10-23 16:32+0530\n"
 "Last-Translator: Christian Lauinger <christian@lauinger-clan.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -58,17 +58,17 @@ msgstr "Keine"
 msgid "Custom"
 msgstr "Benutzerdefiniert"
 
-#: prefs.js:152
+#: prefs.js:158
 msgid "Left"
-msgstr "links"
+msgstr "Links"
 
-#: prefs.js:153
+#: prefs.js:159
 msgid "Center"
-msgstr "zentral"
+msgstr "Zentral"
 
-#: prefs.js:154
+#: prefs.js:160
 msgid "Right"
-msgstr "rechts"
+msgstr "Rechts"
 
 #: prefs.js:198 prefs.js:584
 msgid "Player icon"
@@ -270,7 +270,7 @@ msgstr "Anzeige/verstecke Elemente"
 msgid "Title/Track name"
 msgstr "Titel/Spurname"
 
-#: prefs.js:513
+#: prefs.js:522
 msgid "Separators"
 msgstr "Separatoren"
 
@@ -278,23 +278,23 @@ msgstr "Separatoren"
 msgid "Player controls"
 msgstr "Spielersteuerung"
 
-#: prefs.js:530
+#: prefs.js:539
 msgid "Play/pause button"
 msgstr "Abspielen/Pause-Button"
 
-#: prefs.js:539
+#: prefs.js:548
 msgid "Previous track button"
 msgstr "Vorherige Spur-Button"
 
-#: prefs.js:548
+#: prefs.js:557
 msgid "Next track button"
 msgstr "Nächste Spur-Button"
 
-#: prefs.js:557
+#: prefs.js:566
 msgid "Seek back button"
 msgstr "Rückwärtssuche-Taste"
 
-#: prefs.js:566
+#: prefs.js:575
 msgid "Seek forward button"
 msgstr "Vorwärtssuche-Taste"
 
