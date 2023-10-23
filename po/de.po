@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-10-21 22:34+0200\n"
-"PO-Revision-Date: 2023-10-21 22:35+0200\n"
+"PO-Revision-Date: 2023-10-23 16:29+0530\n"
 "Last-Translator: Christian Lauinger <christian@lauinger-clan.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -60,15 +60,15 @@ msgstr "Benutzerdefiniert"
 
 #: prefs.js:127
 msgid "Left"
-msgstr "links"
+msgstr "Links"
 
 #: prefs.js:128
 msgid "Center"
-msgstr "zentral"
+msgstr "Zentral"
 
 #: prefs.js:129
 msgid "Right"
-msgstr "rechts"
+msgstr "Rechts"
 
 #: prefs.js:167 prefs.js:547
 msgid "Player icon"
