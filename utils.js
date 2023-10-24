@@ -49,8 +49,7 @@ export const parseMetadata = (_metadata) => {
     let metadata = {};
     for (let key in metadataKeys) {
         let val = _metadata[key];
-        metadata[metadataKeys[key]] =
-            val instanceof GLib.Variant ? val.recursiveUnpack() : val;
+        metadata[metadataKeys[key]] = val instanceof GLib.Variant ? val.recursiveUnpack() : val;
     }
 
     let title = metadata.title || metadata.url || metadata.id;
@@ -71,10 +70,7 @@ export const parseMetadata = (_metadata) => {
     let image = metadata.image;
 
     if (image) {
-        image = image.replace(
-            "https://open.spotify.com/image/",
-            "https://i.scdn.co/image/"
-        );
+        image = image.replace("https://open.spotify.com/image/", "https://i.scdn.co/image/");
     }
 
     metadata.title = title;
@@ -91,70 +87,12 @@ export const getRequest = (url) => {
     return new Promise((resolve, reject) => {
         let _session = new Soup.Session();
         let _request = Soup.Message.new("GET", url);
-        _session.send_and_read_async(
-            _request,
-            GLib.PRIORITY_DEFAULT,
-            null,
-            (_session, result) => {
-                if (_request.get_status() === Soup.Status.OK) {
-                    let bytes = _session.send_and_read_finish(result);
-                    resolve(bytes);
-                } else {
-                    reject(new Error("Soup request not resolved"));
-                }
-            }
-        );
-    });
-};
-
-/**
- * Executes a shell command asynchronously
- * @param {Array<string>} argv  array of arguments
- * @param {string?} input input to be given to the shell command
- * @param {boolean?} cancellable whether the operation is cancellable
- * @returns
- */
-export const execCommunicate = async (
-    argv,
-    input = null,
-    cancellable = null
-) => {
-    let cancelId = 0;
-    let flags =
-        Gio.SubprocessFlags.STDOUT_PIPE | Gio.SubprocessFlags.STDERR_PIPE;
-
-    if (input !== null) flags |= Gio.SubprocessFlags.STDIN_PIPE;
-
-    let proc = new Gio.Subprocess({
-        argv: argv,
-        flags: flags,
-    });
-    proc.init(cancellable);
-
-    if (cancellable instanceof Gio.Cancellable) {
-        cancelId = cancellable.connect(() => proc.force_exit());
-    }
-
-    return new Promise((resolve, reject) => {
-        proc.communicate_utf8_async(input, null, (proc, res) => {
-            try {
-                let [, stdout, stderr] = proc.communicate_utf8_finish(res);
-                let status = proc.get_exit_status();
-
-                if (status !== 0) {
-                    throw new Gio.IOErrorEnum({
-                        code: Gio.io_error_from_errno(status),
-                        message: stderr ? stderr.trim() : GLib.strerror(status),
-                    });
-                }
-
-                resolve(stdout.trim());
-            } catch (e) {
-                reject(e);
-            } finally {
-                if (cancelId > 0) {
-                    cancellable.disconnect(cancelId);
-                }
+        _session.send_and_read_async(_request, GLib.PRIORITY_DEFAULT, null, (_session, result) => {
+            if (_request.get_status() === Soup.Status.OK) {
+                let bytes = _session.send_and_read_finish(result);
+                resolve(bytes);
+            } else {
+                reject(new Error("Soup request not resolved"));
             }
         });
     });

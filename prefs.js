@@ -6,9 +6,11 @@ import Gdk from "gi://Gdk";
 import GLib from "gi://GLib";
 import Adw from "gi://Adw";
 
-import { execCommunicate } from "./utils.js";
-
 import { ExtensionPreferences, gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
+
+Gio._promisify(Gio.File.prototype, "query_info_async");
+Gio._promisify(Gio.File.prototype, "enumerate_children_async");
+Gio._promisify(Gio.File.prototype, "delete_async");
 
 export default class MediaControlsPreferences extends ExtensionPreferences {
     _ontracklabelchanged(settings, trackLabelOptKeys, trackLabelSep, trackLabelStart, trackLabelEnd) {
@@ -831,27 +833,68 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
     }
 
     async _getCacheSize() {
-        // Command: du -hs [data_directory]/media-controls | awk '{NF=1}1'
         try {
-            let dir = GLib.get_user_config_dir() + "/media-controls";
-            const result = await execCommunicate(["/bin/bash", "-c", `du -hs ${dir} | awk '{NF=1}1'`]);
-            return result || "0K";
+            const path = GLib.get_user_config_dir() + "/media-controls/cache";
+            const directory = Gio.File.new_for_path(path);
+            const iterator = await directory.enumerate_children_async(
+                "standard::*",
+                Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
+                GLib.PRIORITY_DEFAULT,
+                null
+            );
+
+            let sizeInBytes = 0;
+
+            for await (const fileInfo of iterator) {
+                const fileType = fileInfo.get_file_type();
+                if (fileType === Gio.FileType.REGULAR) {
+                    const fileSize = fileInfo.get_size();
+                    sizeInBytes += fileSize;
+                }
+            }
+
+            return this._bytesToSize(sizeInBytes);
         } catch (error) {
             logError(error);
         }
     }
 
     async _clearcache(widgetCacheSize, clearcachespinner) {
-        let dir = GLib.get_user_config_dir() + "/media-controls";
         try {
             clearcachespinner.start();
-            await execCommunicate(["rm", "-r", dir]);
+
+            const path = GLib.get_user_config_dir() + "/media-controls/cache";
+            const directory = Gio.File.new_for_path(path);
+            const iterator = await directory.enumerate_children_async(
+                "standard::*",
+                Gio.FileQueryInfoFlags.NOFOLLOW_SYMLINKS,
+                GLib.PRIORITY_DEFAULT,
+                null
+            );
+
+            const promises = [];
+
+            for await (const fileInfo of iterator) {
+                const file = iterator.get_child(fileInfo);
+                promises.push(file.delete_async(GLib.PRIORITY_DEFAULT, null));
+            }
+
+            await Promise.all(promises);
+
             widgetCacheSize.set_text(await this._getCacheSize());
             clearcachespinner.stop();
         } catch (error) {
+            logError(error);
             widgetCacheSize.set_text(_("Failed to clear cache"));
             clearcachespinner.stop();
         }
+    }
+
+    _bytesToSize(bytes) {
+        const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+        if (bytes === 0) return "0 Bytes";
+        const i = parseInt(Math.floor(Math.log(bytes) / Math.log(1024)));
+        return Math.round(bytes / Math.pow(1024, i)) + " " + sizes[i];
     }
 
     _onclearcacheclicked(widgetCacheSize, clearcachespinner) {
