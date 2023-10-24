@@ -62,3 +62,8 @@ if [[ " ${PARAMS[*]} " =~ " -r " ]]; then
     copy;
     restart;
 fi
+
+if [[ " ${PARAMS[*]} " =~ " -c " ]]; then
+    glib-compile-schemas schemas/;
+    copy;
+fi
