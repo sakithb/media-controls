@@ -159,6 +159,7 @@ export const MediaControls = GObject.registerClass(
             });
             this._onClipTextsMenuChanged = this._settings.connect("changed::clip-texts-menu", () => {
                 this.cliptextsmenu = this._settings.get_boolean("clip-texts-menu");
+                this.player.updateWidgets();
             });
             this._onScrollTrackLabelChanged = this._settings.connect("changed::scroll-track-label", () => {
                 this.scrolltracklabel = this._settings.get_boolean("scroll-track-label");

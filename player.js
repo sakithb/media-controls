@@ -468,7 +468,8 @@ export const Player = GObject.registerClass(
                 this._infoIcon.set_gicon(this.trackIcon);
                 this.infoTitleLabel.set_text(this.title);
                 this.infoArtistLabel.set_text(this.artist);
-
+                wrappingText(!this._extension.cliptextsmenu, this.infoTitleLabel);
+                wrappingText(!this._extension.cliptextsmenu, this.infoArtistLabel);
                 this._updateInfoIcon();
             }
         }
@@ -526,10 +527,6 @@ export const Player = GObject.registerClass(
         }
 
         updateWidgetWidths() {
-            // if (this.labelTitle) {
-            //     this.labelTitle.width = this._extension.settings.maxWidgetWidth;
-            // }
-
             if (this.menuItem) {
                 this._menuLabel.set_style(this.maxWidthStyle);
             }
@@ -538,8 +535,8 @@ export const Player = GObject.registerClass(
                 this.infoArtistLabel.set_style(this.maxWidthStyle);
                 this.infoTitleLabel.set_style(`font-size: large; ${this.maxWidthStyle}`);
 
-                wrappingText(!this._extension.settings.cliptextsmenu, this.infoTitleLabel);
-                wrappingText(!this._extension.settings.cliptextsmenu, this.infoArtistLabel);
+                wrappingText(!this._extension.cliptextsmenu, this.infoTitleLabel);
+                wrappingText(!this._extension.cliptextsmenu, this.infoArtistLabel);
 
                 if (this._extension.maxWidgetWidth !== 0) {
                     this._infoIcon.set_icon_size(this._extension.maxWidgetWidth);
