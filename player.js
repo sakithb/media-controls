@@ -1037,7 +1037,7 @@ export const Player = GObject.registerClass(
         vfunc_event(event) {
             if (
                 event.type() === Clutter.EventType.BUTTON_PRESS ||
-                event.type() === Clutter.EventType.TOUCH_BEGIN ||
+                event.type() === Clutter.EventType.TOUCH_END ||
                 event.type() === Clutter.EventType.KEY_PRESS
             ) {
                 this._mouseActionButton(this, event);
