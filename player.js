@@ -682,10 +682,7 @@ export const Player = GObject.registerClass(
 
                     sliderContainer.add(this.infoSlider);
 
-                    // sliderContainer._ornamentIcon.remove_style_class_name("popup-menu-ornament");
-                    // sliderContainer.setOrnament(PopupMenu.Ornament.DOT);
                     sliderContainer.remove_child(sliderContainer._ornamentIcon);
-                    // sliderContainer.add_style_class_name("popup-ornamented-menu-item");
 
                     this._infoItem.add(sliderContainer);
                 }

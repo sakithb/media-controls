@@ -141,7 +141,9 @@ export const MediaControls = GObject.registerClass(
 
             this._onTrackLabelChanged = this._settings.connect("changed::track-label", () => {
                 this.trackLabel = this._settings.get_strv("track-label");
-                this.player.updateWidgets();
+                if (this.player) {
+                    this.player.updateWidgets();
+                }
             });
 
             this._onCacheImagesChanged = this._settings.connect("changed::cache-images", () => {
@@ -159,11 +161,15 @@ export const MediaControls = GObject.registerClass(
             });
             this._onClipTextsMenuChanged = this._settings.connect("changed::clip-texts-menu", () => {
                 this.cliptextsmenu = this._settings.get_boolean("clip-texts-menu");
-                this.player.updateWidgets();
+                if (this.player) {
+                    this.player.updateWidgets();
+                }
             });
             this._onScrollTrackLabelChanged = this._settings.connect("changed::scroll-track-label", () => {
                 this.scrolltracklabel = this._settings.get_boolean("scroll-track-label");
-                this.player.updateWidgets();
+                if (this.player) {
+                    this.player.updateWidgets();
+                }
             });
         }
 
@@ -581,13 +587,11 @@ export const MediaControls = GObject.registerClass(
                 Main.panel.statusArea["dateMenu"]._messageList._mediaSection._players.forEach((player) => {
                     player._close();
                 });
-            } else {
-                if (this._mediaSectionAdd) {
-                    Mpris.MediaSection.prototype._addPlayer = this._mediaSectionAdd;
-                    this._mediaSectionAdd = undefined;
+            } else if (this._mediaSectionAdd) {
+                Mpris.MediaSection.prototype._addPlayer = this._mediaSectionAdd;
+                this._mediaSectionAdd = undefined;
 
-                    Main.panel.statusArea["dateMenu"]._messageList._mediaSection._onProxyReady().catch();
-                }
+                Main.panel.statusArea["dateMenu"]._messageList._mediaSection._onProxyReady().catch();
             }
         }
 
