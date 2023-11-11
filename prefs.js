@@ -1,5 +1,3 @@
-"use strict";
-
 import Gio from "gi://Gio";
 import Gtk from "gi://Gtk";
 import Gdk from "gi://Gdk";
@@ -7,6 +5,8 @@ import GLib from "gi://GLib";
 import Adw from "gi://Adw";
 
 import { ExtensionPreferences, gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
+
+"use strict";
 
 Gio._promisify(Gio.File.prototype, "query_info_async");
 Gio._promisify(Gio.File.prototype, "enumerate_children_async");
