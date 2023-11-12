@@ -308,10 +308,13 @@ export const MediaControls = GObject.registerClass(
             this.disconnectSignals();
 
             for (let playerObj of Object.values(this._players)) {
-                playerObj.destroy();
+                playerObj.container.destroy();
             }
 
-            this.destroy();
+            const parent = this.get_parent();
+            if (parent != null) {
+                parent.remove_child(this);
+            }
         }
 
         toggleTrackInfoMenu() {
