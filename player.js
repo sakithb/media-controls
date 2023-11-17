@@ -15,9 +15,7 @@ import * as BoxPointer from "resource:///org/gnome/shell/ui/boxpointer.js";
 import { createProxy } from "./dbus.js";
 import { parseMetadata, stripInstanceNumbers, getRequest, wrappingText, msToHHMMSS } from "./utils.js";
 
-const urlRegexp = new RegExp(
-    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+~#?&/=]*)/
-);
+const urlRegexp = new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+~#?&/=]*)/);
 
 let mouseActionTypes = {
     LEFT_CLICK: 0,
@@ -42,34 +40,25 @@ export const Player = GObject.registerClass(
             this._doubleClick = false;
             this._clicked = false;
             this._extension = parent;
+        }
 
-            return (async () => {
-                try {
-                    this._playerProxy = createProxy(
-                        "org.mpris.MediaPlayer2.Player",
-                        busName,
-                        "/org/mpris/MediaPlayer2"
-                    );
+        async _initDbus() {
+            try {
+                this._playerProxy = await createProxy("org.mpris.MediaPlayer2.Player", this.busName, "/org/mpris/MediaPlayer2");
+                this._otherProxy = await createProxy("org.mpris.MediaPlayer2", this.busName, "/org/mpris/MediaPlayer2");
 
-                    this._otherProxy = createProxy("org.mpris.MediaPlayer2", busName, "/org/mpris/MediaPlayer2");
+                this._metadata = this._playerProxy.Metadata;
+                this._status = this._playerProxy.PlaybackStatus;
 
-                    [this._playerProxy, this._otherProxy] = await Promise.all([this._playerProxy, this._otherProxy]);
+                this._playerProxy.connect("g-properties-changed", this._playerPropsChanged.bind(this));
+                this._otherProxy.connect("g-properties-changed", this._otherPropsChanged.bind(this));
 
-                    this._metadata = parseMetadata(this._playerProxy.Metadata);
-                    this._status = this._playerProxy.PlaybackStatus;
+                this.menu.connect("open-state-changed", this._menuOpenStateChanged.bind(this));
 
-                    this._playerProxy.connect("g-properties-changed", this._playerPropsChanged.bind(this));
-                    this._otherProxy.connect("g-properties-changed", this._otherPropsChanged.bind(this));
-
-                    this.menu.connect("open-state-changed", this._menuOpenStateChanged.bind(this));
-
-                    this._saveImage();
-                } catch (error) {
-                    logError(error);
-                }
-
-                return this;
-            })();
+                this._saveImage();
+            } catch (error) {
+                logError(error);
+            }
         }
 
         initWidgets() {
@@ -260,7 +249,7 @@ export const Player = GObject.registerClass(
                 this.infoTt.set_text(msToHHMMSS(length));
 
                 const timerFunc = () => {
-                    const position = this._getPosition();
+                    const position = this._getDbusProperty("Position");
 
                     this.infoSlider.value = position / length;
                     this.infoEt.set_text(msToHHMMSS(position));
@@ -281,7 +270,43 @@ export const Player = GObject.registerClass(
             this._setPosition(event._value * this._metadata.length);
         }
 
-        _getPosition() {
+        _setPosition(position) {
+            this._playerProxy.SetPositionRemote(this._metadata.trackid, position);
+        }
+
+        _seekBack() {
+            const offset = this._extension.seekInterval * 1_000_000;
+
+            if (this._extension.preferNativeSeek) {
+                this._playerProxy.SeekRemote(-offset);
+            } else {
+                const position = this._getDbusProperty("Position");
+                const metadata = parseMetadata(this._playerProxy.Metadata);
+
+                if (position !== undefined && metadata !== undefined && metadata.trackid !== undefined) {
+                    const newPosition = Math.max(position - offset, 0);
+                    this._playerProxy.SetPositionRemote(metadata.trackid, newPosition);
+                }
+            }
+        }
+
+        _seekForward() {
+            const offset = this._extension.seekInterval * 1_000_000;
+
+            if (this._extension.preferNativeSeek) {
+                this._playerProxy.SeekRemote(offset);
+            } else {
+                const position = this._getDbusProperty("Position");
+                const metadata = parseMetadata(this._playerProxy.Metadata);
+
+                if (position !== undefined && metadata !== undefined && metadata.trackid !== undefined) {
+                    const newPosition = Math.min(position + offset, metadata.length);
+                    this._playerProxy.setPositionRemote(metadata.trackid, newPosition);
+                }
+            }
+        }
+
+        _getDbusProperty(propertyName) {
             try {
                 const position = this._playerProxy
                     .get_connection()
@@ -290,7 +315,7 @@ export const Player = GObject.registerClass(
                         "/org/mpris/MediaPlayer2",
                         "org.freedesktop.DBus.Properties",
                         "Get",
-                        new GLib.Variant("(ss)", ["org.mpris.MediaPlayer2.Player", "Position"]),
+                        new GLib.Variant("(ss)", ["org.mpris.MediaPlayer2.Player", propertyName]),
                         null,
                         Gio.DBusCallFlags.NONE,
                         -1,
@@ -307,44 +332,23 @@ export const Player = GObject.registerClass(
             }
         }
 
-        _setPosition(position) {
-            this._playerProxy.SetPositionRemote(this._metadata.trackid, position);
-        }
-
-        _seekBack() {
-            const offset = this._extension.seekInterval * 1_000_000;
-
-            if (this._extension.preferNativeSeek) {
-                this._playerProxy.SeekRemote(-offset);
-            } else {
-                const position = this._getPosition();
-                const metadata = parseMetadata(this._playerProxy.Metadata);
-
-                if (position !== undefined && metadata !== undefined && metadata.trackid !== undefined) {
-                    const newPosition = Math.max(position - offset, 0);
-                    this._playerProxy.SetPositionRemote(metadata.trackid, newPosition);
-                }
-            }
-        }
-
-        _seekForward() {
-            const offset = this._extension.seekInterval * 1_000_000;
-
-            if (this._extension.preferNativeSeek) {
-                this._playerProxy.SeekRemote(offset);
-            } else {
-                const position = this._getPosition();
-                const metadata = parseMetadata(this._playerProxy.Metadata);
-
-                if (position !== undefined && metadata !== undefined && metadata.trackid !== undefined) {
-                    const newPosition = Math.min(position + offset, metadata.length);
-                    this._playerProxy.setPositionRemote(metadata.trackid, newPosition);
-                }
-            }
-        }
-
         _playerPropsChanged(proxy, changed, invalidated) {
             changed = changed.recursiveUnpack();
+
+            if (!this._metadata.realTitle) {
+                this._metadata = parseMetadata(this._getDbusProperty("Metadata"));
+
+                if (this._metadata["title"]) {
+                    if (this.hidden) {
+                        this._extension.unhidePlayer(this.busName);
+                    }
+
+                    this.updateWidgets();
+                    this._saveImage();
+                } else {
+                    this._extension.hidePlayer(this.busName);
+                }
+            }
 
             if (changed.Metadata) {
                 this._metadata = parseMetadata(changed.Metadata);
@@ -379,12 +383,13 @@ export const Player = GObject.registerClass(
         }
 
         _otherPropsChanged(proxy, changed, invalidated) {
-            changed = changed.recursiveUnpack();
-            if (changed.Identity) {
-                this.infoMenuPlayerIcon.set_icon_name(this.icon);
-                this.iconPlayer.set_icon_name(this.icon);
-                this.infoMenuPlayerName.set_text(this.name);
-            }
+            console.log("Test, unnecessary function. This should not fire.");
+            // changed = changed.recursiveUnpack();
+            // if (changed.Identity) {
+            //     this.infoMenuPlayerIcon.set_icon_name(this.icon);
+            //     this.iconPlayer.set_icon_name(this.icon);
+            //     this.infoMenuPlayerName.set_text(this.name);
+            // }
         }
 
         _widthToPos(text, width) {
@@ -476,14 +481,10 @@ export const Player = GObject.registerClass(
 
         _updateStatusIcons() {
             if (this.iconPlayPause) {
-                this.iconPlayPause.set_icon_name(
-                    this.isPlaying ? "media-playback-pause-symbolic" : "media-playback-start-symbolic"
-                );
+                this.iconPlayPause.set_icon_name(this.isPlaying ? "media-playback-pause-symbolic" : "media-playback-start-symbolic");
             }
             if (this.infoIconPlayPause) {
-                this.infoIconPlayPause.set_icon_name(
-                    this.isPlaying ? "media-playback-pause-symbolic" : "media-playback-start-symbolic"
-                );
+                this.infoIconPlayPause.set_icon_name(this.isPlaying ? "media-playback-pause-symbolic" : "media-playback-start-symbolic");
             }
         }
 
@@ -643,7 +644,7 @@ export const Player = GObject.registerClass(
                 });
                 this._infoItem.add(spacer);
 
-                if (this._getPosition() !== undefined) {
+                if (this._getDbusProperty("Position") !== undefined) {
                     // Elapsed time and total time
 
                     const rtttContainer = new St.BoxLayout();
@@ -873,14 +874,7 @@ export const Player = GObject.registerClass(
                         if (!cacheFile.query_exists(null)) {
                             const remoteIcon = await getRequest(this.image);
                             if (GLib.mkdir_with_parents(cacheFile.get_parent().get_path(), 0o744) === 0) {
-                                cacheFile.replace_contents_bytes_async(
-                                    remoteIcon,
-                                    null,
-                                    false,
-                                    Gio.FileCreateFlags.REPLACE_DESTINATION,
-                                    null,
-                                    null
-                                );
+                                cacheFile.replace_contents_bytes_async(remoteIcon, null, false, Gio.FileCreateFlags.REPLACE_DESTINATION, null, null);
                             } else {
                                 throw new Error("Failed to save icon.");
                             }
@@ -894,12 +888,7 @@ export const Player = GObject.registerClass(
 
         _getImage() {
             try {
-                let destination = GLib.build_filenamev([
-                    this._extension.dataDir,
-                    "media-controls",
-                    "cache",
-                    GLib.base64_encode(this.image),
-                ]);
+                let destination = GLib.build_filenamev([this._extension.dataDir, "media-controls", "cache", GLib.base64_encode(this.image)]);
                 let cacheFile = Gio.File.new_for_path(destination);
                 let [success, contents] = cacheFile.load_contents(null);
                 if (success) {
@@ -963,24 +952,20 @@ export const Player = GObject.registerClass(
         _mouseActionButton(widget, event) {
             let button = event.get_button();
             if (!this._clicked) {
-                this._timeoutSourceId = GLib.timeout_add(
-                    GLib.PRIORITY_HIGH,
-                    this._extension.clutterSettings.double_click_time,
-                    () => {
-                        if (!this._doubleClick) {
-                            if (button === 1) {
-                                this._mouseAction(mouseActionTypes.LEFT_CLICK);
-                            } else if (button === 2) {
-                                this._mouseAction(mouseActionTypes.MIDDLE_CLICK);
-                            } else if (button === 3) {
-                                this._mouseAction(mouseActionTypes.RIGHT_CLICK);
-                            }
+                this._timeoutSourceId = GLib.timeout_add(GLib.PRIORITY_HIGH, this._extension.clutterSettings.double_click_time, () => {
+                    if (!this._doubleClick) {
+                        if (button === 1) {
+                            this._mouseAction(mouseActionTypes.LEFT_CLICK);
+                        } else if (button === 2) {
+                            this._mouseAction(mouseActionTypes.MIDDLE_CLICK);
+                        } else if (button === 3) {
+                            this._mouseAction(mouseActionTypes.RIGHT_CLICK);
                         }
-                        this._doubleClick = false;
-                        this._clicked = false;
-                        return GLib.SOURCE_REMOVE;
                     }
-                );
+                    this._doubleClick = false;
+                    this._clicked = false;
+                    return GLib.SOURCE_REMOVE;
+                });
             } else {
                 this._doubleClick = true;
                 if (button === 1) {

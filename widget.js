@@ -261,6 +261,7 @@ export const MediaControls = GObject.registerClass(
 
             this.updateMediaNotification();
 
+            /*
             (async () => {
                 try {
                     this._playersProxy = await createProxy(
@@ -301,6 +302,9 @@ export const MediaControls = GObject.registerClass(
                     logError(error);
                 }
             })();
+            */
+
+            this._connectDbus();
         }
 
         disable() {
@@ -418,9 +422,40 @@ export const MediaControls = GObject.registerClass(
             }
         }
 
+        async _connectDbus() {
+            this._playersProxy = await createProxy("org.freedesktop.DBus", "org.freedesktop.DBus", "/org/freedesktop/DBus");
+
+            this._playersProxy.ListNamesRemote(async (names, error) => {
+                if (error) {
+                    logError(error);
+                    return;
+                }
+
+                try {
+                    for (let name of names[0]) {
+                        if (name.includes("org.mpris.MediaPlayer2")) {
+                            await this._addPlayer(name);
+                        }
+                    }
+
+                    this.updatePlayer(null);
+                } catch (error) {
+                    logError(error);
+                }
+            });
+
+            this._playersProxy.connectSignal("NameOwnerChanged", async (_, __, [busName, ___, ____]) => {
+                if (busName?.includes("org.mpris.MediaPlayer2") && !this._players[busName]) {
+                    await this._addPlayer(busName);
+                    this.updatePlayer(null);
+                }
+            });
+        }
+
         async _addPlayer(busName) {
             try {
-                let playerObj = await new Player(busName, this);
+                let playerObj = new Player(busName, this);
+                await playerObj._initDbus();
                 if (this.blacklistApps.every((app) => !playerObj.name.toLowerCase().includes(app.toLowerCase()))) {
                     let menuItem = playerObj.menuItem;
 

@@ -73,6 +73,7 @@ export const parseMetadata = (_metadata) => {
         image = image.replace("https://open.spotify.com/image/", "https://i.scdn.co/image/");
     }
 
+    metadata.realTitle = metadata.title && metadata.title.trim();
     metadata.title = title;
     metadata.image = image;
 

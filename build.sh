@@ -10,18 +10,23 @@ install() {
     rm -rf extension.zip
 }
 
+# install_build() {
+#     VERSION=$(cat metadata.json | grep '"version"' | sed 's/[^0-9]*//g');
+    
+#     gnome-extensions uninstall -q mediacontrols@cliffniff.github.com;
+
+#     gnome-extensions pack --podir=po/ --extra-source=dbus.js --extra-source=player.js --extra-source=utils.js --extra-source=widget.js --extra-source=LICENSE
+    
+#     mkdir -p "./builds/v~$VERSION~";
+#     mv mediacontrols@cliffniff.github.com.shell-extension.zip "./builds/v~$VERSION~/extension.zip";
+
+#     gnome-extensions install "./builds/v~$VERSION~/extension.zip";
+# }
+
 build() {
-    #git archive -o Release.zip HEAD;
-    gnome-extensions pack --podir=po/ --extra-source=dbus.js --extra-source=player.js --extra-source=utils.js --extra-source=widget.js --extra-source=LICENSE
-    #zip -d Release.zip README.md;
-    #zip -d Release.zip images/*;
-    #zip -d Release.zip images/;
-    #zip -d Release.zip .gitignore;
-    #zip -d Release.zip build.sh;
-    #zip -d Release.zip install.sh;
-    #zip -d Release.zip .github/*;
-    #zip -d Release.zip .github/;
     VERSION=$(cat metadata.json | grep '"version"' | sed 's/[^0-9]*//g');
+
+    gnome-extensions pack --podir=po/ --extra-source=dbus.js --extra-source=player.js --extra-source=utils.js --extra-source=widget.js --extra-source=LICENSE
 
     if [[ `git status --porcelain` ]]; then
         VERSION="~$VERSION~"  ;
@@ -32,14 +37,19 @@ build() {
 }
 
 restart() {
-    pkill -HUP gnome-shell;
+    # pkill -HUP gnome-shell;
+    # busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta.restart("Restarting...", global.context)';
+    
+    # gnome-extensions disable mediacontrols@cliffniff.github.com;
+    # gnome-extensions enable mediacontrols@cliffniff.github.com;
+
+    echo "https://gitlab.gnome.org/GNOME/gnome-shell/-/issues/7050";
 }
 
 copy() {
     mkdir -p "$EXT_DIR";
     cp -r ./* "$EXT_DIR";
 }
-
 
 PARAMS=();
 
