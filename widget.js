@@ -499,18 +499,22 @@ export const MediaControls = GObject.registerClass(
 
         /**
          * Determines the currently selected player
+         * TODO: Rewrite this function to be more efficient
          * @param {null || Player || string} player
          */
         updatePlayer(player = null) {
             if (!this.player && this.isFixedPlayer) {
+                console.log("player is null and fixed player is true");
                 this.isFixedPlayer = false;
             }
 
             if (!player && !this.isFixedPlayer) {
+                console.log("player is null and fixed player is false");
                 const validPlayers = [];
                 for (let playerName in this._players) {
                     let playerObj = this._players[playerName];
-                    if (playerObj._metadata["title"] && !playerObj.hidden) {
+                    if (!playerObj._metadata.isInactive && !playerObj.hidden) {
+                        console.log("player is not inactive and not hidden", playerName);
                         validPlayers.push(playerObj);
                         if (playerObj.isPlaying) {
                             player = playerObj;
@@ -519,11 +523,14 @@ export const MediaControls = GObject.registerClass(
                 }
 
                 if (!player) {
+                    console.log("player is null");
+                    console.log("valid players", validPlayers.length);
                     player = validPlayers[0];
                 }
             }
 
             if (player && (player instanceof Player || typeof player === "string")) {
+                console.log("player is not null");
                 if (this.player) {
                     this.player.active = false;
                     this.removeWidgets();
@@ -552,7 +559,7 @@ export const MediaControls = GObject.registerClass(
                 this.addWidgets();
 
                 this.player.active = true;
-            } else if (!this.player) {
+            } else {
                 this.removeWidgets();
             }
         }

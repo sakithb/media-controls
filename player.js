@@ -47,7 +47,7 @@ export const Player = GObject.registerClass(
                 this._playerProxy = await createProxy("org.mpris.MediaPlayer2.Player", this.busName, "/org/mpris/MediaPlayer2");
                 this._otherProxy = await createProxy("org.mpris.MediaPlayer2", this.busName, "/org/mpris/MediaPlayer2");
 
-                this._metadata = this._playerProxy.Metadata;
+                this._metadata = parseMetadata(this._playerProxy.Metadata);
                 this._status = this._playerProxy.PlaybackStatus;
 
                 this._playerProxy.connect("g-properties-changed", this._playerPropsChanged.bind(this));
@@ -335,32 +335,33 @@ export const Player = GObject.registerClass(
         _playerPropsChanged(proxy, changed, invalidated) {
             changed = changed.recursiveUnpack();
 
-            if (!this._metadata.realTitle) {
-                this._metadata = parseMetadata(this._getDbusProperty("Metadata"));
-
-                if (this._metadata["title"]) {
-                    if (this.hidden) {
-                        this._extension.unhidePlayer(this.busName);
-                    }
-
-                    this.updateWidgets();
-                    this._saveImage();
-                } else {
-                    this._extension.hidePlayer(this.busName);
-                }
-            }
-
             if (changed.Metadata) {
-                this._metadata = parseMetadata(changed.Metadata);
-                if (this._metadata["title"]) {
+                this._metadata = parseMetadata(this._getDbusProperty("Metadata"));
+                if (this._metadata.isInactive) {
+                    this._extension.hidePlayer(this.busName);
+                } else {
                     if (this.hidden) {
                         this._extension.unhidePlayer(this.busName);
                     }
 
                     this.updateWidgets();
                     this._saveImage();
-                } else {
-                    this._extension.hidePlayer(this.busName);
+                }
+            } else {
+                if (this._metadata.isInactive) {
+                    this._metadata = parseMetadata(this._getDbusProperty("Metadata"));
+
+                    if (this._metadata.isInactive) {
+                        console.log("hiding ", this.busName);
+                        this._extension.hidePlayer(this.busName);
+                    } else {
+                        if (this.hidden) {
+                            this._extension.unhidePlayer(this.busName);
+                        }
+
+                        this.updateWidgets();
+                        this._saveImage();
+                    }
                 }
             }
 
@@ -383,13 +384,12 @@ export const Player = GObject.registerClass(
         }
 
         _otherPropsChanged(proxy, changed, invalidated) {
-            console.log("Test, unnecessary function. This should not fire.");
-            // changed = changed.recursiveUnpack();
-            // if (changed.Identity) {
-            //     this.infoMenuPlayerIcon.set_icon_name(this.icon);
-            //     this.iconPlayer.set_icon_name(this.icon);
-            //     this.infoMenuPlayerName.set_text(this.name);
-            // }
+            changed = changed.recursiveUnpack();
+            if (changed.Identity) {
+                this.infoMenuPlayerIcon.set_icon_name(this.icon);
+                this.iconPlayer.set_icon_name(this.icon);
+                this.infoMenuPlayerName.set_text(this.name);
+            }
         }
 
         _widthToPos(text, width) {

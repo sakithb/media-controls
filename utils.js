@@ -52,6 +52,8 @@ export const parseMetadata = (_metadata) => {
         metadata[metadataKeys[key]] = val instanceof GLib.Variant ? val.recursiveUnpack() : val;
     }
 
+    metadata.isInactive = metadata.title == "" && metadata.artist == "" && metadata.length == 0;
+
     let title = metadata.title || metadata.url || metadata.id;
 
     if (title && title === metadata.url) {
@@ -73,7 +75,6 @@ export const parseMetadata = (_metadata) => {
         image = image.replace("https://open.spotify.com/image/", "https://i.scdn.co/image/");
     }
 
-    metadata.realTitle = metadata.title && metadata.title.trim();
     metadata.title = title;
     metadata.image = image;
 
