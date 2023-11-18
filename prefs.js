@@ -48,36 +48,15 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
 
         trackLabelSep.connect(
             "changed",
-            this._ontracklabelchanged.bind(
-                this,
-                settings,
-                trackLabelOptKeys,
-                trackLabelSep,
-                trackLabelStart,
-                trackLabelEnd
-            )
+            this._ontracklabelchanged.bind(this, settings, trackLabelOptKeys, trackLabelSep, trackLabelStart, trackLabelEnd)
         );
         trackLabelStart.connect(
             "changed",
-            this._ontracklabelchanged.bind(
-                this,
-                settings,
-                trackLabelOptKeys,
-                trackLabelSep,
-                trackLabelStart,
-                trackLabelEnd
-            )
+            this._ontracklabelchanged.bind(this, settings, trackLabelOptKeys, trackLabelSep, trackLabelStart, trackLabelEnd)
         );
         trackLabelEnd.connect(
             "changed",
-            this._ontracklabelchanged.bind(
-                this,
-                settings,
-                trackLabelOptKeys,
-                trackLabelSep,
-                trackLabelStart,
-                trackLabelEnd
-            )
+            this._ontracklabelchanged.bind(this, settings, trackLabelOptKeys, trackLabelSep, trackLabelStart, trackLabelEnd)
         );
     }
 
@@ -109,14 +88,8 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             widgetCustom.set_text(sepChars);
             widgetPreset.set_active(presetSepChars.indexOf(_("Custom")));
         }
-        widgetPreset.connect(
-            "changed",
-            this._onseperatorpresetchanged.bind(this, widgetPreset, widgetCustom, settings)
-        );
-        widgetCustom.connect(
-            "changed",
-            this._onseperatorcustomchanged.bind(this, widgetCustom, widgetPreset, settings)
-        );
+        widgetPreset.connect("changed", this._onseperatorpresetchanged.bind(this, widgetPreset, widgetCustom, settings));
+        widgetCustom.connect("changed", this._onseperatorcustomchanged.bind(this, widgetCustom, widgetPreset, settings));
     }
 
     _onextensionpositionchanged(settings, widget, positions) {
@@ -135,10 +108,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             widgetExtensionPos.append(position, _(positionsOpts[position]));
         });
         widgetExtensionPos.set_active(positionsOptsKeys.indexOf(settings.get_string("extension-position")));
-        widgetExtensionPos.connect(
-            "changed",
-            this._onextensionpositionchanged.bind(this, settings, widgetExtensionPos, positionsOptsKeys)
-        );
+        widgetExtensionPos.connect("changed", this._onextensionpositionchanged.bind(this, settings, widgetExtensionPos, positionsOptsKeys));
     }
 
     _onElementOrderChanged(settings, index, elementOrderWidgets, elementIds) {
@@ -188,10 +158,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
 
             widget.set_active(elementIds.indexOf(elementOrder[index]));
 
-            widget.connect(
-                "changed",
-                this._onElementOrderChanged.bind(this, settings, index, elementOrderWidgets, elementIds)
-            );
+            widget.connect("changed", this._onElementOrderChanged.bind(this, settings, index, elementOrderWidgets, elementIds));
             elementOrderWidgets.push(widget);
         });
     }
@@ -253,10 +220,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
 
             widgetCombobox.set_active(mouseActionNameIds.indexOf(mouseActions[index]));
             widgetCombobox.index = index;
-            widgetCombobox.connect(
-                "changed",
-                this._onMouseActionChanged.bind(this, settings, index, widgetCombobox, mouseActionNameIds)
-            );
+            widgetCombobox.connect("changed", this._onMouseActionChanged.bind(this, settings, index, widgetCombobox, mouseActionNameIds));
         });
     }
 
@@ -273,10 +237,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         });
         group.add(adwrow);
 
-        let deleteButton = Gtk.Button.new_from_icon_name(
-            "edit-delete-symbolic",
-            Gtk.IconSize.BUTTON || Gtk.IconSize.NORMAL
-        );
+        let deleteButton = Gtk.Button.new_from_icon_name("edit-delete-symbolic", Gtk.IconSize.BUTTON || Gtk.IconSize.NORMAL);
         deleteButton.set_valign(Gtk.Align.CENTER);
         adwrow.add_suffix(deleteButton);
         adwrow.activatable_widget = deleteButton;
@@ -643,7 +604,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
     }
 
     _fillpage4(page4, settings) {
-        page4.set_title(_("Appliance"));
+        page4.set_title(_("Shortcuts"));
         page4.set_name("mediacontrols_page4");
         page4.set_icon_name("input-mouse-symbolic");
         // group1
@@ -696,9 +657,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
                 if (!isValidBinding$1(mask, keycode, keyval) || !isValidAccel$1(mask, keyval)) {
                     return Gdk.EVENT_STOP;
                 }
-                settings.set_strv("shortcuts-toggle-overview", [
-                    Gtk.accelerator_name_with_keycode(null, keyval, keycode, mask),
-                ]);
+                settings.set_strv("shortcuts-toggle-overview", [Gtk.accelerator_name_with_keycode(null, keyval, keycode, mask)]);
                 editor.destroy();
                 return Gdk.EVENT_STOP;
             });
@@ -729,9 +688,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         group1.add(adwrow);
         //row2
         adwrow = new Adw.ActionRow({
-            title: _(
-                "Media Controls caches album art so they don't need to be redownloaded every time. You can clear your cache here."
-            ),
+            title: _("Media Controls caches album art so they don't need to be redownloaded every time. You can clear your cache here."),
         });
         group1.add(adwrow);
         adwrow = new Adw.ActionRow();
@@ -764,10 +721,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         adwrow.add_suffix(blacklistentry);
         adwrow.activatable_widget = blacklistentry;
         group2.add(adwrow);
-        const blacklistbuttonadd = Gtk.Button.new_from_icon_name(
-            "list-add-symbolic",
-            Gtk.IconSize.BUTTON || Gtk.IconSize.NORMAL
-        );
+        const blacklistbuttonadd = Gtk.Button.new_from_icon_name("list-add-symbolic", Gtk.IconSize.BUTTON || Gtk.IconSize.NORMAL);
         blacklistbuttonadd.set_valign(Gtk.Align.CENTER);
         adwrow.add_suffix(blacklistbuttonadd);
         adwrow.activatable_widget = blacklistbuttonadd;
@@ -800,20 +754,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         let label = widget.get_active_text();
         let strlabelC = _("Custom");
         if (label !== strlabelC) {
-            const presetSepChars = [
-                "|...|",
-                "[...]",
-                "(...)",
-                "{...}",
-                "/...\\",
-                "\\.../",
-                ":...:",
-                "-...-",
-                "_..._",
-                "=...=",
-                "•...•",
-                "█...█",
-            ];
+            const presetSepChars = ["|...|", "[...]", "(...)", "{...}", "/...\\", "\\.../", ":...:", "-...-", "_..._", "=...=", "•...•", "█...█"];
             let presetValue = presetSepChars[widget.get_active()];
             settings.set_strv("seperator-chars", [presetValue.charAt(0), presetValue.charAt(presetValue.length - 1)]);
         } else {

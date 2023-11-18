@@ -15,14 +15,10 @@ Show controls and information of the currently playing media in the panel.
 
 ## Notes
 
--   Supports GNOME 3.36 (beta), 3.38, 40, 41, 42, 43, 44 and 45.
+-   Supports GNOME 3.36 and 3.38 (unmaintained), 40, 41, 42, 43, 44 and 45.
+-   GNOME 44 and below will not receive updates after v29;
 
 ---
-
-## Known issues
-
--   The extension does not detect when a tab is closed on some browsers. ([#35](https://github.com/sakithb/media-controls/issues/35))
--   The volume control does not work with web browsers, only with native apps.
 
 ## Reporting issues
 
@@ -33,13 +29,13 @@ Show controls and information of the currently playing media in the panel.
 
 ## How to install
 
-#### Install from extensions.gnome.org
+#### Install from extensions.gnome.org (Recommended)
 
 [<img src="./images/get-ego.png" height="100">](https://extensions.gnome.org/extension/4470/media-controls/)
 
 #### Arch Linux (AUR)
 
-`yay -S gnome-shell-extension-media-controls` _Stable release_ (Outdated)
+`yay -S gnome-shell-extension-media-controls` _Stable release_
 
 `yay -S gnome-shell-extension-media-controls-git` _Build of the main branch_
 
@@ -49,9 +45,7 @@ Install from source
 
 -   Download "extension.zip" file from the releases tab
 -   Open a terminal in the path of extension.zip
--   Install and enable the extension by executing
-    <br> `gnome-extensions install extension.zip --force` <br>
-    in the terminal
+-   Install and enable the extension by executing `gnome-extensions install extension.zip --force` in the terminal
 
 ---
 
@@ -63,30 +57,30 @@ To update the translation files run ./update-translation-po-files.sh in the exte
 
 ## Screenshots
 
-#### Track info menu
+#### Track information menu
 
-![Screenshot](/images/Screenshot_info_menu.png)
+![Screenshot](/images/track_info_menu.png)
 
-#### Source menu
+#### Sources menu
 
-![Screenshot](/images/Screenshot_sources_menu.png)
+![Screenshot](/images/sources_menu.png)
 
-#### Settings page1
+#### General settings
 
-![Screenshot](/images/Screenshot_settings_page1.png)
+![Screenshot](/images/settings_page_1.png)
 
-#### Settings page2
+#### Visibility settings
 
-![Screenshot](/images/Screenshot_settings_page2.png)
+![Screenshot](/images/settings_page_2.png)
 
-#### Settings page3
+#### Appearance settings
 
-![Screenshot](/images/Screenshot_settings_page3.png)
+![Screenshot](/images/settings_page_3.png)
 
-#### Settings page4
+#### Shortcut settings
 
-![Screenshot](/images/Screenshot_settings_page4.png)
+![Screenshot](/images/settings_page_4.png)
 
-#### Settings page5
+#### Other settings
 
-![Screenshot](/images/Screenshot_settings_page5.png)
+![Screenshot](/images/settings_page_5.png)

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-10-28 12:15+0200\n"
+"POT-Creation-Date: 2023-11-18 20:46+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: extension.js:12
+#: extension.js:8
 msgid "[MediaControls] Enabling"
 msgstr ""
 
-#: extension.js:18
+#: extension.js:14
 msgid "[MediaControls] Disabling"
 msgstr ""
 
@@ -49,352 +49,352 @@ msgstr ""
 msgid "Filename"
 msgstr ""
 
-#: prefs.js:35 prefs.js:234
+#: prefs.js:35 prefs.js:201
 msgid "None"
 msgstr ""
 
-#: prefs.js:99 prefs.js:110 prefs.js:590 prefs.js:801 prefs.js:826
+#: prefs.js:78 prefs.js:89 prefs.js:551 prefs.js:755 prefs.js:767
 msgid "Custom"
 msgstr ""
 
-#: prefs.js:129
+#: prefs.js:102
 msgid "Left"
 msgstr ""
 
-#: prefs.js:130
+#: prefs.js:103
 msgid "Center"
 msgstr ""
 
-#: prefs.js:131
+#: prefs.js:104
 msgid "Right"
 msgstr ""
 
-#: prefs.js:169 prefs.js:549
+#: prefs.js:139 prefs.js:510
 msgid "Player icon"
 msgstr ""
 
-#: prefs.js:170
+#: prefs.js:140
 msgid "Track title"
 msgstr ""
 
-#: prefs.js:171
+#: prefs.js:141
 msgid "Control icons"
 msgstr ""
 
-#: prefs.js:172 prefs.js:557
+#: prefs.js:142 prefs.js:518
 msgid "Sources menu"
 msgstr ""
 
-#: prefs.js:176
+#: prefs.js:146
 msgid "Element"
 msgstr ""
 
-#: prefs.js:208
+#: prefs.js:175
 msgid "Left click"
 msgstr ""
 
-#: prefs.js:209
+#: prefs.js:176
 msgid "Right click"
 msgstr ""
 
-#: prefs.js:210
+#: prefs.js:177
 msgid "Middle click"
 msgstr ""
 
-#: prefs.js:211
+#: prefs.js:178
 msgid "Left double click"
 msgstr ""
 
-#: prefs.js:212
+#: prefs.js:179
 msgid "Right double click"
 msgstr ""
 
-#: prefs.js:213
+#: prefs.js:180
 msgid "Scroll up"
 msgstr ""
 
-#: prefs.js:214
+#: prefs.js:181
 msgid "Scroll down"
 msgstr ""
 
-#: prefs.js:215 prefs.js:221
+#: prefs.js:182 prefs.js:188
 msgid "Hover"
 msgstr ""
 
-#: prefs.js:222
+#: prefs.js:189
 msgid "unstable"
 msgstr ""
 
-#: prefs.js:235
+#: prefs.js:202
 msgid "Toggle play/pause"
 msgstr ""
 
-#: prefs.js:236
+#: prefs.js:203
 msgid "Play"
 msgstr ""
 
-#: prefs.js:237
+#: prefs.js:204
 msgid "Pause"
 msgstr ""
 
-#: prefs.js:238
+#: prefs.js:205
 msgid "Next"
 msgstr ""
 
-#: prefs.js:239
+#: prefs.js:206
 msgid "Previous"
 msgstr ""
 
-#: prefs.js:240
+#: prefs.js:207
 msgid "Volume up"
 msgstr ""
 
-#: prefs.js:241
+#: prefs.js:208
 msgid "Volume down"
 msgstr ""
 
-#: prefs.js:242
+#: prefs.js:209
 msgid "Cycle loop options"
 msgstr ""
 
-#: prefs.js:243
+#: prefs.js:210
 msgid "Toggle shuffle"
 msgstr ""
 
-#: prefs.js:244
+#: prefs.js:211
 msgid "Toggle sources menu"
 msgstr ""
 
-#: prefs.js:245
+#: prefs.js:212
 msgid "Toggle track information menu"
 msgstr ""
 
-#: prefs.js:246
+#: prefs.js:213
 msgid "Raise player"
 msgstr ""
 
-#: prefs.js:247
+#: prefs.js:214
 msgid "Quit player"
 msgstr ""
 
-#: prefs.js:324
+#: prefs.js:285
 msgid "General"
 msgstr ""
 
-#: prefs.js:330
+#: prefs.js:291
 msgid "Settings"
 msgstr ""
 
-#: prefs.js:335
+#: prefs.js:296
 msgid "Maximum widget width"
 msgstr ""
 
-#: prefs.js:336
+#: prefs.js:297
 msgid "0 to disable"
 msgstr ""
 
-#: prefs.js:349
+#: prefs.js:310
 msgid "No. of seconds to seek by"
 msgstr ""
 
-#: prefs.js:364
+#: prefs.js:325
 msgid "Use native seek"
 msgstr ""
 
-#: prefs.js:365
+#: prefs.js:326
 msgid "Disable this if seeking is not working"
 msgstr ""
 
-#: prefs.js:377
+#: prefs.js:338
 msgid "Hide the media notification"
 msgstr ""
 
-#: prefs.js:389
+#: prefs.js:350
 msgid "Clip title and artist in track information menu"
 msgstr ""
 
-#: prefs.js:390
+#: prefs.js:351
 msgid "Disable this to use wrapping instead"
 msgstr ""
 
-#: prefs.js:402
+#: prefs.js:363
 msgid "Scroll the track label in the panel"
 msgstr ""
 
-#: prefs.js:403
+#: prefs.js:364
 msgid "Enable this to scroll the panel label instead of clipping"
 msgstr ""
 
-#: prefs.js:415
+#: prefs.js:376
 msgid "Track label"
 msgstr ""
 
-#: prefs.js:419
+#: prefs.js:380
 msgid "Starting label"
 msgstr ""
 
-#: prefs.js:427
+#: prefs.js:388
 msgid "Separating label"
 msgstr ""
 
-#: prefs.js:433
+#: prefs.js:394
 msgid "Ending label"
 msgstr ""
 
-#: prefs.js:443
+#: prefs.js:404
 msgid "Github"
 msgstr ""
 
-#: prefs.js:448
+#: prefs.js:409
 msgid "Release Notes"
 msgstr ""
 
-#: prefs.js:456
+#: prefs.js:417
 msgid "Report a issue"
 msgstr ""
 
-#: prefs.js:464
+#: prefs.js:425
 msgid "Homepage"
 msgstr ""
 
-#: prefs.js:475
+#: prefs.js:436
 msgid "Visibility"
 msgstr ""
 
-#: prefs.js:480
+#: prefs.js:441
 msgid "show/hide elements"
 msgstr ""
 
-#: prefs.js:485
+#: prefs.js:446
 msgid "Title/Track name"
 msgstr ""
 
-#: prefs.js:493
+#: prefs.js:454
 msgid "Separators"
 msgstr ""
 
-#: prefs.js:501
+#: prefs.js:462
 msgid "Player controls"
 msgstr ""
 
-#: prefs.js:509
+#: prefs.js:470
 msgid "Play/pause button"
 msgstr ""
 
-#: prefs.js:517
+#: prefs.js:478
 msgid "Previous track button"
 msgstr ""
 
-#: prefs.js:525
+#: prefs.js:486
 msgid "Next track button"
 msgstr ""
 
-#: prefs.js:533
+#: prefs.js:494
 msgid "Seek back button"
 msgstr ""
 
-#: prefs.js:541
+#: prefs.js:502
 msgid "Seek forward button"
 msgstr ""
 
-#: prefs.js:565
+#: prefs.js:526
 msgid "Colors"
 msgstr ""
 
-#: prefs.js:570
+#: prefs.js:531
 msgid "Colored player icon"
 msgstr ""
 
-#: prefs.js:578
+#: prefs.js:539
 msgid "Separator characters"
 msgstr ""
 
-#: prefs.js:582
+#: prefs.js:543
 msgid "Preset"
 msgstr ""
 
-#: prefs.js:591
+#: prefs.js:552
 msgid "To use it choose 'Custom' under 'Preset' selection"
 msgstr ""
 
-#: prefs.js:605
+#: prefs.js:566
 msgid "Appearance"
 msgstr ""
 
-#: prefs.js:610
+#: prefs.js:571
 msgid "Position"
 msgstr ""
 
-#: prefs.js:615
+#: prefs.js:576
 msgid "Extension position"
 msgstr ""
 
-#: prefs.js:626
+#: prefs.js:587
 msgid "Extension index"
 msgstr ""
 
-#: prefs.js:638
+#: prefs.js:599
 msgid "Element order"
 msgstr ""
 
-#: prefs.js:646
-msgid "Appliance"
+#: prefs.js:607
+msgid "Shortcuts"
 msgstr ""
 
-#: prefs.js:651
+#: prefs.js:612
 msgid "Mouse actions"
 msgstr ""
 
-#: prefs.js:657
+#: prefs.js:618
 msgid "Hotkey"
 msgstr ""
 
-#: prefs.js:661
+#: prefs.js:622
 msgid "Hot key"
 msgstr ""
 
-#: prefs.js:662
+#: prefs.js:623
 msgid "Hot key to toggle the track information menu"
 msgstr ""
 
-#: prefs.js:665
+#: prefs.js:626
 msgid "Select a hotkey"
 msgstr ""
 
-#: prefs.js:676
+#: prefs.js:637
 msgid "New hotkey"
 msgstr ""
 
-#: prefs.js:714
+#: prefs.js:673
 msgid "Other"
 msgstr ""
 
-#: prefs.js:719
+#: prefs.js:678
 msgid "Cache"
 msgstr ""
 
-#: prefs.js:724
+#: prefs.js:683
 msgid "Cache images"
 msgstr ""
 
-#: prefs.js:733
+#: prefs.js:691
 msgid ""
 "Media Controls caches album art so they don't need to be redownloaded every "
 "time. You can clear your cache here."
 msgstr ""
 
-#: prefs.js:747
+#: prefs.js:704
 msgid "Clear cache"
 msgstr ""
 
-#: prefs.js:758
+#: prefs.js:715
 msgid "Blacklist players"
 msgstr ""
 
-#: prefs.js:762
+#: prefs.js:719
 msgid "Add player"
 msgstr ""
 
-#: prefs.js:888
+#: prefs.js:829
 msgid "Failed to clear cache"
 msgstr ""
