@@ -107,15 +107,17 @@ export const MediaControls = GObject.registerClass(
             });
 
             this._onExtensionPositionChanged = this._settings.connect("changed::extension-position", () => {
-                this.removeWidgets();
-                this.extensionPosition = this._settings.get_string("extension-position");
-                this.addWidgets();
+                // this.removeWidgets();
+                // this.extensionPosition = this._settings.get_string("extension-position");
+                // this.addWidgets();
+                this._extension.reload();
             });
 
             this._onExtensionIndexChanged = this._settings.connect("changed::extension-index", () => {
-                this.extensionIndex = this._settings.get_int("extension-index");
-                this.removeWidgets();
-                this.addWidgets();
+                // this.extensionIndex = this._settings.get_int("extension-index");
+                // this.removeWidgets();
+                // this.addWidgets();
+                this._extension.reload();
             });
 
             this._onColoredPlayerIconChanged = this._settings.connect("changed::colored-player-icon", () => {
@@ -203,7 +205,9 @@ export const MediaControls = GObject.registerClass(
         }
 
         enable(Me) {
-            this._settings = Me.getSettings();
+            this._extension = Me;
+
+            this._settings = this._extension.getSettings();
             this.connectSignals();
 
             this.maxWidgetWidth = this._settings.get_int("max-widget-width");
@@ -305,6 +309,8 @@ export const MediaControls = GObject.registerClass(
             */
 
             this._connectDbus();
+
+            Main.panel.addToStatusArea("media_controls_extension", this, this.extensionIndex, this.extensionPosition);
         }
 
         disable() {
@@ -333,12 +339,13 @@ export const MediaControls = GObject.registerClass(
         }
 
         addWidgets() {
-            if (Main.panel.statusArea["media_controls_extension"]) {
-                console.warn("[Media Controls] Instance not destroyed properly, attempting to fix...");
-                Main.panel.statusArea["media_controls_extension"].destroy();
-            }
+            // if (Main.panel.statusArea["media_controls_extension"]) {
+            //     console.warn("[Media Controls] Instance not destroyed properly, attempting to fix...");
+            //     Main.panel.statusArea["media_controls_extension"].destroy();
+            //     delete Main.panel.statusArea["media_controls_extension"];
+            // }
 
-            Main.panel.addToStatusArea("media_controls_extension", this, this.extensionIndex, this.extensionPosition);
+            this.container.show();
 
             Main.wm.addKeybinding(
                 "mediacontrols-toggle-trackinfomenu",
@@ -431,6 +438,8 @@ export const MediaControls = GObject.registerClass(
             } else {
                 this.remove_all_children();
             }
+
+            this.container.hide();
         }
 
         async _connectDbus() {
@@ -596,8 +605,9 @@ export const MediaControls = GObject.registerClass(
 
                 if (this.player && this.player.busName === busName && this.fixedPlayer) {
                     this.fixedPlayer = false;
-                    this.updatePlayer();
-                } else if (this.player && this.player.busName !== busName && this.fixedPlayer) {
+                }
+
+                if (this.player && this.player.busName !== busName && this.fixedPlayer) {
                     this.updatePlayer(this.player);
                 } else {
                     this.updatePlayer();

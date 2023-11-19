@@ -40,6 +40,14 @@ export const msToHHMMSS = (ms) => {
     return `${hours}:${minutes}:${seconds}`;
 };
 
+const isValidTitle = (title) => {
+    return title && title.trim() !== "";
+};
+
+const isValidArtist = (artist) => {
+    return artist && Array.isArray(artist) && artist.length > 0 && artist.some((a) => a.trim() !== "");
+};
+
 export const parseMetadata = (_metadata) => {
     if (!_metadata) {
         return _metadata;
@@ -51,7 +59,7 @@ export const parseMetadata = (_metadata) => {
         metadata[metadataKeys[key]] = val instanceof GLib.Variant ? val.recursiveUnpack() : val;
     }
 
-    metadata.isInactive = metadata.title === "" && metadata.artist === "" && metadata.length === 0;
+    metadata.isInactive = !isValidTitle(metadata.title) && !isValidArtist(metadata.artist) && metadata.length === 0;
 
     let title = metadata.title || metadata.url || metadata.id;
 
@@ -99,7 +107,7 @@ export const getRequest = (url) => {
     });
 };
 
-function wrappingText(wrapping, widget) {
+export const wrappingText = (wrapping, widget) => {
     if (wrapping) {
         widget.clutter_text.single_line_mode = false;
         widget.clutter_text.activatable = false;
@@ -111,6 +119,4 @@ function wrappingText(wrapping, widget) {
         widget.clutter_text.line_wrap = false;
     }
     return true;
-}
-
-export { wrappingText };
+};

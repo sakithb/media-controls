@@ -41,7 +41,7 @@ export const Player = GObject.registerClass(
             this._scrollSourceId = null;
             this._doubleClick = false;
             this._clicked = false;
-            this._extension = parent;
+            this._mcExtension = parent;
         }
 
         async _initDbus() {
@@ -85,13 +85,13 @@ export const Player = GObject.registerClass(
             this.dummyLabelTitle.clutter_text.ellipsize = Pango.EllipsizeMode.NONE;
 
             this.labelSeperatorStart = new St.Label({
-                text: this._extension.sepChars[0],
+                text: this._mcExtension.sepChars[0],
                 style: "padding: 0px 3px 0px 0px; margin: 0px;",
                 y_align: Clutter.ActorAlign.CENTER,
             });
 
             this.labelSeperatorEnd = new St.Label({
-                text: this._extension.sepChars[1],
+                text: this._mcExtension.sepChars[1],
                 style: "padding: 0px 0px 0px 3px; margin: 0px;",
                 y_align: Clutter.ActorAlign.CENTER,
             });
@@ -222,11 +222,11 @@ export const Player = GObject.registerClass(
             this.buttonMenu.set_child(PopupMenu.arrowIcon(St.Side.BOTTOM));
 
             this.buttonMenu.connect("button-release-event", () => {
-                this._extension.menu.toggle();
+                this._mcExtension.menu.toggle();
             });
 
             this.buttonMenu.connect("touch-event", () => {
-                this._extension.menu.toggle();
+                this._mcExtension.menu.toggle();
             });
 
             this.dummyContainer = new St.BoxLayout();
@@ -283,9 +283,9 @@ export const Player = GObject.registerClass(
         }
 
         _seekBack() {
-            const offset = this._extension.seekInterval * 1_000_000;
+            const offset = this._mcExtension.seekInterval * 1_000_000;
 
-            if (this._extension.preferNativeSeek) {
+            if (this._mcExtension.preferNativeSeek) {
                 this._playerProxy.SeekRemote(-offset);
             } else {
                 const position = this._getDbusProperty("Position");
@@ -299,9 +299,9 @@ export const Player = GObject.registerClass(
         }
 
         _seekForward() {
-            const offset = this._extension.seekInterval * 1_000_000;
+            const offset = this._mcExtension.seekInterval * 1_000_000;
 
-            if (this._extension.preferNativeSeek) {
+            if (this._mcExtension.preferNativeSeek) {
                 this._playerProxy.SeekRemote(offset);
             } else {
                 const position = this._getDbusProperty("Position");
@@ -346,10 +346,10 @@ export const Player = GObject.registerClass(
             if (changed.Metadata) {
                 this._metadata = parseMetadata(this._getDbusProperty("Metadata"));
                 if (this._metadata.isInactive) {
-                    this._extension.hidePlayer(this.busName);
+                    this._mcExtension.hidePlayer(this.busName);
                 } else {
                     if (this.hidden) {
-                        this._extension.unhidePlayer(this.busName);
+                        this._mcExtension.unhidePlayer(this.busName);
                     }
 
                     this.updateWidgets();
@@ -359,10 +359,10 @@ export const Player = GObject.registerClass(
                 this._metadata = parseMetadata(this._getDbusProperty("Metadata"));
 
                 if (this._metadata.isInactive) {
-                    this._extension.hidePlayer(this.busName);
+                    this._mcExtension.hidePlayer(this.busName);
                 } else {
                     if (this.hidden) {
-                        this._extension.unhidePlayer(this.busName);
+                        this._mcExtension.unhidePlayer(this.busName);
                     }
 
                     this.updateWidgets();
@@ -372,8 +372,8 @@ export const Player = GObject.registerClass(
 
             if (changed.PlaybackStatus) {
                 this._status = changed.PlaybackStatus;
-                if (this.isPlaying && !this._extension.isFixedPlayer && !this._active) {
-                    this._extension.updatePlayer(this.busName);
+                if (this.isPlaying && !this._mcExtension.isFixedPlayer && !this._active) {
+                    this._mcExtension.updatePlayer(this.busName);
                 }
 
                 this._updateStatusIcons();
@@ -407,9 +407,9 @@ export const Player = GObject.registerClass(
                 GLib.Source.remove(this._scrollSourceId);
             }
 
-            if (this._extension.scrolltracklabel) {
+            if (this._mcExtension.scrolltracklabel) {
                 this.labelTitle.set_style("text-align: center;");
-                this.labelTitle.width = this._extension.maxWidgetWidth;
+                this.labelTitle.width = this._mcExtension.maxWidgetWidth;
             } else {
                 this.labelTitle.set_style(`text-align: center; ${this.maxWidthStyle}`);
                 this.labelTitle.width = -1;
@@ -421,12 +421,12 @@ export const Player = GObject.registerClass(
 
             this.dummyLabelTitle.set_text(label);
             const lastPosX = this.dummyLabelTitle.clutter_text.position_to_coords(labelLength)[1];
-            if (lastPosX <= this._extension.maxWidgetWidth) {
+            if (lastPosX <= this._mcExtension.maxWidgetWidth) {
                 this.labelTitle.width = lastPosX;
                 return;
             }
 
-            const maxWidgetWidth = this._extension.maxWidgetWidth;
+            const maxWidgetWidth = this._mcExtension.maxWidgetWidth;
             const duplicatedLabel = `${label} ${label}`;
             let offset = 0;
 
@@ -478,8 +478,8 @@ export const Player = GObject.registerClass(
                 this._infoIcon.set_gicon(this.trackIcon);
                 this.infoTitleLabel.set_text(this.title);
                 this.infoArtistLabel.set_text(this.artist);
-                wrappingText(!this._extension.cliptextsmenu, this.infoTitleLabel);
-                wrappingText(!this._extension.cliptextsmenu, this.infoArtistLabel);
+                wrappingText(!this._mcExtension.cliptextsmenu, this.infoTitleLabel);
+                wrappingText(!this._mcExtension.cliptextsmenu, this.infoArtistLabel);
                 this._updateInfoIcon();
             }
         }
@@ -545,11 +545,11 @@ export const Player = GObject.registerClass(
                 this.infoArtistLabel.set_style(this.maxWidthStyle);
                 this.infoTitleLabel.set_style(`font-size: large; ${this.maxWidthStyle}`);
 
-                wrappingText(!this._extension.cliptextsmenu, this.infoTitleLabel);
-                wrappingText(!this._extension.cliptextsmenu, this.infoArtistLabel);
+                wrappingText(!this._mcExtension.cliptextsmenu, this.infoTitleLabel);
+                wrappingText(!this._mcExtension.cliptextsmenu, this.infoArtistLabel);
 
-                if (this._extension.maxWidgetWidth !== 0) {
-                    this._infoIcon.set_icon_size(this._extension.maxWidgetWidth);
+                if (this._mcExtension.maxWidgetWidth !== 0) {
+                    this._infoIcon.set_icon_size(this._mcExtension.maxWidgetWidth);
                 } else {
                     this._updateInfoIcon();
                 }
@@ -557,7 +557,7 @@ export const Player = GObject.registerClass(
         }
 
         updateIconEffects() {
-            if (this._extension.coloredPlayerIcon) {
+            if (this._mcExtension.coloredPlayerIcon) {
                 this.iconPlayer.clear_effects();
                 this.iconPlayer.set_style("margin: 0px; padding: 0px; -st-icon-style: requested;");
                 this.iconPlayer.set_fallback_icon_name("audio-x-generic");
@@ -870,11 +870,11 @@ export const Player = GObject.registerClass(
         }
 
         async _saveImage() {
-            if (this._extension.cacheImages) {
+            if (this._mcExtension.cacheImages) {
                 try {
                     if (urlRegexp.test(this.image)) {
                         const destination = GLib.build_filenamev([
-                            this._extension.dataDir,
+                            this._mcExtension.dataDir,
                             "media-controls",
                             "cache",
                             GLib.base64_encode(this.image),
@@ -905,7 +905,7 @@ export const Player = GObject.registerClass(
         _getImage() {
             try {
                 const destination = GLib.build_filenamev([
-                    this._extension.dataDir,
+                    this._mcExtension.dataDir,
                     "media-controls",
                     "cache",
                     GLib.base64_encode(this.image),
@@ -923,7 +923,7 @@ export const Player = GObject.registerClass(
         }
 
         _mouseAction(index) {
-            switch (this._extension.mouseActions[index]) {
+            switch (this._mcExtension.mouseActions[index]) {
                 case "toggle_play":
                     this._playerProxy.PlayPauseRemote();
                     break;
@@ -947,10 +947,10 @@ export const Player = GObject.registerClass(
                     break;
                 case "toggle_menu":
                     this.menu.close(BoxPointer.PopupAnimation.FULL);
-                    this._extension.menu.toggle();
+                    this._mcExtension.menu.toggle();
                     break;
                 case "toggle_info":
-                    this._extension.menu.close(BoxPointer.PopupAnimation.FULL);
+                    this._mcExtension.menu.close(BoxPointer.PopupAnimation.FULL);
                     this.menu.toggle();
                     break;
                 case "toggle_loop":
@@ -975,7 +975,7 @@ export const Player = GObject.registerClass(
             if (!this._clicked) {
                 this._timeoutSourceId = GLib.timeout_add(
                     GLib.PRIORITY_HIGH,
-                    this._extension.clutterSettings.double_click_time,
+                    this._mcExtension.clutterSettings.double_click_time,
                     () => {
                         if (!this._doubleClick) {
                             if (button === 1) {
@@ -1033,7 +1033,7 @@ export const Player = GObject.registerClass(
                 this._scrollSourceId = null;
             }
 
-            this._extension = null;
+            this._mcExtension = null;
             this._playerProxy = null;
             this._otherProxy = null;
             this._doubleClick = null;
@@ -1107,7 +1107,7 @@ export const Player = GObject.registerClass(
         }
 
         get maxWidthStyle() {
-            let maxWidth = this._extension.maxWidgetWidth;
+            let maxWidth = this._mcExtension.maxWidgetWidth;
 
             if (maxWidth !== 0) {
                 maxWidth = `max-width: ${maxWidth}px;`;
@@ -1151,7 +1151,7 @@ export const Player = GObject.registerClass(
                 none: null,
             };
 
-            const trackLabelSetting = this._extension.trackLabel;
+            const trackLabelSetting = this._mcExtension.trackLabel;
 
             const startLabel = labelEls[trackLabelSetting[0]] || "";
             const endLabel = labelEls[trackLabelSetting[2]] || "";

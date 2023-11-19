@@ -15,4 +15,11 @@ export default class MediaControlsExtension extends Extension {
         mcExtension.disable();
         mcExtension = null;
     }
+
+    reload() {
+        log(_("[MediaControls] Reloading"));
+        mcExtension.disable();
+        mcExtension = new MediaControls();
+        mcExtension.enable(this);
+    }
 }
