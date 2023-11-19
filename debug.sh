@@ -23,8 +23,8 @@ copy() {
 debug() {
     copy;
 
-    export MUTTER_DEBUG_DUMMY_MODE_SPECS=$(cat /sys/class/drm/*/modes | head -n 1)
-    dbus-run-session -- gnome-shell --nested --wayland
+    export MUTTER_DEBUG_DUMMY_MODE_SPECS=1366x768;
+    dbus-run-session -- gnome-shell --unsafe-mode --nested --wayland
 }
 
 update_po_files() {

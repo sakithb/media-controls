@@ -1,6 +1,6 @@
 *.compiled
 *.zip
 .vscode
-prefs3.ui~
-/build
-/aur
+builds
+node_modules
+pnpm-lock.yaml

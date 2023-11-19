@@ -352,7 +352,6 @@ export const Player = GObject.registerClass(
                     this._metadata = parseMetadata(this._getDbusProperty("Metadata"));
 
                     if (this._metadata.isInactive) {
-                        console.log("hiding ", this.busName);
                         this._extension.hidePlayer(this.busName);
                     } else {
                         if (this.hidden) {

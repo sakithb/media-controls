@@ -308,17 +308,23 @@ export const MediaControls = GObject.registerClass(
         }
 
         disable() {
-            this.removeWidgets();
             this.disconnectSignals();
+            this.removeWidgets();
 
             for (let playerObj of Object.values(this._players)) {
-                playerObj.container.destroy();
+                playerObj.destroy();
             }
 
-            const parent = this.get_parent();
-            if (parent != null) {
-                parent.remove_child(this);
-            }
+            super.destroy();
+
+            // for (let playerObj of Object.values(this._players)) {
+            //     playerObj.container.destroy();
+            // }
+
+            // const parent = this.get_parent();
+            // if (parent != null) {
+            //     parent.remove_child(this);
+            // }
         }
 
         toggleTrackInfoMenu() {
@@ -327,8 +333,13 @@ export const MediaControls = GObject.registerClass(
         }
 
         addWidgets() {
-            delete Main.panel.statusArea["media_controls_extension"];
+            if (Main.panel.statusArea["media_controls_extension"]) {
+                console.warn("[Media Controls] Instance not destroyed properly, attempting to fix...");
+                Main.panel.statusArea["media_controls_extension"].destroy();
+            }
+
             Main.panel.addToStatusArea("media_controls_extension", this, this.extensionIndex, this.extensionPosition);
+
             Main.wm.addKeybinding(
                 "mediacontrols-toggle-trackinfomenu",
                 this._settings,
@@ -336,6 +347,7 @@ export const MediaControls = GObject.registerClass(
                 Shell.ActionMode.NORMAL | Shell.ActionMode.OVERVIEW,
                 this.toggleTrackInfoMenu.bind(this)
             );
+
             this.add_child(this.player.container);
 
             this.elementOrder.forEach((element) => {
@@ -375,7 +387,6 @@ export const MediaControls = GObject.registerClass(
 
         removeWidgets() {
             Main.wm.removeKeybinding("mediacontrols-toggle-trackinfomenu");
-            delete Main.panel.statusArea["media_controls_extension"];
 
             if (this.player) {
                 if (this.player.container.get_parent()) {
@@ -504,17 +515,14 @@ export const MediaControls = GObject.registerClass(
          */
         updatePlayer(player = null) {
             if (!this.player && this.isFixedPlayer) {
-                console.log("player is null and fixed player is true");
                 this.isFixedPlayer = false;
             }
 
             if (!player && !this.isFixedPlayer) {
-                console.log("player is null and fixed player is false");
                 const validPlayers = [];
                 for (let playerName in this._players) {
                     let playerObj = this._players[playerName];
                     if (!playerObj._metadata.isInactive && !playerObj.hidden) {
-                        console.log("player is not inactive and not hidden", playerName);
                         validPlayers.push(playerObj);
                         if (playerObj.isPlaying) {
                             player = playerObj;
@@ -523,14 +531,11 @@ export const MediaControls = GObject.registerClass(
                 }
 
                 if (!player) {
-                    console.log("player is null");
-                    console.log("valid players", validPlayers.length);
                     player = validPlayers[0];
                 }
             }
 
             if (player && (player instanceof Player || typeof player === "string")) {
-                console.log("player is not null");
                 if (this.player) {
                     this.player.active = false;
                     this.removeWidgets();
@@ -638,10 +643,6 @@ export const MediaControls = GObject.registerClass(
 
                 Main.panel.statusArea["dateMenu"]._messageList._mediaSection._onProxyReady().catch();
             }
-        }
-
-        destroy() {
-            super.destroy();
         }
 
         get fixedPlayer() {

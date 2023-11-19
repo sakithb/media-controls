@@ -249,7 +249,6 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
 
     _onblacklistentryadd(settings, group, entry) {
         if (entry.get_text() == "") {
-            log("_onblacklistentryadd: player cannot be empty");
             return false;
         }
         let currentBlacklistApps = settings.get_strv("backlist-apps");
