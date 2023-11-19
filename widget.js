@@ -233,8 +233,8 @@ export const MediaControls = GObject.registerClass(
             this.cliptextsmenu = this._settings.get_boolean("clip-texts-menu");
             this.scrolltracklabel = this._settings.get_boolean("scroll-track-label");
 
-            let mouseActions = this.mouseActions;
-            let defaultMouseActions = this._settings.get_default_value("mouse-actions").recursiveUnpack();
+            const mouseActions = this.mouseActions;
+            const defaultMouseActions = this._settings.get_default_value("mouse-actions").recursiveUnpack();
 
             defaultMouseActions.forEach((action, index) => {
                 if (!mouseActions[index]) {
@@ -311,7 +311,7 @@ export const MediaControls = GObject.registerClass(
             this.disconnectSignals();
             this.removeWidgets();
 
-            for (let playerObj of Object.values(this._players)) {
+            for (const playerObj of Object.values(this._players)) {
                 playerObj.destroy();
             }
 
@@ -434,7 +434,11 @@ export const MediaControls = GObject.registerClass(
         }
 
         async _connectDbus() {
-            this._playersProxy = await createProxy("org.freedesktop.DBus", "org.freedesktop.DBus", "/org/freedesktop/DBus");
+            this._playersProxy = await createProxy(
+                "org.freedesktop.DBus",
+                "org.freedesktop.DBus",
+                "/org/freedesktop/DBus"
+            );
 
             this._playersProxy.ListNamesRemote(async (names, error) => {
                 if (error) {
@@ -443,15 +447,15 @@ export const MediaControls = GObject.registerClass(
                 }
 
                 try {
-                    for (let name of names[0]) {
+                    for (const name of names[0]) {
                         if (name.includes("org.mpris.MediaPlayer2")) {
                             await this._addPlayer(name);
                         }
                     }
 
                     this.updatePlayer(null);
-                } catch (error) {
-                    logError(error);
+                } catch (err) {
+                    logError(err);
                 }
             });
 
@@ -468,10 +472,10 @@ export const MediaControls = GObject.registerClass(
                 let playerObj = new Player(busName, this);
                 await playerObj._initDbus();
                 if (this.blacklistApps.every((app) => !playerObj.name.toLowerCase().includes(app.toLowerCase()))) {
-                    let menuItem = playerObj.menuItem;
+                    const menuItem = playerObj.menuItem;
 
-                    menuItem.connect("activate", (menuItem) => {
-                        this.toggleActivatePlayer(menuItem.busName);
+                    menuItem.connect("activate", (item) => {
+                        this.toggleActivatePlayer(item.busName);
                     });
 
                     menuItem.closeButton.connect("button-release-event", (closeButton) => {
@@ -496,7 +500,7 @@ export const MediaControls = GObject.registerClass(
         }
 
         _removePlayer(busName) {
-            let playerObj = this._players[busName];
+            const playerObj = this._players[busName];
 
             // Remove menu item from the source menu
             this.menu.box.remove_child(playerObj.menuItem);
@@ -508,9 +512,9 @@ export const MediaControls = GObject.registerClass(
             delete this._players[busName];
         }
 
+        // TODO: Rewrite this function to be more efficient
         /**
          * Determines the currently selected player
-         * TODO: Rewrite this function to be more efficient
          * @param {null || Player || string} player
          */
         updatePlayer(player = null) {
@@ -520,8 +524,8 @@ export const MediaControls = GObject.registerClass(
 
             if (!player && !this.isFixedPlayer) {
                 const validPlayers = [];
-                for (let playerName in this._players) {
-                    let playerObj = this._players[playerName];
+                for (const playerName in this._players) {
+                    const playerObj = this._players[playerName];
                     if (!playerObj._metadata.isInactive && !playerObj.hidden) {
                         validPlayers.push(playerObj);
                         if (playerObj.isPlaying) {
@@ -630,9 +634,7 @@ export const MediaControls = GObject.registerClass(
         updateMediaNotification() {
             if (this.hideMediaNotification) {
                 this._mediaSectionAdd = Mpris.MediaSection.prototype._addPlayer;
-                Mpris.MediaSection.prototype._addPlayer = function () {
-                    return;
-                };
+                Mpris.MediaSection.prototype._addPlayer = function () {};
 
                 Main.panel.statusArea["dateMenu"]._messageList._mediaSection._players.forEach((player) => {
                     player._close();

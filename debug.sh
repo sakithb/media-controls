@@ -42,6 +42,10 @@ update_po_files() {
     echo "Done."
 }
 
+lint() {
+    npx eslint -c .eslintrc.yml *.js 
+}
+
 PARAMS=();
 
 for i in $@
@@ -57,6 +61,7 @@ if [[ " ${PARAMS[*]} " =~ " -h" ]]; then
     echo "  -u  Update extension source files";
     echo "  -d  Debug extension";
     echo "  -t  Update translation po files";
+    echo "  -l  Lint codebase";
     exit;
 fi
 
@@ -74,4 +79,8 @@ fi
 
 if [[ " ${PARAMS[*]} " =~ " -t " ]]; then
     update_po_files;
+fi
+
+if [[ " ${PARAMS[*]} " =~ " -l " ]]; then
+    lint;
 fi

@@ -4,9 +4,9 @@
     "indent_size": 4,
     "semi": true,
     "singleQuote": false,
-    "jsxSingleQuote": false,
     "indent_style": "space",
     "useTabs": false,
-    "printWidth": 150
+    "printWidth": 120,
+    "arrowParens": "always"
 }
 

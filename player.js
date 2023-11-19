@@ -15,9 +15,11 @@ import * as BoxPointer from "resource:///org/gnome/shell/ui/boxpointer.js";
 import { createProxy } from "./dbus.js";
 import { parseMetadata, stripInstanceNumbers, getRequest, wrappingText, msToHHMMSS } from "./utils.js";
 
-const urlRegexp = new RegExp(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+~#?&/=]*)/);
+const urlRegexp = new RegExp(
+    /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+~#?&/=]*)/
+);
 
-let mouseActionTypes = {
+const mouseActionTypes = {
     LEFT_CLICK: 0,
     RIGHT_CLICK: 1,
     MIDDLE_CLICK: 2,
@@ -44,7 +46,11 @@ export const Player = GObject.registerClass(
 
         async _initDbus() {
             try {
-                this._playerProxy = await createProxy("org.mpris.MediaPlayer2.Player", this.busName, "/org/mpris/MediaPlayer2");
+                this._playerProxy = await createProxy(
+                    "org.mpris.MediaPlayer2.Player",
+                    this.busName,
+                    "/org/mpris/MediaPlayer2"
+                );
                 this._otherProxy = await createProxy("org.mpris.MediaPlayer2", this.busName, "/org/mpris/MediaPlayer2");
 
                 this._metadata = parseMetadata(this._playerProxy.Metadata);
@@ -242,7 +248,9 @@ export const Player = GObject.registerClass(
 
         // Not taking rate into account
         _updatePosition(_, open) {
-            if (!this.infoSlider) return;
+            if (!this.infoSlider) {
+                return;
+            }
 
             if (open) {
                 const length = this._metadata.length;
@@ -347,20 +355,18 @@ export const Player = GObject.registerClass(
                     this.updateWidgets();
                     this._saveImage();
                 }
-            } else {
+            } else if (this._metadata.isInactive) {
+                this._metadata = parseMetadata(this._getDbusProperty("Metadata"));
+
                 if (this._metadata.isInactive) {
-                    this._metadata = parseMetadata(this._getDbusProperty("Metadata"));
-
-                    if (this._metadata.isInactive) {
-                        this._extension.hidePlayer(this.busName);
-                    } else {
-                        if (this.hidden) {
-                            this._extension.unhidePlayer(this.busName);
-                        }
-
-                        this.updateWidgets();
-                        this._saveImage();
+                    this._extension.hidePlayer(this.busName);
+                } else {
+                    if (this.hidden) {
+                        this._extension.unhidePlayer(this.busName);
                     }
+
+                    this.updateWidgets();
+                    this._saveImage();
                 }
             }
 
@@ -402,7 +408,7 @@ export const Player = GObject.registerClass(
             }
 
             if (this._extension.scrolltracklabel) {
-                this.labelTitle.set_style(`text-align: center;`);
+                this.labelTitle.set_style("text-align: center;");
                 this.labelTitle.width = this._extension.maxWidgetWidth;
             } else {
                 this.labelTitle.set_style(`text-align: center; ${this.maxWidthStyle}`);
@@ -480,10 +486,14 @@ export const Player = GObject.registerClass(
 
         _updateStatusIcons() {
             if (this.iconPlayPause) {
-                this.iconPlayPause.set_icon_name(this.isPlaying ? "media-playback-pause-symbolic" : "media-playback-start-symbolic");
+                this.iconPlayPause.set_icon_name(
+                    this.isPlaying ? "media-playback-pause-symbolic" : "media-playback-start-symbolic"
+                );
             }
             if (this.infoIconPlayPause) {
-                this.infoIconPlayPause.set_icon_name(this.isPlaying ? "media-playback-pause-symbolic" : "media-playback-start-symbolic");
+                this.infoIconPlayPause.set_icon_name(
+                    this.isPlaying ? "media-playback-pause-symbolic" : "media-playback-start-symbolic"
+                );
             }
         }
 
@@ -873,7 +883,14 @@ export const Player = GObject.registerClass(
                         if (!cacheFile.query_exists(null)) {
                             const remoteIcon = await getRequest(this.image);
                             if (GLib.mkdir_with_parents(cacheFile.get_parent().get_path(), 0o744) === 0) {
-                                cacheFile.replace_contents_bytes_async(remoteIcon, null, false, Gio.FileCreateFlags.REPLACE_DESTINATION, null, null);
+                                cacheFile.replace_contents_bytes_async(
+                                    remoteIcon,
+                                    null,
+                                    false,
+                                    Gio.FileCreateFlags.REPLACE_DESTINATION,
+                                    null,
+                                    null
+                                );
                             } else {
                                 throw new Error("Failed to save icon.");
                             }
@@ -887,9 +904,14 @@ export const Player = GObject.registerClass(
 
         _getImage() {
             try {
-                let destination = GLib.build_filenamev([this._extension.dataDir, "media-controls", "cache", GLib.base64_encode(this.image)]);
-                let cacheFile = Gio.File.new_for_path(destination);
-                let [success, contents] = cacheFile.load_contents(null);
+                const destination = GLib.build_filenamev([
+                    this._extension.dataDir,
+                    "media-controls",
+                    "cache",
+                    GLib.base64_encode(this.image),
+                ]);
+                const cacheFile = Gio.File.new_for_path(destination);
+                const [success, contents] = cacheFile.load_contents(null);
                 if (success) {
                     return Gio.BytesIcon.new(contents);
                 } else {
@@ -949,22 +971,26 @@ export const Player = GObject.registerClass(
         }
 
         _mouseActionButton(widget, event) {
-            let button = event.get_button();
+            const button = event.get_button();
             if (!this._clicked) {
-                this._timeoutSourceId = GLib.timeout_add(GLib.PRIORITY_HIGH, this._extension.clutterSettings.double_click_time, () => {
-                    if (!this._doubleClick) {
-                        if (button === 1) {
-                            this._mouseAction(mouseActionTypes.LEFT_CLICK);
-                        } else if (button === 2) {
-                            this._mouseAction(mouseActionTypes.MIDDLE_CLICK);
-                        } else if (button === 3) {
-                            this._mouseAction(mouseActionTypes.RIGHT_CLICK);
+                this._timeoutSourceId = GLib.timeout_add(
+                    GLib.PRIORITY_HIGH,
+                    this._extension.clutterSettings.double_click_time,
+                    () => {
+                        if (!this._doubleClick) {
+                            if (button === 1) {
+                                this._mouseAction(mouseActionTypes.LEFT_CLICK);
+                            } else if (button === 2) {
+                                this._mouseAction(mouseActionTypes.MIDDLE_CLICK);
+                            } else if (button === 3) {
+                                this._mouseAction(mouseActionTypes.RIGHT_CLICK);
+                            }
                         }
+                        this._doubleClick = false;
+                        this._clicked = false;
+                        return GLib.SOURCE_REMOVE;
                     }
-                    this._doubleClick = false;
-                    this._clicked = false;
-                    return GLib.SOURCE_REMOVE;
-                });
+                );
             } else {
                 this._doubleClick = true;
                 if (button === 1) {
@@ -1102,8 +1128,8 @@ export const Player = GObject.registerClass(
                 icon = icon[icon.length - 1];
             }
             if (!icon.includes(".")) {
-                let appsys = Shell.AppSystem.get_default();
-                for (let app of appsys.get_running()) {
+                const appsys = Shell.AppSystem.get_default();
+                for (const app of appsys.get_running()) {
                     if (app.get_name().toLowerCase().includes(icon)) {
                         icon = app.get_id().replace(".desktop", "");
                     }
@@ -1115,7 +1141,7 @@ export const Player = GObject.registerClass(
         get label() {
             let label = "";
 
-            let labelEls = {
+            const labelEls = {
                 track: this.title,
                 artist: this.artist === "Unknown artist" ? null : this.artist,
                 url: this.url,
@@ -1125,10 +1151,10 @@ export const Player = GObject.registerClass(
                 none: null,
             };
 
-            let trackLabelSetting = this._extension.trackLabel;
+            const trackLabelSetting = this._extension.trackLabel;
 
-            let startLabel = labelEls[trackLabelSetting[0]] || "";
-            let endLabel = labelEls[trackLabelSetting[2]] || "";
+            const startLabel = labelEls[trackLabelSetting[0]] || "";
+            const endLabel = labelEls[trackLabelSetting[2]] || "";
             let sepLabel = trackLabelSetting[1];
 
             if (!(startLabel && endLabel)) {
@@ -1158,7 +1184,7 @@ export const Player = GObject.registerClass(
         }
 
         get artist() {
-            let artist = this._metadata["artist"];
+            const artist = this._metadata["artist"];
             return (Array.isArray(artist) ? artist.join(", ") : artist) || "Unknown artist";
         }
 
