@@ -1,5 +1,4 @@
 import GLib from "gi://GLib";
-import Gio from "gi://Gio";
 import Soup from "gi://Soup";
 import Pango from "gi://Pango";
 
@@ -19,26 +18,26 @@ export const msToHHMMSS = (ms) => {
     seconds = seconds - hours * 3600 - minutes * 60;
 
     if (hours < 10) {
-        hours = "0" + hours;
+        hours = `0${hours}`;
     }
 
     if (minutes < 10) {
-        minutes = "0" + minutes;
+        minutes = `0${minutes}`;
     }
 
     if (seconds < 10) {
-        seconds = "0" + seconds;
+        seconds = `0${seconds}`;
     }
 
     if (hours === "00") {
-        return minutes + ":" + seconds;
+        return `${minutes}:${seconds}`;
     }
 
     if (isNaN(hours) || isNaN(minutes) || isNaN(seconds)) {
         return "--";
     }
 
-    return hours + ":" + minutes + ":" + seconds;
+    return `${hours}:${minutes}:${seconds}`;
 };
 
 export const parseMetadata = (_metadata) => {
@@ -46,18 +45,18 @@ export const parseMetadata = (_metadata) => {
         return _metadata;
     }
 
-    let metadata = {};
-    for (let key in metadataKeys) {
-        let val = _metadata[key];
+    const metadata = {};
+    for (const key in metadataKeys) {
+        const val = _metadata[key];
         metadata[metadataKeys[key]] = val instanceof GLib.Variant ? val.recursiveUnpack() : val;
     }
 
-    metadata.isInactive = metadata.title == "" && metadata.artist == "" && metadata.length == 0;
+    metadata.isInactive = metadata.title === "" && metadata.artist === "" && metadata.length === 0;
 
     let title = metadata.title || metadata.url || metadata.id;
 
     if (title && title === metadata.url) {
-        let urlParts = metadata.url.split("/");
+        const urlParts = metadata.url.split("/");
         if (urlParts[0] === "file:") {
             title = urlParts[urlParts.length - 1];
         }
@@ -87,11 +86,11 @@ export const stripInstanceNumbers = (busName) => {
 
 export const getRequest = (url) => {
     return new Promise((resolve, reject) => {
-        let _session = new Soup.Session();
-        let _request = Soup.Message.new("GET", url);
-        _session.send_and_read_async(_request, GLib.PRIORITY_DEFAULT, null, (_session, result) => {
-            if (_request.get_status() === Soup.Status.OK) {
-                let bytes = _session.send_and_read_finish(result);
+        const session = new Soup.Session();
+        const request = Soup.Message.new("GET", url);
+        session.send_and_read_async(request, GLib.PRIORITY_DEFAULT, null, (_session, result) => {
+            if (request.get_status() === Soup.Status.OK) {
+                const bytes = _session.send_and_read_finish(result);
                 resolve(bytes);
             } else {
                 reject(new Error("Soup request not resolved"));

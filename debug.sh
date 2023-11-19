@@ -46,6 +46,10 @@ lint() {
     npx eslint -c .eslintrc.yml *.js 
 }
 
+lint_fix() {
+    npx eslint -c .eslintrc.yml *.js --fix
+}
+
 PARAMS=();
 
 for i in $@
@@ -61,7 +65,8 @@ if [[ " ${PARAMS[*]} " =~ " -h" ]]; then
     echo "  -u  Update extension source files";
     echo "  -d  Debug extension";
     echo "  -t  Update translation po files";
-    echo "  -l  Lint codebase";
+    echo "  -l  Lint codebase (check)";
+    echo "  -f  Lint codebase (fix)";
     exit;
 fi
 
@@ -83,4 +88,8 @@ fi
 
 if [[ " ${PARAMS[*]} " =~ " -l " ]]; then
     lint;
+fi
+
+if [[ " ${PARAMS[*]} " =~ " -f " ]]; then
+    lint_fix;
 fi
