@@ -1,0 +1,11 @@
+{
+  "name": "media-controls",
+  "version": "30.0.0",
+  "description": "",
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^8.54.0"
+  }
+}
