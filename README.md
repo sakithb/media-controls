@@ -16,7 +16,7 @@ Show controls and information of the currently playing media in the panel.
 ## Notes
 
 -   Supports GNOME 3.36 and 3.38 (unmaintained), 40, 41, 42, 43, 44 and 45.
--   GNOME 44 and below will not receive updates after v29;
+-   GNOME 44 and below will not receive updates after v29/v28;
 
 ---
 
@@ -49,11 +49,11 @@ Install from source
 
 ---
 
-## Developing
+## Contributing
 
 Pull requests are welcome.
 
-To update the translation files run ./update-translation-po-files.sh in the extensions directory after your code changes are finished. This will update the files in po folder. Then poedit (https://poedit.net/download) can be used to translate the strings. poedit can also be used to create new localization files.
+To update the translation files run `./debug.sh -t` in the extensions directory after your code changes are finished. This will update the files in po folder. Then poedit (https://poedit.net/download) can be used to translate the strings. poedit can also be used to create new localization files.
 
 ## Screenshots
 
