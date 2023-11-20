@@ -332,22 +332,9 @@ export const Player = GObject.registerClass(
 
         _playerPropsChanged(proxy, changed, invalidated) {
             changed = changed.recursiveUnpack();
+            this._metadata = parseMetadata(this._getDbusProperty("Metadata"));
 
-            if (changed.Metadata) {
-                this._metadata = parseMetadata(this._getDbusProperty("Metadata"));
-                if (this._metadata.isInactive) {
-                    this._mcExtension.hidePlayer(this.busName);
-                } else {
-                    if (this.hidden) {
-                        this._mcExtension.unhidePlayer(this.busName);
-                    }
-
-                    this.updateWidgets();
-                    this._saveImage();
-                }
-            } else if (this._metadata.isInactive) {
-                this._metadata = parseMetadata(this._getDbusProperty("Metadata"));
-
+            if (changed.Metadata || this._metadata.isInactive) {
                 if (this._metadata.isInactive) {
                     this._mcExtension.hidePlayer(this.busName);
                 } else {
@@ -663,50 +650,8 @@ export const Player = GObject.registerClass(
                         style: "font-size: small;",
                     });
 
-                    // const buttonSeekBack = new St.Button({
-                    //     x_align: Clutter.ActorAlign.START,
-                    //     style_class: "popup-seek-button-bw",
-                    // });
-
-                    // buttonSeekBack.connect("button-release-event", () => {
-                    //     this._seekPlayer(-1);
-                    // });
-
-                    // buttonSeekBack.connect("touch-event", () => {
-                    //     this._seekPlayer(-1);
-                    // });
-
-                    // buttonSeekBack.set_child(
-                    //     new St.Icon({
-                    //         icon_name: "media-seek-backward-symbolic",
-                    //         style_class: "popup-menu-icon popup-seek-icon",
-                    //     })
-                    // );
-
-                    // const buttonSeekForward = new St.Button({
-                    //     x_align: Clutter.ActorAlign.END,
-                    //     style_class: "popup-seek-button-fw",
-                    // });
-
-                    // buttonSeekForward.connect("button-release-event", () => {
-                    //     this._seekPlayer(1);
-                    // });
-
-                    // buttonSeekForward.connect("touch-event", () => {
-                    //     this._seekPlayer(1);
-                    // });
-
-                    // buttonSeekForward.set_child(
-                    //     new St.Icon({
-                    //         icon_name: "media-seek-forward-symbolic",
-                    //         style_class: "popup-menu-icon popup-seek-icon",
-                    //     })
-                    // );
-
-                    // rtttContainer.add(buttonSeekBack);
                     rtttContainer.add(this.infoEt);
                     rtttContainer.add(this.infoTt);
-                    // rtttContainer.add(buttonSeekForward);
 
                     this._infoItem.add(rtttContainer);
 
@@ -734,13 +679,6 @@ export const Player = GObject.registerClass(
                 // Controls
 
                 // Play/pause button
-
-                // const buttonRowOne = new St.BoxLayout({
-                //     x_align: Clutter.ActorAlign.FILL,
-                // });
-
-                // buttonRowOne.add(buttonSeekBack);
-                // buttonRowOne.add(buttonSeekForward);
 
                 const buttonRow = new St.BoxLayout({
                     x_align: Clutter.ActorAlign.FILL,
@@ -841,7 +779,6 @@ export const Player = GObject.registerClass(
                 buttonRow.add(buttonNext);
                 buttonRow.add(this.infoShuffleButton);
 
-                // this._infoItem.add(buttonRowOne);
                 this._infoItem.add(buttonRow);
 
                 this.menu.addMenuItem(this._infoItem);

@@ -107,16 +107,10 @@ export const MediaControls = GObject.registerClass(
             });
 
             this._onExtensionPositionChanged = this._settings.connect("changed::extension-position", () => {
-                // this.removeWidgets();
-                // this.extensionPosition = this._settings.get_string("extension-position");
-                // this.addWidgets();
                 this._extension.reload();
             });
 
             this._onExtensionIndexChanged = this._settings.connect("changed::extension-index", () => {
-                // this.extensionIndex = this._settings.get_int("extension-index");
-                // this.removeWidgets();
-                // this.addWidgets();
                 this._extension.reload();
             });
 
@@ -265,49 +259,6 @@ export const MediaControls = GObject.registerClass(
 
             this.updateMediaNotification();
 
-            /*
-            (async () => {
-                try {
-                    this._playersProxy = await createProxy(
-                        "org.freedesktop.DBus",
-                        "org.freedesktop.DBus",
-                        "/org/freedesktop/DBus"
-                    );
-
-                    this._playersProxy.ListNamesRemote((names, error) => {
-                        if (error) {
-                            logError(error);
-                        } else {
-                            (async () => {
-                                try {
-                                    for (let name of names[0]) {
-                                        if (name.includes("org.mpris.MediaPlayer2")) {
-                                            await this._addPlayer(name);
-                                        }
-                                    }
-
-                                    this.updatePlayer(null);
-                                } catch (error) {
-                                    logError(error);
-                                }
-                            })();
-                        }
-                    });
-
-                    this._playersProxy.connectSignal("NameOwnerChanged", (...[, , [busName, ,]]) => {
-                        if (busName?.includes("org.mpris.MediaPlayer2") && !this._players[busName]) {
-                            (async () => {
-                                await this._addPlayer(busName);
-                                this.updatePlayer(null);
-                            })();
-                        }
-                    });
-                } catch (error) {
-                    logError(error);
-                }
-            })();
-            */
-
             this._connectDbus();
 
             Main.panel.addToStatusArea("media_controls_extension", this, this.extensionIndex, this.extensionPosition);
@@ -322,15 +273,6 @@ export const MediaControls = GObject.registerClass(
             }
 
             super.destroy();
-
-            // for (let playerObj of Object.values(this._players)) {
-            //     playerObj.container.destroy();
-            // }
-
-            // const parent = this.get_parent();
-            // if (parent != null) {
-            //     parent.remove_child(this);
-            // }
         }
 
         toggleTrackInfoMenu() {
@@ -339,12 +281,6 @@ export const MediaControls = GObject.registerClass(
         }
 
         addWidgets() {
-            // if (Main.panel.statusArea["media_controls_extension"]) {
-            //     console.warn("[Media Controls] Instance not destroyed properly, attempting to fix...");
-            //     Main.panel.statusArea["media_controls_extension"].destroy();
-            //     delete Main.panel.statusArea["media_controls_extension"];
-            // }
-
             this.container.show();
 
             Main.wm.addKeybinding(
