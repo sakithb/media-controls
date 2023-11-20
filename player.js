@@ -165,7 +165,7 @@ export const Player = GObject.registerClass(
             });
 
             this.buttonSeekBack.connect("button-release-event", () => {
-                this._seekBack();
+                this._seekPlayer(-1);
             });
 
             this.buttonPrev.connect("button-release-event", () => {
@@ -181,11 +181,11 @@ export const Player = GObject.registerClass(
             });
 
             this.buttonSeekForward.connect("button-release-event", () => {
-                this._seekForward();
+                this._seekPlayer(1);
             });
 
             this.buttonSeekBack.connect("touch-event", () => {
-                this._seekBack();
+                this._seekPlayer(-1);
             });
 
             this.buttonPrev.connect("touch-event", () => {
@@ -201,7 +201,7 @@ export const Player = GObject.registerClass(
             });
 
             this.buttonSeekForward.connect("touch-event", () => {
-                this._seekForward();
+                this._seekPlayer(1);
             });
 
             this.buttonSeekBack.set_child(this.iconSeekBack);
@@ -282,34 +282,24 @@ export const Player = GObject.registerClass(
             this._playerProxy.SetPositionRemote(this._metadata.trackid, position);
         }
 
-        _seekBack() {
+        _seekPlayer(direction) {
             const offset = this._mcExtension.seekInterval * 1_000_000;
 
             if (this._mcExtension.preferNativeSeek) {
-                this._playerProxy.SeekRemote(-offset);
+                this._playerProxy.SeekRemote(direction * offset);
             } else {
                 const position = this._getDbusProperty("Position");
-                const metadata = parseMetadata(this._playerProxy.Metadata);
 
-                if (position !== undefined && metadata !== undefined && metadata.trackid !== undefined) {
-                    const newPosition = Math.max(position - offset, 0);
-                    this._playerProxy.SetPositionRemote(metadata.trackid, newPosition);
-                }
-            }
-        }
+                if (position !== undefined && this._metadata.trackid !== undefined) {
+                    let newPosition;
 
-        _seekForward() {
-            const offset = this._mcExtension.seekInterval * 1_000_000;
+                    if (direction === 1) {
+                        newPosition = Math.min(position + offset, this._metadata.length);
+                    } else {
+                        newPosition = Math.max(position - offset, 0);
+                    }
 
-            if (this._mcExtension.preferNativeSeek) {
-                this._playerProxy.SeekRemote(offset);
-            } else {
-                const position = this._getDbusProperty("Position");
-                const metadata = parseMetadata(this._playerProxy.Metadata);
-
-                if (position !== undefined && metadata !== undefined && metadata.trackid !== undefined) {
-                    const newPosition = Math.min(position + offset, metadata.length);
-                    this._playerProxy.setPositionRemote(metadata.trackid, newPosition);
+                    this._playerProxy.SetPositionRemote(this._metadata.trackid, newPosition);
                 }
             }
         }
@@ -651,6 +641,7 @@ export const Player = GObject.registerClass(
                 const spacer = new St.BoxLayout({
                     style: "padding-top: 10px;",
                 });
+
                 this._infoItem.add(spacer);
 
                 if (this._getDbusProperty("Position") !== undefined) {
@@ -664,6 +655,7 @@ export const Player = GObject.registerClass(
                         x_align: Clutter.ActorAlign.START,
                         style: "font-size: small;",
                     });
+
                     this.infoTt = new St.Label({
                         text: "00:00",
                         x_expand: true,
@@ -671,8 +663,50 @@ export const Player = GObject.registerClass(
                         style: "font-size: small;",
                     });
 
+                    // const buttonSeekBack = new St.Button({
+                    //     x_align: Clutter.ActorAlign.START,
+                    //     style_class: "popup-seek-button-bw",
+                    // });
+
+                    // buttonSeekBack.connect("button-release-event", () => {
+                    //     this._seekPlayer(-1);
+                    // });
+
+                    // buttonSeekBack.connect("touch-event", () => {
+                    //     this._seekPlayer(-1);
+                    // });
+
+                    // buttonSeekBack.set_child(
+                    //     new St.Icon({
+                    //         icon_name: "media-seek-backward-symbolic",
+                    //         style_class: "popup-menu-icon popup-seek-icon",
+                    //     })
+                    // );
+
+                    // const buttonSeekForward = new St.Button({
+                    //     x_align: Clutter.ActorAlign.END,
+                    //     style_class: "popup-seek-button-fw",
+                    // });
+
+                    // buttonSeekForward.connect("button-release-event", () => {
+                    //     this._seekPlayer(1);
+                    // });
+
+                    // buttonSeekForward.connect("touch-event", () => {
+                    //     this._seekPlayer(1);
+                    // });
+
+                    // buttonSeekForward.set_child(
+                    //     new St.Icon({
+                    //         icon_name: "media-seek-forward-symbolic",
+                    //         style_class: "popup-menu-icon popup-seek-icon",
+                    //     })
+                    // );
+
+                    // rtttContainer.add(buttonSeekBack);
                     rtttContainer.add(this.infoEt);
                     rtttContainer.add(this.infoTt);
+                    // rtttContainer.add(buttonSeekForward);
 
                     this._infoItem.add(rtttContainer);
 
@@ -701,9 +735,15 @@ export const Player = GObject.registerClass(
 
                 // Play/pause button
 
-                const mainControlButtons = new St.BoxLayout({
+                // const buttonRowOne = new St.BoxLayout({
+                //     x_align: Clutter.ActorAlign.FILL,
+                // });
+
+                // buttonRowOne.add(buttonSeekBack);
+                // buttonRowOne.add(buttonSeekForward);
+
+                const buttonRow = new St.BoxLayout({
                     x_align: Clutter.ActorAlign.FILL,
-                    style: "padding-top: 10px;",
                 });
 
                 this.infoIconLoop = new St.Icon({
@@ -721,27 +761,6 @@ export const Player = GObject.registerClass(
                 this.infoButtonLoop.connect("touch-event", this._changeLoop.bind(this));
 
                 this.infoButtonLoop.set_child(this.infoIconLoop);
-
-                mainControlButtons.add(this.infoButtonLoop);
-
-                this.infoIconPlayPause = new St.Icon({
-                    icon_name: this.isPlaying ? "media-playback-pause-symbolic" : "media-playback-start-symbolic",
-                    style_class: "popup-menu-icon",
-                });
-
-                const buttonPlayPause = new St.Button({
-                    style_class: "popup-menu-button",
-                });
-
-                buttonPlayPause.connect("button-press-event", () => {
-                    this._playerProxy.PlayPauseRemote();
-                });
-
-                buttonPlayPause.connect("touch-event", () => {
-                    this._playerProxy.PlayPauseRemote();
-                });
-
-                buttonPlayPause.set_child(this.infoIconPlayPause);
 
                 const buttonPrev = new St.Button({
                     style_class: "popup-menu-button",
@@ -762,6 +781,25 @@ export const Player = GObject.registerClass(
                     })
                 );
 
+                this.infoIconPlayPause = new St.Icon({
+                    icon_name: this.isPlaying ? "media-playback-pause-symbolic" : "media-playback-start-symbolic",
+                    style_class: "popup-menu-icon",
+                });
+
+                const buttonPlayPause = new St.Button({
+                    style_class: "popup-menu-button",
+                });
+
+                buttonPlayPause.connect("button-press-event", () => {
+                    this._playerProxy.PlayPauseRemote();
+                });
+
+                buttonPlayPause.connect("touch-event", () => {
+                    this._playerProxy.PlayPauseRemote();
+                });
+
+                buttonPlayPause.set_child(this.infoIconPlayPause);
+
                 const buttonNext = new St.Button({
                     style_class: "popup-menu-button",
                 });
@@ -781,50 +819,6 @@ export const Player = GObject.registerClass(
                     })
                 );
 
-                const buttonSeekBack = new St.Button({
-                    style_class: "popup-menu-button",
-                });
-
-                buttonSeekBack.connect("button-release-event", () => {
-                    this._seekBack();
-                });
-
-                buttonSeekBack.connect("touch-event", () => {
-                    this._seekBack();
-                });
-
-                buttonSeekBack.set_child(
-                    new St.Icon({
-                        icon_name: "media-seek-backward-symbolic",
-                        style_class: "popup-menu-icon",
-                    })
-                );
-
-                const buttonSeekForward = new St.Button({
-                    style_class: "popup-menu-button",
-                });
-
-                buttonSeekForward.connect("button-release-event", () => {
-                    this._seekForward();
-                });
-
-                buttonSeekForward.connect("touch-event", () => {
-                    this._seekForward();
-                });
-
-                buttonSeekForward.set_child(
-                    new St.Icon({
-                        icon_name: "media-seek-forward-symbolic",
-                        style_class: "popup-menu-icon",
-                    })
-                );
-
-                mainControlButtons.add(buttonSeekBack);
-                mainControlButtons.add(buttonPrev);
-                mainControlButtons.add(buttonPlayPause);
-                mainControlButtons.add(buttonNext);
-                mainControlButtons.add(buttonSeekForward);
-
                 this.infoShuffleIcon = new St.Icon({
                     icon_name: "media-playlist-shuffle-symbolic",
                     style_class: "popup-menu-icon",
@@ -841,9 +835,14 @@ export const Player = GObject.registerClass(
 
                 this.infoShuffleButton.set_child(this.infoShuffleIcon);
 
-                mainControlButtons.add(this.infoShuffleButton);
+                buttonRow.add(this.infoButtonLoop);
+                buttonRow.add(buttonPrev);
+                buttonRow.add(buttonPlayPause);
+                buttonRow.add(buttonNext);
+                buttonRow.add(this.infoShuffleButton);
 
-                this._infoItem.add(mainControlButtons);
+                // this._infoItem.add(buttonRowOne);
+                this._infoItem.add(buttonRow);
 
                 this.menu.addMenuItem(this._infoItem);
             }
