@@ -695,7 +695,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
                 if (!isValidBinding$1(mask, keycode, keyval) || !isValidAccel$1(mask, keyval)) {
                     return Gdk.EVENT_STOP;
                 }
-                settings.set_strv("shortcuts-toggle-overview", [
+                settings.set_strv("mediacontrols-toggle-trackinfomenu", [
                     Gtk.accelerator_name_with_keycode(null, keyval, keycode, mask),
                 ]);
                 editor.destroy();
