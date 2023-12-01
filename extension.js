@@ -22,4 +22,8 @@ export default class MediaControlsExtension extends Extension {
         mcExtension = new MediaControls();
         mcExtension.enable(this);
     }
+
+    _openPreferences() {
+        this.openPreferences();
+    }
 }

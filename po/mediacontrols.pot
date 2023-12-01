@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-20 20:54+0100\n"
+"POT-Creation-Date: 2023-12-01 20:02+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,6 +27,10 @@ msgstr ""
 
 #: extension.js:20
 msgid "[MediaControls] Reloading"
+msgstr ""
+
+#: player.js:1083 player.js:1125
+msgid "Unknown artist"
 msgstr ""
 
 #: prefs.js:29
@@ -185,7 +189,7 @@ msgstr ""
 msgid "General"
 msgstr ""
 
-#: prefs.js:329
+#: prefs.js:329 widget.js:251
 msgid "Settings"
 msgstr ""
 
@@ -401,4 +405,8 @@ msgstr ""
 
 #: prefs.js:887
 msgid "Failed to clear cache"
+msgstr ""
+
+#: widget.js:254
+msgid "Determine player automatically"
 msgstr ""

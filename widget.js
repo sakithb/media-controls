@@ -17,6 +17,7 @@ import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
 import * as BoxPointer from "resource:///org/gnome/shell/ui/boxpointer.js";
 import * as Mpris from "resource:///org/gnome/shell/ui/mpris.js";
+import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
 
 export const MediaControls = GObject.registerClass(
     class MediaControls extends PanelMenu.Button {
@@ -245,7 +246,12 @@ export const MediaControls = GObject.registerClass(
             this.clutterSettings = Clutter.Settings.get_default();
             this.clutterSettings.double_click_time = 200;
 
-            this._automaticUpdateToggle = new PopupMenu.PopupSwitchMenuItem("Determine player automatically", true);
+            // Add an entry-point for more settings
+            this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+            const settingsItem = this.menu.addAction(_("Settings"), () => Me._openPreferences());
+            this.menu._settingsActions[Me.uuid] = settingsItem;
+            // Automatic Update Toggle
+            this._automaticUpdateToggle = new PopupMenu.PopupSwitchMenuItem(_("Determine player automatically"), true);
 
             this._automaticUpdateToggle.track_hover = false;
 

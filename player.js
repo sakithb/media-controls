@@ -12,6 +12,7 @@ import * as Slider from "resource:///org/gnome/shell/ui/slider.js";
 
 import * as BoxPointer from "resource:///org/gnome/shell/ui/boxpointer.js";
 
+import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
 import { createProxy } from "./dbus.js";
 import { parseMetadata, stripInstanceNumbers, getRequest, wrappingText, msToHHMMSS } from "./utils.js";
 
@@ -1079,7 +1080,7 @@ export const Player = GObject.registerClass(
 
             const labelEls = {
                 track: this.title,
-                artist: this.artist === "Unknown artist" ? null : this.artist,
+                artist: this.artist === _("Unknown artist") ? null : this.artist,
                 url: this.url,
                 name: this.name,
                 status: this._status,
@@ -1121,7 +1122,7 @@ export const Player = GObject.registerClass(
 
         get artist() {
             const artist = this._metadata["artist"];
-            return (Array.isArray(artist) ? artist.join(", ") : artist) || "Unknown artist";
+            return (Array.isArray(artist) ? artist.join(", ") : artist) || _("Unknown artist");
         }
 
         get image() {

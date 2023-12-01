@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-20 20:54+0100\n"
-"PO-Revision-Date: 2023-11-20 20:58+0100\n"
+"POT-Creation-Date: 2023-12-01 20:02+0100\n"
+"PO-Revision-Date: 2023-12-01 20:03+0100\n"
 "Last-Translator: Christian Lauinger <christian@lauinger-clan.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -29,6 +29,10 @@ msgstr "[MediaControls] deaktivieren"
 #: extension.js:20
 msgid "[MediaControls] Reloading"
 msgstr "[MediaControls] Neu laden"
+
+#: player.js:1083 player.js:1125
+msgid "Unknown artist"
+msgstr "Unbekannter Künstler"
 
 #: prefs.js:29
 msgid "Track"
@@ -186,7 +190,7 @@ msgstr "Abspieler beenden"
 msgid "General"
 msgstr "Generell"
 
-#: prefs.js:329
+#: prefs.js:329 widget.js:251
 msgid "Settings"
 msgstr "Einstellungen"
 
@@ -280,7 +284,7 @@ msgstr "Separatoren"
 
 #: prefs.js:500
 msgid "Player controls"
-msgstr "Spielersteuerung"
+msgstr "Abspielersteuerung"
 
 #: prefs.js:508
 msgid "Play/pause button"
@@ -405,6 +409,10 @@ msgstr "Abspieler hinzufügen"
 #: prefs.js:887
 msgid "Failed to clear cache"
 msgstr "Zwischenspeicher konnte nicht geleert werden"
+
+#: widget.js:254
+msgid "Determine player automatically"
+msgstr "Abspieler automatisch ermitteln"
 
 #~ msgid "Appliance"
 #~ msgstr "Bedienung"
