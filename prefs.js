@@ -27,7 +27,10 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
     _initTrackLabelWidgets(settings, trackLabelStart, trackLabelSep, trackLabelEnd) {
         const trackLabelOpts = {
             track: _("Track"),
+            trackalbum: _("Track + Album"),
             artist: _("Artist"),
+            artistalbum: _("Artist + Album"),
+            album: _("Album"),
             url: _("URL"),
             name: _("Player name"),
             status: _("Playback status"),

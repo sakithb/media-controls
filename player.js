@@ -456,8 +456,10 @@ export const Player = GObject.registerClass(
                 this._infoIcon.set_gicon(this.trackIcon);
                 this.infoTitleLabel.set_text(this.title);
                 this.infoArtistLabel.set_text(this.artist);
+                this.infoAlbumLabel.set_text(this.album);
                 wrappingText(!this._mcExtension.cliptextsmenu, this.infoTitleLabel);
                 wrappingText(!this._mcExtension.cliptextsmenu, this.infoArtistLabel);
+                wrappingText(!this._mcExtension.cliptextsmenu, this.infoAlbumLabel);
                 this._updateInfoIcon();
             }
         }
@@ -510,7 +512,12 @@ export const Player = GObject.registerClass(
         }
 
         _updateInfoIcon() {
-            const iconSize = Math.max(200, this.infoTitleLabel.width, this.infoArtistLabel.width);
+            const iconSize = Math.max(
+                200,
+                this.infoTitleLabel.width,
+                this.infoArtistLabel.width,
+                this.infoAlbumLabel.width
+            );
             this._infoIcon.set_icon_size(iconSize);
         }
 
@@ -521,10 +528,12 @@ export const Player = GObject.registerClass(
 
             if (this._infoItem) {
                 this.infoArtistLabel.set_style(this.maxWidthStyle);
+                this.infoAlbumLabel.set_style(this.maxWidthStyle);
                 this.infoTitleLabel.set_style(`font-size: large; ${this.maxWidthStyle}`);
 
                 wrappingText(!this._mcExtension.cliptextsmenu, this.infoTitleLabel);
                 wrappingText(!this._mcExtension.cliptextsmenu, this.infoArtistLabel);
+                wrappingText(!this._mcExtension.cliptextsmenu, this.infoAlbumLabel);
 
                 if (this._mcExtension.maxWidgetWidth !== 0) {
                     this._infoIcon.set_icon_size(this._mcExtension.maxWidgetWidth);
@@ -608,7 +617,7 @@ export const Player = GObject.registerClass(
 
                 this._infoItem.add(this._infoIcon);
 
-                // Track title and artist
+                // Track title artist album
 
                 this.infoTitleLabel = new St.Label({
                     text: this.title,
@@ -621,8 +630,14 @@ export const Player = GObject.registerClass(
                     x_align: Clutter.ActorAlign.CENTER,
                 });
 
+                this.infoAlbumLabel = new St.Label({
+                    text: this.album || "",
+                    x_align: Clutter.ActorAlign.CENTER,
+                });
+
                 this._infoItem.add(this.infoTitleLabel);
                 this._infoItem.add(this.infoArtistLabel);
+                this._infoItem.add(this.infoAlbumLabel);
 
                 // Spacer
 
@@ -1077,22 +1092,29 @@ export const Player = GObject.registerClass(
 
         get label() {
             let label = "";
-
+            const trackLabelSetting = this._mcExtension.trackLabel;
+            let sepLabel = trackLabelSetting[1];
+            if (!sepLabel) {
+                sepLabel = " ";
+            } else {
+                sepLabel = ` ${sepLabel} `;
+            }
+            let labelartist = this.artist === _("Unknown artist") ? null : this.artist;
+            let labelalbum = this.album === _("Unknown album") ? null : this.album;
             const labelEls = {
                 track: this.title,
-                artist: this.artist === _("Unknown artist") ? null : this.artist,
+                trackalbum: this.title + sepLabel + labelartist,
+                artist: labelartist,
+                artistalbum: labelartist + sepLabel + labelalbum,
+                album: labelalbum,
                 url: this.url,
                 name: this.name,
                 status: this._status,
                 file: this.file,
                 none: null,
             };
-
-            const trackLabelSetting = this._mcExtension.trackLabel;
-
             const startLabel = labelEls[trackLabelSetting[0]] || "";
             const endLabel = labelEls[trackLabelSetting[2]] || "";
-            let sepLabel = trackLabelSetting[1];
 
             if (!(startLabel && endLabel)) {
                 sepLabel = "";
@@ -1117,12 +1139,17 @@ export const Player = GObject.registerClass(
         }
 
         get title() {
-            return this._metadata["title"] || "No track";
+            return this._metadata["title"] || _("No track");
         }
 
         get artist() {
             const artist = this._metadata["artist"];
             return (Array.isArray(artist) ? artist.join(", ") : artist) || _("Unknown artist");
+        }
+
+        get album() {
+            const album = this._metadata["album"];
+            return (Array.isArray(album) ? album.join(", ") : album) || _("Unknown album");
         }
 
         get image() {

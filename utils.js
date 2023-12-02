@@ -4,6 +4,7 @@ import Pango from "gi://Pango";
 
 const metadataKeys = {
     "xesam:artist": "artist",
+    "xesam:album": "album",
     "xesam:title": "title",
     "mpris:artUrl": "image",
     "xesam:url": "url",
