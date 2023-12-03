@@ -335,7 +335,7 @@ export const Player = GObject.registerClass(
             changed = changed.recursiveUnpack();
             this._metadata = parseMetadata(this._getDbusProperty("Metadata"));
 
-            if (changed.Metadata || this._metadata.isInactive) {
+            if (changed.Metadata || this._metadata?.isInactive) {
                 if (this._metadata.isInactive) {
                     this._mcExtension.hidePlayer(this.busName);
                 } else {
