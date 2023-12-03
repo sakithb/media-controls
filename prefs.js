@@ -31,6 +31,8 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             artist: _("Artist"),
             artistalbum: _("Artist + Album"),
             album: _("Album"),
+            albumartist: _("Album + Artist"),
+            albumtrack: _("Album + Track"),
             url: _("URL"),
             name: _("Player name"),
             status: _("Playback status"),

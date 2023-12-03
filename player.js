@@ -1099,14 +1099,14 @@ export const Player = GObject.registerClass(
             } else {
                 sepLabel = ` ${sepLabel} `;
             }
-            let labelartist = this.artist === _("Unknown artist") ? null : this.artist;
-            let labelalbum = this.album === _("Unknown album") ? null : this.album;
             const labelEls = {
                 track: this.title,
-                trackalbum: this.title + sepLabel + labelartist,
-                artist: labelartist,
-                artistalbum: labelartist + sepLabel + labelalbum,
-                album: labelalbum,
+                trackalbum: this.title + sepLabel + this.album,
+                artist: this.artist,
+                artistalbum: this.artist + sepLabel + this.album,
+                album: this.album,
+                albumartist: this.album + sepLabel + this.artist,
+                albumtrack: this.album + sepLabel + this.title,
                 url: this.url,
                 name: this.name,
                 status: this._status,
