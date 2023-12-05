@@ -1,30 +1,30 @@
 #! /bin/bash
 
-EXT_DIR="$HOME/.local/share/gnome-shell/extensions/mediacontrols@cliffniff.github.com/";
+EXT_DIR="$HOME/.local/share/gnome-shell/extensions/mediacontrols@cliffniff.github.com/"
 
 build() {
-    VERSION=$(cat metadata.json | grep '"version"' | sed 's/[^0-9]*//g');
+    VERSION=$(cat metadata.json | grep '"version"' | sed 's/[^0-9]*//g')
 
     gnome-extensions pack --podir=po/ --extra-source=dbus.js --extra-source=player.js --extra-source=utils.js --extra-source=widget.js --extra-source=LICENSE
 
-    if [[ `git status --porcelain` ]]; then
-        VERSION="~$VERSION~"  ;
+    if [[ $(git status --porcelain) ]]; then
+        VERSION="~$VERSION~"
     fi
 
-    mkdir -p "./builds/v$VERSION";
-    mv mediacontrols@cliffniff.github.com.shell-extension.zip "./builds/v$VERSION/extension.zip";
+    mkdir -p "./builds/v$VERSION"
+    mv mediacontrols@cliffniff.github.com.shell-extension.zip "./builds/v$VERSION/extension.zip"
 }
 
 copy() {
-    mkdir -p "$EXT_DIR";
-    cp -r ./* "$EXT_DIR";
+    mkdir -p "$EXT_DIR"
+    cp -r ./* "$EXT_DIR"
 }
 
 debug() {
-    copy;
+    copy
 
-    export MUTTER_DEBUG_DUMMY_MODE_SPECS=1366x768;
-    dbus-run-session -- gnome-shell --unsafe-mode --nested --wayland
+    export MUTTER_DEBUG_DUMMY_MODE_SPECS=1366x768
+    dbus-run-session -- gnome-shell --unsafe-mode --nested --wayland --no-x11
 }
 
 update_po_files() {
@@ -32,64 +32,64 @@ update_po_files() {
 
     cd po
 
-    for POFILE in *.po
-	do
-		echo "Updating: $POFILE"
-		msgmerge -U "$POFILE" "mediacontrols.pot"
-	done
+    for POFILE in *.po; do
+        echo "Updating: $POFILE"
+        msgmerge -U "$POFILE" "mediacontrols.pot"
+    done
 
     rm *.po~
     echo "Done."
 }
 
 lint() {
-    npx eslint -c .eslintrc.yml *.js 
+    npx eslint -c .eslintrc.yml *.js
 }
 
 lint_fix() {
     npx eslint -c .eslintrc.yml *.js --fix
 }
 
-PARAMS=();
+PARAMS=()
 
-for i in $@
-do
-    PARAMS+=( $i )
+for i in "$@"; do
+    PARAMS+=($i)
 done
 
 if [[ " ${PARAMS[*]} " =~ " -h" ]]; then
-    echo "Usage: ./debug.sh [options]";
-    echo "Options:";
-    echo "  -h  Show this help message";
-    echo "  -b  Build extension";
-    echo "  -u  Update extension source files";
-    echo "  -d  Debug extension";
-    echo "  -t  Update translation po files";
-    echo "  -l  Lint codebase (check)";
-    echo "  -f  Lint codebase (fix)";
-    exit;
+    echo "Usage: ./debug.sh [options]"
+    echo "Options:"
+    echo "  -h  Show this help message"
+    echo "  -b  Build extension"
+    echo "  -u  Update extension source files"
+    echo "  -d  Debug extension"
+    echo "  -t  Update translation po files"
+    echo "  -l  Lint codebase (check)"
+    echo "  -f  Lint codebase (fix)"
+    exit
 fi
 
 if [[ " ${PARAMS[*]} " =~ " -b " ]]; then
-    build;
+    build
 fi
 
 if [[ " ${PARAMS[*]} " =~ " -d " ]]; then
-    debug;
+    debug
 fi
 
 if [[ " ${PARAMS[*]} " =~ " -u " ]]; then
-    copy;
+    copy
+    gnome-extensions disable mediacontrols@cliffniff.github.com
+    gnome-extensions enable mediacontrols@cliffniff.github.com
 fi
 
 if [[ " ${PARAMS[*]} " =~ " -t " ]]; then
-    update_po_files;
+    update_po_files
 fi
 
 if [[ " ${PARAMS[*]} " =~ " -l " ]]; then
-    lint;
+    lint
 fi
 
 if [[ " ${PARAMS[*]} " =~ " -f " ]]; then
-    lint_fix;
+    lint_fix
 fi
