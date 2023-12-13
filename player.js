@@ -1,10 +1,10 @@
-import Gio from "gi://Gio";
-import GObject from "gi://GObject";
-import St from "gi://St";
 import Clutter from "gi://Clutter";
 import GLib from "gi://GLib";
-import Shell from "gi://Shell";
+import GObject from "gi://GObject";
+import Gio from "gi://Gio";
 import Pango from "gi://Pango";
+import Shell from "gi://Shell";
+import St from "gi://St";
 
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
@@ -14,7 +14,7 @@ import * as BoxPointer from "resource:///org/gnome/shell/ui/boxpointer.js";
 
 import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
 import { createProxy } from "./dbus.js";
-import { parseMetadata, stripInstanceNumbers, getRequest, wrappingText, msToHHMMSS } from "./utils.js";
+import { getRequest, msToHHMMSS, parseMetadata, stripInstanceNumbers, wrappingText } from "./utils.js";
 
 const urlRegexp = new RegExp(
     /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+~#?&/=]*)/
@@ -53,7 +53,6 @@ export const Player = GObject.registerClass(
                     "/org/mpris/MediaPlayer2"
                 );
                 this._otherProxy = await createProxy("org.mpris.MediaPlayer2", this.busName, "/org/mpris/MediaPlayer2");
-
                 this._metadata = parseMetadata(this._playerProxy.Metadata);
                 this._status = this._playerProxy.PlaybackStatus;
 
@@ -62,7 +61,9 @@ export const Player = GObject.registerClass(
 
                 this.menu.connect("open-state-changed", this._menuOpenStateChanged.bind(this));
 
-                this._saveImage();
+                if (this._metadata) {
+                    this._saveImage();
+                }
             } catch (error) {
                 logError(error);
             }
@@ -343,8 +344,8 @@ export const Player = GObject.registerClass(
                         this._mcExtension.unhidePlayer(this.busName);
                     }
 
-                    this.updateWidgets();
                     this._saveImage();
+                    this.updateWidgets();
                 }
             }
 
@@ -822,7 +823,7 @@ export const Player = GObject.registerClass(
         }
 
         async _saveImage() {
-            if (this._mcExtension.cacheImages) {
+            if (this._mcExtension.cacheImages && this._metadata) {
                 try {
                     if (urlRegexp.test(this.image)) {
                         const destination = GLib.build_filenamev([
@@ -1071,23 +1072,19 @@ export const Player = GObject.registerClass(
         }
 
         get icon() {
-            let icon;
+            const appsystem = Shell.AppSystem.get_default();
+            const identity = this._otherProxy.DesktopEntry || this._otherProxy.Identity;
+            const results = Shell.AppSystem.search(identity);
 
-            if (this._otherProxy.DesktopEntry) {
-                icon = this._otherProxy.DesktopEntry;
-            } else {
-                icon = this.name.toLowerCase().split(" ");
-                icon = icon[icon.length - 1];
-            }
-            if (!icon.includes(".")) {
-                const appsys = Shell.AppSystem.get_default();
-                for (const app of appsys.get_running()) {
-                    if (app.get_name().toLowerCase().includes(icon)) {
-                        icon = app.get_id().replace(".desktop", "");
-                    }
+            for (let result of results) {
+                const app = appsystem.lookup_app(result[0]);
+
+                if (app.state === Shell.AppState.RUNNING) {
+                    return app.id.slice(0, -8);
                 }
             }
-            return icon;
+
+            return "audio-x-generic";
         }
 
         get label() {
@@ -1153,7 +1150,7 @@ export const Player = GObject.registerClass(
         }
 
         get image() {
-            return this._metadata["image"];
+            return this._metadata ? this._metadata["image"] : null;
         }
 
         get url() {
