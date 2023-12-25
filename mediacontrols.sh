@@ -1,0 +1,162 @@
+#!/usr/bin/env bash
+set -e
+
+nested() {
+  export MUTTER_DEBUG_DUMMY_MODE_SPECS=1366x768
+  dbus-run-session -- gnome-shell --unsafe-mode --nested --wayland --no-x11
+}
+
+build() {
+  echo "Compiling..."
+  npm run compile
+
+  if [ "$1" = "release" ]; then
+    echo "Stripping debug values..."
+    sed -i '1s/.*/const DEBUG = false;/' ./dist/compiled/utils/common.js
+  fi
+
+  cp src/metadata.json dist/compiled/metadata.json
+  cp src/stylesheet.css dist/compiled/stylesheet.css
+
+  echo "Packing..."
+
+  EXCLUDEFILES=("metadata.json" "extension.js" "prefs.js" "stylesheet.css")
+  EXCLUDEDIRS=("compiled")
+  JSSRCDIR="$PWD/dist/compiled"
+  BUILDDIR="$PWD/dist/builds"
+
+  FINDFARGS=()
+
+  for F in "${EXCLUDEFILES[@]}"; do
+    FINDFARGS+=("!" "-name" "$F")
+  done
+
+  FINDDARGS=()
+
+  for D in "${EXCLUDEDIRS[@]}"; do
+    FINDDARGS+=("!" "-name" "$D")
+  done
+
+  EXTRAFILES=$(find "$JSSRCDIR" -maxdepth 1 -type f "${FINDFARGS[@]}")
+  EXTRADIRS=$(find "$JSSRCDIR" -type d "${FINDDARGS[@]}")
+  ESFLAGS=()
+
+  for F in $EXTRAFILES; do
+    ESFLAGS+=("--extra-source=$F")
+  done
+
+  for D in $EXTRADIRS; do
+    ESFLAGS+=("--extra-source=$D")
+  done
+
+  SCHEMA="$PWD/assets/schemas/org.gnome.shell.extensions.mediacontrols.gschema.xml"
+  PODIR="$PWD/assets/locale"
+
+  mkdir -p "$BUILDDIR"
+
+  gnome-extensions pack -f -o "$BUILDDIR" --schema="$SCHEMA" --podir="$PODIR" "${ESFLAGS[@]}" "$JSSRCDIR"
+}
+
+debug() {
+  echo "Debugging..."
+  build
+  install
+  nested
+}
+
+translations() {
+    xgettext --from-code=UTF-8 --output=assets/locale/mediacontrols.pot src/*.ts assets/schemas/*.xml
+
+    cd assets/locale
+
+    for POFILE in *.po; do
+        echo "Updating: $POFILE"
+        msgmerge -U "$POFILE" "mediacontrols.pot"
+    done
+
+    rm ./*.po~
+    echo "Done."
+}
+
+lint() {
+  echo "Linting..."
+  npm run lint
+}
+
+format() {
+  echo "Formatting..."
+  npm run format
+}
+
+install() {
+  echo "Installing..."
+  gnome-extensions install --force ./dist/builds/mediacontrols@cliffniff.github.com.shell-extension.zip
+}
+
+uninstall() {
+  echo "Uninstalling..."
+  gnome-extensions uninstall mediacontrols@cliffniff.github.io
+}
+
+enable() {
+  echo "Enabling..."
+  gnome-extensions enable mediacontrols@cliffniff.github.io
+}
+
+disable() {
+  echo "Disabling..."
+  gnome-extensions disable mediacontrols@cliffniff.github.io
+}
+
+prefs() {
+  echo "Opening prefs..."
+  gnome-extensions prefs mediacontrols@cliffniff.github.io
+}
+
+watch() {
+  echo "Watching for setting changes..."
+  dconf watch /org/gnome/shell/extensions/mediacontrols/
+}
+
+case "$1" in
+release)
+  build "release"
+  ;;
+build)
+  build
+  ;;
+debug)
+  debug
+  ;;
+translations)
+  translations
+  ;;
+lint)
+  lint
+  ;;
+format)
+  format
+  ;;
+install)
+  install
+  ;;
+uninstall)
+  uninstall
+  ;;
+enable)
+  enable
+  ;;
+disable)
+  disable
+  ;;
+prefs)
+  prefs
+  ;;
+watch)
+  watch
+  ;;
+*)
+  echo "Usage: $0 {prod|build|debug|translations|lint|format|install|uninstall|enable|disable|prefs|watch}"
+  exit 1
+  ;;
+esac

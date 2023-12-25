@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <enum id="org.gnome.shell.extensions.mediacontrols.mouseactions">
+    <value nick="None" value="0" />
+    <value nick="Play/Pause" value="1" />
+    <value nick="Play" value="2" />
+    <value nick="Pause" value="3" />
+    <value nick="Next Track" value="4" />
+    <value nick="Previous Track" value="5" />
+    <value nick="Volume up" value="6" />
+    <value nick="Volume down" value="7" />
+    <value nick="Toggle loop" value="8" />
+    <value nick="Toggle shuffle" value="9" />
+    <value nick="Show popup menu" value="10" />
+    <value nick="Raise player" value="11" />
+    <value nick="Quit player" value="12" />
+
+  </enum>
+  <schema id="org.gnome.shell.extensions.mediacontrols" path="/org/gnome/shell/extensions/mediacontrols/">
+    <key name="width" type="u">
+      <default>200</default>
+    </key>
+    <key name="hide-media-notification" type="b">
+      <default>true</default>
+    </key>
+    <key name="scroll-labels" type="b">
+      <default>true</default>
+    </key>
+    <key name="show-label" type="b">
+      <default>true</default>
+    </key>
+    <key name="show-player-icon" type="b">
+      <default>true</default>
+    </key>
+    <key name="show-control-icons" type="b">
+      <default>true</default>
+    </key>
+    <key name="show-control-icons-play" type="b">
+      <default>true</default>
+    </key>
+    <key name="show-control-icons-next" type="b">
+      <default>true</default>
+    </key>
+    <key name="show-control-icons-previous" type="b">
+      <default>true</default>
+    </key>
+    <key name="show-control-icons-seek-back" type="b">
+      <default>true</default>
+    </key>
+    <key name="show-control-icons-seek-forward" type="b">
+      <default>true</default>
+    </key>
+    <key name="colored-play-icon" type="b">
+      <default>false</default>
+    </key>
+    <key name="shortcut-show-menu" type="s">
+      <default>''</default>
+    </key>
+    <key name="mouse-action-left" enum="org.gnome.shell.extensions.mediacontrols.mouseactions">
+      <default>'Show popup menu'</default>
+    </key>
+    <key name="mouse-action-middle" enum="org.gnome.shell.extensions.mediacontrols.mouseactions">
+      <default>'None'</default>
+    </key>
+    <key name="mouse-action-right" enum="org.gnome.shell.extensions.mediacontrols.mouseactions">
+      <default>'Raise player'</default>
+    </key>
+    <key name="mouse-action-double" enum="org.gnome.shell.extensions.mediacontrols.mouseactions">
+      <default>'None'</default>
+    </key>
+    <key name="mouse-action-scroll-up" enum="org.gnome.shell.extensions.mediacontrols.mouseactions">
+      <default>'Volume up'</default>
+    </key>
+    <key name="mouse-action-scroll-down" enum="org.gnome.shell.extensions.mediacontrols.mouseactions">
+      <default>'Volume down'</default>
+    </key>
+    <key name="cache-art" type="b">
+      <default>true</default>
+    </key>
+    <key name="blacklisted-players" type="as">
+      <default>[]</default>
+    </key>
+  </schema>
+</schemalist>

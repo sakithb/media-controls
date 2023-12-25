@@ -31,7 +31,7 @@ Show controls and information of the currently playing media in the panel.
 
 #### Install from extensions.gnome.org (Recommended)
 
-[<img src="./images/get-ego.png" height="100">](https://extensions.gnome.org/extension/4470/media-controls/)
+[<img src="assets/images/get-ego.png" height="100">](https://extensions.gnome.org/extension/4470/media-controls/)
 
 #### Arch Linux (AUR)
 
@@ -59,28 +59,28 @@ To update the translation files run `./debug.sh -t` in the extensions directory 
 
 #### Track information menu
 
-![Screenshot](/images/track_info_menu.png)
+![Screenshot](assets/images/track_info_menu.png)
 
 #### Sources menu
 
-![Screenshot](/images/sources_menu.png)
+![Screenshot](assets/images/sources_menu.png)
 
 #### General settings
 
-![Screenshot](/images/settings_page_1.png)
+![Screenshot](assets/images/settings_page_1.png)
 
 #### Visibility settings
 
-![Screenshot](/images/settings_page_2.png)
+![Screenshot](assets/images/settings_page_2.png)
 
 #### Appearance settings
 
-![Screenshot](/images/settings_page_3.png)
+![Screenshot](assets/images/settings_page_3.png)
 
 #### Shortcut settings
 
-![Screenshot](/images/settings_page_4.png)
+![Screenshot](assets/images/settings_page_4.png)
 
 #### Other settings
 
-![Screenshot](/images/settings_page_5.png)
+![Screenshot](assets/images/settings_page_5.png)

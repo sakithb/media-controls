@@ -1,12 +1,9 @@
 {
-    "trailingComma": "es5",
-    "tabWidth": 4,
-    "indent_size": 4,
-    "semi": true,
-    "singleQuote": false,
-    "indent_style": "space",
-    "useTabs": false,
-    "printWidth": 120,
-    "arrowParens": "always"
+  "printWidth": 120,
+  "bracketSameLine": true,
+  "quoteProps": "consistent",
+  "singleQuote": false,
+  "importOrder": ["<THIRD_PARTY_MODULES>", "^[./]"],
+  "importOrderParserPlugins": ["typescript"],
+  "plugins": ["@trivago/prettier-plugin-sort-imports"]
 }
-

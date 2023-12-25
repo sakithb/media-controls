@@ -1,0 +1,255 @@
+using Gtk 4.0;
+using Adw 1;
+
+Adw.PreferencesPage page-general {
+  title: "General";
+  icon-name: "settings-symbolic";
+
+  Adw.PreferencesGroup {
+    title: "Common";
+
+    Adw.SpinRow sr-general-width {
+      title: "Width";
+      subtitle: "0 to automatically determine";
+
+      adjustment: Adjustment {
+        lower: 0;
+        value: 200;
+      };
+    }
+
+    Adw.SwitchRow sr-general-hide-media-notification {
+      title: "Hide the media notification";
+    }
+
+    Adw.SwitchRow sr-general-scroll-text {
+      title: "Scroll text in the panel widget";
+    }
+  }
+
+  Adw.PreferencesGroup {
+    title: "Information";
+
+    Adw.ActionRow {
+      title: "Release notes";
+
+      LinkButton {
+        label: "Homepage";
+        icon-name: "link-symbolic";
+        uri: "https://github.com/sakithb/media-controls/blob/main/README.md";
+      }
+
+      LinkButton {
+        label: "Release notes";
+        icon-name: "link-symbolic";
+        uri: "https://github.com/sakithb/media-controls/releases/latest";
+      }
+
+      LinkButton {
+        label: "Report an issue";
+        icon-name: "link-symbolic";
+        uri: "hhttps://github.com/sakithb/media-controls/issues";
+      }
+    }
+  }
+}
+
+Adw.PreferencesPage page-appearance {
+  title: "Appearance";
+  icon-name: "display-symbolic";
+
+  Adw.PreferencesGroup {
+    Adw.SwitchRow sr-appearance-show-label {
+      title: "Show label";
+    }
+
+    Adw.ExpanderRow {
+      title: "Player controls";
+
+      Adw.SwitchRow sr-appearance-show-play {
+        title: "Show play/pause button";
+      }
+
+      Adw.SwitchRow sr-appearance-show-prev {
+        title: "Show previous track button";
+      }
+
+      Adw.SwitchRow sr-appearance-show-next {
+        title: "Show next track button";
+      }
+
+      Adw.SwitchRow sr-appearance-show-seek-back {
+        title: "Show seek back button";
+      }
+
+      Adw.SwitchRow sr-appearance-show-seek-forward {
+        title: "Show seek forward button";
+      }
+    }
+
+    Adw.ExpanderRow {
+      title: "Player icon";
+
+      Adw.SwitchRow sr-appearance-show-player {
+        title: "Show player icon";
+      }
+      
+      Adw.SwitchRow sr-appearance-colored-player {
+        title: "Colored player icon";
+      }
+    }
+  }
+}
+
+Adw.PreferencesPage page-positions {
+  title: "Positions";
+  icon-name: "view-list-symbolic";
+
+  Adw.PreferencesGroup {
+    title: "Extension";
+
+    Adw.ComboRow cr-positions-extension-position {
+      title: "Position";
+      subtitle: "Position of the extension in the panel";
+
+      model: StringList {
+        strings [
+          "Left",
+          "Center",
+          "Right",
+        ]
+      };
+    }
+
+    Adw.SpinRow sr-positions-extension-index {
+      title: "Margin";
+      subtitle: "Margin between the extension and the panel";
+
+      adjustment: Adjustment {
+        lower: 0;
+        value: 0;
+      };
+    }
+  }
+
+  Adw.PreferencesGroup {
+    title: "Elements";
+  }
+
+  Adw.PreferencesGroup {
+    title: "Label";
+  }
+}
+
+Adw.PreferencesPage page-shortcuts {
+  title: "Shortcuts";
+  icon-name: "keyboard-symbolic";
+
+  Adw.PreferencesGroup {
+    Adw.ActionRow {
+      title: "Show popup menu";
+      subtitle: "Shortcut to toggle the popup menu";
+
+      ShortcutLabel {
+        disabled-text: "Set shortcut";
+        halign: center;
+        valign: center;
+      }
+    }
+  }
+
+  Adw.PreferencesGroup {
+    title: "Mouse actions";
+
+    Adw.ComboRow {
+      title: "Left click";
+      model: mouse-actions;
+    }
+
+    Adw.ComboRow {
+      title: "Middle click";
+      model: mouse-actions;
+    }
+
+    Adw.ComboRow {
+      title: "Right click";
+      model: mouse-actions;
+    }
+
+    Adw.ComboRow {
+      title: "Double click";
+      model: mouse-actions;
+    }
+
+    Adw.ComboRow {
+      title: "Scroll up";
+      model: mouse-actions;
+    }
+
+    Adw.ComboRow {
+      title: "Scroll down";
+      model: mouse-actions;
+    }
+  }
+}
+
+Adw.PreferencesPage page-other {
+  title: "Other";
+  icon-name: "settings-symbolic";
+
+  Adw.PreferencesGroup {
+    title: "Cache";
+    description: "This extension cache album art to improve performance. You can clear the cache here.";
+
+    Adw.SwitchRow sr-other-cache {
+      title: "Cache album art";
+    }
+
+    Adw.ActionRow {
+      title: "Clear cache";
+
+      Button btn-other-cache-clear {
+        halign: end;
+        valign: center;
+
+        Adw.ButtonContent {
+          label: "Clear";
+          icon-name: "user-trash-symbolic";
+        }
+      }
+    }
+  }
+
+  Adw.PreferencesGroup {
+    title: "Blacklist players";
+    description: "You can blacklist players here. Blacklisted players will not be shown in the extension.";
+
+    header-suffix: Button btn-other-blacklist-add {
+      halign: end;
+      valign: center;
+
+      Adw.ButtonContent {
+        label: "Add";
+        icon-name: "list-add-symbolic";
+      }
+    };
+  }
+}
+
+StringList mouse-actions {
+  strings [
+    "None",
+    "Play/Pause",
+    "Play",
+    "Pause",
+    "Next track",
+    "Previous track",
+    "Volume up",
+    "Volume down",
+    "Toggle loop",
+    "Toggle shuffle",
+    "Show popup menu",
+    "Raise player",
+    "Quit player",
+  ]
+}
