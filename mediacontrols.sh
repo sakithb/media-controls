@@ -11,8 +11,11 @@ build() {
   npm run compile
 
   if [ "$1" = "release" ]; then
+    echo "Prettifying..."
+    npm run compile:padding
+
     echo "Stripping debug values..."
-    sed -i '1s/.*/const DEBUG = false;/' ./dist/compiled/utils/common.js
+    sed -i '1s/.*/const DEBUG = false;/' ./dist/compiled/utils/common.
   fi
 
   cp src/metadata.json dist/compiled/metadata.json

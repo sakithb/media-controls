@@ -6,9 +6,9 @@ import Gtk from "gi://Gtk?version=4.0";
 import { ExtensionPreferences } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
 import { isValidAccelerator, isValidBinding } from "./utils/common.js";
-import BlacklistedPlayers from "./widgets/BlacklistedPlayers.js";
-import ElementList from "./widgets/ElementList.js";
-import LabelList from "./widgets/LabelList.js";
+import BlacklistedPlayers from "./helpers/BlacklistedPlayers.js";
+import ElementList from "./helpers/ElementList.js";
+import LabelList from "./helpers/LabelList.js";
 
 Gio._promisify(Gio.File.prototype, "trash_async", "trash_finish");
 Gio._promisify(Gio.File.prototype, "query_info_async", "query_info_finish");
@@ -30,7 +30,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         this.window = window;
         this.settings = this.getSettings();
 
-        this.builder = Gtk.Builder.new_from_file(`${this.path}/prefs.ui`);
+        this.builder = Gtk.Builder.new_from_file(`${this.path}/ui/prefs.ui`);
 
         this.generalPage = this.builder.get_object("page-general") as Adw.PreferencesPage;
         this.appearancePage = this.builder.get_object("page-appearance") as Adw.PreferencesPage;

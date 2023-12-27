@@ -1,6 +1,8 @@
 import Gdk from "gi://Gdk?version=4.0";
 import Gtk from "gi://Gtk?version=4.0";
 
+const DEBUG = true;
+
 const FORBIDDEN_KEYVALS = [
     Gdk.KEY_Home,
     Gdk.KEY_Left,
@@ -52,4 +54,22 @@ export const isValidBinding = (mask: number, keycode: number, keyval: number) =>
     }
 
     return true;
+};
+
+export const enumValueByIndex = <T>(enumObject: T, index: number) => {
+    return Object.values(enumObject)[index];
+};
+
+export const debugLog = (...args: unknown[]) => {
+    if (DEBUG) {
+        console.log("[Media Controls]", ...args);
+    }
+};
+export const errorLog = (...args: unknown[]) => {
+    console.error("[Media Controls]", "Error:", ...args);
+};
+
+export const handleError = (error: unknown): null => {
+    errorLog(error);
+    return null;
 };

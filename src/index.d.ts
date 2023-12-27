@@ -6,3 +6,4 @@ import "@girs/glib-2.0/ambient";
 import "@girs/gnome-shell/ambient";
 import "@girs/gobject-2.0/ambient";
 import "@girs/gtk-4.0/ambient";
+import "@girs/st-13/ambient";
