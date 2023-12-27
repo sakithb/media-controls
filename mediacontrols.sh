@@ -53,7 +53,6 @@ build() {
   PODIR="$PWD/assets/locale"
 
   mkdir -p "$BUILDDIR"
-
   gnome-extensions pack -f -o "$BUILDDIR" --schema="$SCHEMA" --podir="$PODIR" "${ESFLAGS[@]}" "$JSSRCDIR"
 }
 
@@ -65,17 +64,17 @@ debug() {
 }
 
 translations() {
-    xgettext --from-code=UTF-8 --output=assets/locale/mediacontrols.pot src/*.ts assets/schemas/*.xml
+  xgettext --from-code=UTF-8 --output=assets/locale/mediacontrols.pot src/*.ts assets/schemas/*.xml
 
-    cd assets/locale
+  cd assets/locale
 
-    for POFILE in *.po; do
-        echo "Updating: $POFILE"
-        msgmerge -U "$POFILE" "mediacontrols.pot"
-    done
+  for POFILE in *.po; do
+    echo "Updating: $POFILE"
+    msgmerge -U "$POFILE" "mediacontrols.pot"
+  done
 
-    rm ./*.po~
-    echo "Done."
+  rm ./*.po~
+  echo "Done."
 }
 
 lint() {
@@ -95,22 +94,22 @@ install() {
 
 uninstall() {
   echo "Uninstalling..."
-  gnome-extensions uninstall mediacontrols@cliffniff.github.io
+  gnome-extensions uninstall mediacontrols@cliffniff.github.com
 }
 
 enable() {
   echo "Enabling..."
-  gnome-extensions enable mediacontrols@cliffniff.github.io
+  gnome-extensions enable mediacontrols@cliffniff.github.com
 }
 
 disable() {
   echo "Disabling..."
-  gnome-extensions disable mediacontrols@cliffniff.github.io
+  gnome-extensions disable mediacontrols@cliffniff.github.com
 }
 
 prefs() {
   echo "Opening prefs..."
-  gnome-extensions prefs mediacontrols@cliffniff.github.io
+  gnome-extensions prefs mediacontrols@cliffniff.github.com
 }
 
 watch() {

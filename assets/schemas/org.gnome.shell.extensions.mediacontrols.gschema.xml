@@ -14,7 +14,11 @@
     <value nick="Show popup menu" value="10" />
     <value nick="Raise player" value="11" />
     <value nick="Quit player" value="12" />
-
+  </enum>
+  <enum id="org.gnome.shell.extensions.mediacontrols.positions">
+    <value nick="Left" value="0" />
+    <value nick="Center" value="1" />
+    <value nick="Right" value="2" />
   </enum>
   <schema id="org.gnome.shell.extensions.mediacontrols" path="/org/gnome/shell/extensions/mediacontrols/">
     <key name="width" type="u">
@@ -44,17 +48,29 @@
     <key name="show-control-icons-previous" type="b">
       <default>true</default>
     </key>
-    <key name="show-control-icons-seek-back" type="b">
+    <key name="show-control-icons-seek-forward" type="b">
       <default>true</default>
     </key>
-    <key name="show-control-icons-seek-forward" type="b">
+    <key name="show-control-icons-seek-backward" type="b">
       <default>true</default>
     </key>
     <key name="colored-play-icon" type="b">
       <default>false</default>
     </key>
+    <key name="extension-position" enum="org.gnome.shell.extensions.mediacontrols.positions">
+      <default>'Center'</default>
+    </key>
+    <key name="extension-index" type="u">
+      <default>0</default>
+    </key>
+    <key name="elements-order" type="as">
+      <default>['ICON', 'LABEL', 'CONTROLS']</default>
+    </key>
+    <key name="labels-order" type="as">
+      <default>[]</default>
+    </key>
     <key name="shortcut-show-menu" type="s">
-      <default>''</default>
+      <default><![CDATA['']]></default>
     </key>
     <key name="mouse-action-left" enum="org.gnome.shell.extensions.mediacontrols.mouseactions">
       <default>'Show popup menu'</default>

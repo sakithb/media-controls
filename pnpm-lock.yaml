@@ -23,6 +23,9 @@ devDependencies:
   '@girs/gnome-shell':
     specifier: 45.0.0-beta2
     version: 45.0.0-beta2
+  '@girs/gobject-2.0':
+    specifier: 2.78.0-3.2.6
+    version: 2.78.0-3.2.6
   '@girs/graphene-1.0':
     specifier: 1.0.0-3.2.6
     version: 1.0.0-3.2.6

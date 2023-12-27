@@ -1,4 +1,5 @@
 using Gtk 4.0;
+using Gio 2.0;
 using Adw 1;
 
 Adw.PreferencesPage page-general {
@@ -14,6 +15,8 @@ Adw.PreferencesPage page-general {
 
       adjustment: Adjustment {
         lower: 0;
+        upper: 1000;
+        step-increment: 10;
         value: 200;
       };
     }
@@ -22,7 +25,7 @@ Adw.PreferencesPage page-general {
       title: "Hide the media notification";
     }
 
-    Adw.SwitchRow sr-general-scroll-text {
+    Adw.SwitchRow sr-general-scroll-labels {
       title: "Scroll text in the panel widget";
     }
   }
@@ -31,24 +34,39 @@ Adw.PreferencesPage page-general {
     title: "Information";
 
     Adw.ActionRow {
-      title: "Release notes";
+      title: "Homepage";
+      activatable-widget: lb-general-homepage;
 
-      LinkButton {
-        label: "Homepage";
+      LinkButton lb-general-homepage {
         icon-name: "link-symbolic";
         uri: "https://github.com/sakithb/media-controls/blob/main/README.md";
+        margin-top: 10;
+        margin-bottom: 10;
       }
+    }
 
-      LinkButton {
-        label: "Release notes";
+    Adw.ActionRow {
+      title: "Release notes";
+      activatable-widget: lb-general-notes;
+
+      LinkButton lb-general-notes {
         icon-name: "link-symbolic";
         uri: "https://github.com/sakithb/media-controls/releases/latest";
+        margin-top: 10;
+        margin-bottom: 10;
       }
+    }
 
-      LinkButton {
+    Adw.ActionRow {
+      title: "Report an issue";
+      activatable-widget: lb-general-issues;
+
+      LinkButton lb-general-issues {
         label: "Report an issue";
         icon-name: "link-symbolic";
         uri: "hhttps://github.com/sakithb/media-controls/issues";
+        margin-top: 10;
+        margin-bottom: 10;
       }
     }
   }
@@ -65,30 +83,41 @@ Adw.PreferencesPage page-appearance {
 
     Adw.ExpanderRow {
       title: "Player controls";
+      expanded: true;
+
+      Adw.SwitchRow sr-appearance-show-controls {
+        title: "Show player controls";
+      }
 
       Adw.SwitchRow sr-appearance-show-play {
         title: "Show play/pause button";
-      }
-
-      Adw.SwitchRow sr-appearance-show-prev {
-        title: "Show previous track button";
+        sensitive: bind sr-appearance-show-controls.active;
       }
 
       Adw.SwitchRow sr-appearance-show-next {
         title: "Show next track button";
+        sensitive: bind sr-appearance-show-controls.active;
       }
 
-      Adw.SwitchRow sr-appearance-show-seek-back {
-        title: "Show seek back button";
+      Adw.SwitchRow sr-appearance-show-prev {
+        title: "Show previous track button";
+        sensitive: bind sr-appearance-show-controls.active;
       }
 
       Adw.SwitchRow sr-appearance-show-seek-forward {
         title: "Show seek forward button";
+        sensitive: bind sr-appearance-show-controls.active;
+      }
+
+      Adw.SwitchRow sr-appearance-show-seek-backward {
+        title: "Show seek back button";
+        sensitive: bind sr-appearance-show-controls.active;
       }
     }
 
     Adw.ExpanderRow {
       title: "Player icon";
+      expanded: true;
 
       Adw.SwitchRow sr-appearance-show-player {
         title: "Show player icon";
@@ -96,6 +125,7 @@ Adw.PreferencesPage page-appearance {
       
       Adw.SwitchRow sr-appearance-colored-player {
         title: "Colored player icon";
+        sensitive: bind sr-appearance-show-player.active;
       }
     }
   }
@@ -122,22 +152,47 @@ Adw.PreferencesPage page-positions {
     }
 
     Adw.SpinRow sr-positions-extension-index {
-      title: "Margin";
-      subtitle: "Margin between the extension and the panel";
+      title: "Index";
+      subtitle: "Index of the extension";
 
       adjustment: Adjustment {
         lower: 0;
+        upper: 100;
         value: 0;
+        step-increment: 1;
       };
     }
   }
 
-  Adw.PreferencesGroup {
+  Adw.PreferencesGroup gp-positions-elements {
     title: "Elements";
   }
 
-  Adw.PreferencesGroup {
+  Adw.PreferencesGroup gp-positions-labels {
     title: "Label";
+
+    header-suffix: Box {
+      halign: end;
+      valign: center;
+      margin-top: 10;
+      margin-bottom: 10;
+
+      styles [
+        "linked"
+      ]
+
+      Button btn-positions-labels-add-item {
+        label: "Add item";
+        halign: end;
+        valign: center;
+      }
+
+      Button btn-positions-labels-add-text {
+        label: "Add custom text";
+        halign: end;
+        valign: center;
+      }
+    };
   }
 }
 
@@ -146,11 +201,12 @@ Adw.PreferencesPage page-shortcuts {
   icon-name: "keyboard-symbolic";
 
   Adw.PreferencesGroup {
-    Adw.ActionRow {
+    Adw.ActionRow row-shortcuts-popup {
       title: "Show popup menu";
       subtitle: "Shortcut to toggle the popup menu";
+      activatable-widget: sl-shortcuts-popup;
 
-      ShortcutLabel {
+      ShortcutLabel sl-shortcuts-popup {
         disabled-text: "Set shortcut";
         halign: center;
         valign: center;
@@ -161,32 +217,32 @@ Adw.PreferencesPage page-shortcuts {
   Adw.PreferencesGroup {
     title: "Mouse actions";
 
-    Adw.ComboRow {
+    Adw.ComboRow cr-shortcuts-mouse-left {
       title: "Left click";
       model: mouse-actions;
     }
 
-    Adw.ComboRow {
+    Adw.ComboRow cr-shortcuts-mouse-middle {
       title: "Middle click";
       model: mouse-actions;
     }
 
-    Adw.ComboRow {
+    Adw.ComboRow cr-shortcuts-mouse-right {
       title: "Right click";
       model: mouse-actions;
     }
 
-    Adw.ComboRow {
+    Adw.ComboRow cr-shortcuts-mouse-double {
       title: "Double click";
       model: mouse-actions;
     }
 
-    Adw.ComboRow {
+    Adw.ComboRow cr-shortcuts-mouse-scroll-up {
       title: "Scroll up";
       model: mouse-actions;
     }
 
-    Adw.ComboRow {
+    Adw.ComboRow cr-shortcuts-mouse-scroll-down {
       title: "Scroll down";
       model: mouse-actions;
     }
@@ -205,12 +261,16 @@ Adw.PreferencesPage page-other {
       title: "Cache album art";
     }
 
-    Adw.ActionRow {
+    Adw.ActionRow row-other-cache-clear {
       title: "Clear cache";
 
       Button btn-other-cache-clear {
         halign: end;
         valign: center;
+
+        styles [
+          "destructive-action"
+        ]
 
         Adw.ButtonContent {
           label: "Clear";
@@ -220,19 +280,91 @@ Adw.PreferencesPage page-other {
     }
   }
 
-  Adw.PreferencesGroup {
+  Adw.PreferencesGroup gp-other-blacklist {
     title: "Blacklist players";
-    description: "You can blacklist players here. Blacklisted players will not be shown in the extension.";
+    description: "Blacklisted players will be ignored by the extension.";
 
     header-suffix: Button btn-other-blacklist-add {
       halign: end;
       valign: center;
+
+      styles [
+        "suggested-action"
+      ]
 
       Adw.ButtonContent {
         label: "Add";
         icon-name: "list-add-symbolic";
       }
     };
+  }
+}
+
+Adw.Window win-shortcut-editor {
+  title: "Set shortcut";
+  modal: true;
+  resizable: false;
+  default-width: 300;
+  default-height: 200;
+  hide-on-close: true;
+
+  Adw.ToolbarView {   
+    Box {
+      orientation: vertical;
+      margin-start: 20;
+      margin-end: 20;
+      margin-top: 20;
+      margin-bottom: 20;
+
+      Label {
+        label: "<small>Press escape to cancel.\nPress enter to set the shortcut.\nPress backspace to reset.</small>";
+        use-markup: true;
+        wrap: true;
+      }
+
+      ShortcutLabel sl-shortcut-editor {
+        disabled-text: "Press shortcut";
+        halign: center;
+        valign: center;
+        vexpand: true;
+      }
+    }
+  }
+}
+
+Adw.Window win-app-chooser {
+  title: "Select app to blacklist";
+  modal: true;
+  resizable: false;
+  default-width: 300;
+  default-height: 600;
+  hide-on-close: true;
+
+  Adw.ToolbarView {
+    [top]
+    Adw.HeaderBar {
+      decoration-layout: "";
+
+      [start]
+      Button btn-app-chooser-cancel {
+        label: "Cancel";
+      }
+
+      [end]
+      Button btn-app-chooser-select {
+        label: "Select";
+
+        styles [
+          "suggested-action"
+        ]
+      }
+    }
+
+    ScrolledWindow {
+      ListBox lb-app-chooser {
+        selection-mode: single;
+      }
+    }
   }
 }
 
