@@ -12,16 +12,16 @@ class ElementList extends Gtk.ListBox {
     constructor(initOrder: string[]) {
         super();
 
-        const dropTarget = Gtk.DropTarget.new(GObject.TYPE_STRING, Gdk.DragAction.MOVE);
-        dropTarget.connect("drop", (_, value, x, y) => {
+        const dropTarget = Gtk.DropTarget.new(GObject.TYPE_UINT, Gdk.DragAction.MOVE);
+        dropTarget.connect("drop", (_, sourceIndex, x, y) => {
             const targetRow = this.get_row_at_y(y);
-            if (!targetRow || !value) return;
+            if (targetRow == null || sourceIndex == null) return;
 
-            const sourceIndex = this.elements.indexOf(value);
+            const sourceValue = this.elements[sourceIndex];
             const targetIndex = targetRow.get_index();
 
-            this.elements.splice(sourceIndex, 1, this.elements[targetIndex]);
-            this.elements.splice(targetIndex, 1, value);
+            this.elements.splice(targetIndex > sourceIndex ? targetIndex + 1 : targetIndex, 0, sourceValue);
+            this.elements.splice(sourceIndex > targetIndex ? sourceIndex + 1 : sourceIndex, 1);
 
             this.notify("elements");
             this.drag_unhighlight_row();
@@ -38,7 +38,9 @@ class ElementList extends Gtk.ListBox {
     private addElements() {
         this.remove_all();
 
-        for (const element of this.elements) {
+        for (let i = 0; i < this.elements.length; i++) {
+            const element = this.elements[i];
+
             const row = new Adw.ActionRow();
             row.title = PanelElements[element];
             row.activatable = true;
@@ -47,8 +49,8 @@ class ElementList extends Gtk.ListBox {
             row.add_suffix(dragIcon);
 
             const value = new GObject.Value();
-            value.init(GObject.TYPE_STRING);
-            value.set_string(element);
+            value.init(GObject.TYPE_UINT);
+            value.set_uint(i);
 
             const content = Gdk.ContentProvider.new_for_value(value);
 

@@ -72,7 +72,7 @@ class PanelButton extends PanelMenu.Button {
             return;
         }
 
-        const coloredClass = this.extension.coloredPlayerIcon ? "symbolic-icon" : "colored-icon";
+        const coloredClass = this.extension.coloredPlayerIcon ? "colored-icon" : "symbolic-icon";
 
         this.icon = new St.Icon({
             gicon: app.get_icon(),

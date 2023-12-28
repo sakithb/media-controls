@@ -20,16 +20,16 @@ class LabelList extends Gtk.ListBox {
             this.labelsList.append(label);
         }
 
-        const dropTarget = Gtk.DropTarget.new(GObject.TYPE_STRING, Gdk.DragAction.MOVE);
-        dropTarget.connect("drop", (_, value, x, y) => {
+        const dropTarget = Gtk.DropTarget.new(GObject.TYPE_UINT, Gdk.DragAction.MOVE);
+        dropTarget.connect("drop", (_, sourceIndex, x, y) => {
             const targetRow = this.get_row_at_y(y);
-            if (!targetRow || !value) return;
+            if (targetRow == null || sourceIndex == null) return;
 
-            const sourceIndex = this.labels.indexOf(value);
+            const sourceValue = this.labels[sourceIndex];
             const targetIndex = targetRow.get_index();
 
-            this.labels.splice(sourceIndex, 1, this.labels[targetIndex]);
-            this.labels.splice(targetIndex, 1, value);
+            this.labels.splice(targetIndex > sourceIndex ? targetIndex + 1 : targetIndex, 0, sourceValue);
+            this.labels.splice(sourceIndex > targetIndex ? sourceIndex + 1 : sourceIndex, 1);
 
             this.notify("labels");
             this.drag_unhighlight_row();
@@ -43,13 +43,13 @@ class LabelList extends Gtk.ListBox {
     }
 
     public addItem() {
-        this.labels.unshift("ALBUM");
+        this.labels.push("ALBUM");
         this.notify("labels");
         this.addElements();
     }
 
     public addText() {
-        this.labels.unshift("");
+        this.labels.push("");
         this.notify("labels");
         this.addElements();
     }
@@ -72,7 +72,8 @@ class LabelList extends Gtk.ListBox {
             return;
         }
 
-        for (const element of this.labels) {
+        for (let i = 0; i < this.labels.length; i++) {
+            const element = this.labels[i];
             if (Object.keys(LabelTypes).includes(element)) {
                 const row = new Adw.ComboRow();
                 row.title = LabelTypes[element];
@@ -80,19 +81,19 @@ class LabelList extends Gtk.ListBox {
                 row.selected = Object.keys(LabelTypes).indexOf(element);
 
                 this.handleComboBoxChange(row);
-                this.completeRowCreation(row, element);
+                this.completeRowCreation(row, i);
             } else {
                 const row = new Adw.EntryRow();
                 row.title = "Custom text";
                 row.text = element;
 
                 this.handleEntryChange(row);
-                this.completeRowCreation(row, element);
+                this.completeRowCreation(row, i);
             }
         }
     }
 
-    private completeRowCreation(row: Adw.ComboRow | Adw.EntryRow, element: string) {
+    private completeRowCreation(row: Adw.ComboRow | Adw.EntryRow, index: number) {
         const dragIcon = new Gtk.Image({ icon_name: "list-drag-handle-symbolic" });
         row.add_prefix(dragIcon);
 
@@ -104,24 +105,26 @@ class LabelList extends Gtk.ListBox {
         row.add_suffix(deleteBtn);
 
         deleteBtn.connect("clicked", () => {
-            this.labels.splice(this.labels.indexOf(element), 1);
+            this.labels.splice(index, 1);
             this.notify("labels");
             this.addElements();
         });
 
-        const dragSource = new Gtk.DragSource({ actions: Gdk.DragAction.MOVE });
+        const value = new GObject.Value();
+        value.init(GObject.TYPE_UINT);
+        value.set_uint(index);
+
+        const content = Gdk.ContentProvider.new_for_value(value);
+
+        const dragSource = new Gtk.DragSource({ actions: Gdk.DragAction.MOVE, content });
         const dropController = new Gtk.DropControllerMotion();
 
         dragSource.connect("prepare", (dragSource, x, y) => {
             const row = dragSource.widget as Adw.ComboRow | Adw.EntryRow;
             const snapshot = this.snapshotRow(row);
+
             dragSource.set_icon(snapshot, x, y);
-
-            const value = new GObject.Value();
-            value.init(GObject.TYPE_STRING);
-            value.set_string(element);
-
-            return Gdk.ContentProvider.new_for_value(value);
+            return dragSource.content;
         });
 
         dropController.connect("enter", (dropController) => {
@@ -147,6 +150,7 @@ class LabelList extends Gtk.ListBox {
 
             this.labels.splice(rowIndex, 1, labelKey);
             this.notify("labels");
+            this.addElements();
         });
     }
 

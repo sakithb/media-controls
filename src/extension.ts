@@ -1,13 +1,14 @@
 import Gio from "gi://Gio?version=2.0";
 import GLib from "gi://GLib?version=2.0";
+import Shell from "gi://Shell?version=13";
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
 import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
 
+import PanelButton from "./helpers/PanelButton.js";
+import PlayerProxy from "./helpers/PlayerProxy.js";
 import { ExtensionPositions, LabelTypes, MouseActions, PanelElements, PlaybackStatus } from "./types/enums.js";
 import { createDbusProxy, debugLog, enumValueByIndex, errorLog, handleError } from "./utils/common.js";
 import { StdInterface } from "./types/dbus.js";
-import PanelButton from "./helpers/PanelButton.js";
-import PlayerProxy from "./helpers/PlayerProxy.js";
 import { KeysOf } from "./types/common.js";
 
 Gio._promisify(Gio.File.prototype, "load_contents_async", "load_contents_finish");
@@ -213,11 +214,13 @@ export default class MediaControls extends Extension {
         this.settings.connect("changed::blacklisted-players", () => {
             this.blacklistedPlayers = this.settings.get_strv("blacklisted-players");
 
-            for (const blacklistedPlayer of this.blacklistedPlayers) {
-                if (this.playerProxies.has(blacklistedPlayer)) {
-                    this.removePlayer(blacklistedPlayer);
+            for (const playerProxy of this.playerProxies.values()) {
+                if (this.isPlayerBlacklisted(playerProxy.identity)) {
+                    this.removePlayer(playerProxy.busName);
                 }
             }
+
+            this.addRunningPlayers();
         });
     }
 
@@ -277,22 +280,7 @@ export default class MediaControls extends Extension {
             return;
         }
 
-        const namesResult = await this.watchProxy.ListNamesAsync().catch(handleError);
-
-        if (namesResult == null) {
-            errorLog("Failed to get bus names");
-            return;
-        }
-
-        const busNames = namesResult[0];
-
-        for (const busName of busNames) {
-            if (busName.startsWith("org.mpris.MediaPlayer2") === false) {
-                continue;
-            }
-
-            await this.addPlayer(busName);
-        }
+        await this.addRunningPlayers();
     }
 
     private async initWatchProxy() {
@@ -311,13 +299,9 @@ export default class MediaControls extends Extension {
                 return;
             }
 
-            debugLog(`NameOwnerChanged: ${busName} ${oldOwner} ${newOwner}`);
-
             if (newOwner === "") {
-                debugLog(`Removing player ${busName}`);
                 this.removePlayer(busName);
             } else if (oldOwner === "") {
-                debugLog(`Adding player ${busName}`);
                 this.addPlayer(busName);
             }
         });
@@ -325,13 +309,42 @@ export default class MediaControls extends Extension {
         return true;
     }
 
+    private async addRunningPlayers() {
+        const namesResult = await this.watchProxy.ListNamesAsync().catch(handleError);
+
+        if (namesResult == null) {
+            errorLog("Failed to get bus names");
+            return;
+        }
+
+        const busNames = namesResult[0];
+        const promises = [];
+
+        for (const busName of busNames) {
+            if (busName.startsWith("org.mpris.MediaPlayer2") === false) continue;
+            if (this.playerProxies.has(busName)) continue;
+
+            promises.push(this.addPlayer(busName));
+        }
+
+        await Promise.all(promises).catch(handleError);
+    }
+
     private async addPlayer(busName: string) {
-        const playerProxy = new PlayerProxy(busName, this.blacklistedPlayers.includes(busName));
+        debugLog("Adding player:", busName);
+        const playerProxy = new PlayerProxy(busName);
         const initSuccess = await playerProxy
             .initPlayer(this.mprisIfaceInfo, this.mprisPlayerIfaceInfo, this.propertiesIfaceInfo)
             .catch(handleError);
 
         if (initSuccess === false) {
+            return;
+        }
+
+        const isPlayerBlacklisted = this.isPlayerBlacklisted(playerProxy.identity);
+
+        if (isPlayerBlacklisted) {
+            debugLog("Player is blacklisted:", busName);
             return;
         }
 
@@ -344,6 +357,7 @@ export default class MediaControls extends Extension {
     }
 
     private removePlayer(busName: string) {
+        debugLog("Removing player:", busName);
         this.playerProxies.delete(busName);
         this.setActivePlayer();
     }
@@ -395,6 +409,25 @@ export default class MediaControls extends Extension {
         }
     }
 
+    private isPlayerBlacklisted(identity: string) {
+        const appSystem = Shell.AppSystem.get_default();
+        const runningApps = appSystem.get_running();
+        const app = runningApps.find((app) => app.get_name() === identity);
+
+        if (app == null) {
+            const searchResults = Shell.AppSystem.search(identity)[0];
+
+            if (searchResults.length === 0) {
+                return true;
+            }
+
+            const appId = searchResults[0];
+            return this.blacklistedPlayers.includes(appId);
+        } else {
+            return this.blacklistedPlayers.includes(app.get_id());
+        }
+    }
+
     private addPanelButton(busName: string) {
         const playerProxy = this.playerProxies.get(busName);
 
@@ -407,7 +440,7 @@ export default class MediaControls extends Extension {
     }
 
     private removePanelButton() {
-        this.panelBtn.destroy();
+        this.panelBtn?.destroy();
         this.panelBtn = null;
     }
 
@@ -442,12 +475,14 @@ export default class MediaControls extends Extension {
     }
 
     public disable() {
-        this.playerProxies = null;
         this.watchProxy = null;
         this.watchIfaceInfo = null;
         this.mprisIfaceInfo = null;
         this.mprisPlayerIfaceInfo = null;
+        this.propertiesIfaceInfo = null;
+        this.playerProxies = null;
 
+        this.removePanelButton();
         this.destroySettings();
 
         debugLog("Disabled");

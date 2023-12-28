@@ -20,11 +20,9 @@ export default class PlayerProxy {
 
     public busName: string;
     public isInvalid: boolean;
-    public isBlacklisted: boolean;
 
-    constructor(busName: string, isBlacklisted: boolean) {
+    constructor(busName: string) {
         this.busName = busName;
-        this.isBlacklisted = isBlacklisted;
         this.isPinned = false;
         this.isInvalid = true;
     }
