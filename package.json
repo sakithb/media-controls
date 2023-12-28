@@ -12,6 +12,7 @@
   },
   "devDependencies": {
     "@girs/adw-1": "1.4.0-3.2.6",
+    "@girs/clutter-13": "13.0.0-3.2.6",
     "@girs/gdk-4.0": "4.0.0-3.2.6",
     "@girs/gio-2.0": "2.78.0-3.2.6",
     "@girs/gjs": "^3.2.6",
@@ -21,6 +22,7 @@
     "@girs/graphene-1.0": "1.0.0-3.2.6",
     "@girs/gsk-4.0": "4.0.0-3.2.6",
     "@girs/gtk-4.0": "4.12.3-3.2.6",
+    "@girs/shell-13": "13.0.0-3.2.6",
     "@girs/soup-3.0": "3.4.4-3.2.6",
     "@girs/st-13": "13.0.0-3.2.6",
     "@typescript-eslint/eslint-plugin": "^6.12.0",

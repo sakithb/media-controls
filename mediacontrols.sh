@@ -15,7 +15,7 @@ build() {
     npm run compile:padding
 
     echo "Stripping debug values..."
-    sed -i '1s/.*/const DEBUG = false;/' ./dist/compiled/utils/common.
+    sed 's/const DEBUG = true;/const DEBUG = false;/g' ./dist/compiled/utils/common.js
   fi
 
   cp src/metadata.json dist/compiled/metadata.json

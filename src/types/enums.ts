@@ -8,12 +8,14 @@ export enum LabelTypes {
     ARTIST = "Artist",
     TITLE = "Title",
     ALBUM = "Album",
+    DISC_NUMBER = "Disc Number",
+    TRACK_NUMBER = "Track Number",
 }
 
 export enum ExtensionPositions {
-    LEFT = "Left",
-    CENTER = "Center",
-    RIGHT = "Right",
+    LEFT = "left",
+    CENTER = "center",
+    RIGHT = "right",
 }
 
 export enum MouseActions {
@@ -32,7 +34,7 @@ export enum MouseActions {
     QUIT_PLAYER = "Quit player",
 }
 
-export enum PlayerbackStatus {
+export enum PlaybackStatus {
     PLAYING = "Playing",
     PAUSED = "Paused",
     STOPPED = "Stopped",

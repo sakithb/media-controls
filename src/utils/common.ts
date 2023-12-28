@@ -1,8 +1,10 @@
 import Gdk from "gi://Gdk?version=4.0";
 import Gtk from "gi://Gtk?version=4.0";
+import Gio from "gi://Gio?version=2.0";
+
+Gio._promisify(Gio.DBusProxy, "new", "new_finish");
 
 const DEBUG = true;
-
 const FORBIDDEN_KEYVALS = [
     Gdk.KEY_Home,
     Gdk.KEY_Left,
@@ -65,6 +67,7 @@ export const debugLog = (...args: unknown[]) => {
         console.log("[Media Controls]", ...args);
     }
 };
+
 export const errorLog = (...args: unknown[]) => {
     console.error("[Media Controls]", "Error:", ...args);
 };
@@ -72,4 +75,23 @@ export const errorLog = (...args: unknown[]) => {
 export const handleError = (error: unknown): null => {
     errorLog(error);
     return null;
+};
+
+export const createDbusProxy = async <T>(
+    ifaceInfo: Gio.DBusInterfaceInfo,
+    name: string,
+    object: string,
+): Promise<T> => {
+    // @ts-expect-error Types have not been promisified yet
+    const proxy = Gio.DBusProxy.new(
+        Gio.DBus.session,
+        Gio.DBusProxyFlags.NONE,
+        ifaceInfo,
+        name,
+        object,
+        ifaceInfo.name,
+        null,
+    ) as Promise<T>;
+
+    return proxy;
 };

@@ -1,11 +1,6 @@
 {
   "root": true,
-  "extends": [
-    "eslint:recommended",
-    "plugin:@typescript-eslint/recommended",
-    "plugin:import/recommended",
-    "plugin:import/typescript"
-  ],
+  "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:import/recommended", "plugin:import/typescript"],
   "plugins": ["@typescript-eslint"],
   "parser": "@typescript-eslint/parser",
   "env": {
@@ -37,10 +32,12 @@
     "clearInterval": "readonly"
   },
   "rules": {
+    "import/extensions": ["error", "ignorePackages"],
+    "import/no-unresolved": "off",
     "max-len": [
       "warn",
       {
-        "code": 120,
+        "code": 140,
         "ignoreComments": true,
         "ignoreStrings": true,
         "ignoreTemplateLiterals": true,
@@ -115,8 +112,6 @@
       {
         "checkLoops": false
       }
-    ],
-    "import/extensions": ["error", "ignorePackages"],
-    "import/no-unresolved": "off"
+    ]
   }
 }
