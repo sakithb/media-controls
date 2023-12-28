@@ -1,0 +1,442 @@
+# Czech translation for Media Controls
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR Amerey.eu <info@amerey.eu>, 2023.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-12-03 09:25+0100\n"
+"PO-Revision-Date: 2023-12-28 11:40+0100\n"
+"Last-Translator: Amerey.eu <info@amerey.eu>\n"
+"Language-Team: \n"
+"Language: cs\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4\n"
+
+#: extension.js:8
+msgid "[MediaControls] Enabling"
+msgstr "[MediaControls] Aktivace"
+
+#: extension.js:14
+msgid "[MediaControls] Disabling"
+msgstr "[MediaControls] Deaktivace"
+
+#: extension.js:20
+msgid "[MediaControls] Reloading"
+msgstr "[MediaControls] Opětovné načítání"
+
+#: player.js:1102 player.js:1149
+msgid "Unknown artist"
+msgstr "Neznámý umělec"
+
+#: player.js:1103 player.js:1154
+msgid "Unknown album"
+msgstr "Neznámé album"
+
+#: player.js:1144
+msgid "No track"
+msgstr "Žádná skladba"
+
+#: prefs.js:29
+msgid "Track"
+msgstr "Skladba"
+
+#: prefs.js:30
+msgid "Track + Album"
+msgstr "Skladba + Album"
+
+#: prefs.js:31
+msgid "Artist"
+msgstr "Interpret"
+
+#: prefs.js:32
+msgid "Artist + Album"
+msgstr "Interpret + Album"
+
+#: prefs.js:33
+msgid "Album"
+msgstr "Album"
+
+#: prefs.js:34
+msgid "Album + Artist"
+msgstr "Album + Interpret"
+
+#: prefs.js:35
+msgid "Album + Track"
+msgstr "Album + Skladba"
+
+#: prefs.js:36
+msgid "URL"
+msgstr "URL"
+
+#: prefs.js:37
+msgid "Player name"
+msgstr "Název přehrávače"
+
+#: prefs.js:38
+msgid "Playback status"
+msgstr "Stav přehrávání"
+
+#: prefs.js:39
+msgid "Filename"
+msgstr "Název souboru"
+
+#: prefs.js:40 prefs.js:239
+msgid "None"
+msgstr "---"
+
+#: prefs.js:104 prefs.js:115 prefs.js:594 prefs.js:805 prefs.js:830
+msgid "Custom"
+msgstr "Vlastní"
+
+#: prefs.js:134
+msgid "Left"
+msgstr "Vlevo"
+
+#: prefs.js:135
+msgid "Center"
+msgstr "Uprostřed"
+
+#: prefs.js:136
+msgid "Right"
+msgstr "Vpravo"
+
+#: prefs.js:174 prefs.js:553
+msgid "Player icon"
+msgstr "Ikona přehrávače"
+
+#: prefs.js:175
+msgid "Track title"
+msgstr "Název skladby"
+
+#: prefs.js:176
+msgid "Control icons"
+msgstr "Ikony ovládání"
+
+#: prefs.js:177 prefs.js:561
+msgid "Sources menu"
+msgstr "Nabídka zdrojů"
+
+#: prefs.js:181
+msgid "Element"
+msgstr "Prvek"
+
+#: prefs.js:213
+msgid "Left click"
+msgstr "Levý klik"
+
+#: prefs.js:214
+msgid "Right click"
+msgstr "Pravý klik"
+
+#: prefs.js:215
+msgid "Middle click"
+msgstr "Prostřední klik"
+
+#: prefs.js:216
+msgid "Left double click"
+msgstr "Levý dvojklik"
+
+#: prefs.js:217
+msgid "Right double click"
+msgstr "Pravý dvojklik"
+
+#: prefs.js:218
+msgid "Scroll up"
+msgstr "Posunutí nahoru"
+
+#: prefs.js:219
+msgid "Scroll down"
+msgstr "Posunutí dolů"
+
+#: prefs.js:220 prefs.js:226
+msgid "Hover"
+msgstr "Najetí myší"
+
+#: prefs.js:227
+msgid "unstable"
+msgstr "nestabilní"
+
+#: prefs.js:240
+msgid "Toggle play/pause"
+msgstr "Přepínání přehrávání/pozastavení"
+
+#: prefs.js:241
+msgid "Play"
+msgstr "Přehrát"
+
+#: prefs.js:242
+msgid "Pause"
+msgstr "Pozastavit"
+
+#: prefs.js:243
+msgid "Next"
+msgstr "Další"
+
+#: prefs.js:244
+msgid "Previous"
+msgstr "Předchozí"
+
+#: prefs.js:245
+msgid "Volume up"
+msgstr "Zvýšit hlasitost"
+
+#: prefs.js:246
+msgid "Volume down"
+msgstr "Snížit hlasitost"
+
+#: prefs.js:247
+msgid "Cycle loop options"
+msgstr "Volby cyklické smyčky"
+
+#: prefs.js:248
+msgid "Toggle shuffle"
+msgstr "Přepnout náhodné přehrávání"
+
+#: prefs.js:249
+msgid "Toggle sources menu"
+msgstr "Přepnout nabídku zdrojů"
+
+#: prefs.js:250
+msgid "Toggle track information menu"
+msgstr "Přepnout nabídku informací o skladbě"
+
+#: prefs.js:251
+msgid "Raise player"
+msgstr "Přepnout další skladbu"
+
+#: prefs.js:252
+msgid "Quit player"
+msgstr "Ukončit"
+
+#: prefs.js:328
+msgid "General"
+msgstr "Obecné"
+
+#: prefs.js:334 widget.js:251
+msgid "Settings"
+msgstr "Nastavení"
+
+#: prefs.js:339
+msgid "Maximum widget width"
+msgstr "Maximální šířka doplňku"
+
+#: prefs.js:340
+msgid "0 to disable"
+msgstr "0 pro deaktivaci"
+
+#: prefs.js:353
+msgid "No. of seconds to seek by"
+msgstr "Počet sekund k vyhledání"
+
+#: prefs.js:368
+msgid "Use native seek"
+msgstr "Použít nativní hledání"
+
+#: prefs.js:369
+msgid "Disable this if seeking is not working"
+msgstr "Pokud vyhledávání nefunguje, deaktivujte tuto možnost"
+
+#: prefs.js:381
+msgid "Hide the media notification"
+msgstr "Skrýt oznámení o médiích"
+
+#: prefs.js:393
+msgid "Clip title and artist in track information menu"
+msgstr "Ořezat název a interpreta v nabídce informací o skladbě"
+
+#: prefs.js:394
+msgid "Disable this to use wrapping instead"
+msgstr "Chcete-li místo toho použít zalamování, deaktivujte tuto možnost"
+
+#: prefs.js:406
+msgid "Scroll the track label in the panel"
+msgstr "Posouvat štítek stopy na panelu"
+
+#: prefs.js:407
+msgid "Enable this to scroll the panel label instead of clipping"
+msgstr "Povolte tuto možnost, chcete-li posouvat štítek namísto ořezávání"
+
+#: prefs.js:419
+msgid "Track label"
+msgstr "Štítek skladby"
+
+#: prefs.js:423
+msgid "Starting label"
+msgstr "Počáteční štítek"
+
+#: prefs.js:431
+msgid "Separating label"
+msgstr "Oddělovací štítek"
+
+#: prefs.js:437
+msgid "Ending label"
+msgstr "Koncový štítek"
+
+#: prefs.js:447
+msgid "Github"
+msgstr "Github"
+
+#: prefs.js:452
+msgid "Release Notes"
+msgstr "Poznámky k vydání"
+
+#: prefs.js:460
+msgid "Report a issue"
+msgstr "Nahlásit problém"
+
+#: prefs.js:468
+msgid "Homepage"
+msgstr "Domovská stránka"
+
+#: prefs.js:479
+msgid "Visibility"
+msgstr "Zobrazení"
+
+#: prefs.js:484
+msgid "show/hide elements"
+msgstr "zobrazit/skrýt prvky"
+
+#: prefs.js:489
+msgid "Title/Track name"
+msgstr "Jméno/Název skladby"
+
+#: prefs.js:497
+msgid "Separators"
+msgstr "Oddělovače"
+
+#: prefs.js:505
+msgid "Player controls"
+msgstr "Ovládání přehrávače"
+
+#: prefs.js:513
+msgid "Play/pause button"
+msgstr "Tlačítko Přehrát/Pozastavit"
+
+#: prefs.js:521
+msgid "Previous track button"
+msgstr "Tlačítko předchozí skladba"
+
+#: prefs.js:529
+msgid "Next track button"
+msgstr "Tlačítko další skladba"
+
+#: prefs.js:537
+msgid "Seek back button"
+msgstr "Tlačítko vyhledávání zpět"
+
+#: prefs.js:545
+msgid "Seek forward button"
+msgstr "Tlačítko vyhledávání vpřed"
+
+#: prefs.js:569
+msgid "Colors"
+msgstr "Barvy"
+
+#: prefs.js:574
+msgid "Colored player icon"
+msgstr "Barevná ikona přehrávače"
+
+#: prefs.js:582
+msgid "Separator characters"
+msgstr "Oddělovací znaky"
+
+#: prefs.js:586
+msgid "Preset"
+msgstr "Předvolba"
+
+#: prefs.js:595
+msgid "To use it choose 'Custom' under 'Preset' selection"
+msgstr "Chcete-li jej použít, vyberte „Vlastní“ pod výběrem „Předvolba“"
+
+#: prefs.js:609
+msgid "Appearance"
+msgstr "Vzhled"
+
+#: prefs.js:614
+msgid "Position"
+msgstr "Pozice"
+
+#: prefs.js:619
+msgid "Extension position"
+msgstr "Pozice doplňku"
+
+#: prefs.js:630
+msgid "Extension index"
+msgstr "Index doplňku"
+
+#: prefs.js:642
+msgid "Element order"
+msgstr "Pořadí"
+
+#: prefs.js:650
+msgid "Shortcuts"
+msgstr "Klávesové zkratky"
+
+#: prefs.js:655
+msgid "Mouse actions"
+msgstr "Akce myši"
+
+#: prefs.js:661
+msgid "Hotkey"
+msgstr "Klávesová zkratka"
+
+#: prefs.js:665
+msgid "Hot key"
+msgstr "Klávesová zkratka"
+
+#: prefs.js:666
+msgid "Hot key to toggle the track information menu"
+msgstr "Klávesová zkratka pro přepínání nabídky informací o skladbě"
+
+#: prefs.js:669
+msgid "Select a hotkey"
+msgstr "Vyberte klávesovou zkratku"
+
+#: prefs.js:680
+msgid "New hotkey"
+msgstr "Nová klávesová zkratka"
+
+#: prefs.js:718
+msgid "Other"
+msgstr "Ostatní"
+
+#: prefs.js:723
+msgid "Cache"
+msgstr "Mezipaměť"
+
+#: prefs.js:728
+msgid "Cache images"
+msgstr "Ukládat obrázky do mezipaměti"
+
+#: prefs.js:737
+msgid ""
+"Media Controls caches album art so they don't need to be redownloaded every "
+"time. You can clear your cache here."
+msgstr ""
+"Media Controls ukládají obrázky alb do mezipaměti, takže je není nutné "
+"pokaždé znovu stahovat. Zde můžete vymazat mezipaměť."
+
+#: prefs.js:751
+msgid "Clear cache"
+msgstr "Vyčistit mezipaměť"
+
+#: prefs.js:762
+msgid "Blacklist players"
+msgstr "Přehrávače na blacklistu"
+
+#: prefs.js:766
+msgid "Add player"
+msgstr "Přidat přehrávač"
+
+#: prefs.js:892
+msgid "Failed to clear cache"
+msgstr "Vymazání mezipaměti se nezdařilo"
+
+#: widget.js:254
+msgid "Determine player automatically"
+msgstr "Automaticky vybrat přehrávač"
