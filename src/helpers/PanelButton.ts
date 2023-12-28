@@ -1,11 +1,13 @@
 import GObject from "gi://GObject?version=2.0";
 import St from "gi://St?version=13";
-import MediaControls from "../extension.js";
 import Shell from "gi://Shell?version=13";
-import Clutter from "gi://Clutter?version=13";
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
-import { LabelTypes, PanelElements, PlaybackStatus } from "../types/enums.js";
+
+import MediaControls from "../extension.js";
 import PlayerProxy from "./PlayerProxy.js";
+import { LabelTypes, PanelElements, PlaybackStatus } from "../types/enums.js";
+import { debugLog } from "../utils/common.js";
+import Clutter from "gi://Clutter?version=13";
 
 class PanelButton extends PanelMenu.Button {
     private playerProxy: PlayerProxy;
@@ -14,45 +16,51 @@ class PanelButton extends PanelMenu.Button {
     private icon: St.Icon;
     private label: St.Label;
     private controls: St.BoxLayout;
+    private box: St.BoxLayout;
 
     constructor(playerProxy: PlayerProxy, extension: MediaControls) {
         super(0.5, "Media Controls", false);
 
         this.playerProxy = playerProxy;
         this.extension = extension;
-        this.addWidgets();
+
+        this.drawWidgets();
         this.addListeners();
     }
 
     public updateProxy(playerProxy: PlayerProxy) {
         this.playerProxy = playerProxy;
-        this.addWidgets();
+        this.drawWidgets();
     }
 
     public isSamePlayer(playerProxy: PlayerProxy) {
         return this.playerProxy.busName === playerProxy.busName;
     }
 
-    private addListeners() {
-        // this.playerProxy.onChanged("PlaybackStatus", (value) => {
-        //     if (this.extension.showControlIconsPlay) {
-        //         this.addWidgets();
-        //     }
-        // });
-    }
-
-    private addWidgets() {
+    public drawWidgets() {
         this.remove_all_children();
+        this.box = new St.BoxLayout({
+            styleClass: "panel-button-box",
+        });
 
         for (const element of this.extension.elementsOrder) {
-            if (element === PanelElements.ICON && this.extension.showPlayerIcon) {
+            if (this.extension.showPlayerIcon && PanelElements[element] === PanelElements.ICON) {
                 this.addIcon();
-            } else if (element === PanelElements.LABEL && this.extension.showLabel) {
+            } else if (this.extension.showLabel && PanelElements[element] === PanelElements.LABEL) {
                 this.addLabel();
-            } else if (element === PanelElements.CONTROLS && this.extension.showControlIcons) {
+            } else if (this.extension.showControlIcons && PanelElements[element] === PanelElements.CONTROLS) {
                 this.addControls();
             }
         }
+
+        this.add_child(this.box);
+        debugLog("Added widgets");
+    }
+
+    private addListeners() {
+        this.playerProxy.onChanged("Metadata", () => {
+            this.drawWidgets();
+        });
     }
 
     private addIcon() {
@@ -64,20 +72,25 @@ class PanelButton extends PanelMenu.Button {
             return;
         }
 
+        const coloredClass = this.extension.coloredPlayerIcon ? "symbolic-icon" : "colored-icon";
+
         this.icon = new St.Icon({
             gicon: app.get_icon(),
-            effect: new Clutter.DesaturateEffect({ enabled: !this.extension.coloredPlayIcon }),
+            styleClass: `system-status-icon ${coloredClass}`,
         });
 
-        this.add_child(this.icon);
+        this.box.add_child(this.icon);
+        debugLog("Added icon");
     }
 
     private addLabel() {
         this.label = new St.Label({
             text: this.getLabelText(),
+            yAlign: Clutter.ActorAlign.CENTER,
         });
 
-        this.add_child(this.label);
+        this.box.add_child(this.label);
+        debugLog("Added label");
     }
 
     private addControls() {
@@ -85,9 +98,13 @@ class PanelButton extends PanelMenu.Button {
 
         if (this.extension.showControlIconsSeekBackward) {
             this.addControlIcon("media-seek-backward-symbolic");
-        } else if (this.extension.showControlIconsPrevious) {
+        }
+
+        if (this.extension.showControlIconsPrevious) {
             this.addControlIcon("media-skip-backward-symbolic");
-        } else if (this.extension.showControlIconsPlay) {
+        }
+
+        if (this.extension.showControlIconsPlay) {
             if (this.playerProxy.playbackStatus === PlaybackStatus.PLAYING) {
                 this.addControlIcon("media-playback-pause-symbolic");
             } else if (this.playerProxy.playbackStatus === PlaybackStatus.PAUSED) {
@@ -95,16 +112,24 @@ class PanelButton extends PanelMenu.Button {
             } else if (this.playerProxy.playbackStatus === PlaybackStatus.STOPPED) {
                 this.addControlIcon("media-playback-start-symbolic");
             }
-        } else if (this.extension.showControlIconsNext) {
+        }
+
+        if (this.extension.showControlIconsNext) {
             this.addControlIcon("media-skip-forward-symbolic");
-        } else if (this.extension.showControlIconsSeekForward) {
+        }
+
+        if (this.extension.showControlIconsSeekForward) {
             this.addControlIcon("media-seek-forward-symbolic");
         }
+
+        this.box.add_child(this.controls);
+        debugLog("Added controls");
     }
 
     private addControlIcon(iconName: string) {
         const icon = new St.Icon({
             icon_name: iconName,
+            styleClass: "system-status-icon",
         });
 
         this.controls.add_child(icon);
@@ -114,15 +139,15 @@ class PanelButton extends PanelMenu.Button {
         const labelTextElements = [];
 
         for (const labelElement of this.extension.labelsOrder) {
-            if (labelElement === LabelTypes.TITLE) {
+            if (LabelTypes[labelElement] === LabelTypes.TITLE) {
                 labelTextElements.push(this.playerProxy.metadata["xesam:title"]);
-            } else if (labelElement === LabelTypes.ARTIST) {
+            } else if (LabelTypes[labelElement] === LabelTypes.ARTIST) {
                 labelTextElements.push(this.playerProxy.metadata["xesam:artist"].join(", "));
-            } else if (labelElement === LabelTypes.ALBUM) {
+            } else if (LabelTypes[labelElement] === LabelTypes.ALBUM) {
                 labelTextElements.push(this.playerProxy.metadata["xesam:album"]);
-            } else if (labelElement === LabelTypes.DISC_NUMBER) {
+            } else if (LabelTypes[labelElement] === LabelTypes.DISC_NUMBER) {
                 labelTextElements.push(this.playerProxy.metadata["xesam:discNumber"]);
-            } else if (labelElement === LabelTypes.TRACK_NUMBER) {
+            } else if (LabelTypes[labelElement] === LabelTypes.TRACK_NUMBER) {
                 labelTextElements.push(this.playerProxy.metadata["xesam:trackNumber"]);
             } else {
                 labelTextElements.push(labelElement);

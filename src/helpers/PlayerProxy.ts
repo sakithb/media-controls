@@ -3,26 +3,37 @@ import {
     MprisInterface,
     MprisPlayerInterface,
     MprisPlayerInterfaceMetadata,
+    MprisPlayerInterfaceMetadataUnpacked,
+    PlayerProxyDBusProperties,
     PlayerProxyProperties,
+    PropertiesInterface,
 } from "../types/dbus.js";
 import { LoopStatus, PlaybackStatus } from "../types/enums.js";
-import { createDbusProxy, errorLog, handleError } from "../utils/common.js";
+import { createDbusProxy, debugLog, errorLog, handleError } from "../utils/common.js";
 
 export default class PlayerProxy {
+    private isPinned: boolean;
     private mprisProxy: MprisInterface;
     private mprisPlayerProxy: MprisPlayerInterface;
-    private changeListeners: Map<string, (value: unknown) => void> = new Map();
+    private propertiesProxy: PropertiesInterface;
+    private changeListeners: Map<keyof PlayerProxyProperties, (value: unknown) => void> = new Map();
 
     public busName: string;
-    public isPinned = false;
-    public isBlacklisted = false;
-    public isInvalid = false;
+    public isInvalid: boolean;
+    public isBlacklisted: boolean;
 
-    constructor(busName: string) {
+    constructor(busName: string, isBlacklisted: boolean) {
         this.busName = busName;
+        this.isBlacklisted = isBlacklisted;
+        this.isPinned = false;
+        this.isInvalid = true;
     }
 
-    public async initProxies(mprisIface: Gio.DBusInterfaceInfo, mprisPlayerIface: Gio.DBusInterfaceInfo) {
+    public async initPlayer(
+        mprisIface: Gio.DBusInterfaceInfo,
+        mprisPlayerIface: Gio.DBusInterfaceInfo,
+        propertiesIface: Gio.DBusInterfaceInfo,
+    ) {
         const mprisProxy = createDbusProxy<MprisInterface>(mprisIface, this.busName, "/org/mpris/MediaPlayer2").catch(
             handleError,
         );
@@ -32,7 +43,13 @@ export default class PlayerProxy {
             "/org/mpris/MediaPlayer2",
         ).catch(handleError);
 
-        const proxies = await Promise.all([mprisProxy, mprisPlayerProxy]).catch(handleError);
+        const propertiesProxy = createDbusProxy<PropertiesInterface>(
+            propertiesIface,
+            this.busName,
+            "/org/mpris/MediaPlayer2",
+        ).catch(handleError);
+
+        const proxies = await Promise.all([mprisProxy, mprisPlayerProxy, propertiesProxy]).catch(handleError);
 
         if (proxies == null) {
             errorLog("Failed to create proxies");
@@ -41,28 +58,61 @@ export default class PlayerProxy {
 
         this.mprisProxy = proxies[0];
         this.mprisPlayerProxy = proxies[1];
+        this.propertiesProxy = proxies[2];
 
-        this.mprisPlayerProxy.connectSignal("PropertiesChanged", (proxy, sender, [, changedProperties]) => {
-            changedProperties = changedProperties.recursiveUnpack();
-            for (const [key, value] of Object.entries(changedProperties)) {
-                const listener = this.changeListeners.get(key);
-                if (listener != null) {
-                    listener(value);
-                }
-            }
-        });
+        this.propertiesProxy.connectSignal(
+            "PropertiesChanged",
+            (proxy: unknown, senderName: string, [, changedProperties]) => {
+                for (const property in changedProperties) {
+                    const listener = this.changeListeners.get(property as keyof PlayerProxyDBusProperties);
 
-        this.mprisProxy.connectSignal("PropertiesChanged", (proxy, sender, [, changedProperties]) => {
-            changedProperties = changedProperties.recursiveUnpack();
-            for (const [key, value] of Object.entries(changedProperties)) {
-                const listener = this.changeListeners.get(key);
-                if (listener != null) {
-                    listener(value);
+                    if (listener != null) {
+                        listener(changedProperties[property]);
+                    }
                 }
-            }
-        });
+
+                this.validatePlayer();
+                debugLog(`Player ${this.busName} changed properties: ${Object.keys(changedProperties).join(", ")}`);
+            },
+        );
+
+        this.validatePlayer();
 
         return true;
+    }
+
+    public pinPlayer() {
+        this.isPinned = true;
+        this.changeListeners.get("IsPinned")?.(this.isPinned);
+    }
+
+    public unpinPlayer() {
+        this.isPinned = false;
+        this.changeListeners.get("IsPinned")?.(this.isPinned);
+    }
+
+    public isPlayerPinned() {
+        return this.isPinned;
+    }
+
+    private validatePlayer() {
+        const isValidName = this.mprisProxy.Identity || this.mprisProxy.DesktopEntry;
+        const isValidMetadata = this.metadata && this.metadata["xesam:title"];
+
+        this.isInvalid = !isValidName || !isValidMetadata;
+        this.changeListeners.get("IsInvalid")?.(this.isInvalid);
+
+        debugLog(`Player ${this.busName} is ${this.isInvalid ? "invalid" : "valid"}`);
+    }
+
+    private unpackMetadata(metadata: MprisPlayerInterfaceMetadata) {
+        const unpackedMetadata = {};
+
+        for (const [key, value] of Object.entries(metadata)) {
+            unpackedMetadata[key] = value.recursiveUnpack();
+        }
+
+        return unpackedMetadata as MprisPlayerInterfaceMetadataUnpacked;
     }
 
     get playbackStatus(): PlaybackStatus {
@@ -81,8 +131,8 @@ export default class PlayerProxy {
         return this.mprisPlayerProxy.Shuffle;
     }
 
-    get metadata(): MprisPlayerInterfaceMetadata {
-        return this.mprisPlayerProxy.Metadata;
+    get metadata(): MprisPlayerInterfaceMetadataUnpacked {
+        return this.unpackMetadata(this.mprisPlayerProxy.Metadata);
     }
 
     get volume(): number {

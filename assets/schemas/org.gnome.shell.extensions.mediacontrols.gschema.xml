@@ -54,7 +54,7 @@
     <key name="show-control-icons-seek-backward" type="b">
       <default>true</default>
     </key>
-    <key name="colored-play-icon" type="b">
+    <key name="colored-player-icon" type="b">
       <default>false</default>
     </key>
     <key name="extension-position" enum="org.gnome.shell.extensions.mediacontrols.positions">

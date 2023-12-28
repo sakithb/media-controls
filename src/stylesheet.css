@@ -1,0 +1,20 @@
+.colored-icon {
+    -st-icon-style: requested;
+}
+
+.symbolic-icon {
+    -st-icon-style: symbolic;
+}
+
+.panel-button-box > *:first-child {
+    padding-right: 5px;
+}
+
+.panel-button-box > * {
+    padding-right: 5px;
+    padding-left: 5px;
+}
+
+.panel-button-box > *:last-child {
+    padding-left: 5px;
+}

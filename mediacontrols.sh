@@ -6,6 +6,10 @@ nested() {
   dbus-run-session -- gnome-shell --unsafe-mode --nested --wayland --no-x11
 }
 
+restart() {
+  pkill -HUP gnome-shell
+}
+
 build() {
   echo "Compiling..."
   npm run compile
@@ -63,7 +67,13 @@ debug() {
   echo "Debugging..."
   build
   install
-  nested
+
+  if [ "$XDG_SESSION_TYPE" = "x11" ]; then
+    restart
+    journalctl -f
+  else
+    nested
+  fi
 }
 
 translations() {

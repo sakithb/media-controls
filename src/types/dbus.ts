@@ -2,97 +2,9 @@ import Gio from "gi://Gio?version=2.0";
 import { LoopStatus, PlaybackStatus } from "./enums.js";
 import GLib from "gi://GLib?version=2.0";
 
-/*
-<node>
-  <interface name="org.freedesktop.DBus.Properties">
-    <method name="Get">
-      <arg type="s" name="interface_name" direction="in"/>
-      <arg type="s" name="property_name" direction="in"/>
-      <arg type="v" name="value" direction="out"/>
-    </method>
-    <method name="GetAll">
-      <arg type="s" name="interface_name" direction="in"/>
-      <arg type="a{sv}" name="properties" direction="out"/>
-    </method>
-    <method name="Set">
-      <arg type="s" name="interface_name" direction="in"/>
-      <arg type="s" name="property_name" direction="in"/>
-      <arg type="v" name="value" direction="in"/>
-    </method>
-    <signal name="PropertiesChanged">
-      <arg type="s" name="interface_name"/>
-      <arg type="a{sv}" name="changed_properties"/>
-      <arg type="as" name="invalidated_properties"/>
-    </signal>
-  </interface>
-  <interface name="org.mpris.MediaPlayer2">
-    <method name="Raise"/>
-    <method name="Quit"/>
-    <property type="b" name="CanQuit" access="read"/>
-    <property type="b" name="CanSetFullscreen" access="read"/>
-    <property type="b" name="CanRaise" access="read"/>
-    <property type="b" name="HasTrackList" access="read"/>
-    <property type="s" name="Identity" access="read"/>
-    <property type="s" name="DesktopEntry" access="read"/>
-    <property type="as" name="SupportedUriSchemes" access="read"/>
-    <property type="as" name="SupportedMimeTypes" access="read"/>
-  </interface>
-  <interface name="org.mpris.MediaPlayer2.Player">
-    <method name="Next"/>
-    <method name="Previous"/>
-    <method name="Pause"/>
-    <method name="PlayPause"/>
-    <method name="Stop"/>
-    <method name="Play"/>
-    <method name="Seek">
-      <arg type="x" name="Offset" direction="in"/>
-    </method>
-    <method name="SetPosition">
-      <arg type="o" name="TrackId" direction="in"/>
-      <arg type="x" name="Position" direction="in"/>
-    </method>
-    <method name="OpenUri">
-      <arg type="s" name="Uri" direction="in"/>
-    </method>
-    <signal name="Seeked">
-      <arg type="x" name="Position"/>
-    </signal>
-    <property type="s" name="PlaybackStatus" access="read"/>
-    <property type="s" name="LoopStatus" access="readwrite"/>
-    <property type="d" name="Rate" access="readwrite"/>
-    <property type="b" name="Shuffle" access="readwrite"/>
-    <property type="a{sv}" name="Metadata" access="read"/>
-    <property type="d" name="Volume" access="readwrite"/>
-    <property type="x" name="Position" access="read"/>
-    <property type="d" name="MinimumRate" access="read"/>
-    <property type="d" name="MaximumRate" access="read"/>
-    <property type="b" name="CanGoNext" access="read"/>
-    <property type="b" name="CanGoPrevious" access="read"/>
-    <property type="b" name="CanPlay" access="read"/>
-    <property type="b" name="CanPause" access="read"/>
-    <property type="b" name="CanSeek" access="read"/>
-    <property type="b" name="CanControl" access="read"/>
-  </interface>
-</node>
-*/
-
-interface DBusSignalArgs {
-    PropertiesChanged: [interfaceName: string, changedProperties: GLib.Variant, invalidatedProperties: string[]];
-}
-
-interface MprisPlayerSignalArgs extends DBusSignalArgs {
-    Seeked: number;
-}
-
-interface StdPropertiesSignalArgs extends DBusSignalArgs {
-    NameOwnerChanged: [busName: string, oldOwner: string, newOwner: string];
-    NameLost: string;
-    NameAcquired: string;
-}
-
 type MethodResult<T> = [T];
 
-export interface MprisPlayerInterfaceMetadata {
+export interface MprisPlayerInterfaceMetadataUnpacked {
     "mpris:trackid": string;
     "mpris:length": number;
     "mpris:artUrl": string;
@@ -117,7 +29,32 @@ export interface MprisPlayerInterfaceMetadata {
     "xesam:userRating": number;
 }
 
-export interface PlayerProxyProperties {
+export interface MprisPlayerInterfaceMetadata {
+    "mpris:trackid": GLib.Variant;
+    "mpris:length": GLib.Variant;
+    "mpris:artUrl": GLib.Variant;
+    "xesam:album": GLib.Variant;
+    "xesam:albumArtist": GLib.Variant;
+    "xesam:artist": GLib.Variant;
+    "xesam:asText": GLib.Variant;
+    "xesam:audioBPM": GLib.Variant;
+    "xesam:autoRating": GLib.Variant;
+    "xesam:comment": GLib.Variant;
+    "xesam:composer": GLib.Variant;
+    "xesam:contentCreated": GLib.Variant;
+    "xesam:discNumber": GLib.Variant;
+    "xesam:firstUsed": GLib.Variant;
+    "xesam:genre": GLib.Variant;
+    "xesam:lastUsed": GLib.Variant;
+    "xesam:lyricist": GLib.Variant;
+    "xesam:title": GLib.Variant;
+    "xesam:trackNumber": GLib.Variant;
+    "xesam:url": GLib.Variant;
+    "xesam:useCount": GLib.Variant;
+    "xesam:userRating": GLib.Variant;
+}
+
+export interface PlayerProxyDBusProperties {
     PlaybackStatus: PlaybackStatus;
     LoopStatus: LoopStatus;
     Rate: number;
@@ -144,7 +81,37 @@ export interface PlayerProxyProperties {
     SupportedMimeTypes: string[];
 }
 
-export interface DBusInterface<T extends DBusSignalArgs> extends Omit<Gio.DBusProxy, "connectSignal"> {
+export interface PlayerProxyProperties extends PlayerProxyDBusProperties {
+    IsInvalid: boolean;
+    IsPinned: boolean;
+}
+
+export interface PropertiesSignalArgs {
+    PropertiesChanged: [
+        interfaceName: string,
+        changedProperties: Partial<PlayerProxyDBusProperties>,
+        invalidatedProperties: string[],
+    ];
+}
+
+export interface MprisPlayerSignalArgs {
+    Seeked: number;
+}
+
+export interface StdPropertiesSignalArgs {
+    NameOwnerChanged: [busName: string, oldOwner: string, newOwner: string];
+    NameLost: string;
+    NameAcquired: string;
+}
+
+export interface BaseInterface<T> extends Omit<Gio.DBusProxy, "connectSignal"> {
+    connectSignal<N extends keyof T>(
+        name: N,
+        callback: (proxy: Gio.DBusProxy, senderName: string, args: T[N]) => void,
+    ): void;
+}
+
+export interface PropertiesInterface extends BaseInterface<PropertiesSignalArgs> {
     GetAsync(interfaceName: string, propertyName: string): Promise<MethodResult<GLib.Variant>>;
     GetAllAsync(interfaceName: string): Promise<MethodResult<GLib.Variant>>;
     SetAsync(interfaceName: string, propertyName: string, value: GLib.Variant): Promise<void>;
@@ -166,13 +133,9 @@ export interface DBusInterface<T extends DBusSignalArgs> extends Omit<Gio.DBusPr
         value: GLib.Variant,
         callback: (returnValue: void, errorObj: unknown, fdList: unknown[]) => void,
     ): void;
-    connectSignal<N extends keyof T>(
-        name: N,
-        callback: (proxy: Gio.DBusProxy, senderName: string, args: T[N]) => void,
-    ): void;
 }
 
-export interface MprisInterface extends DBusInterface<DBusSignalArgs> {
+export interface MprisInterface extends BaseInterface<object> {
     CanQuit: boolean;
     Fullscreen: boolean;
     CanSetFullscreen: boolean;
@@ -190,7 +153,7 @@ export interface MprisInterface extends DBusInterface<DBusSignalArgs> {
     QuitSync(): void;
 }
 
-export interface MprisPlayerInterface extends DBusInterface<MprisPlayerSignalArgs> {
+export interface MprisPlayerInterface extends BaseInterface<MprisPlayerSignalArgs> {
     PlaybackStatus: PlaybackStatus;
     LoopStatus: LoopStatus;
     Rate: number;
@@ -239,7 +202,7 @@ export interface MprisPlayerInterface extends DBusInterface<MprisPlayerSignalArg
     OpenUriSync(uri: string): void;
 }
 
-export interface StdPropertiesInterface extends DBusInterface<StdPropertiesSignalArgs> {
+export interface StdInterface extends BaseInterface<StdPropertiesSignalArgs> {
     ListNamesAsync(): Promise<MethodResult<string[]>>;
     ListNamesSync(): MethodResult<string[]>;
     ListNamesRemote(

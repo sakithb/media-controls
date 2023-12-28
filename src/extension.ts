@@ -3,15 +3,18 @@ import GLib from "gi://GLib?version=2.0";
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
 import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
 
-import { ExtensionPositions, MouseActions, PlaybackStatus } from "./types/enums.js";
+import { ExtensionPositions, LabelTypes, MouseActions, PanelElements, PlaybackStatus } from "./types/enums.js";
 import { createDbusProxy, debugLog, enumValueByIndex, errorLog, handleError } from "./utils/common.js";
-import { StdPropertiesInterface } from "./types/dbus.js";
+import { StdInterface } from "./types/dbus.js";
 import PanelButton from "./helpers/PanelButton.js";
 import PlayerProxy from "./helpers/PlayerProxy.js";
+import { KeysOf } from "./types/common.js";
 
 Gio._promisify(Gio.File.prototype, "load_contents_async", "load_contents_finish");
 
-// TODO: extract PlayerProxy to seperate file
+type ElementsOrder = KeysOf<typeof PanelElements>[];
+type LabelsOrder = (KeysOf<typeof LabelTypes> | (string & NonNullable<unknown>))[];
+
 export default class MediaControls extends Extension {
     public width: number;
     public hideMediaNotification: boolean;
@@ -24,11 +27,11 @@ export default class MediaControls extends Extension {
     public showControlIconsPrevious: boolean;
     public showControlIconsSeekForward: boolean;
     public showControlIconsSeekBackward: boolean;
-    public coloredPlayIcon: boolean;
+    public coloredPlayerIcon: boolean;
     public extensionPosition: ExtensionPositions;
     public extensionIndex: number;
-    public elementsOrder: string[];
-    public labelsOrder: string[];
+    public elementsOrder: ElementsOrder;
+    public labelsOrder: LabelsOrder;
     public shortcutShowMenu: string;
     public mouseActionLeft: MouseActions;
     public mouseActionMiddle: MouseActions;
@@ -42,12 +45,13 @@ export default class MediaControls extends Extension {
     private settings: Gio.Settings;
     private panelBtn: InstanceType<typeof PanelButton>;
 
-    private watchProxy: StdPropertiesInterface;
+    private watchProxy: StdInterface;
     private playerProxies: Map<string, PlayerProxy>;
 
     private watchIfaceInfo: Gio.DBusInterfaceInfo;
     private mprisIfaceInfo: Gio.DBusInterfaceInfo;
     private mprisPlayerIfaceInfo: Gio.DBusInterfaceInfo;
+    private propertiesIfaceInfo: Gio.DBusInterfaceInfo;
 
     public enable() {
         this.playerProxies = new Map();
@@ -72,11 +76,11 @@ export default class MediaControls extends Extension {
         this.showControlIconsPrevious = this.settings.get_boolean("show-control-icons-previous");
         this.showControlIconsSeekForward = this.settings.get_boolean("show-control-icons-seek-forward");
         this.showControlIconsSeekBackward = this.settings.get_boolean("show-control-icons-seek-backward");
-        this.coloredPlayIcon = this.settings.get_boolean("colored-play-icon");
+        this.coloredPlayerIcon = this.settings.get_boolean("colored-player-icon");
         this.extensionPosition = enumValueByIndex(ExtensionPositions, this.settings.get_enum("extension-position"));
         this.extensionIndex = this.settings.get_uint("extension-index");
-        this.elementsOrder = this.settings.get_strv("elements-order");
-        this.labelsOrder = this.settings.get_strv("labels-order");
+        this.elementsOrder = this.settings.get_strv("elements-order") as ElementsOrder;
+        this.labelsOrder = this.settings.get_strv("labels-order") as LabelsOrder;
         this.shortcutShowMenu = this.settings.get_string("shortcut-show-menu");
         this.mouseActionLeft = enumValueByIndex(MouseActions, this.settings.get_enum("mouse-action-left"));
         this.mouseActionMiddle = enumValueByIndex(MouseActions, this.settings.get_enum("mouse-action-middle"));
@@ -89,6 +93,7 @@ export default class MediaControls extends Extension {
 
         this.settings.connect("changed::width", () => {
             this.width = this.settings.get_uint("width");
+            this.panelBtn?.drawWidgets();
         });
 
         this.settings.connect("changed::hide-media-notification", () => {
@@ -101,55 +106,70 @@ export default class MediaControls extends Extension {
 
         this.settings.connect("changed::show-label", () => {
             this.showLabel = this.settings.get_boolean("show-label");
+            this.panelBtn?.drawWidgets();
         });
 
         this.settings.connect("changed::show-player-icon", () => {
             this.showPlayerIcon = this.settings.get_boolean("show-player-icon");
+            this.panelBtn?.drawWidgets();
         });
 
         this.settings.connect("changed::show-control-icons", () => {
             this.showControlIcons = this.settings.get_boolean("show-control-icons");
+            this.panelBtn?.drawWidgets();
         });
 
         this.settings.connect("changed::show-control-icons-play", () => {
             this.showControlIconsPlay = this.settings.get_boolean("show-control-icons-play");
+            this.panelBtn?.drawWidgets();
         });
 
         this.settings.connect("changed::show-control-icons-next", () => {
             this.showControlIconsNext = this.settings.get_boolean("show-control-icons-next");
+            this.panelBtn?.drawWidgets();
         });
 
         this.settings.connect("changed::show-control-icons-previous", () => {
             this.showControlIconsPrevious = this.settings.get_boolean("show-control-icons-previous");
+            this.panelBtn?.drawWidgets();
         });
 
         this.settings.connect("changed::show-control-icons-seek-forward", () => {
             this.showControlIconsSeekForward = this.settings.get_boolean("show-control-icons-seek-forward");
+            this.panelBtn?.drawWidgets();
         });
 
         this.settings.connect("changed::show-control-icons-seek-backward", () => {
             this.showControlIconsSeekBackward = this.settings.get_boolean("show-control-icons-seek-backward");
+            this.panelBtn?.drawWidgets();
         });
 
-        this.settings.connect("changed::colored-play-icon", () => {
-            this.coloredPlayIcon = this.settings.get_boolean("colored-play-icon");
+        this.settings.connect("changed::colored-player-icon", () => {
+            this.coloredPlayerIcon = this.settings.get_boolean("colored-player-icon");
+            this.panelBtn?.drawWidgets();
         });
 
         this.settings.connect("changed::extension-position", () => {
             const enumIndex = this.settings.get_enum("extension-position");
             this.extensionPosition = enumValueByIndex(ExtensionPositions, enumIndex);
+            this.removePanelButton();
+            this.setActivePlayer();
         });
 
         this.settings.connect("changed::extension-index", () => {
             this.extensionIndex = this.settings.get_uint("extension-index");
+            this.removePanelButton();
+            this.setActivePlayer();
         });
 
         this.settings.connect("changed::elements-order", () => {
-            this.elementsOrder = this.settings.get_strv("elements-order");
+            this.elementsOrder = this.settings.get_strv("elements-order") as ElementsOrder;
+            this.panelBtn?.drawWidgets();
         });
 
         this.settings.connect("changed::labels-order", () => {
-            this.labelsOrder = this.settings.get_strv("labels-order");
+            this.labelsOrder = this.settings.get_strv("labels-order") as LabelsOrder;
+            this.panelBtn?.drawWidgets();
         });
 
         this.settings.connect("changed::shortcut-show-menu", () => {
@@ -192,6 +212,12 @@ export default class MediaControls extends Extension {
 
         this.settings.connect("changed::blacklisted-players", () => {
             this.blacklistedPlayers = this.settings.get_strv("blacklisted-players");
+
+            for (const blacklistedPlayer of this.blacklistedPlayers) {
+                if (this.playerProxies.has(blacklistedPlayer)) {
+                    this.removePlayer(blacklistedPlayer);
+                }
+            }
         });
     }
 
@@ -227,6 +253,9 @@ export default class MediaControls extends Extension {
         const mprisPlayerInterface = mprisNodeInfo.interfaces.find(
             (iface) => iface.name === "org.mpris.MediaPlayer2.Player",
         );
+        const propertiesInterface = mprisNodeInfo.interfaces.find(
+            (iface) => iface.name === "org.freedesktop.DBus.Properties",
+        );
 
         const mprisInterfaceString = new GLib.String("");
         mprisInterface.generate_xml(4, mprisInterfaceString);
@@ -234,8 +263,12 @@ export default class MediaControls extends Extension {
         const mprisPlayerInterfaceString = new GLib.String("");
         mprisPlayerInterface.generate_xml(4, mprisPlayerInterfaceString);
 
+        const propertiesInterfaceString = new GLib.String("");
+        propertiesInterface.generate_xml(4, propertiesInterfaceString);
+
         this.mprisIfaceInfo = mprisInterface;
         this.mprisPlayerIfaceInfo = mprisPlayerInterface;
+        this.propertiesIfaceInfo = propertiesInterface;
 
         const initWatchSuccess = await this.initWatchProxy().catch(handleError);
 
@@ -263,7 +296,7 @@ export default class MediaControls extends Extension {
     }
 
     private async initWatchProxy() {
-        this.watchProxy = await createDbusProxy<StdPropertiesInterface>(
+        this.watchProxy = await createDbusProxy<StdInterface>(
             this.watchIfaceInfo,
             "org.freedesktop.DBus",
             "/org/freedesktop/DBus",
@@ -293,21 +326,21 @@ export default class MediaControls extends Extension {
     }
 
     private async addPlayer(busName: string) {
-        try {
-            const playerProxy = new PlayerProxy(busName);
-            const initSuccess = await playerProxy
-                .initProxies(this.mprisIfaceInfo, this.mprisPlayerIfaceInfo)
-                .catch(handleError);
+        const playerProxy = new PlayerProxy(busName, this.blacklistedPlayers.includes(busName));
+        const initSuccess = await playerProxy
+            .initPlayer(this.mprisIfaceInfo, this.mprisPlayerIfaceInfo, this.propertiesIfaceInfo)
+            .catch(handleError);
 
-            if (initSuccess === false) {
-                return;
-            }
-
-            this.playerProxies.set(busName, playerProxy);
-            this.setActivePlayer();
-        } catch (e) {
-            errorLog(e);
+        if (initSuccess === false) {
+            return;
         }
+
+        playerProxy.onChanged("IsInvalid", this.setActivePlayer.bind(this));
+        playerProxy.onChanged("IsPinned", this.setActivePlayer.bind(this));
+        playerProxy.onChanged("PlaybackStatus", this.setActivePlayer.bind(this));
+
+        this.playerProxies.set(busName, playerProxy);
+        this.setActivePlayer();
     }
 
     private removePlayer(busName: string) {
@@ -327,15 +360,11 @@ export default class MediaControls extends Extension {
         let chosenPlayer: PlayerProxy = null;
 
         for (const [, playerProxy] of this.playerProxies) {
-            if (playerProxy.isBlacklisted) {
-                continue;
-            }
-
             if (playerProxy.isInvalid) {
                 continue;
             }
 
-            if (playerProxy.isPinned) {
+            if (playerProxy.isPlayerPinned()) {
                 chosenPlayer = playerProxy;
                 break;
             }
@@ -396,7 +425,7 @@ export default class MediaControls extends Extension {
         this.showControlIconsPrevious = null;
         this.showControlIconsSeekForward = null;
         this.showControlIconsSeekBackward = null;
-        this.coloredPlayIcon = null;
+        this.coloredPlayerIcon = null;
         this.extensionPosition = null;
         this.extensionIndex = null;
         this.elementsOrder = null;
