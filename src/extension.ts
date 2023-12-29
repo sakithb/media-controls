@@ -2,6 +2,7 @@ import Gio from "gi://Gio?version=2.0";
 import GLib from "gi://GLib?version=2.0";
 import Shell from "gi://Shell?version=13";
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
+import * as Mpris from "resource:///org/gnome/shell/ui/mpris.js";
 import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
 
 import PanelButton from "./helpers/PanelButton.js";
@@ -54,11 +55,14 @@ export default class MediaControls extends Extension {
     private mprisPlayerIfaceInfo: Gio.DBusInterfaceInfo;
     private propertiesIfaceInfo: Gio.DBusInterfaceInfo;
 
+    private mediaSectionAddFunc: (busName: string) => void;
+
     public enable() {
         this.playerProxies = new Map();
 
         this.initSettings();
         this.initProxies().catch(handleError);
+        this.updateMediaNotificationVisiblity();
 
         debugLog("Enabled");
     }
@@ -99,6 +103,7 @@ export default class MediaControls extends Extension {
 
         this.settings.connect("changed::hide-media-notification", () => {
             this.hideMediaNotification = this.settings.get_boolean("hide-media-notification");
+            this.updateMediaNotificationVisiblity();
         });
 
         this.settings.connect("changed::scroll-labels", () => {
@@ -428,6 +433,27 @@ export default class MediaControls extends Extension {
         }
     }
 
+    private updateMediaNotificationVisiblity(shouldReset = false) {
+        debugLog("Updating media notification");
+        if (this.mediaSectionAddFunc && (shouldReset || this.hideMediaNotification === false)) {
+            debugLog("Showing/resetting media notification");
+            Mpris.MediaSection.prototype._addPlayer = this.mediaSectionAddFunc;
+            this.mediaSectionAddFunc = null;
+
+            Main.panel.statusArea.dateMenu._messageList._mediaSection._onProxyReady();
+        } else {
+            debugLog("Hiding media notification");
+            this.mediaSectionAddFunc = Mpris.MediaSection.prototype._addPlayer;
+            Mpris.MediaSection.prototype._addPlayer = function () {};
+
+            if (Main.panel.statusArea.dateMenu._messageList._mediaSection._players != null) {
+                for (const player of Main.panel.statusArea.dateMenu._messageList._mediaSection._players.values()) {
+                    player._close();
+                }
+            }
+        }
+    }
+
     private addPanelButton(busName: string) {
         const playerProxy = this.playerProxies.get(busName);
 
@@ -483,6 +509,7 @@ export default class MediaControls extends Extension {
         this.playerProxies = null;
 
         this.removePanelButton();
+        this.updateMediaNotificationVisiblity(true);
         this.destroySettings();
 
         debugLog("Disabled");
