@@ -17,6 +17,12 @@ Gio._promisify(Gio.File.prototype, "load_contents_async", "load_contents_finish"
 type ElementsOrder = KeysOf<typeof PanelElements>[];
 type LabelsOrder = (KeysOf<typeof LabelTypes> | (string & NonNullable<unknown>))[];
 
+const MPRIS_IFACE_NAME = "org.mpris.MediaPlayer2";
+const MPRIS_PLAYER_IFACE_NAME = "org.mpris.MediaPlayer2.Player";
+const DBUS_PROPERTIES_IFACE_NAME = "org.freedesktop.DBus.Properties";
+const DBUS_IFACE_NAME = "org.freedesktop.DBus";
+const DBUS_OBJECT_PATH = "/org/freedesktop/DBus";
+
 export default class MediaControls extends Extension {
     public width: number;
     public hideMediaNotification: boolean;
@@ -108,6 +114,7 @@ export default class MediaControls extends Extension {
 
         this.settings.connect("changed::scroll-labels", () => {
             this.scrollLabels = this.settings.get_boolean("scroll-labels");
+            this.panelBtn?.drawWidgets();
         });
 
         this.settings.connect("changed::show-label", () => {
@@ -252,18 +259,14 @@ export default class MediaControls extends Extension {
         const mprisNodeXml = textDecoder.decode(mprisBytes[0]);
 
         const watchNodeInfo = Gio.DBusNodeInfo.new_for_xml(watchNodeXml);
-        const watchInterface = watchNodeInfo.interfaces.find((iface) => iface.name === "org.freedesktop.DBus");
+        const watchInterface = watchNodeInfo.interfaces.find((iface) => iface.name === DBUS_IFACE_NAME);
 
         this.watchIfaceInfo = watchInterface;
 
         const mprisNodeInfo = Gio.DBusNodeInfo.new_for_xml(mprisNodeXml);
-        const mprisInterface = mprisNodeInfo.interfaces.find((iface) => iface.name === "org.mpris.MediaPlayer2");
-        const mprisPlayerInterface = mprisNodeInfo.interfaces.find(
-            (iface) => iface.name === "org.mpris.MediaPlayer2.Player",
-        );
-        const propertiesInterface = mprisNodeInfo.interfaces.find(
-            (iface) => iface.name === "org.freedesktop.DBus.Properties",
-        );
+        const mprisInterface = mprisNodeInfo.interfaces.find((iface) => iface.name === MPRIS_IFACE_NAME);
+        const mprisPlayerInterface = mprisNodeInfo.interfaces.find((iface) => iface.name === MPRIS_PLAYER_IFACE_NAME);
+        const propertiesInterface = mprisNodeInfo.interfaces.find((iface) => iface.name === DBUS_PROPERTIES_IFACE_NAME);
 
         const mprisInterfaceString = new GLib.String("");
         mprisInterface.generate_xml(4, mprisInterfaceString);
@@ -291,8 +294,8 @@ export default class MediaControls extends Extension {
     private async initWatchProxy() {
         this.watchProxy = await createDbusProxy<StdInterface>(
             this.watchIfaceInfo,
-            "org.freedesktop.DBus",
-            "/org/freedesktop/DBus",
+            DBUS_IFACE_NAME,
+            DBUS_OBJECT_PATH,
         ).catch(handleError);
 
         if (this.watchProxy == null) {
@@ -300,7 +303,7 @@ export default class MediaControls extends Extension {
         }
 
         this.watchProxy.connectSignal("NameOwnerChanged", (proxy, senderName, [busName, oldOwner, newOwner]) => {
-            if (busName.startsWith("org.mpris.MediaPlayer2") === false) {
+            if (busName.startsWith(MPRIS_IFACE_NAME) === false) {
                 return;
             }
 
@@ -326,7 +329,7 @@ export default class MediaControls extends Extension {
         const promises = [];
 
         for (const busName of busNames) {
-            if (busName.startsWith("org.mpris.MediaPlayer2") === false) continue;
+            if (busName.startsWith(MPRIS_IFACE_NAME) === false) continue;
             if (this.playerProxies.has(busName)) continue;
 
             promises.push(this.addPlayer(busName));

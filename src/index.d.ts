@@ -10,3 +10,4 @@ import "@girs/gtk-4.0/ambient";
 import "@girs/st-13/ambient";
 import "@girs/shell-13/ambient";
 import "@girs/clutter-13/ambient";
+import "@girs/pango-1.0/ambient";

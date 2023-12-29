@@ -38,6 +38,9 @@ devDependencies:
   '@girs/gtk-4.0':
     specifier: 4.12.3-3.2.6
     version: 4.12.3-3.2.6
+  '@girs/pango-1.0':
+    specifier: 1.51.0-3.2.6
+    version: 1.51.0-3.2.6
   '@girs/shell-13':
     specifier: 13.0.0-3.2.6
     version: 13.0.0-3.2.6

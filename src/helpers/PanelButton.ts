@@ -1,21 +1,24 @@
 import GObject from "gi://GObject?version=2.0";
 import St from "gi://St?version=13";
 import Shell from "gi://Shell?version=13";
+import Pango from "gi://Pango?version=1.0";
+import Clutter from "gi://Clutter?version=13";
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 
 import MediaControls from "../extension.js";
 import PlayerProxy from "./PlayerProxy.js";
 import { LabelTypes, PanelElements, PlaybackStatus } from "../types/enums.js";
 import { debugLog } from "../utils/common.js";
-import Clutter from "gi://Clutter?version=13";
+
+const SCROLL_ANIMATION_SPEED = 0.04;
 
 class PanelButton extends PanelMenu.Button {
     private playerProxy: PlayerProxy;
     private extension: MediaControls;
 
     private icon: St.Icon;
-    private label: St.Label;
-    private controls: St.BoxLayout;
+    private labelView: St.ScrollView;
+    private controlsBox: St.BoxLayout;
     private box: St.BoxLayout;
 
     constructor(playerProxy: PlayerProxy, extension: MediaControls) {
@@ -84,17 +87,69 @@ class PanelButton extends PanelMenu.Button {
     }
 
     private addLabel() {
-        this.label = new St.Label({
+        this.labelView = new St.ScrollView({
+            hscrollbarPolicy: St.PolicyType.NEVER,
+            vscrollbarPolicy: St.PolicyType.NEVER,
+        });
+
+        const box = new St.BoxLayout({
+            xExpand: true,
+            yExpand: true,
+            width: this.extension.width,
+        });
+
+        const label = new St.Label({
             text: this.getLabelText(),
             yAlign: Clutter.ActorAlign.CENTER,
         });
 
-        this.box.add_child(this.label);
+        if (this.extension.scrollLabels) {
+            const adjustment = this.labelView.hscroll.adjustment;
+            const origText = label.text;
+
+            const signalId = adjustment.connect("changed", () => {
+                if (adjustment.upper <= adjustment.pageSize) {
+                    return;
+                }
+
+                const initial = adjustment.value;
+                const final = adjustment.upper;
+                const duration = adjustment.upper / SCROLL_ANIMATION_SPEED;
+
+                const pspec = adjustment.find_property("value");
+                const interval = new Clutter.Interval({
+                    valueType: pspec.value_type,
+                    initial,
+                    final,
+                });
+
+                const transition = new Clutter.PropertyTransition({
+                    propertyName: "value",
+                    progressMode: Clutter.AnimationMode.LINEAR,
+                    repeatCount: -1,
+                    duration,
+                    delay: 0,
+                    interval,
+                });
+
+                label.text = `${origText} ${origText}`;
+                adjustment.add_transition("scroll", transition);
+                adjustment.disconnect(signalId);
+            });
+
+            label.text = `${origText} `;
+            label.clutterText.ellipsize = Pango.EllipsizeMode.NONE;
+        }
+
+        box.add_child(label);
+        this.labelView.add_actor(box);
+        this.box.add_child(this.labelView);
+
         debugLog("Added label");
     }
 
     private addControls() {
-        this.controls = new St.BoxLayout();
+        this.controlsBox = new St.BoxLayout();
 
         if (this.extension.showControlIconsSeekBackward) {
             this.addControlIcon("media-seek-backward-symbolic");
@@ -122,7 +177,7 @@ class PanelButton extends PanelMenu.Button {
             this.addControlIcon("media-seek-forward-symbolic");
         }
 
-        this.box.add_child(this.controls);
+        this.box.add_child(this.controlsBox);
         debugLog("Added controls");
     }
 
@@ -132,7 +187,7 @@ class PanelButton extends PanelMenu.Button {
             styleClass: "system-status-icon",
         });
 
-        this.controls.add_child(icon);
+        this.controlsBox.add_child(icon);
     }
 
     private getLabelText() {

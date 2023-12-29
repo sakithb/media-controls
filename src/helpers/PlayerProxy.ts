@@ -11,6 +11,8 @@ import {
 import { LoopStatus, PlaybackStatus } from "../types/enums.js";
 import { createDbusProxy, debugLog, errorLog, handleError } from "../utils/common.js";
 
+const MPRIS_OBJECT_PATH = "/org/mpris/MediaPlayer2";
+
 export default class PlayerProxy {
     private isPinned: boolean;
     private mprisProxy: MprisInterface;
@@ -32,19 +34,19 @@ export default class PlayerProxy {
         mprisPlayerIface: Gio.DBusInterfaceInfo,
         propertiesIface: Gio.DBusInterfaceInfo,
     ) {
-        const mprisProxy = createDbusProxy<MprisInterface>(mprisIface, this.busName, "/org/mpris/MediaPlayer2").catch(
+        const mprisProxy = createDbusProxy<MprisInterface>(mprisIface, this.busName, MPRIS_OBJECT_PATH).catch(
             handleError,
         );
         const mprisPlayerProxy = createDbusProxy<MprisPlayerInterface>(
             mprisPlayerIface,
             this.busName,
-            "/org/mpris/MediaPlayer2",
+            MPRIS_OBJECT_PATH,
         ).catch(handleError);
 
         const propertiesProxy = createDbusProxy<PropertiesInterface>(
             propertiesIface,
             this.busName,
-            "/org/mpris/MediaPlayer2",
+            MPRIS_OBJECT_PATH,
         ).catch(handleError);
 
         const proxies = await Promise.all([mprisProxy, mprisPlayerProxy, propertiesProxy]).catch(handleError);
