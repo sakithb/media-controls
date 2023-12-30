@@ -48,6 +48,15 @@ export const LoopStatus = {
     PLAYLIST: "Playlist",
 } as const;
 
+export const ControlIcons = {
+    SEEK_BACKWARD: "media-skip-backward-symbolic",
+    PREVIOUS_TRACK: "media-skip-backward-symbolic",
+    PLAY: "media-playback-start-symbolic",
+    PAUSE: "media-playback-start-symbolic",
+    NEXT_TRACK: "media-skip-forward-symbolic",
+    SEEK_FORWARD: "media-skip-forward-symbolic",
+};
+
 export type PanelElements = Enum<typeof PanelElements>;
 export type LabelTypes = Enum<typeof LabelTypes>;
 export type ExtensionPositions = Enum<typeof ExtensionPositions>;

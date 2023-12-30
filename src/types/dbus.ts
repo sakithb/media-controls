@@ -108,7 +108,7 @@ export interface BaseInterface<T> extends Omit<Gio.DBusProxy, "connectSignal"> {
     connectSignal<N extends keyof T>(
         name: N,
         callback: (proxy: Gio.DBusProxy, senderName: string, args: T[N]) => void,
-    ): void;
+    ): number;
 }
 
 export interface PropertiesInterface extends BaseInterface<PropertiesSignalArgs> {
@@ -137,12 +137,12 @@ export interface PropertiesInterface extends BaseInterface<PropertiesSignalArgs>
 
 export interface MprisInterface extends BaseInterface<object> {
     CanQuit: boolean;
-    Fullscreen: boolean;
-    CanSetFullscreen: boolean;
+    Fullscreen?: boolean;
+    CanSetFullscreen?: boolean;
     CanRaise: boolean;
     HasTrackList: boolean;
     Identity: string;
-    DesktopEntry: string;
+    DesktopEntry?: string;
     SupportedUriSchemes: string[];
     SupportedMimeTypes: string[];
     RaiseRemote(callback: (returnValue: void, errorObj: unknown, fdList: unknown[]) => void): void;
@@ -155,9 +155,9 @@ export interface MprisInterface extends BaseInterface<object> {
 
 export interface MprisPlayerInterface extends BaseInterface<MprisPlayerSignalArgs> {
     PlaybackStatus: PlaybackStatus;
-    LoopStatus: LoopStatus;
+    LoopStatus?: LoopStatus;
     Rate: number;
-    Shuffle: boolean;
+    Shuffle?: boolean;
     Metadata: MprisPlayerInterfaceMetadata;
     Volume: number;
     Position: number;

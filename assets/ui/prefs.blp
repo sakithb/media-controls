@@ -9,16 +9,33 @@ Adw.PreferencesPage page-general {
   Adw.PreferencesGroup {
     title: "Common";
 
-    Adw.SpinRow sr-general-width {
-      title: "Width";
-      subtitle: "0 to automatically determine";
+    Adw.ExpanderRow {
+      title: "Labels";
+      subtitle: "Customize the labels in the panel and the popup menu";
+      expanded: true;
 
-      adjustment: Adjustment {
-        lower: 0;
-        upper: 1000;
-        step-increment: 10;
-        value: 200;
-      };
+      Adw.SpinRow sr-general-label-width {
+        title: "Width";
+        subtitle: "0 to take all available space";
+
+        adjustment: Adjustment {
+          lower: 0;
+          upper: 1000;
+          step-increment: 10;
+          value: 200;
+        };
+      }
+
+      Adw.SwitchRow sr-general-label-fixed {
+        title: "Fixed width";
+        subtitle: "Use the specified width even when they are smaller than the width";
+      }
+
+      Adw.SwitchRow sr-general-scroll-labels {
+        title: "Scroll labels";
+        subtitle: "Scroll the labels when they are wider than the width";
+      }
+
     }
 
     Adw.SwitchRow sr-general-hide-media-notification {
@@ -26,10 +43,6 @@ Adw.PreferencesPage page-general {
       subtitle: "Hide the media notifications in the notification list";
     }
 
-    Adw.SwitchRow sr-general-scroll-labels {
-      title: "Scroll labels";
-      subtitle: "Scroll labels in the panel widget and popup menu";
-    }
   }
 
   Adw.PreferencesGroup {
@@ -74,12 +87,12 @@ Adw.PreferencesPage page-general {
   }
 }
 
-Adw.PreferencesPage page-appearance {
-  title: "Appearance";
-  icon-name: "display-symbolic";
+Adw.PreferencesPage page-panel {
+  title: "Panel";
+  icon-name: "panel-top-symbolic";
 
   Adw.PreferencesGroup {
-    Adw.SwitchRow sr-appearance-show-label {
+    Adw.SwitchRow sr-panel-show-label {
       title: "Show label";
     }
 
@@ -87,33 +100,33 @@ Adw.PreferencesPage page-appearance {
       title: "Player controls";
       expanded: true;
 
-      Adw.SwitchRow sr-appearance-show-controls {
+      Adw.SwitchRow sr-panel-show-controls {
         title: "Show player controls";
       }
 
-      Adw.SwitchRow sr-appearance-show-play {
+      Adw.SwitchRow sr-panel-show-play {
         title: "Show play/pause button";
-        sensitive: bind sr-appearance-show-controls.active;
+        sensitive: bind sr-panel-show-controls.active;
       }
 
-      Adw.SwitchRow sr-appearance-show-next {
+      Adw.SwitchRow sr-panel-show-next {
         title: "Show next track button";
-        sensitive: bind sr-appearance-show-controls.active;
+        sensitive: bind sr-panel-show-controls.active;
       }
 
-      Adw.SwitchRow sr-appearance-show-prev {
+      Adw.SwitchRow sr-panel-show-prev {
         title: "Show previous track button";
-        sensitive: bind sr-appearance-show-controls.active;
+        sensitive: bind sr-panel-show-controls.active;
       }
 
-      Adw.SwitchRow sr-appearance-show-seek-forward {
+      Adw.SwitchRow sr-panel-show-seek-forward {
         title: "Show seek forward button";
-        sensitive: bind sr-appearance-show-controls.active;
+        sensitive: bind sr-panel-show-controls.active;
       }
 
-      Adw.SwitchRow sr-appearance-show-seek-backward {
+      Adw.SwitchRow sr-panel-show-seek-backward {
         title: "Show seek back button";
-        sensitive: bind sr-appearance-show-controls.active;
+        sensitive: bind sr-panel-show-controls.active;
       }
     }
 
@@ -121,13 +134,13 @@ Adw.PreferencesPage page-appearance {
       title: "Player icon";
       expanded: true;
 
-      Adw.SwitchRow sr-appearance-show-player {
+      Adw.SwitchRow sr-panel-show-player {
         title: "Show player icon";
       }
       
-      Adw.SwitchRow sr-appearance-colored-player {
+      Adw.SwitchRow sr-panel-colored-player {
         title: "Colored player icon";
-        sensitive: bind sr-appearance-show-player.active;
+        sensitive: bind sr-panel-show-player.active;
       }
     }
   }
@@ -220,7 +233,7 @@ Adw.PreferencesPage page-shortcuts {
     title: "Mouse actions";
 
     Adw.ComboRow cr-shortcuts-mouse-left {
-      title: "Left click";
+      title: "Left click / Tap";
       model: mouse-actions;
     }
 
@@ -235,17 +248,17 @@ Adw.PreferencesPage page-shortcuts {
     }
 
     Adw.ComboRow cr-shortcuts-mouse-double {
-      title: "Double click";
+      title: "Double click / Double tap";
       model: mouse-actions;
     }
 
     Adw.ComboRow cr-shortcuts-mouse-scroll-up {
-      title: "Scroll up";
+      title: "Scroll up / Swipe right";
       model: mouse-actions;
     }
 
     Adw.ComboRow cr-shortcuts-mouse-scroll-down {
-      title: "Scroll down";
+      title: "Scroll down / Swipe left";
       model: mouse-actions;
     }
   }

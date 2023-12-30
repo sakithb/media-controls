@@ -10,15 +10,21 @@ import {
 } from "../types/dbus.js";
 import { LoopStatus, PlaybackStatus } from "../types/enums.js";
 import { createDbusProxy, debugLog, errorLog, handleError } from "../utils/common.js";
+import { KeysOf } from "../types/common.js";
 
 const MPRIS_OBJECT_PATH = "/org/mpris/MediaPlayer2";
+
+type PlayerProxyChangeListeners = Map<
+    KeysOf<PlayerProxyProperties>,
+    ((value: PlayerProxyProperties[KeysOf<PlayerProxyProperties>]) => void)[]
+>;
 
 export default class PlayerProxy {
     private isPinned: boolean;
     private mprisProxy: MprisInterface;
     private mprisPlayerProxy: MprisPlayerInterface;
     private propertiesProxy: PropertiesInterface;
-    private changeListeners: Map<keyof PlayerProxyProperties, (value: unknown) => void> = new Map();
+    private changeListeners: PlayerProxyChangeListeners;
 
     public busName: string;
     public isInvalid: boolean;
@@ -27,6 +33,7 @@ export default class PlayerProxy {
         this.busName = busName;
         this.isPinned = false;
         this.isInvalid = true;
+        this.changeListeners = new Map();
     }
 
     public async initPlayer(
@@ -64,11 +71,10 @@ export default class PlayerProxy {
             "PropertiesChanged",
             (proxy: unknown, senderName: string, [, changedProperties]) => {
                 for (const property in changedProperties) {
-                    const listener = this.changeListeners.get(property as keyof PlayerProxyDBusProperties);
-
-                    if (listener != null) {
-                        listener(changedProperties[property]);
-                    }
+                    this.callOnChangedListeners(
+                        property as KeysOf<PlayerProxyDBusProperties>,
+                        changedProperties[property],
+                    );
                 }
 
                 this.validatePlayer();
@@ -83,12 +89,12 @@ export default class PlayerProxy {
 
     public pinPlayer() {
         this.isPinned = true;
-        this.changeListeners.get("IsPinned")?.(this.isPinned);
+        this.callOnChangedListeners("IsPinned", this.isPinned);
     }
 
     public unpinPlayer() {
         this.isPinned = false;
-        this.changeListeners.get("IsPinned")?.(this.isPinned);
+        this.callOnChangedListeners("IsPinned", this.isPinned);
     }
 
     public isPlayerPinned() {
@@ -100,7 +106,7 @@ export default class PlayerProxy {
         const isValidMetadata = this.metadata && this.metadata["xesam:title"];
 
         this.isInvalid = !isValidName || !isValidMetadata;
-        this.changeListeners.get("IsInvalid")?.(this.isInvalid);
+        this.callOnChangedListeners("IsInvalid", this.isInvalid);
 
         debugLog(`Player ${this.busName} is ${this.isInvalid ? "invalid" : "valid"}`);
     }
@@ -113,6 +119,21 @@ export default class PlayerProxy {
         }
 
         return unpackedMetadata as MprisPlayerInterfaceMetadataUnpacked;
+    }
+
+    private callOnChangedListeners<T extends KeysOf<PlayerProxyProperties>>(
+        property: T,
+        value: PlayerProxyProperties[T],
+    ) {
+        const listeners = this.changeListeners.get(property);
+
+        if (listeners == null) {
+            return;
+        }
+
+        for (const listener of listeners) {
+            listener(value);
+        }
     }
 
     get playbackStatus(): PlaybackStatus {
@@ -272,19 +293,37 @@ export default class PlayerProxy {
     }
 
     public onSeeked(callback: (position: number) => void) {
-        this.mprisPlayerProxy.connectSignal("Seeked", (proxy, sender, position) => {
-            callback(position);
+        const signalId = this.mprisPlayerProxy.connectSignal("Seeked", () => {
+            callback(this.position);
         });
+
+        return this.mprisPlayerProxy.disconnectSignal.bind(this.mprisPlayerProxy, signalId);
     }
 
-    public onChanged<T extends keyof PlayerProxyProperties>(
+    public onChanged<T extends KeysOf<PlayerProxyProperties>>(
         property: T,
         callback: (value: PlayerProxyProperties[T]) => void,
     ) {
-        const listener = this.changeListeners.get(property);
+        const listeners = this.changeListeners.get(property);
+        let id: number;
 
-        if (listener == null) {
-            this.changeListeners.set(property, callback);
+        if (listeners == null) {
+            id = 0;
+            this.changeListeners.set(property, [callback]);
+        } else {
+            id = listeners.push(callback);
         }
+
+        return id;
+    }
+
+    public removeListener<T extends KeysOf<PlayerProxyProperties>>(property: T, id: number) {
+        const listeners = this.changeListeners.get(property);
+
+        if (listeners == null) {
+            return;
+        }
+
+        listeners.splice(id, 1);
     }
 }

@@ -21,7 +21,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
     private builder: Gtk.Builder;
 
     private generalPage: Adw.PreferencesPage;
-    private appearancePage: Adw.PreferencesPage;
+    private panelPage: Adw.PreferencesPage;
     private positionsPage: Adw.PreferencesPage;
     private shortcutsPage: Adw.PreferencesPage;
     private otherPage: Adw.PreferencesPage;
@@ -33,13 +33,13 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         this.builder = Gtk.Builder.new_from_file(`${this.path}/ui/prefs.ui`);
 
         this.generalPage = this.builder.get_object("page-general") as Adw.PreferencesPage;
-        this.appearancePage = this.builder.get_object("page-appearance") as Adw.PreferencesPage;
+        this.panelPage = this.builder.get_object("page-panel") as Adw.PreferencesPage;
         this.positionsPage = this.builder.get_object("page-positions") as Adw.PreferencesPage;
         this.shortcutsPage = this.builder.get_object("page-shortcuts") as Adw.PreferencesPage;
         this.otherPage = this.builder.get_object("page-other") as Adw.PreferencesPage;
 
         this.window.add(this.generalPage);
-        this.window.add(this.appearancePage);
+        this.window.add(this.panelPage);
         this.window.add(this.positionsPage);
         this.window.add(this.shortcutsPage);
         this.window.add(this.otherPage);
@@ -162,18 +162,19 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
     }
 
     private bindSettings() {
-        this.bindSetting("width", "sr-general-width", "value");
-        this.bindSetting("hide-media-notification", "sr-general-hide-media-notification", "active");
+        this.bindSetting("label-width", "sr-general-label-width", "value");
+        this.bindSetting("fixed-label-width", "sr-general-label-fixed", "active");
         this.bindSetting("scroll-labels", "sr-general-scroll-labels", "active");
-        this.bindSetting("show-label", "sr-appearance-show-label", "active");
-        this.bindSetting("show-control-icons", "sr-appearance-show-controls", "active");
-        this.bindSetting("show-control-icons-play", "sr-appearance-show-play", "active");
-        this.bindSetting("show-control-icons-next", "sr-appearance-show-next", "active");
-        this.bindSetting("show-control-icons-previous", "sr-appearance-show-prev", "active");
-        this.bindSetting("show-control-icons-seek-forward", "sr-appearance-show-seek-forward", "active");
-        this.bindSetting("show-control-icons-seek-backward", "sr-appearance-show-seek-backward", "active");
-        this.bindSetting("show-player-icon", "sr-appearance-show-player", "active");
-        this.bindSetting("colored-player-icon", "sr-appearance-colored-player", "active");
+        this.bindSetting("hide-media-notification", "sr-general-hide-media-notification", "active");
+        this.bindSetting("show-label", "sr-panel-show-label", "active");
+        this.bindSetting("show-control-icons", "sr-panel-show-controls", "active");
+        this.bindSetting("show-control-icons-play", "sr-panel-show-play", "active");
+        this.bindSetting("show-control-icons-next", "sr-panel-show-next", "active");
+        this.bindSetting("show-control-icons-previous", "sr-panel-show-prev", "active");
+        this.bindSetting("show-control-icons-seek-forward", "sr-panel-show-seek-forward", "active");
+        this.bindSetting("show-control-icons-seek-backward", "sr-panel-show-seek-backward", "active");
+        this.bindSetting("show-player-icon", "sr-panel-show-player", "active");
+        this.bindSetting("colored-player-icon", "sr-panel-colored-player", "active");
         this.bindSetting("extension-position", "cr-positions-extension-position", "selected");
         this.bindSetting("extension-index", "sr-positions-extension-index", "value");
         this.bindSetting("shortcut-show-menu", "sl-shortcuts-popup", "accelerator");

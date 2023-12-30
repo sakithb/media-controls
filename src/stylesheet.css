@@ -6,15 +6,36 @@
     -st-icon-style: symbolic;
 }
 
+.no-margin {
+    margin: 0;
+}
+
+.panel-button {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
 .panel-button-box > *:first-child {
-    padding-right: 5px;
+    padding-left: 6px;
+    padding-right: 6px;
 }
 
 .panel-button-box > * {
-    padding-right: 5px;
-    padding-left: 5px;
+    padding-left: 6px;
+    padding-right: 6px;
 }
 
-.panel-button-box > *:last-child {
-    padding-left: 5px;
+.panel-button-box > *:last-child:not(.controls-box) {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.controls-box {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.controls-box > * {
+    padding-left: 6px;
+    padding-right: 6px;
 }

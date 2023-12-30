@@ -24,9 +24,10 @@ const DBUS_IFACE_NAME = "org.freedesktop.DBus";
 const DBUS_OBJECT_PATH = "/org/freedesktop/DBus";
 
 export default class MediaControls extends Extension {
-    public width: number;
-    public hideMediaNotification: boolean;
+    public labelWidth: number;
+    public fixedLabelWidth: boolean;
     public scrollLabels: boolean;
+    public hideMediaNotification: boolean;
     public showLabel: boolean;
     public showPlayerIcon: boolean;
     public showControlIcons: boolean;
@@ -76,9 +77,10 @@ export default class MediaControls extends Extension {
     private initSettings() {
         this.settings = this.getSettings();
 
-        this.width = this.settings.get_uint("width");
-        this.hideMediaNotification = this.settings.get_boolean("hide-media-notification");
+        this.labelWidth = this.settings.get_uint("label-width");
+        this.fixedLabelWidth = this.settings.get_boolean("fixed-label-width");
         this.scrollLabels = this.settings.get_boolean("scroll-labels");
+        this.hideMediaNotification = this.settings.get_boolean("hide-media-notification");
         this.showLabel = this.settings.get_boolean("show-label");
         this.showPlayerIcon = this.settings.get_boolean("show-player-icon");
         this.showControlIcons = this.settings.get_boolean("show-control-icons");
@@ -102,19 +104,24 @@ export default class MediaControls extends Extension {
         this.cacheArt = this.settings.get_boolean("cache-art");
         this.blacklistedPlayers = this.settings.get_strv("blacklisted-players");
 
-        this.settings.connect("changed::width", () => {
-            this.width = this.settings.get_uint("width");
+        this.settings.connect("changed::label-width", () => {
+            this.labelWidth = this.settings.get_uint("label-width");
+            this.panelBtn?.drawWidgets();
+        });
+
+        this.settings.connect("changed::fixed-label-width", () => {
+            this.fixedLabelWidth = this.settings.get_boolean("fixed-label-width");
+            this.panelBtn?.drawWidgets();
+        });
+
+        this.settings.connect("changed::scroll-labels", () => {
+            this.scrollLabels = this.settings.get_boolean("scroll-labels");
             this.panelBtn?.drawWidgets();
         });
 
         this.settings.connect("changed::hide-media-notification", () => {
             this.hideMediaNotification = this.settings.get_boolean("hide-media-notification");
             this.updateMediaNotificationVisiblity();
-        });
-
-        this.settings.connect("changed::scroll-labels", () => {
-            this.scrollLabels = this.settings.get_boolean("scroll-labels");
-            this.panelBtn?.drawWidgets();
         });
 
         this.settings.connect("changed::show-label", () => {
@@ -177,12 +184,12 @@ export default class MediaControls extends Extension {
 
         this.settings.connect("changed::elements-order", () => {
             this.elementsOrder = this.settings.get_strv("elements-order") as ElementsOrder;
-            this.panelBtn?.drawWidgets();
+            this.panelBtn?.drawWidgets(true);
         });
 
         this.settings.connect("changed::labels-order", () => {
             this.labelsOrder = this.settings.get_strv("labels-order") as LabelsOrder;
-            this.panelBtn?.drawWidgets();
+            this.panelBtn?.drawWidgets(true);
         });
 
         this.settings.connect("changed::shortcut-show-menu", () => {
@@ -476,7 +483,7 @@ export default class MediaControls extends Extension {
     private destroySettings() {
         this.settings = null;
 
-        this.width = null;
+        this.labelWidth = null;
         this.hideMediaNotification = null;
         this.scrollLabels = null;
         this.showLabel = null;

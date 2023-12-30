@@ -62,6 +62,10 @@ export const enumValueByIndex = <T>(enumObject: T, index: number) => {
     return Object.values(enumObject)[index];
 };
 
+export const enumKeyByValue = <T>(enumObject: T, value: unknown) => {
+    return Object.keys(enumObject).find((key) => enumObject[key] === value);
+};
+
 export const debugLog = (...args: unknown[]) => {
     if (DEBUG) {
         console.log("[Media Controls]", ...args);
