@@ -1,10 +1,9 @@
 import Gdk from "gi://Gdk?version=4.0";
 import Gtk from "gi://Gtk?version=4.0";
-import Gio from "gi://Gio?version=2.0";
-
-Gio._promisify(Gio.DBusProxy, "new", "new_finish");
+import GLib from "gi://GLib?version=2.0";
 
 const DEBUG = true;
+
 const FORBIDDEN_KEYVALS = [
     Gdk.KEY_Home,
     Gdk.KEY_Left,
@@ -81,21 +80,18 @@ export const handleError = (error: unknown): null => {
     return null;
 };
 
-export const createDbusProxy = async <T>(
-    ifaceInfo: Gio.DBusInterfaceInfo,
-    name: string,
-    object: string,
-): Promise<T> => {
-    // @ts-expect-error Types have not been promisified yet
-    const proxy = Gio.DBusProxy.new(
-        Gio.DBus.session,
-        Gio.DBusProxyFlags.NONE,
-        ifaceInfo,
-        name,
-        object,
-        ifaceInfo.name,
-        null,
-    ) as Promise<T>;
+export const msToHHMMSS = (ms: number): string => {
+    const seconds = Math.floor(ms / GLib.TIME_SPAN_SECOND);
+    const minutes = Math.floor(ms / GLib.TIME_SPAN_MINUTE);
+    const hours = Math.floor(ms / GLib.TIME_SPAN_HOUR);
 
-    return proxy;
+    const secondsString = String(seconds % 60).padStart(2, "0");
+    const minutesString = String(minutes % 60).padStart(2, "0");
+    const hoursString = String(hours).padStart(2, "0");
+
+    if (hours > 0) {
+        return `${hoursString}:${minutesString}:${secondsString}`;
+    } else {
+        return `${minutesString}:${secondsString}`;
+    }
 };

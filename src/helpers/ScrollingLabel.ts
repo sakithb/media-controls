@@ -6,16 +6,15 @@ import St from "gi://St?version=13";
 const SCROLL_ANIMATION_SPEED = 0.04;
 
 class ScrollingLabel extends St.ScrollView {
-    private label: St.Label;
+    public label: St.Label;
+
     private box: St.BoxLayout;
     private onAdjustmentChangedId: number;
 
     private initPaused: boolean;
     private labelWidth: number;
-    private fixedWidth: boolean;
-    private isScrolling: boolean;
 
-    constructor(text: string, labelWidth: number, fixedWidth: boolean, isScrolling: boolean, initPaused: boolean) {
+    constructor(text: string, labelWidth: number, isFixedWidth: boolean, isScrolling: boolean, initPaused: boolean) {
         super({
             hscrollbarPolicy: St.PolicyType.NEVER,
             vscrollbarPolicy: St.PolicyType.NEVER,
@@ -23,8 +22,6 @@ class ScrollingLabel extends St.ScrollView {
 
         this.initPaused = initPaused;
         this.labelWidth = labelWidth;
-        this.fixedWidth = fixedWidth;
-        this.isScrolling = isScrolling;
 
         this.box = new St.BoxLayout({
             xExpand: true,
@@ -44,7 +41,7 @@ class ScrollingLabel extends St.ScrollView {
                 this.initScrolling();
             }
 
-            if (fixedWidth) {
+            if (isFixedWidth) {
                 this.box.width = this.labelWidth;
             } else if (isLabelWider) {
                 this.box.width = Math.min(this.label.width, this.labelWidth);
@@ -58,7 +55,7 @@ class ScrollingLabel extends St.ScrollView {
     }
 
     public pauseScrolling() {
-        const transition = this.hscroll.adjustment.get_transition("scroll");
+        const transition = this.hscroll?.adjustment.get_transition("scroll");
 
         if (transition == null) {
             return;
@@ -68,7 +65,7 @@ class ScrollingLabel extends St.ScrollView {
     }
 
     public resumeScrolling() {
-        const transition = this.hscroll.adjustment.get_transition("scroll");
+        const transition = this.hscroll?.adjustment.get_transition("scroll");
 
         if (transition == null) {
             return;

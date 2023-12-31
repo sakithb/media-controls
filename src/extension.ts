@@ -1,5 +1,6 @@
 import Gio from "gi://Gio?version=2.0";
 import GLib from "gi://GLib?version=2.0";
+import Meta from "gi://Meta?version=13";
 import Shell from "gi://Shell?version=13";
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
 import * as Mpris from "resource:///org/gnome/shell/ui/mpris.js";
@@ -7,8 +8,20 @@ import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
 
 import PanelButton from "./helpers/PanelButton.js";
 import PlayerProxy from "./helpers/PlayerProxy.js";
-import { ExtensionPositions, LabelTypes, MouseActions, PanelElements, PlaybackStatus } from "./types/enums.js";
-import { createDbusProxy, debugLog, enumValueByIndex, errorLog, handleError } from "./utils/common.js";
+import {
+    DBUS_IFACE_NAME,
+    DBUS_OBJECT_PATH,
+    DBUS_PROPERTIES_IFACE_NAME,
+    ExtensionPositions,
+    LabelTypes,
+    MPRIS_IFACE_NAME,
+    MPRIS_PLAYER_IFACE_NAME,
+    MouseActions,
+    PanelElements,
+    PlaybackStatus,
+} from "./types/enums.js";
+import { debugLog, enumValueByIndex, errorLog, handleError } from "./utils/common.js";
+import { getAppByIdAndEntry, createDbusProxy } from "./utils/extension.js";
 import { StdInterface } from "./types/dbus.js";
 import { KeysOf } from "./types/common.js";
 
@@ -17,15 +30,9 @@ Gio._promisify(Gio.File.prototype, "load_contents_async", "load_contents_finish"
 type ElementsOrder = KeysOf<typeof PanelElements>[];
 type LabelsOrder = (KeysOf<typeof LabelTypes> | (string & NonNullable<unknown>))[];
 
-const MPRIS_IFACE_NAME = "org.mpris.MediaPlayer2";
-const MPRIS_PLAYER_IFACE_NAME = "org.mpris.MediaPlayer2.Player";
-const DBUS_PROPERTIES_IFACE_NAME = "org.freedesktop.DBus.Properties";
-const DBUS_IFACE_NAME = "org.freedesktop.DBus";
-const DBUS_OBJECT_PATH = "/org/freedesktop/DBus";
-
 export default class MediaControls extends Extension {
     public labelWidth: number;
-    public fixedLabelWidth: boolean;
+    public isFixedLabelWidth: boolean;
     public scrollLabels: boolean;
     public hideMediaNotification: boolean;
     public showLabel: boolean;
@@ -71,14 +78,38 @@ export default class MediaControls extends Extension {
         this.initProxies().catch(handleError);
         this.updateMediaNotificationVisiblity();
 
+        Main.wm.addKeybinding(
+            "mediacontrols-show-popup-menu",
+            this.settings,
+            Meta.KeyBindingFlags.NONE,
+            Shell.ActionMode.NORMAL,
+            () => {
+                this.panelBtn?.menu.toggle();
+            },
+        );
+
         debugLog("Enabled");
+    }
+
+    public getPlayers() {
+        const players: PlayerProxy[] = [];
+
+        for (const player of this.playerProxies.values()) {
+            if (player.isInvalid) {
+                continue;
+            }
+
+            players.push(player);
+        }
+
+        return players;
     }
 
     private initSettings() {
         this.settings = this.getSettings();
 
         this.labelWidth = this.settings.get_uint("label-width");
-        this.fixedLabelWidth = this.settings.get_boolean("fixed-label-width");
+        this.isFixedLabelWidth = this.settings.get_boolean("fixed-label-width");
         this.scrollLabels = this.settings.get_boolean("scroll-labels");
         this.hideMediaNotification = this.settings.get_boolean("hide-media-notification");
         this.showLabel = this.settings.get_boolean("show-label");
@@ -94,7 +125,6 @@ export default class MediaControls extends Extension {
         this.extensionIndex = this.settings.get_uint("extension-index");
         this.elementsOrder = this.settings.get_strv("elements-order") as ElementsOrder;
         this.labelsOrder = this.settings.get_strv("labels-order") as LabelsOrder;
-        this.shortcutShowMenu = this.settings.get_string("shortcut-show-menu");
         this.mouseActionLeft = enumValueByIndex(MouseActions, this.settings.get_enum("mouse-action-left"));
         this.mouseActionMiddle = enumValueByIndex(MouseActions, this.settings.get_enum("mouse-action-middle"));
         this.mouseActionRight = enumValueByIndex(MouseActions, this.settings.get_enum("mouse-action-right"));
@@ -106,17 +136,17 @@ export default class MediaControls extends Extension {
 
         this.settings.connect("changed::label-width", () => {
             this.labelWidth = this.settings.get_uint("label-width");
-            this.panelBtn?.drawWidgets();
+            this.panelBtn?.updateWidgets();
         });
 
         this.settings.connect("changed::fixed-label-width", () => {
-            this.fixedLabelWidth = this.settings.get_boolean("fixed-label-width");
-            this.panelBtn?.drawWidgets();
+            this.isFixedLabelWidth = this.settings.get_boolean("fixed-label-width");
+            this.panelBtn?.updateWidgets();
         });
 
         this.settings.connect("changed::scroll-labels", () => {
             this.scrollLabels = this.settings.get_boolean("scroll-labels");
-            this.panelBtn?.drawWidgets();
+            this.panelBtn?.updateWidgets();
         });
 
         this.settings.connect("changed::hide-media-notification", () => {
@@ -126,47 +156,47 @@ export default class MediaControls extends Extension {
 
         this.settings.connect("changed::show-label", () => {
             this.showLabel = this.settings.get_boolean("show-label");
-            this.panelBtn?.drawWidgets();
+            this.panelBtn?.updateWidgets();
         });
 
         this.settings.connect("changed::show-player-icon", () => {
             this.showPlayerIcon = this.settings.get_boolean("show-player-icon");
-            this.panelBtn?.drawWidgets();
+            this.panelBtn?.updateWidgets();
         });
 
         this.settings.connect("changed::show-control-icons", () => {
             this.showControlIcons = this.settings.get_boolean("show-control-icons");
-            this.panelBtn?.drawWidgets();
+            this.panelBtn?.updateWidgets();
         });
 
         this.settings.connect("changed::show-control-icons-play", () => {
             this.showControlIconsPlay = this.settings.get_boolean("show-control-icons-play");
-            this.panelBtn?.drawWidgets();
+            this.panelBtn?.updateWidgets();
         });
 
         this.settings.connect("changed::show-control-icons-next", () => {
             this.showControlIconsNext = this.settings.get_boolean("show-control-icons-next");
-            this.panelBtn?.drawWidgets();
+            this.panelBtn?.updateWidgets();
         });
 
         this.settings.connect("changed::show-control-icons-previous", () => {
             this.showControlIconsPrevious = this.settings.get_boolean("show-control-icons-previous");
-            this.panelBtn?.drawWidgets();
+            this.panelBtn?.updateWidgets();
         });
 
         this.settings.connect("changed::show-control-icons-seek-forward", () => {
             this.showControlIconsSeekForward = this.settings.get_boolean("show-control-icons-seek-forward");
-            this.panelBtn?.drawWidgets();
+            this.panelBtn?.updateWidgets();
         });
 
         this.settings.connect("changed::show-control-icons-seek-backward", () => {
             this.showControlIconsSeekBackward = this.settings.get_boolean("show-control-icons-seek-backward");
-            this.panelBtn?.drawWidgets();
+            this.panelBtn?.updateWidgets();
         });
 
         this.settings.connect("changed::colored-player-icon", () => {
             this.coloredPlayerIcon = this.settings.get_boolean("colored-player-icon");
-            this.panelBtn?.drawWidgets();
+            this.panelBtn?.updateWidgets();
         });
 
         this.settings.connect("changed::extension-position", () => {
@@ -184,16 +214,12 @@ export default class MediaControls extends Extension {
 
         this.settings.connect("changed::elements-order", () => {
             this.elementsOrder = this.settings.get_strv("elements-order") as ElementsOrder;
-            this.panelBtn?.drawWidgets(true);
+            this.panelBtn?.updateWidgets(true);
         });
 
         this.settings.connect("changed::labels-order", () => {
             this.labelsOrder = this.settings.get_strv("labels-order") as LabelsOrder;
-            this.panelBtn?.drawWidgets(true);
-        });
-
-        this.settings.connect("changed::shortcut-show-menu", () => {
-            this.shortcutShowMenu = this.settings.get_string("shortcut-show-menu");
+            this.panelBtn?.updateWidgets(true);
         });
 
         this.settings.connect("changed::mouse-action-left", () => {
@@ -234,7 +260,7 @@ export default class MediaControls extends Extension {
             this.blacklistedPlayers = this.settings.get_strv("blacklisted-players");
 
             for (const playerProxy of this.playerProxies.values()) {
-                if (this.isPlayerBlacklisted(playerProxy.identity)) {
+                if (this.isPlayerBlacklisted(playerProxy.identity, playerProxy.desktopEntry)) {
                     this.removePlayer(playerProxy.busName);
                 }
             }
@@ -353,10 +379,11 @@ export default class MediaControls extends Extension {
             .catch(handleError);
 
         if (initSuccess === false) {
+            errorLog("Failed to init player:", busName);
             return;
         }
 
-        const isPlayerBlacklisted = this.isPlayerBlacklisted(playerProxy.identity);
+        const isPlayerBlacklisted = this.isPlayerBlacklisted(playerProxy.identity, playerProxy.desktopEntry);
 
         if (isPlayerBlacklisted) {
             debugLog("Player is blacklisted:", busName);
@@ -378,6 +405,8 @@ export default class MediaControls extends Extension {
     }
 
     private setActivePlayer() {
+        debugLog("Setting active player");
+
         if (this.playerProxies.size === 0) {
             if (this.panelBtn != null) {
                 this.removePanelButton();
@@ -398,23 +427,19 @@ export default class MediaControls extends Extension {
                 break;
             }
 
-            if (chosenPlayer == null) {
+            if (this.panelBtn == null && chosenPlayer == null) {
                 chosenPlayer = playerProxy;
-                continue;
-            }
-
-            if (playerProxy.playbackStatus === PlaybackStatus.PLAYING) {
+            } else if (this.panelBtn?.isSamePlayer(playerProxy) && chosenPlayer == null) {
                 chosenPlayer = playerProxy;
-                continue;
+            } else if (playerProxy.playbackStatus === PlaybackStatus.PLAYING) {
+                chosenPlayer = playerProxy;
             }
         }
 
         debugLog("Chosen player:", chosenPlayer?.busName);
 
         if (chosenPlayer == null) {
-            if (this.panelBtn) {
-                this.removePanelButton();
-            }
+            this.removePanelButton();
         } else {
             if (this.panelBtn == null) {
                 this.addPanelButton(chosenPlayer.busName);
@@ -424,27 +449,18 @@ export default class MediaControls extends Extension {
         }
     }
 
-    private isPlayerBlacklisted(identity: string) {
-        const appSystem = Shell.AppSystem.get_default();
-        const runningApps = appSystem.get_running();
-        const app = runningApps.find((app) => app.get_name() === identity);
+    private isPlayerBlacklisted(id: string, entry: string) {
+        const app = getAppByIdAndEntry(id, entry);
 
         if (app == null) {
-            const searchResults = Shell.AppSystem.search(identity)[0];
-
-            if (searchResults.length === 0) {
-                return true;
-            }
-
-            const appId = searchResults[0];
-            return this.blacklistedPlayers.includes(appId);
-        } else {
-            return this.blacklistedPlayers.includes(app.get_id());
+            return false;
         }
+
+        const appId = app.get_id();
+        return this.blacklistedPlayers.includes(appId);
     }
 
     private updateMediaNotificationVisiblity(shouldReset = false) {
-        debugLog("Updating media notification");
         if (this.mediaSectionAddFunc && (shouldReset || this.hideMediaNotification === false)) {
             debugLog("Showing/resetting media notification");
             Mpris.MediaSection.prototype._addPlayer = this.mediaSectionAddFunc;
@@ -521,6 +537,8 @@ export default class MediaControls extends Extension {
         this.removePanelButton();
         this.updateMediaNotificationVisiblity(true);
         this.destroySettings();
+
+        Main.wm.removeKeybinding("mediacontrols-show-popup-menu");
 
         debugLog("Disabled");
     }

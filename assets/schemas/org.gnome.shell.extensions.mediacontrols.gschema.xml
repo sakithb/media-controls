@@ -72,9 +72,6 @@
     <key name="labels-order" type="as">
       <default>[]</default>
     </key>
-    <key name="shortcut-show-menu" type="s">
-      <default><![CDATA['']]></default>
-    </key>
     <key name="mouse-action-left" enum="org.gnome.shell.extensions.mediacontrols.mouseactions">
       <default>'Show popup menu'</default>
     </key>
@@ -98,6 +95,9 @@
     </key>
     <key name="blacklisted-players" type="as">
       <default>[]</default>
+    </key>
+    <key name="mediacontrols-show-popup-menu" type="as">
+      <default><![CDATA[['']]]></default>
     </key>
   </schema>
 </schemalist>

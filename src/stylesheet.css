@@ -10,32 +10,69 @@
     margin: 0;
 }
 
-.panel-button {
-    padding-left: 6px;
-    padding-right: 6px;
+.no-padding {
+    padding: 0;
 }
 
-.panel-button-box > *:first-child {
-    padding-left: 6px;
-    padding-right: 6px;
-}
-
-.panel-button-box > * {
-    padding-left: 6px;
-    padding-right: 6px;
-}
-
+.panel-button,
+.panel-button-box > *,
 .panel-button-box > *:last-child:not(.controls-box) {
     padding-left: 6px;
     padding-right: 6px;
 }
 
-.controls-box {
+.panel-controls-box {
     padding-left: 0px;
     padding-right: 0px;
 }
 
-.controls-box > * {
+.panel-controls-box > * {
     padding-left: 6px;
     padding-right: 6px;
+}
+
+.popup-menu-container {
+    padding: 12px;
+}
+
+.popup-menu-box > * {
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+
+.popup-menu-player-icons {
+    margin-top: 6px;
+}
+
+.popup-menu-player-icons-icon {
+    padding: 6px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.popup-menu-player-icons-icon:hover {
+    background-color: rgba(160, 160, 160, 0.25);
+}
+
+.popup-menu-player-icons-icon-active {
+    background-color: rgba(160, 160, 160, 0.25);
+}
+
+.popup-menu-player-label {
+    margin-right: 6px;
+    font-size: small;
+}
+
+.popup-menu-label-title {
+    font-size: large;
+}
+
+.popup-menu-control-icon {
+    padding: 6px;
+    border-radius: 99px;
+    transition: background-color 0.2s ease-in-out;
+}
+
+.popup-menu-control-icon:hover {
+    background-color: rgba(160, 160, 160, 0.25);
 }

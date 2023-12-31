@@ -83,8 +83,8 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             const controller = new Gtk.EventControllerKey();
             shortcutEditorWindow.add_controller(controller);
 
-            const currentShortcut = this.settings.get_string("shortcut-show-menu");
-            shortcutEditorLabel.accelerator = currentShortcut;
+            const currentShortcut = this.settings.get_strv("mediacontrols-show-popup-menu");
+            shortcutEditorLabel.accelerator = currentShortcut[0];
 
             controller.connect("key-pressed", (_, keyval, keycode, state) => {
                 let mask = state & Gtk.accelerator_get_default_mod_mask();
@@ -104,7 +104,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
                     const shortcut = shortcutEditorLabel.accelerator;
 
                     shortcutLabel.accelerator = shortcut;
-                    this.settings.set_string("shortcut-show-menu", shortcut);
+                    this.settings.set_strv("mediacontrols-show-popup-menu", [shortcut]);
 
                     shortcutEditorWindow.close();
                     return Gdk.EVENT_STOP;
@@ -177,7 +177,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         this.bindSetting("colored-player-icon", "sr-panel-colored-player", "active");
         this.bindSetting("extension-position", "cr-positions-extension-position", "selected");
         this.bindSetting("extension-index", "sr-positions-extension-index", "value");
-        this.bindSetting("shortcut-show-menu", "sl-shortcuts-popup", "accelerator");
+        this.bindSetting("mediacontrols-show-popup-menu", "sl-shortcuts-popup", "accelerator");
         this.bindSetting("mouse-action-left", "cr-shortcuts-mouse-left", "selected");
         this.bindSetting("mouse-action-middle", "cr-shortcuts-mouse-middle", "selected");
         this.bindSetting("mouse-action-right", "cr-shortcuts-mouse-right", "selected");
@@ -198,6 +198,17 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
 
             this.settings.connect(`changed::${key}`, () => {
                 widget[property] = this.settings.get_enum(key);
+            });
+        } else if (property === "accelerator") {
+            const widget = this.builder.get_object(widgetName) as Gtk.ShortcutLabel;
+            widget[property] = this.settings.get_strv(key)[0];
+
+            widget.connect(`notify::${property}`, () => {
+                this.settings.set_strv(key, [widget[property]]);
+            });
+
+            this.settings.connect(`changed::${key}`, () => {
+                widget[property] = this.settings.get_strv(key)[0];
             });
         } else {
             const widget = this.builder.get_object(widgetName) as Gtk.Widget;

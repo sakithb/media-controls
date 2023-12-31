@@ -8,11 +8,10 @@ import {
     PlayerProxyProperties,
     PropertiesInterface,
 } from "../types/dbus.js";
-import { LoopStatus, PlaybackStatus } from "../types/enums.js";
-import { createDbusProxy, debugLog, errorLog, handleError } from "../utils/common.js";
+import { LoopStatus, MPRIS_OBJECT_PATH, MPRIS_PLAYER_IFACE_NAME, PlaybackStatus } from "../types/enums.js";
+import { debugLog, errorLog, handleError } from "../utils/common.js";
+import { createDbusProxy } from "../utils/extension.js";
 import { KeysOf } from "../types/common.js";
-
-const MPRIS_OBJECT_PATH = "/org/mpris/MediaPlayer2";
 
 type PlayerProxyChangeListeners = Map<
     KeysOf<PlayerProxyProperties>,
@@ -78,7 +77,6 @@ export default class PlayerProxy {
                 }
 
                 this.validatePlayer();
-                debugLog(`Player ${this.busName} changed properties: ${Object.keys(changedProperties).join(", ")}`);
             },
         );
 
@@ -108,7 +106,7 @@ export default class PlayerProxy {
         this.isInvalid = !isValidName || !isValidMetadata;
         this.callOnChangedListeners("IsInvalid", this.isInvalid);
 
-        debugLog(`Player ${this.busName} is ${this.isInvalid ? "invalid" : "valid"}`);
+        debugLog("Player", this.busName, "is", this.isInvalid ? "invalid" : "valid");
     }
 
     private unpackMetadata(metadata: MprisPlayerInterfaceMetadata) {
@@ -132,7 +130,11 @@ export default class PlayerProxy {
         }
 
         for (const listener of listeners) {
-            listener(value);
+            try {
+                listener(value);
+            } catch (error) {
+                errorLog("Failed to call listener:", error);
+            }
         }
     }
 
@@ -160,8 +162,13 @@ export default class PlayerProxy {
         return this.mprisPlayerProxy.Volume;
     }
 
-    get position(): number {
-        return this.mprisPlayerProxy.Position;
+    get position(): Promise<number> {
+        return this.propertiesProxy
+            .GetAsync(MPRIS_PLAYER_IFACE_NAME, "Position")
+            .then((result) => {
+                return result[0].get_int64();
+            })
+            .catch(handleError);
     }
 
     get minimumRate(): number {
@@ -292,9 +299,21 @@ export default class PlayerProxy {
         await this.mprisProxy.QuitAsync().catch(handleError);
     }
 
+    public toggleLoop() {
+        const loopStatuses = Object.values(LoopStatus);
+        const currentIndex = loopStatuses.findIndex((loop) => loop === this.loopStatus);
+        const nextIndex = (currentIndex + 1 + loopStatuses.length) % loopStatuses.length;
+
+        this.loopStatus = loopStatuses[nextIndex];
+    }
+
+    public toggleShuffle() {
+        this.shuffle = !this.shuffle;
+    }
+
     public onSeeked(callback: (position: number) => void) {
         const signalId = this.mprisPlayerProxy.connectSignal("Seeked", () => {
-            callback(this.position);
+            this.position.then(callback);
         });
 
         return this.mprisPlayerProxy.disconnectSignal.bind(this.mprisPlayerProxy, signalId);
