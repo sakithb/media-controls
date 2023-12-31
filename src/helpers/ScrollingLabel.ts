@@ -14,6 +14,8 @@ class ScrollingLabel extends St.ScrollView {
     private initPaused: boolean;
     private labelWidth: number;
 
+    private transition: Clutter.PropertyTransition;
+
     constructor(text: string, labelWidth: number, isFixedWidth: boolean, isScrolling: boolean, initPaused: boolean) {
         super({
             hscrollbarPolicy: St.PolicyType.NEVER,
@@ -35,6 +37,10 @@ class ScrollingLabel extends St.ScrollView {
         });
 
         const signalId = this.label.connect("show", () => {
+            if (this.label.allocation == null || this.label.width === 0) {
+                return;
+            }
+
             const isLabelWider = this.label.width > this.labelWidth;
 
             if (isLabelWider && isScrolling) {
@@ -43,6 +49,8 @@ class ScrollingLabel extends St.ScrollView {
 
             if (isFixedWidth) {
                 this.box.width = this.labelWidth;
+                this.label.xAlign = Clutter.ActorAlign.CENTER;
+                this.label.xExpand = true;
             } else if (isLabelWider) {
                 this.box.width = Math.min(this.label.width, this.labelWidth);
             }
@@ -55,23 +63,11 @@ class ScrollingLabel extends St.ScrollView {
     }
 
     public pauseScrolling() {
-        const transition = this.hscroll?.adjustment.get_transition("scroll");
-
-        if (transition == null) {
-            return;
-        }
-
-        transition.pause();
+        this.transition?.pause();
     }
 
     public resumeScrolling() {
-        const transition = this.hscroll?.adjustment.get_transition("scroll");
-
-        if (transition == null) {
-            return;
-        }
-
-        transition.start();
+        this.transition?.start();
     }
 
     private initScrolling() {
@@ -103,21 +99,20 @@ class ScrollingLabel extends St.ScrollView {
             final,
         });
 
-        const transition = new Clutter.PropertyTransition({
+        this.transition = new Clutter.PropertyTransition({
             propertyName: "value",
             progressMode: Clutter.AnimationMode.LINEAR,
             repeatCount: -1,
             duration,
-            delay: 0,
             interval,
         });
 
         this.label.text = `${origText} ${origText}`;
-        adjustment.add_transition("scroll", transition);
+        adjustment.add_transition("scroll", this.transition);
         adjustment.disconnect(this.onAdjustmentChangedId);
 
         if (this.initPaused) {
-            transition.pause();
+            this.transition.pause();
         }
     }
 

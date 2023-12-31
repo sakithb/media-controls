@@ -1,5 +1,6 @@
 import Gio from "gi://Gio?version=2.0";
-import { LoopStatus, PlaybackStatus } from "./enums.js";
+import { LoopStatus } from "./enums/panel.js";
+import { PlaybackStatus } from "./enums/panel.js";
 import GLib from "gi://GLib?version=2.0";
 
 type MethodResult<T> = [T];

@@ -8,9 +8,11 @@ import {
     PlayerProxyProperties,
     PropertiesInterface,
 } from "../types/dbus.js";
-import { LoopStatus, MPRIS_OBJECT_PATH, MPRIS_PLAYER_IFACE_NAME, PlaybackStatus } from "../types/enums.js";
+import { MPRIS_OBJECT_PATH, MPRIS_PLAYER_IFACE_NAME } from "../types/enums/common.js";
+import { LoopStatus } from "../types/enums/panel.js";
+import { PlaybackStatus } from "../types/enums/panel.js";
 import { debugLog, errorLog, handleError } from "../utils/common.js";
-import { createDbusProxy } from "../utils/extension.js";
+import { createDbusProxy } from "../utils/panel.js";
 import { KeysOf } from "../types/common.js";
 
 type PlayerProxyChangeListeners = Map<
@@ -75,11 +77,12 @@ export default class PlayerProxy {
                         changedProperties[property],
                     );
                 }
-
-                this.validatePlayer();
             },
         );
 
+        this.onChanged("Metadata", this.validatePlayer.bind(this));
+        this.onChanged("Identity", this.validatePlayer.bind(this));
+        this.onChanged("DesktopEntry", this.validatePlayer.bind(this));
         this.validatePlayer();
 
         return true;

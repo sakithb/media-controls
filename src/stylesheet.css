@@ -14,8 +14,16 @@
     padding: 0;
 }
 
-.panel-button,
-.panel-button-box > *,
+.panel-button {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.panel-button-box > * {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
 .panel-button-box > *:last-child:not(.controls-box) {
     padding-left: 6px;
     padding-right: 6px;
@@ -42,12 +50,22 @@
 
 .popup-menu-player-icons {
     margin-top: 6px;
+    border-radius: 6px;
 }
 
 .popup-menu-player-icons-icon {
     padding: 6px;
-    border-radius: 6px;
-    transition: background-color 0.2s ease-in-out;
+    background-color: rgba(0, 0, 0, 0.125);
+    transition-property: background-color;
+    transition-duration: 200ms;
+}
+
+.popup-menu-player-icons-icon:last-child {
+    border-radius: 0px 6px 6px 0px;
+}
+
+.popup-menu-player-icons-icon:first-child {
+    border-radius: 6px 0px 0px 6px;
 }
 
 .popup-menu-player-icons-icon:hover {
@@ -70,7 +88,6 @@
 .popup-menu-control-icon {
     padding: 6px;
     border-radius: 99px;
-    transition: background-color 0.2s ease-in-out;
 }
 
 .popup-menu-control-icon:hover {

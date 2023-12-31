@@ -4,7 +4,7 @@ import Gdk from "gi://Gdk?version=4.0";
 import Graphene from "gi://Graphene?version=1.0";
 import Gtk from "gi://Gtk?version=4.0";
 
-import { PanelElements } from "../types/enums.js";
+import { PanelElements } from "../types/enums/common.js";
 
 class ElementList extends Gtk.ListBox {
     public readonly elements: string[];

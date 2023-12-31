@@ -1,4 +1,4 @@
-import { Enum } from "./common.js";
+import { Enum } from "../common.js";
 
 export const MPRIS_OBJECT_PATH = "/org/mpris/MediaPlayer2";
 export const DBUS_OBJECT_PATH = "/org/freedesktop/DBus";
@@ -43,30 +43,7 @@ export const MouseActions = {
     QUIT_PLAYER: "Quit player",
 } as const;
 
-export const PlaybackStatus = {
-    PLAYING: "Playing",
-    PAUSED: "Paused",
-    STOPPED: "Stopped",
-} as const;
-
-export const LoopStatus = {
-    NONE: "None",
-    TRACK: "Track",
-    PLAYLIST: "Playlist",
-} as const;
-
-export const ControlIcons = {
-    SEEK_BACKWARD: "media-skip-backward-symbolic",
-    PREVIOUS_TRACK: "media-skip-backward-symbolic",
-    PLAY: "media-playback-start-symbolic",
-    PAUSE: "media-playback-start-symbolic",
-    NEXT_TRACK: "media-skip-forward-symbolic",
-    SEEK_FORWARD: "media-skip-forward-symbolic",
-};
-
 export type PanelElements = Enum<typeof PanelElements>;
 export type LabelTypes = Enum<typeof LabelTypes>;
 export type ExtensionPositions = Enum<typeof ExtensionPositions>;
 export type MouseActions = Enum<typeof MouseActions>;
-export type PlaybackStatus = Enum<typeof PlaybackStatus>;
-export type LoopStatus = Enum<typeof LoopStatus>;

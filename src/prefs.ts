@@ -5,10 +5,10 @@ import Gio from "gi://Gio?version=2.0";
 import Gtk from "gi://Gtk?version=4.0";
 import { ExtensionPreferences } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
-import { isValidAccelerator, isValidBinding } from "./utils/common.js";
 import BlacklistedPlayers from "./helpers/BlacklistedPlayers.js";
 import ElementList from "./helpers/ElementList.js";
 import LabelList from "./helpers/LabelList.js";
+import { isValidBinding, isValidAccelerator } from "./utils/prefs.js";
 
 Gio._promisify(Gio.File.prototype, "trash_async", "trash_finish");
 Gio._promisify(Gio.File.prototype, "query_info_async", "query_info_finish");
