@@ -12,17 +12,10 @@ import ScrollingLabel from "./ScrollingLabel.js";
 import MenuSlider from "./MenuSlider.js";
 import { LabelTypes, MouseActions, PanelElements } from "../types/enums/common.js";
 import { LoopStatus, PlaybackStatus, WidgetFlags, ControlIconOptions } from "../types/enums/panel.js";
-import { debugLog } from "../utils/common.js";
+import { debugLog, errorLog, handleError } from "../utils/common.js";
 import { getAppByIdAndEntry, getImage } from "../utils/panel.js";
 import { KeysOf } from "../types/common.js";
 import { PlayerProxyProperties } from "../types/dbus.js";
-
-/**
- * TODO: Make slider a animation
- * TODO: Handle players not supporting position
- * TODO: Pin player feature
- * TODO: Look into hover transitions
- */
 
 class PanelButton extends PanelMenu.Button {
     private playerProxy: PlayerProxy;
@@ -43,6 +36,7 @@ class PanelButton extends PanelMenu.Button {
     private menuPlayersTextBox: St.BoxLayout;
     private menuPlayersTextBoxIcon: St.Icon;
     private menuPlayersTextBoxLabel: St.Label;
+    private menuPlayersTextBoxPin: St.Icon;
     private menuPlayersIcons: St.BoxLayout;
 
     private menuLabelTitle: InstanceType<typeof ScrollingLabel>;
@@ -83,91 +77,95 @@ class PanelButton extends PanelMenu.Button {
     }
 
     public async updateWidgets(flags: WidgetFlags) {
-        if (this.buttonBox == null) {
-            this.buttonBox = new St.BoxLayout({
-                styleClass: "panel-button-box",
-            });
-        } else if (flags & WidgetFlags.PANEL_NO_REPLACE) {
-            this.buttonBox.remove_all_children();
-        }
+        try {
+            if (this.buttonBox == null) {
+                this.buttonBox = new St.BoxLayout({
+                    styleClass: "panel-button-box",
+                });
+            } else if (flags & WidgetFlags.PANEL_NO_REPLACE) {
+                this.buttonBox.remove_all_children();
+            }
 
-        if (this.menuBox == null) {
-            this.menuBox = new PopupMenu.PopupBaseMenuItem({
-                style_class: "no-padding popup-menu-box",
-                activate: false,
-            });
+            if (this.menuBox == null) {
+                this.menuBox = new PopupMenu.PopupBaseMenuItem({
+                    style_class: "no-padding popup-menu-box",
+                    activate: false,
+                });
 
-            this.menuBox.set_vertical(true);
-            this.menuBox.remove_style_class_name("popup-menu-item");
-            this.menuBox.remove_all_children();
-        }
+                this.menuBox.set_vertical(true);
+                this.menuBox.remove_style_class_name("popup-menu-item");
+                this.menuBox.remove_all_children();
+            }
 
-        for (let i = 0; i < this.extension.elementsOrder.length; i++) {
-            const element = PanelElements[this.extension.elementsOrder[i]];
+            for (let i = 0; i < this.extension.elementsOrder.length; i++) {
+                const element = PanelElements[this.extension.elementsOrder[i]];
 
-            if (
-                element === PanelElements.ICON &&
-                (flags & WidgetFlags.PANEL_ICON || flags & WidgetFlags.PANEL_NO_REPLACE)
-            ) {
-                if (this.extension.showPlayerIcon) {
-                    this.addButtonIcon(i);
-                } else {
-                    this.buttonBox.remove_child(this.buttonIcon);
-                    this.buttonIcon = null;
+                if (
+                    element === PanelElements.ICON &&
+                    (flags & WidgetFlags.PANEL_ICON || flags & WidgetFlags.PANEL_NO_REPLACE)
+                ) {
+                    if (this.extension.showPlayerIcon) {
+                        this.addButtonIcon(i);
+                    } else {
+                        this.buttonBox.remove_child(this.buttonIcon);
+                        this.buttonIcon = null;
+                    }
+                }
+
+                if (
+                    element === PanelElements.LABEL &&
+                    (flags & WidgetFlags.PANEL_LABEL || flags & WidgetFlags.PANEL_NO_REPLACE)
+                ) {
+                    if (this.extension.showLabel) {
+                        this.addButtonLabel(i);
+                    } else {
+                        this.buttonBox.remove_child(this.buttonLabel);
+                        this.buttonLabel = null;
+                    }
+                }
+
+                if (
+                    element === PanelElements.CONTROLS &&
+                    (flags & WidgetFlags.PANEL_CONTROLS || flags & WidgetFlags.PANEL_NO_REPLACE)
+                ) {
+                    if (this.extension.showControlIcons) {
+                        this.addButtonControls(i, flags);
+                    } else {
+                        this.buttonBox.remove_child(this.buttonControls);
+                        this.buttonControls = null;
+                    }
                 }
             }
 
-            if (
-                element === PanelElements.LABEL &&
-                (flags & WidgetFlags.PANEL_LABEL || flags & WidgetFlags.PANEL_NO_REPLACE)
-            ) {
-                if (this.extension.showLabel) {
-                    this.addButtonLabel(i);
-                } else {
-                    this.buttonBox.remove_child(this.buttonLabel);
-                    this.buttonLabel = null;
-                }
+            if (flags & WidgetFlags.MENU_PLAYERS) {
+                this.addMenuPlayers();
             }
 
-            if (
-                element === PanelElements.CONTROLS &&
-                (flags & WidgetFlags.PANEL_CONTROLS || flags & WidgetFlags.PANEL_NO_REPLACE)
-            ) {
-                if (this.extension.showControlIcons) {
-                    this.addButtonControls(i, flags);
-                } else {
-                    this.buttonBox.remove_child(this.buttonControls);
-                    this.buttonControls = null;
-                }
+            if (flags & WidgetFlags.MENU_IMAGE) {
+                await this.addMenuImage().catch(handleError);
             }
-        }
 
-        if (flags & WidgetFlags.MENU_PLAYERS) {
-            this.addMenuPlayers();
-        }
+            if (flags & WidgetFlags.MENU_LABELS) {
+                this.addMenuLabels();
+            }
 
-        if (flags & WidgetFlags.MENU_IMAGE) {
-            await this.addMenuImage();
-        }
+            if (flags & WidgetFlags.MENU_SLIDER) {
+                await this.addMenuSlider().catch(handleError);
+            }
 
-        if (flags & WidgetFlags.MENU_LABELS) {
-            this.addMenuLabels();
-        }
+            if (flags & WidgetFlags.MENU_CONTROLS) {
+                this.addMenuControls(flags);
+            }
 
-        if (flags & WidgetFlags.MENU_SLIDER) {
-            await this.addMenuSlider();
-        }
+            if (this.buttonBox.get_parent() == null) {
+                this.add_child(this.buttonBox);
+            }
 
-        if (flags & WidgetFlags.MENU_CONTROLS) {
-            this.addMenuControls(flags);
-        }
-
-        if (this.buttonBox.get_parent() == null) {
-            this.add_child(this.buttonBox);
-        }
-
-        if (this.menuBox.get_parent() == null) {
-            this.menu.addMenuItem(this.menuBox);
+            if (this.menuBox.get_parent() == null) {
+                this.menu.addMenuItem(this.menuBox);
+            }
+        } catch (e) {
+            errorLog(e);
         }
     }
 
@@ -184,7 +182,7 @@ class PanelButton extends PanelMenu.Button {
 
         if (this.menuPlayersTextBoxIcon == null) {
             this.menuPlayersTextBoxIcon = new St.Icon({
-                styleClass: "popup-menu-icon popup-menu-player-label",
+                styleClass: "popup-menu-icon",
                 xAlign: Clutter.ActorAlign.END,
                 xExpand: true,
             });
@@ -192,9 +190,33 @@ class PanelButton extends PanelMenu.Button {
 
         if (this.menuPlayersTextBoxLabel == null) {
             this.menuPlayersTextBoxLabel = new St.Label({
-                xAlign: Clutter.ActorAlign.START,
-                xExpand: true,
+                styleClass: "popup-menu-player-label",
+                yAlign: Clutter.ActorAlign.END,
+                yExpand: true,
             });
+        }
+
+        if (this.menuPlayersTextBoxPin == null) {
+            this.menuPlayersTextBoxPin = new St.Icon({
+                iconName: "pin-symbolic",
+                styleClass: "popup-menu-icon",
+                yAlign: Clutter.ActorAlign.END,
+                xAlign: Clutter.ActorAlign.START,
+                yExpand: true,
+                xExpand: true,
+                reactive: true,
+            });
+
+            const tapAction = new Clutter.TapAction();
+            tapAction.connect("tap", () => {
+                if (this.playerProxy.isPlayerPinned()) {
+                    this.playerProxy.unpinPlayer();
+                } else {
+                    this.playerProxy.pinPlayer();
+                }
+            });
+
+            this.menuPlayersTextBoxPin.add_action(tapAction);
         }
 
         const players = this.extension.getPlayers();
@@ -209,6 +231,13 @@ class PanelButton extends PanelMenu.Button {
             this.menuPlayersIcons?.remove_all_children();
         }
 
+        const isPinned = this.playerProxy.isPlayerPinned();
+        this.menuPlayersTextBoxPin.opacity = isPinned ? 255 : 180;
+
+        if (this.menuPlayersIcons != null) {
+            this.menuPlayersIcons.opacity = isPinned ? 180 : 255;
+        }
+
         for (const player of players) {
             const app = getAppByIdAndEntry(player.identity, player.desktopEntry);
             const isSamePlayer = this.isSamePlayer(player);
@@ -218,8 +247,20 @@ class PanelButton extends PanelMenu.Button {
 
                 if (players.length > 1) {
                     this.menuPlayersTextBoxIcon.gicon = null;
+                    this.menuPlayersTextBox.remove_child(this.menuPlayersTextBoxIcon);
+
+                    this.menuPlayersTextBoxLabel.xAlign = Clutter.ActorAlign.END;
+                    this.menuPlayersTextBoxLabel.xExpand = true;
+
+                    this.menuPlayersTextBox.insert_child_at_index(this.menuPlayersTextBoxPin, 1);
                 } else {
                     this.menuPlayersTextBoxIcon.gicon = app.get_icon();
+                    this.menuPlayersTextBox.insert_child_at_index(this.menuPlayersTextBoxIcon, 0);
+
+                    this.menuPlayersTextBoxLabel.xAlign = Clutter.ActorAlign.START;
+                    this.menuPlayersTextBoxLabel.xExpand = true;
+
+                    this.menuPlayersTextBox.remove_child(this.menuPlayersTextBoxPin);
                 }
             }
 
@@ -227,8 +268,8 @@ class PanelButton extends PanelMenu.Button {
                 const icon = new St.Icon({
                     styleClass: "popup-menu-icon popup-menu-player-icons-icon",
                     gicon: app.get_icon(),
-                    trackHover: true,
-                    reactive: true,
+                    reactive: isPinned === false,
+                    trackHover: isPinned === false,
                     xAlign: Clutter.ActorAlign.FILL,
                     xExpand: true,
                 });
@@ -246,20 +287,16 @@ class PanelButton extends PanelMenu.Button {
             }
         }
 
-        if (this.menuPlayersTextBoxIcon.get_parent() == null) {
-            this.menuPlayersTextBox.insert_child_at_index(this.menuPlayersTextBoxIcon, 0);
-        }
-
         if (this.menuPlayersTextBoxLabel.get_parent() == null) {
-            this.menuPlayersTextBox.insert_child_at_index(this.menuPlayersTextBoxLabel, 1);
+            this.menuPlayersTextBox.add_child(this.menuPlayersTextBoxLabel);
         }
 
         if (this.menuPlayersTextBox.get_parent() == null) {
-            this.menuPlayers.insert_child_at_index(this.menuPlayersTextBox, 0);
+            this.menuPlayers.add_child(this.menuPlayersTextBox);
         }
 
         if (this.menuPlayersIcons && this.menuPlayersIcons.get_parent() == null) {
-            this.menuPlayers.insert_child_at_index(this.menuPlayersIcons, 1);
+            this.menuPlayers.add_child(this.menuPlayersIcons);
         }
 
         if (this.menuPlayers.get_parent() == null) {
@@ -367,6 +404,7 @@ class PanelButton extends PanelMenu.Button {
 
         this.menuSlider.setPosition(position);
         this.menuSlider.setLength(length);
+        this.menuSlider.setDisabled(this.playerProxy.canSeek === false || position == null);
 
         if (this.menuSlider.get_parent() == null) {
             this.menuBox.insert_child_at_index(this.menuSlider, 3);
@@ -701,6 +739,10 @@ class PanelButton extends PanelMenu.Button {
             this.updateWidgets(WidgetFlags.MENU_CONTROLS_LOOP);
         });
 
+        this.addProxyListener("IsPinned", () => {
+            this.updateWidgets(WidgetFlags.MENU_PLAYERS);
+        });
+
         this.playerProxy.onSeeked((position) => {
             this.menuSlider.setPosition(position);
         });
@@ -712,7 +754,7 @@ class PanelButton extends PanelMenu.Button {
         }
     }
 
-    private addProxyListener(property: KeysOf<PlayerProxyProperties>, callback: () => void) {
+    private addProxyListener(property: KeysOf<PlayerProxyProperties>, callback: (...args: unknown[]) => void) {
         const id = this.playerProxy.onChanged(property, callback);
         this.changeListenerIds.set(property, id);
     }

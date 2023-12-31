@@ -77,8 +77,9 @@
 }
 
 .popup-menu-player-label {
-    margin-right: 6px;
     font-size: small;
+    margin-right: 6px;
+    margin-left: 6px;
 }
 
 .popup-menu-label-title {

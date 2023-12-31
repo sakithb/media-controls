@@ -135,6 +135,14 @@ class MenuSlider extends St.BoxLayout {
     public resumeTransition() {
         this.transition.start();
     }
+
+    public setDisabled(disabled: boolean) {
+        this.slider.reactive = !disabled;
+        this.elapsedLabel.text = disabled ? "00:00" : this.elapsedLabel.text;
+        this.durationLabel.text = disabled ? "00:00" : this.durationLabel.text;
+        this.transition.set_duration(disabled ? 0 : this.transition.duration);
+        this.updateMarkers();
+    }
 }
 
 const classPropertiers = {
