@@ -12,10 +12,11 @@ build() {
 
   if [ "$1" = "release" ]; then
     echo "Prettifying..."
-    npm run compile:padding
+    npm run compile:padding 1>/dev/null
 
     echo "Stripping debug values..."
-    sed 's/const DEBUG = true;/const DEBUG = false;/g' ./dist/compiled/utils/common.js
+    sed 's/const DEBUG = true;/const DEBUG = false;/g' ./dist/compiled/utils/misc.js >./dist/compiled/utils/misc.js.tmp
+    mv ./dist/compiled/utils/misc.js.tmp ./dist/compiled/utils/misc.js
   fi
 
   cp src/metadata.json dist/compiled/metadata.json
