@@ -1,4 +1,6 @@
-import { Enum } from "../common.js";
+// Types common to the extension and the preferences window
+
+import { Enum } from "../general.js";
 
 export const MPRIS_OBJECT_PATH = "/org/mpris/MediaPlayer2";
 export const DBUS_OBJECT_PATH = "/org/freedesktop/DBus";

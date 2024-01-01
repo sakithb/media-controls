@@ -4,7 +4,7 @@ import Gdk from "gi://Gdk?version=4.0";
 import Graphene from "gi://Graphene?version=1.0";
 import Gtk from "gi://Gtk?version=4.0";
 
-import { LabelTypes } from "../types/enums/common.js";
+import { LabelTypes } from "../types/enums/general.js";
 
 class LabelList extends Gtk.ListBox {
     public readonly labels: string[];

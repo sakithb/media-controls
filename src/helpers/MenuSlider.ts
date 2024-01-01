@@ -2,7 +2,7 @@ import Clutter from "gi://Clutter?version=13";
 import GObject from "gi://GObject?version=2.0";
 import St from "gi://St?version=13";
 import * as Slider from "resource:///org/gnome/shell/ui/slider.js";
-import { msToHHMMSS } from "../utils/common.js";
+import { msToHHMMSS } from "../utils/misc.js";
 
 class MenuSlider extends St.BoxLayout {
     private transition: Clutter.PropertyTransition;

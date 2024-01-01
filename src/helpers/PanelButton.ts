@@ -1,10 +1,9 @@
 import GObject from "gi://GObject?version=2.0";
 import Clutter from "gi://Clutter?version=13";
+import GdkPixbuf from "gi://GdkPixbuf?version=2.0";
 import GLib from "gi://GLib?version=2.0";
 import Cogl from "gi://Cogl?version=13";
 import Gio from "gi://Gio?version=2.0";
-import GdkPixbuf from "gi://GdkPixbuf?version=2.0";
-import Gdk from "gi://Gdk?version=4.0";
 import St from "gi://St?version=13";
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
@@ -13,7 +12,7 @@ import MediaControls from "../extension.js";
 import PlayerProxy from "./PlayerProxy.js";
 import ScrollingLabel from "./ScrollingLabel.js";
 import MenuSlider from "./MenuSlider.js";
-import { LabelTypes, MouseActions, PanelElements } from "../types/enums/common.js";
+import { LabelTypes, MouseActions, PanelElements } from "../types/enums/general.js";
 import {
     LoopStatus,
     PlaybackStatus,
@@ -21,10 +20,10 @@ import {
     ControlIconOptions,
     MenuControlIconOptions,
     PanelControlIconOptions,
-} from "../types/enums/panel.js";
-import { debugLog, handleError } from "../utils/common.js";
-import { getAppByIdAndEntry, getImage } from "../utils/panel.js";
-import { KeysOf } from "../types/common.js";
+} from "../types/enums/shell.js";
+import { debugLog, handleError } from "../utils/misc.js";
+import { getAppByIdAndEntry, getImage } from "../utils/shell.js";
+import { KeysOf } from "../types/general.js";
 import { PlayerProxyProperties } from "../types/dbus.js";
 
 Gio._promisify(GdkPixbuf.Pixbuf, "new_from_stream_async", "new_from_stream_finish");

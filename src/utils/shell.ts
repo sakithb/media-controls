@@ -1,8 +1,10 @@
+// Utils only used in the extension. Do not import this file in the preferences window because Shell is not available there.
+
 import GLib from "gi://GLib?version=2.0";
 import Soup from "gi://Soup?version=3.0";
 import Shell from "gi://Shell?version=13";
 import Gio from "gi://Gio?version=2.0";
-import { errorLog, handleError } from "./common.js";
+import { errorLog, handleError } from "./misc.js";
 
 Gio._promisify(Gio.DBusProxy, "new", "new_finish");
 Gio._promisify(Gio.File.prototype, "replace_contents_bytes_async", "replace_contents_finish");

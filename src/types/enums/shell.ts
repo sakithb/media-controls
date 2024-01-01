@@ -1,5 +1,7 @@
+// Types only used in the extension. Do not import this file in preferences because Clutter is not available there.
+
 import Clutter from "gi://Clutter?version=13";
-import { Enum } from "../common.js";
+import { Enum } from "../general.js";
 
 export const PlaybackStatus = {
     PLAYING: "Playing",

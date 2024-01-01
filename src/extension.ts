@@ -18,12 +18,12 @@ import {
     MPRIS_PLAYER_IFACE_NAME,
     MouseActions,
     PanelElements,
-} from "./types/enums/common.js";
-import { PlaybackStatus, WidgetFlags } from "./types/enums/panel.js";
-import { debugLog, enumValueByIndex, errorLog, handleError } from "./utils/common.js";
-import { getAppByIdAndEntry, createDbusProxy } from "./utils/panel.js";
+} from "./types/enums/general.js";
+import { PlaybackStatus, WidgetFlags } from "./types/enums/shell.js";
+import { debugLog, enumValueByIndex, errorLog, handleError } from "./utils/misc.js";
+import { getAppByIdAndEntry, createDbusProxy } from "./utils/shell.js";
 import { StdInterface } from "./types/dbus.js";
-import { KeysOf } from "./types/common.js";
+import { KeysOf } from "./types/general.js";
 
 Gio._promisify(Gio.File.prototype, "load_contents_async", "load_contents_finish");
 

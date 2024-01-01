@@ -8,11 +8,11 @@ import {
     PlayerProxyProperties,
     PropertiesInterface,
 } from "../types/dbus.js";
-import { MPRIS_OBJECT_PATH, MPRIS_PLAYER_IFACE_NAME } from "../types/enums/common.js";
-import { PlaybackStatus, LoopStatus } from "../types/enums/panel.js";
-import { debugLog, errorLog, handleError } from "../utils/common.js";
-import { createDbusProxy } from "../utils/panel.js";
-import { KeysOf } from "../types/common.js";
+import { MPRIS_OBJECT_PATH, MPRIS_PLAYER_IFACE_NAME } from "../types/enums/general.js";
+import { PlaybackStatus, LoopStatus } from "../types/enums/shell.js";
+import { debugLog, errorLog, handleError } from "../utils/misc.js";
+import { createDbusProxy } from "../utils/shell.js";
+import { KeysOf } from "../types/general.js";
 
 type PlayerProxyChangeListeners = Map<
     KeysOf<PlayerProxyProperties>,
