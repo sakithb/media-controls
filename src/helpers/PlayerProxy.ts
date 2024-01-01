@@ -9,8 +9,7 @@ import {
     PropertiesInterface,
 } from "../types/dbus.js";
 import { MPRIS_OBJECT_PATH, MPRIS_PLAYER_IFACE_NAME } from "../types/enums/common.js";
-import { LoopStatus } from "../types/enums/panel.js";
-import { PlaybackStatus } from "../types/enums/panel.js";
+import { PlaybackStatus, LoopStatus } from "../types/enums/panel.js";
 import { debugLog, errorLog, handleError } from "../utils/common.js";
 import { createDbusProxy } from "../utils/panel.js";
 import { KeysOf } from "../types/common.js";
@@ -70,12 +69,10 @@ export default class PlayerProxy {
 
         this.propertiesProxy.connectSignal(
             "PropertiesChanged",
-            (proxy: unknown, senderName: string, [, changedProperties]) => {
-                for (const property in changedProperties) {
-                    this.callOnChangedListeners(
-                        property as KeysOf<PlayerProxyDBusProperties>,
-                        changedProperties[property],
-                    );
+            (proxy: unknown, senderName: string, [, changedProperties, invalidatedProperties]) => {
+                debugLog(invalidatedProperties);
+                for (const [property, value] of Object.entries(changedProperties)) {
+                    this.callOnChangedListeners(property as KeysOf<PlayerProxyDBusProperties>, value.recursiveUnpack());
                 }
             },
         );
@@ -126,6 +123,7 @@ export default class PlayerProxy {
         property: T,
         value: PlayerProxyProperties[T],
     ) {
+        debugLog("Player", this.busName, "changed", property, "to", value);
         const listeners = this.changeListeners.get(property);
 
         if (listeners == null) {

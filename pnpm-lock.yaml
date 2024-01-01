@@ -11,9 +11,15 @@ devDependencies:
   '@girs/clutter-13':
     specifier: 13.0.0-3.2.6
     version: 13.0.0-3.2.6
+  '@girs/cogl-13':
+    specifier: 13.0.0-3.2.6
+    version: 13.0.0-3.2.6
   '@girs/gdk-4.0':
     specifier: 4.0.0-3.2.6
     version: 4.0.0-3.2.6
+  '@girs/gdkpixbuf-2.0':
+    specifier: 2.0.0-3.2.6
+    version: 2.0.0-3.2.6
   '@girs/gio-2.0':
     specifier: 2.78.0-3.2.6
     version: 2.78.0-3.2.6

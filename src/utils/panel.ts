@@ -6,14 +6,14 @@ import { errorLog, handleError } from "./common.js";
 
 Gio._promisify(Gio.DBusProxy, "new", "new_finish");
 Gio._promisify(Gio.File.prototype, "replace_contents_bytes_async", "replace_contents_finish");
-Gio._promisify(Gio.File.prototype, "load_contents_async", "load_contents_finish");
+Gio._promisify(Gio.File.prototype, "read_async", "read_finish");
 Gio._promisify(Soup.Session.prototype, "send_and_read_async", "send_and_read_finish");
 
 export const getAppByIdAndEntry = (id: string, entry: string): Shell.App => {
     const appSystem = Shell.AppSystem.get_default();
     const runningApps = appSystem.get_running();
 
-    const idResults = Shell.AppSystem.search(id);
+    const idResults = Shell.AppSystem.search(id ?? "");
     const entryResults = Shell.AppSystem.search(entry ?? "");
 
     if (entryResults?.length > 0) {
@@ -34,7 +34,7 @@ export const getAppByIdAndEntry = (id: string, entry: string): Shell.App => {
     return null;
 };
 
-export const getImage = async (url: string): Promise<GLib.Bytes> => {
+export const getImage = async (url: string): Promise<Gio.InputStream> => {
     if (url == null) {
         return null;
     }
@@ -54,15 +54,14 @@ export const getImage = async (url: string): Promise<GLib.Bytes> => {
     const file = Gio.File.new_for_path(path);
 
     if (file.query_exists(null)) {
-        const result = await file.load_contents_async(null).catch(handleError);
+        const stream = await file.read_async(null, null).catch(handleError);
 
-        if (result == null) {
+        if (stream == null) {
             errorLog(`Failed to load image from cache: ${encodedUrl}`);
             return null;
         }
 
-        const bytes = GLib.Bytes.new(result[0]);
-        return bytes;
+        return stream;
     } else {
         const uri = GLib.Uri.parse(url, GLib.UriFlags.NONE);
 
@@ -79,15 +78,14 @@ export const getImage = async (url: string): Promise<GLib.Bytes> => {
                 return null;
             }
 
-            const result = await file.load_contents_async(null).catch(handleError);
+            const stream = await file.read_async(null, null).catch(handleError);
 
-            if (result == null) {
+            if (stream == null) {
                 errorLog(`Failed to load local image: ${encodedUrl}`);
                 return null;
             }
 
-            const bytes = GLib.Bytes.new(result[0]);
-            return bytes;
+            return stream;
         } else if (scheme === "http" || scheme === "https") {
             const session = new Soup.Session();
             const message = new Soup.Message({ method: "GET", uri });
@@ -115,7 +113,14 @@ export const getImage = async (url: string): Promise<GLib.Bytes> => {
                 return null;
             }
 
-            return bytes;
+            const stream = await file.read_async(null, null).catch(handleError);
+
+            if (stream == null) {
+                errorLog(`Failed to load cached image: ${url}`);
+                return null;
+            }
+
+            return stream;
         } else {
             errorLog(`Invalid scheme: ${scheme}`);
             return null;

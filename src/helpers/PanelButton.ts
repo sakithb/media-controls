@@ -1,7 +1,10 @@
 import GObject from "gi://GObject?version=2.0";
 import Clutter from "gi://Clutter?version=13";
 import GLib from "gi://GLib?version=2.0";
+import Cogl from "gi://Cogl?version=13";
 import Gio from "gi://Gio?version=2.0";
+import GdkPixbuf from "gi://GdkPixbuf?version=2.0";
+import Gdk from "gi://Gdk?version=4.0";
 import St from "gi://St?version=13";
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
@@ -11,11 +14,20 @@ import PlayerProxy from "./PlayerProxy.js";
 import ScrollingLabel from "./ScrollingLabel.js";
 import MenuSlider from "./MenuSlider.js";
 import { LabelTypes, MouseActions, PanelElements } from "../types/enums/common.js";
-import { LoopStatus, PlaybackStatus, WidgetFlags, ControlIconOptions } from "../types/enums/panel.js";
-import { debugLog, errorLog, handleError } from "../utils/common.js";
+import {
+    LoopStatus,
+    PlaybackStatus,
+    WidgetFlags,
+    ControlIconOptions,
+    MenuControlIconOptions,
+    PanelControlIconOptions,
+} from "../types/enums/panel.js";
+import { debugLog, handleError } from "../utils/common.js";
 import { getAppByIdAndEntry, getImage } from "../utils/panel.js";
 import { KeysOf } from "../types/common.js";
 import { PlayerProxyProperties } from "../types/dbus.js";
+
+Gio._promisify(GdkPixbuf.Pixbuf, "new_from_stream_async", "new_from_stream_finish");
 
 class PanelButton extends PanelMenu.Button {
     private playerProxy: PlayerProxy;
@@ -29,7 +41,7 @@ class PanelButton extends PanelMenu.Button {
     private menuBox: PopupMenu.PopupBaseMenuItem;
     private menuPlayers: St.BoxLayout;
     private menuImage: St.Icon;
-    private menuLabel: St.BoxLayout;
+    private menuLabels: St.BoxLayout;
     private menuSlider: InstanceType<typeof MenuSlider>;
     private menuControls: St.BoxLayout;
 
@@ -57,7 +69,6 @@ class PanelButton extends PanelMenu.Button {
         this.initActions();
 
         this.menu.box.add_style_class_name("popup-menu-container");
-
         this.connect("destroy", () => {
             this.removeProxyListeners();
         });
@@ -65,7 +76,7 @@ class PanelButton extends PanelMenu.Button {
 
     public updateProxy(playerProxy: PlayerProxy) {
         if (this.isSamePlayer(playerProxy) === false) {
-            debugLog("Updated player proxy");
+            debugLog(`Updating proxy to ${playerProxy.busName}`);
             this.playerProxy = playerProxy;
             this.updateWidgets(WidgetFlags.ALL);
             this.addProxyListeners();
@@ -76,96 +87,94 @@ class PanelButton extends PanelMenu.Button {
         return this.playerProxy.busName === playerProxy.busName;
     }
 
-    public async updateWidgets(flags: WidgetFlags) {
-        try {
-            if (this.buttonBox == null) {
-                this.buttonBox = new St.BoxLayout({
-                    styleClass: "panel-button-box",
-                });
-            } else if (flags & WidgetFlags.PANEL_NO_REPLACE) {
-                this.buttonBox.remove_all_children();
-            }
+    public updateWidgets(flags: WidgetFlags) {
+        debugLog(`Updating widgets with flags ${Object.keys(WidgetFlags).filter((key) => flags & WidgetFlags[key])}`);
 
-            if (this.menuBox == null) {
-                this.menuBox = new PopupMenu.PopupBaseMenuItem({
-                    style_class: "no-padding popup-menu-box",
-                    activate: false,
-                });
+        if (this.buttonBox == null) {
+            this.buttonBox = new St.BoxLayout({
+                styleClass: "panel-button-box",
+            });
+        } else if (flags & WidgetFlags.PANEL_NO_REPLACE) {
+            this.buttonBox.remove_all_children();
+        }
 
-                this.menuBox.set_vertical(true);
-                this.menuBox.remove_style_class_name("popup-menu-item");
-                this.menuBox.remove_all_children();
-            }
+        if (this.menuBox == null) {
+            this.menuBox = new PopupMenu.PopupBaseMenuItem({
+                style_class: "no-padding popup-menu-box",
+                activate: false,
+            });
 
-            for (let i = 0; i < this.extension.elementsOrder.length; i++) {
-                const element = PanelElements[this.extension.elementsOrder[i]];
+            this.menuBox.set_vertical(true);
+            this.menuBox.remove_style_class_name("popup-menu-item");
+            this.menuBox.remove_all_children();
+        }
 
-                if (
-                    element === PanelElements.ICON &&
-                    (flags & WidgetFlags.PANEL_ICON || flags & WidgetFlags.PANEL_NO_REPLACE)
-                ) {
-                    if (this.extension.showPlayerIcon) {
-                        this.addButtonIcon(i);
-                    } else {
-                        this.buttonBox.remove_child(this.buttonIcon);
-                        this.buttonIcon = null;
-                    }
-                }
+        for (let i = 0; i < this.extension.elementsOrder.length; i++) {
+            const element = PanelElements[this.extension.elementsOrder[i]];
 
-                if (
-                    element === PanelElements.LABEL &&
-                    (flags & WidgetFlags.PANEL_LABEL || flags & WidgetFlags.PANEL_NO_REPLACE)
-                ) {
-                    if (this.extension.showLabel) {
-                        this.addButtonLabel(i);
-                    } else {
-                        this.buttonBox.remove_child(this.buttonLabel);
-                        this.buttonLabel = null;
-                    }
-                }
-
-                if (
-                    element === PanelElements.CONTROLS &&
-                    (flags & WidgetFlags.PANEL_CONTROLS || flags & WidgetFlags.PANEL_NO_REPLACE)
-                ) {
-                    if (this.extension.showControlIcons) {
-                        this.addButtonControls(i, flags);
-                    } else {
-                        this.buttonBox.remove_child(this.buttonControls);
-                        this.buttonControls = null;
-                    }
+            if (
+                element === PanelElements.ICON &&
+                (flags & WidgetFlags.PANEL_ICON || flags & WidgetFlags.PANEL_NO_REPLACE)
+            ) {
+                if (this.extension.showPlayerIcon) {
+                    this.addButtonIcon(i);
+                } else {
+                    this.buttonBox.remove_child(this.buttonIcon);
+                    this.buttonIcon = null;
                 }
             }
 
-            if (flags & WidgetFlags.MENU_PLAYERS) {
-                this.addMenuPlayers();
+            if (
+                element === PanelElements.LABEL &&
+                (flags & WidgetFlags.PANEL_LABEL || flags & WidgetFlags.PANEL_NO_REPLACE)
+            ) {
+                if (this.extension.showLabel) {
+                    this.addButtonLabel(i);
+                } else {
+                    this.buttonBox.remove_child(this.buttonLabel);
+                    this.buttonLabel = null;
+                }
             }
 
-            if (flags & WidgetFlags.MENU_IMAGE) {
-                await this.addMenuImage().catch(handleError);
+            if (
+                element === PanelElements.CONTROLS &&
+                (flags & WidgetFlags.PANEL_CONTROLS || flags & WidgetFlags.PANEL_NO_REPLACE)
+            ) {
+                if (this.extension.showControlIcons) {
+                    this.addButtonControls(i, flags);
+                } else {
+                    this.buttonBox.remove_child(this.buttonControls);
+                    this.buttonControls = null;
+                }
             }
+        }
 
-            if (flags & WidgetFlags.MENU_LABELS) {
-                this.addMenuLabels();
-            }
+        if (flags & WidgetFlags.MENU_PLAYERS) {
+            this.addMenuPlayers();
+        }
 
-            if (flags & WidgetFlags.MENU_SLIDER) {
-                await this.addMenuSlider().catch(handleError);
-            }
+        if (flags & WidgetFlags.MENU_IMAGE) {
+            this.addMenuImage().catch(handleError);
+        }
 
-            if (flags & WidgetFlags.MENU_CONTROLS) {
-                this.addMenuControls(flags);
-            }
+        if (flags & WidgetFlags.MENU_LABELS) {
+            this.addMenuLabels();
+        }
 
-            if (this.buttonBox.get_parent() == null) {
-                this.add_child(this.buttonBox);
-            }
+        if (flags & WidgetFlags.MENU_SLIDER) {
+            this.addMenuSlider().catch(handleError);
+        }
 
-            if (this.menuBox.get_parent() == null) {
-                this.menu.addMenuItem(this.menuBox);
-            }
-        } catch (e) {
-            errorLog(e);
+        if (flags & WidgetFlags.MENU_CONTROLS) {
+            this.addMenuControls(flags);
+        }
+
+        if (this.buttonBox.get_parent() == null) {
+            this.add_child(this.buttonBox);
+        }
+
+        if (this.menuBox.get_parent() == null) {
+            this.menu.addMenuItem(this.menuBox);
         }
     }
 
@@ -177,14 +186,18 @@ class PanelButton extends PanelMenu.Button {
         }
 
         if (this.menuPlayersTextBox == null) {
-            this.menuPlayersTextBox = new St.BoxLayout();
+            this.menuPlayersTextBox = new St.BoxLayout({
+                marginBottom: 3,
+            });
         }
 
         if (this.menuPlayersTextBoxIcon == null) {
             this.menuPlayersTextBoxIcon = new St.Icon({
                 styleClass: "popup-menu-icon",
+                yAlign: Clutter.ActorAlign.END,
                 xAlign: Clutter.ActorAlign.END,
                 xExpand: true,
+                yExpand: true,
             });
         }
 
@@ -232,13 +245,15 @@ class PanelButton extends PanelMenu.Button {
         }
 
         const isPinned = this.playerProxy.isPlayerPinned();
-        this.menuPlayersTextBoxPin.opacity = isPinned ? 255 : 180;
+        this.menuPlayersTextBoxPin.opacity = isPinned ? 255 : 160;
 
         if (this.menuPlayersIcons != null) {
-            this.menuPlayersIcons.opacity = isPinned ? 180 : 255;
+            this.menuPlayersIcons.opacity = isPinned ? 160 : 255;
         }
 
-        for (const player of players) {
+        for (let i = 0; i < players.length; i++) {
+            const player = players[i];
+
             const app = getAppByIdAndEntry(player.identity, player.desktopEntry);
             const isSamePlayer = this.isSamePlayer(player);
 
@@ -274,6 +289,12 @@ class PanelButton extends PanelMenu.Button {
                     xExpand: true,
                 });
 
+                if (i === 0) {
+                    icon.add_style_class_name("popup-menu-player-icons-icon-first");
+                } else if (i === players.length - 1) {
+                    icon.add_style_class_name("popup-menu-player-icons-icon-last");
+                }
+
                 if (isSamePlayer) {
                     icon.add_style_class_name("popup-menu-player-icons-icon-active");
                 } else {
@@ -300,7 +321,7 @@ class PanelButton extends PanelMenu.Button {
         }
 
         if (this.menuPlayers.get_parent() == null) {
-            this.menuBox.insert_child_at_index(this.menuPlayers, 0);
+            this.menuBox.add_child(this.menuPlayers);
         }
 
         debugLog("Added menu players");
@@ -312,44 +333,53 @@ class PanelButton extends PanelMenu.Button {
                 xExpand: true,
                 yExpand: true,
             });
-
-            const signalId = this.menuBox.connect("notify::width", () => {
-                if (this.menuBox.width > 0) {
-                    this.menuImage.set_icon_size(this.menuBox.width);
-                    this.menuBox.disconnect(signalId);
-                }
-            });
         }
 
         const imgUrl = this.playerProxy.metadata["mpris:artUrl"];
-        const bytes = await getImage(imgUrl);
+        const stream = await getImage(imgUrl);
 
-        if (bytes == null) {
-            this.menuImage.gicon = Gio.Icon.new_for_string("audio-x-generic-symbolic");
+        if (stream == null) {
+            this.menuImage.content = null;
+            this.menuImage.gicon = Gio.ThemedIcon.new("audio-x-generic-symbolic");
         } else {
-            this.menuImage.gicon = Gio.BytesIcon.new(bytes);
+            // @ts-expect-error Types are wrong
+            const pixbufPromise = GdkPixbuf.Pixbuf.new_from_stream_async(stream, null) as Promise<GdkPixbuf.Pixbuf>;
+            const pixbuf = await pixbufPromise;
+            const aspectRatio = pixbuf.width / pixbuf.height;
+
+            const width = this.extension.labelWidth;
+            const height = width / aspectRatio;
+            const format = pixbuf.hasAlpha ? Cogl.PixelFormat.RGBA_8888 : Cogl.PixelFormat.RGB_888;
+
+            const image = St.ImageContent.new_with_preferred_size(width, height) as St.ImageContent & Clutter.Image;
+            image.set_bytes(pixbuf.pixelBytes, format, pixbuf.width, pixbuf.height, pixbuf.rowstride);
+
+            this.menuImage.width = width;
+            this.menuImage.height = height;
+            this.menuImage.gicon = null;
+            this.menuImage.content = image;
         }
 
         if (this.menuImage.get_parent() == null) {
-            this.menuBox.insert_child_at_index(this.menuImage, 1);
+            this.menuBox.insert_child_above(this.menuImage, this.menuPlayers);
         }
 
         debugLog("Added menu image");
     }
 
     private addMenuLabels() {
-        if (this.menuLabel == null) {
-            this.menuLabel = new St.BoxLayout({
+        if (this.menuLabels == null) {
+            this.menuLabels = new St.BoxLayout({
                 vertical: true,
             });
         }
 
         if (this.menuLabelTitle != null) {
-            this.menuLabel.remove_child(this.menuLabelTitle);
+            this.menuLabels.remove_child(this.menuLabelTitle);
         }
 
         if (this.menuLabelArtist != null) {
-            this.menuLabel.remove_child(this.menuLabelArtist);
+            this.menuLabels.remove_child(this.menuLabelArtist);
         }
 
         this.menuLabelTitle = new ScrollingLabel(
@@ -376,11 +406,11 @@ class PanelButton extends PanelMenu.Button {
         this.menuLabelArtist.label.xAlign = Clutter.ActorAlign.CENTER;
         this.menuLabelArtist.label.xExpand = true;
 
-        this.menuLabel.add_child(this.menuLabelTitle);
-        this.menuLabel.add_child(this.menuLabelArtist);
+        this.menuLabels.add_child(this.menuLabelTitle);
+        this.menuLabels.add_child(this.menuLabelArtist);
 
-        if (this.menuLabel.get_parent() == null) {
-            this.menuBox.insert_child_at_index(this.menuLabel, 2);
+        if (this.menuLabels.get_parent() == null) {
+            this.menuBox.add_child(this.menuLabels);
         }
 
         debugLog("Added menu labels");
@@ -407,7 +437,7 @@ class PanelButton extends PanelMenu.Button {
         this.menuSlider.setDisabled(this.playerProxy.canSeek === false || position == null);
 
         if (this.menuSlider.get_parent() == null) {
-            this.menuBox.insert_child_at_index(this.menuSlider, 3);
+            this.menuBox.insert_child_above(this.menuSlider, this.menuLabels);
         }
 
         debugLog("Added menu slider");
@@ -471,21 +501,21 @@ class PanelButton extends PanelMenu.Button {
         }
 
         if (this.menuControls.get_parent() == null) {
-            this.menuBox.insert_child_at_index(this.menuControls, 4);
+            this.menuBox.add_child(this.menuControls);
         }
 
         debugLog("Added menu controls");
     }
 
-    private addMenuControlIcon(options: ControlIconOptions, reactive: boolean, onClick: () => void) {
+    private addMenuControlIcon(options: MenuControlIconOptions, reactive: boolean, onClick: () => void) {
         const icon = new St.Icon({
             name: options.name,
             iconName: options.iconName,
             styleClass: "popup-menu-icon popup-menu-control-icon",
             trackHover: reactive,
-            opacity: reactive ? 255 : 180,
+            opacity: reactive ? 255 : 160,
             reactive,
-            ...options.menuProps,
+            ...options.menuProps.options,
         });
 
         const tapAction = new Clutter.TapAction();
@@ -497,7 +527,7 @@ class PanelButton extends PanelMenu.Button {
         if (oldIcon?.get_parent() === this.menuControls) {
             this.menuControls.replace_child(oldIcon, icon);
         } else {
-            this.menuControls.add_child(icon);
+            this.menuControls.insert_child_at_index(icon, options.menuProps.index);
         }
     }
 
@@ -629,12 +659,12 @@ class PanelButton extends PanelMenu.Button {
         debugLog("Added controls");
     }
 
-    private addButtonControlIcon(options: ControlIconOptions, onClick: () => void, reactive: boolean) {
+    private addButtonControlIcon(options: PanelControlIconOptions, onClick: () => void, reactive: boolean) {
         const icon = new St.Icon({
             name: options.name,
             iconName: options.iconName,
             styleClass: "system-status-icon no-margin",
-            opacity: reactive ? 255 : 180,
+            opacity: reactive ? 255 : 160,
             reactive,
         });
 

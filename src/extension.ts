@@ -464,13 +464,11 @@ export default class MediaControls extends Extension {
 
     private updateMediaNotificationVisiblity(shouldReset = false) {
         if (this.mediaSectionAddFunc && (shouldReset || this.hideMediaNotification === false)) {
-            debugLog("Showing/resetting media notification");
             Mpris.MediaSection.prototype._addPlayer = this.mediaSectionAddFunc;
             this.mediaSectionAddFunc = null;
 
             Main.panel.statusArea.dateMenu._messageList._mediaSection._onProxyReady();
         } else {
-            debugLog("Hiding media notification");
             this.mediaSectionAddFunc = Mpris.MediaSection.prototype._addPlayer;
             Mpris.MediaSection.prototype._addPlayer = function () {};
 
@@ -483,6 +481,7 @@ export default class MediaControls extends Extension {
     }
 
     private addPanelButton(busName: string) {
+        debugLog("Adding panel button");
         const playerProxy = this.playerProxies.get(busName);
 
         if (playerProxy == null) {
@@ -494,6 +493,7 @@ export default class MediaControls extends Extension {
     }
 
     private removePanelButton() {
+        debugLog("Removing panel button");
         this.panelBtn?.destroy();
         this.panelBtn = null;
     }

@@ -60,11 +60,11 @@
     transition-duration: 200ms;
 }
 
-.popup-menu-player-icons-icon:last-child {
+.popup-menu-player-icons-icon-last {
     border-radius: 0px 6px 6px 0px;
 }
 
-.popup-menu-player-icons-icon:first-child {
+.popup-menu-player-icons-icon-first {
     border-radius: 6px 0px 0px 6px;
 }
 

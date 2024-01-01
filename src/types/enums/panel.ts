@@ -16,41 +16,41 @@ export const LoopStatus = {
 export const ControlIconOptions = {
     LOOP_NONE: {
         name: "loop",
-        iconName: "media-playlist-no-repeat-symbolic",
+        iconName: "media-playlist-repeat-symbolic",
         menuProps: {
-            xExpand: false,
-            xAlign: Clutter.ActorAlign.START,
-        },
-        panelProps: {
-            index: null,
+            index: 0,
+            options: {
+                xExpand: false,
+                xAlign: Clutter.ActorAlign.START,
+                opacity: 160,
+            },
         },
     },
     LOOP_TRACK: {
         name: "loop",
         iconName: "media-playlist-repeat-song-symbolic",
         menuProps: {
-            xExpand: false,
-            xAlign: Clutter.ActorAlign.START,
-        },
-        panelProps: {
-            index: null,
+            index: 0,
+            options: {
+                xExpand: false,
+                xAlign: Clutter.ActorAlign.START,
+            },
         },
     },
     LOOP_PLAYLIST: {
         name: "loop",
         iconName: "media-playlist-repeat-symbolic",
         menuProps: {
-            xExpand: false,
-            xAlign: Clutter.ActorAlign.START,
-        },
-        panelProps: {
-            index: null,
+            index: 0,
+            options: {
+                xExpand: false,
+                xAlign: Clutter.ActorAlign.START,
+            },
         },
     },
     SEEK_BACKWARD: {
         name: "seekbackward",
         iconName: "media-seek-backward-symbolic",
-        menuProps: {},
         panelProps: {
             index: 0,
         },
@@ -59,9 +59,12 @@ export const ControlIconOptions = {
         name: "previous",
         iconName: "media-skip-backward-symbolic",
         menuProps: {
-            xExpand: true,
-            xAlign: Clutter.ActorAlign.END,
-            marginRight: 5,
+            index: 1,
+            options: {
+                xExpand: true,
+                xAlign: Clutter.ActorAlign.END,
+                marginRight: 5,
+            },
         },
         panelProps: {
             index: 1,
@@ -71,8 +74,11 @@ export const ControlIconOptions = {
         name: "playpause",
         iconName: "media-playback-start-symbolic",
         menuProps: {
-            xExpand: false,
-            xAlign: Clutter.ActorAlign.CENTER,
+            index: 2,
+            options: {
+                xExpand: false,
+                xAlign: Clutter.ActorAlign.CENTER,
+            },
         },
         panelProps: {
             index: 2,
@@ -82,8 +88,11 @@ export const ControlIconOptions = {
         name: "playpause",
         iconName: "media-playback-pause-symbolic",
         menuProps: {
-            xExpand: false,
-            xAlign: Clutter.ActorAlign.CENTER,
+            index: 2,
+            options: {
+                xExpand: false,
+                xAlign: Clutter.ActorAlign.CENTER,
+            },
         },
         panelProps: {
             index: 2,
@@ -93,9 +102,12 @@ export const ControlIconOptions = {
         name: "next",
         iconName: "media-skip-forward-symbolic",
         menuProps: {
-            xExpand: true,
-            xAlign: Clutter.ActorAlign.START,
-            marginLeft: 5,
+            index: 3,
+            options: {
+                xExpand: true,
+                xAlign: Clutter.ActorAlign.START,
+                marginLeft: 5,
+            },
         },
         panelProps: {
             index: 3,
@@ -104,7 +116,6 @@ export const ControlIconOptions = {
     SEEK_FORWARD: {
         name: "seekforward",
         iconName: "media-seek-forward-symbolic",
-        menuProps: {},
         panelProps: {
             index: 4,
         },
@@ -113,22 +124,22 @@ export const ControlIconOptions = {
         name: "shuffle",
         iconName: "media-playlist-shuffle-symbolic",
         menuProps: {
-            xExpand: false,
-            xAlign: Clutter.ActorAlign.END,
-        },
-        panelProps: {
-            index: null,
+            index: 4,
+            options: {
+                xExpand: false,
+                xAlign: Clutter.ActorAlign.END,
+            },
         },
     },
     SHUFFLE_OFF: {
         name: "shuffle",
         iconName: "media-playlist-no-shuffle-symbolic",
         menuProps: {
-            xExpand: false,
-            xAlign: Clutter.ActorAlign.END,
-        },
-        panelProps: {
-            index: null,
+            index: 4,
+            options: {
+                xExpand: false,
+                xAlign: Clutter.ActorAlign.END,
+            },
         },
     },
 } as const;
@@ -158,7 +169,24 @@ export const WidgetFlags = {
     ALL: ~(-1 << 17),
 } as const;
 
-export type WidgetFlags = Enum<typeof WidgetFlags>;
-export type ControlIconOptions = Enum<typeof ControlIconOptions>;
 export type LoopStatus = Enum<typeof LoopStatus>;
 export type PlaybackStatus = Enum<typeof PlaybackStatus>;
+export type WidgetFlags = Enum<typeof WidgetFlags>;
+export type ControlIconOptions = Enum<typeof ControlIconOptions>;
+export type MenuControlIconOptions = (typeof ControlIconOptions)[
+    | "LOOP_NONE"
+    | "LOOP_TRACK"
+    | "LOOP_PLAYLIST"
+    | "PREVIOUS"
+    | "PLAY"
+    | "PAUSE"
+    | "NEXT"
+    | "SHUFFLE_ON"
+    | "SHUFFLE_OFF"];
+export type PanelControlIconOptions = (typeof ControlIconOptions)[
+    | "SEEK_BACKWARD"
+    | "PREVIOUS"
+    | "PLAY"
+    | "PAUSE"
+    | "NEXT"
+    | "SEEK_FORWARD"];

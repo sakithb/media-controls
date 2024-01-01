@@ -58,7 +58,7 @@
       <default>true</default>
     </key>
     <key name="colored-player-icon" type="b">
-      <default>false</default>
+      <default>true</default>
     </key>
     <key name="extension-position" enum="org.gnome.shell.extensions.mediacontrols.positions">
       <default>'Center'</default>
@@ -70,7 +70,7 @@
       <default>['ICON', 'LABEL', 'CONTROLS']</default>
     </key>
     <key name="labels-order" type="as">
-      <default>[]</default>
+      <default>['TITLE', '-', 'ARTIST']</default>
     </key>
     <key name="mouse-action-left" enum="org.gnome.shell.extensions.mediacontrols.mouseactions">
       <default>'Show popup menu'</default>

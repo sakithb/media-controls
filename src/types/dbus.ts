@@ -1,7 +1,7 @@
 import Gio from "gi://Gio?version=2.0";
-import { LoopStatus } from "./enums/panel.js";
-import { PlaybackStatus } from "./enums/panel.js";
 import GLib from "gi://GLib?version=2.0";
+import { KeysOf } from "./common.js";
+import { LoopStatus, PlaybackStatus } from "./enums/panel.js";
 
 type MethodResult<T> = [T];
 
@@ -90,7 +90,7 @@ export interface PlayerProxyProperties extends PlayerProxyDBusProperties {
 export interface PropertiesSignalArgs {
     PropertiesChanged: [
         interfaceName: string,
-        changedProperties: Partial<PlayerProxyDBusProperties>,
+        changedProperties: { [k in KeysOf<PlayerProxyDBusProperties>]: GLib.Variant },
         invalidatedProperties: string[],
     ];
 }
