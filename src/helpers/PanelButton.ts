@@ -912,9 +912,12 @@ class PanelButton extends PanelMenu.Button {
     }
 }
 
-const classPropertiers = {
-    GTypeName: "McPanelButton",
-    Properties: {},
-};
+const GPanelButton = GObject.registerClass(
+    {
+        GTypeName: "PanelButton",
+        Properties: {},
+    },
+    PanelButton,
+);
 
-export default GObject.registerClass(classPropertiers, PanelButton);
+export default GPanelButton;

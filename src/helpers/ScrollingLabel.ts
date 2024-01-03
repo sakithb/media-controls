@@ -121,9 +121,12 @@ class ScrollingLabel extends St.ScrollView {
     }
 }
 
-const classPropertiers = {
-    GTypeName: "McScrollingLabel",
-    Properties: {},
-};
+const GScrollingLabel = GObject.registerClass(
+    {
+        GTypeName: "ScrollingLabel",
+        Properties: {},
+    },
+    ScrollingLabel,
+);
 
-export default GObject.registerClass(classPropertiers, ScrollingLabel);
+export default GScrollingLabel;

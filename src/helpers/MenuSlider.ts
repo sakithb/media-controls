@@ -145,13 +145,16 @@ class MenuSlider extends St.BoxLayout {
     }
 }
 
-const classPropertiers = {
-    GTypeName: "McMenuSlider",
-    Signals: {
-        seeked: {
-            param_types: [GObject.TYPE_INT],
+const GMenuSlider = GObject.registerClass(
+    {
+        GTypeName: "MenuSlider",
+        Signals: {
+            seeked: {
+                param_types: [GObject.TYPE_INT],
+            },
         },
     },
-};
+    MenuSlider,
+);
 
-export default GObject.registerClass(classPropertiers, MenuSlider);
+export default GMenuSlider;
