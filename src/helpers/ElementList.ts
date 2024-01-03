@@ -5,16 +5,33 @@ import Graphene from "gi://Graphene?version=1.0";
 import Gtk from "gi://Gtk?version=4.0";
 
 import { PanelElements } from "../types/enums/general.js";
+import { enumKeyByValue } from "../utils/misc.js";
 
-class ElementList extends Gtk.ListBox {
-    public readonly elements: string[];
+class ElementList extends Adw.PreferencesGroup {
+    public elements: string[];
 
-    constructor(initOrder: string[]) {
-        super();
+    private listBox: Gtk.ListBox;
+    private iconRow: Adw.ActionRow;
+    private labelRow: Adw.ActionRow;
+    private controlsRow: Adw.ActionRow;
+
+    constructor(params = {}) {
+        super(params);
+
+        // @ts-expect-error Typescript doesn't know about the internal children
+        this.listBox = this._list_box;
+        // @ts-expect-error Typescript doesn't know about the internal children
+        this.iconRow = this._icon_row;
+        // @ts-expect-error Typescript doesn't know about the internal children
+        this.labelRow = this._label_row;
+        // @ts-expect-error Typescript doesn't know about the internal children
+        this.controlsRow = this._controls_row;
+
+        this.elements = [];
 
         const dropTarget = Gtk.DropTarget.new(GObject.TYPE_UINT, Gdk.DragAction.MOVE);
         dropTarget.connect("drop", (_, sourceIndex, x, y) => {
-            const targetRow = this.get_row_at_y(y);
+            const targetRow = this.listBox.get_row_at_y(y);
             if (targetRow == null || sourceIndex == null) return;
 
             const sourceValue = this.elements[sourceIndex];
@@ -24,60 +41,73 @@ class ElementList extends Gtk.ListBox {
             this.elements.splice(sourceIndex > targetIndex ? sourceIndex + 1 : sourceIndex, 1);
 
             this.notify("elements");
-            this.drag_unhighlight_row();
-            this.addElements();
+            this.listBox.drag_unhighlight_row();
+            this.listBox.invalidate_sort();
         });
 
-        this.elements = initOrder;
-        this.add_css_class("boxed-list");
-        this.set_selection_mode(Gtk.SelectionMode.NONE);
-        this.add_controller(dropTarget);
-        this.addElements();
+        this.listBox.add_controller(dropTarget);
+        this.listBox.set_sort_func((firstRow: Adw.ActionRow, secondRow: Adw.ActionRow) => {
+            const firstIndex = this.elements.indexOf(enumKeyByValue(PanelElements, firstRow.title));
+            const secondIndex = this.elements.indexOf(enumKeyByValue(PanelElements, secondRow.title));
+
+            return firstIndex - secondIndex;
+        });
     }
 
-    private addElements() {
-        this.remove_all();
+    public initElements(elements: string[]) {
+        for (let i = 0; i < elements.length; i++) {
+            let dragX = 0;
+            let dragY = 0;
 
-        for (let i = 0; i < this.elements.length; i++) {
-            const element = this.elements[i];
-
-            const row = new Adw.ActionRow();
-            row.title = PanelElements[element];
-            row.activatable = true;
-
-            const dragIcon = new Gtk.Image({ icon_name: "list-drag-handle-symbolic" });
-            row.add_suffix(dragIcon);
-
-            const value = new GObject.Value();
-            value.init(GObject.TYPE_UINT);
-            value.set_uint(i);
-
-            const content = Gdk.ContentProvider.new_for_value(value);
-
-            const dragSource = new Gtk.DragSource({ actions: Gdk.DragAction.MOVE, content });
+            const dragSource = new Gtk.DragSource({ actions: Gdk.DragAction.MOVE });
             const dropController = new Gtk.DropControllerMotion();
 
             dragSource.connect("prepare", (dragSource, x, y) => {
+                dragX = x;
+                dragY = y;
+
+                const row = dragSource.widget as Adw.ActionRow;
+                const index = row.get_index();
+
+                const value = new GObject.Value();
+                value.init(GObject.TYPE_UINT);
+                value.set_uint(index);
+
+                const content = Gdk.ContentProvider.new_for_value(value);
+                return content;
+            });
+
+            dragSource.connect("drag-begin", (dragSource) => {
                 const row = dragSource.widget as Adw.ActionRow;
                 const icon = this.snapshotRow(row);
-
-                dragSource.set_icon(icon, x, y);
-                return dragSource.content;
+                dragSource.set_icon(icon, dragX, dragY);
             });
 
             dropController.connect("enter", (dropController) => {
                 const row = dropController.widget as Adw.ActionRow;
-                this.drag_highlight_row(row);
+                this.listBox.drag_highlight_row(row);
             });
 
             dropController.connect("leave", () => {
-                this.drag_unhighlight_row();
+                this.listBox.drag_unhighlight_row();
             });
 
-            row.add_controller(dragSource);
-            row.add_controller(dropController);
-            this.append(row);
+            const element = PanelElements[elements[i]];
+
+            if (element === PanelElements.ICON) {
+                this.iconRow.add_controller(dragSource);
+                this.iconRow.add_controller(dropController);
+            } else if (element === PanelElements.LABEL) {
+                this.labelRow.add_controller(dragSource);
+                this.labelRow.add_controller(dropController);
+            } else if (element === PanelElements.CONTROLS) {
+                this.controlsRow.add_controller(dragSource);
+                this.controlsRow.add_controller(dropController);
+            }
         }
+
+        this.elements = elements;
+        this.listBox.invalidate_sort();
     }
 
     private snapshotRow(row: Adw.PreferencesRow) {
@@ -89,8 +119,8 @@ class ElementList extends Gtk.ListBox {
         paintable.snapshot(snapshot, width, height);
 
         const node = snapshot.to_node();
-
         const renderer = row.get_native().get_renderer();
+
         const rect = new Graphene.Rect();
         rect.init(0, 0, width, height);
 
@@ -99,11 +129,16 @@ class ElementList extends Gtk.ListBox {
     }
 }
 
-const classPropertiers = {
-    GTypeName: "McElementList",
-    Properties: {
-        elements: GObject.ParamSpec.jsobject("elements", "Elements", "Elements", GObject.ParamFlags.READABLE),
+const GElementList = GObject.registerClass(
+    {
+        GTypeName: "ElementList",
+        Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/element-list.ui",
+        InternalChildren: ["list-box", "icon-row", "label-row", "controls-row"],
+        Properties: {
+            elements: GObject.ParamSpec.jsobject("elements", "Elements", "Elements", GObject.ParamFlags.READABLE),
+        },
     },
-};
+    ElementList,
+);
 
-export default GObject.registerClass(classPropertiers, ElementList);
+export default GElementList;

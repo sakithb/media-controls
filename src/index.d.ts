@@ -15,3 +15,9 @@ import "@girs/soup-3.0/ambient";
 import "@girs/meta-13/ambient";
 import "@girs/cogl-13/ambient";
 import "@girs/gdkpixbuf-2.0/ambient";
+
+declare global {
+    interface ImportMeta {
+        url: string;
+    }
+}

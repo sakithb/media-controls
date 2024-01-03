@@ -1,3 +1,4 @@
+import "./utils/initResource.js";
 import Adw from "gi://Adw?version=1";
 import GLib from "gi://GLib?version=2.0";
 import Gdk from "gi://Gdk?version=4.0";
@@ -9,6 +10,11 @@ import BlacklistedPlayers from "./helpers/BlacklistedPlayers.js";
 import ElementList from "./helpers/ElementList.js";
 import LabelList from "./helpers/LabelList.js";
 import { isValidBinding, isValidAccelerator } from "./utils/prefs.js";
+import GObject from "gi://GObject?version=2.0";
+
+GObject.type_ensure(BlacklistedPlayers.$gtype);
+GObject.type_ensure(ElementList.$gtype);
+GObject.type_ensure(LabelList.$gtype);
 
 Gio._promisify(Gio.File.prototype, "trash_async", "trash_finish");
 Gio._promisify(Gio.File.prototype, "query_info_async", "query_info_finish");
@@ -30,7 +36,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         this.window = window;
         this.settings = this.getSettings();
 
-        this.builder = Gtk.Builder.new_from_file(`${this.path}/ui/prefs.ui`);
+        this.builder = Gtk.Builder.new_from_resource("/org/gnome/shell/extensions/mediacontrols/ui/prefs.ui");
 
         this.generalPage = this.builder.get_object("page-general") as Adw.PreferencesPage;
         this.panelPage = this.builder.get_object("page-panel") as Adw.PreferencesPage;
@@ -49,29 +55,21 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
     }
 
     private initWidgets() {
-        const elementsGroup = this.builder.get_object("gp-positions-elements") as Adw.PreferencesGroup;
         const elementsOrder = this.settings.get_strv("elements-order");
-        const elementsList = new ElementList(elementsOrder);
+        const elementsGroup = this.builder.get_object("gp-positions-elements") as InstanceType<typeof ElementList>;
 
-        elementsList.connect("notify::elements", () => {
-            this.settings.set_strv("elements-order", elementsList.elements);
+        elementsGroup.initElements(elementsOrder);
+        elementsGroup.connect("notify::elements", () => {
+            this.settings.set_strv("elements-order", elementsGroup.elements);
         });
 
-        elementsGroup.add(elementsList);
-
-        const labelsGroup = this.builder.get_object("gp-positions-labels") as Adw.PreferencesGroup;
-        const labelsAddItemBtn = this.builder.get_object("btn-positions-labels-add-item") as Adw.PreferencesGroup;
-        const labelsAddTextBtn = this.builder.get_object("btn-positions-labels-add-text") as Adw.PreferencesGroup;
+        const labelsGroup = this.builder.get_object("gp-positions-labels") as InstanceType<typeof LabelList>;
         const labelsOrder = this.settings.get_strv("labels-order");
-        const labelsList = new LabelList(labelsOrder);
 
-        labelsList.connect("notify::labels", () => {
-            this.settings.set_strv("labels-order", labelsList.labels);
+        labelsGroup.initLabels(labelsOrder);
+        labelsGroup.connect("notify::labels", () => {
+            this.settings.set_strv("labels-order", labelsGroup.labels);
         });
-
-        labelsAddTextBtn.connect("clicked", labelsList.addText.bind(labelsList));
-        labelsAddItemBtn.connect("clicked", labelsList.addItem.bind(labelsList));
-        labelsGroup.add(labelsList);
 
         const shortcutRow = this.builder.get_object("row-shortcuts-popup") as Adw.ActionRow;
         const shortcutLabel = this.builder.get_object("sl-shortcuts-popup") as Gtk.ShortcutLabel;
@@ -145,20 +143,13 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             cacheClearRow.subtitle = `Cache size: ${sizeReadable}`;
         });
 
-        const blacklistGrp = this.builder.get_object("gp-other-blacklist") as Adw.PreferencesGroup;
-        const blacklistAddBtn = this.builder.get_object("btn-other-blacklist-add") as Gtk.Button;
+        const blacklistedGrp = this.builder.get_object("gp-other-blacklist") as InstanceType<typeof BlacklistedPlayers>;
         const blacklistedPlayers = this.settings.get_strv("blacklisted-players");
-        const blacklistedPlayersList = new BlacklistedPlayers(blacklistedPlayers, this.builder);
 
-        blacklistAddBtn.connect("clicked", () => {
-            blacklistedPlayersList.newPlayer();
+        blacklistedGrp.initPlayers(blacklistedPlayers);
+        blacklistedGrp.connect("notify::players", () => {
+            this.settings.set_strv("blacklisted-players", blacklistedGrp.players);
         });
-
-        blacklistedPlayersList.connect("notify::players", () => {
-            this.settings.set_strv("blacklisted-players", blacklistedPlayersList.players);
-        });
-
-        blacklistGrp.add(blacklistedPlayersList);
     }
 
     private bindSettings() {

@@ -1,11 +1,12 @@
 {
   "type": "module",
   "scripts": {
-    "compile": "npm run compile:clean && npm run compile:tsc && npm run compile:ui && npm run compile:assets",
+    "compile": "npm run compile:clean && npm run compile:tsc && npm run compile:ui && npm run compile:assets && npm run compile:gresource",
     "compile:tsc": "tsc",
     "compile:ui": "mkdir -p dist/compiled/ui;for i in assets/ui/*.blp;do BASENAME=$(basename $i);/usr/bin/env blueprint-compiler compile --output ./dist/compiled/ui/${BASENAME%.*}.ui $i;done",
     "compile:padding": "eslint --fix --rule \"{padding-line-between-statements: [\"error\", { \"blankLine\": \"always\", \"prev\": \"block-like\", \"next\": \"block-like\" }]}\" dist/compiled/",
     "compile:assets": "find assets -type f -not -path '*/images/*' -not -path '*/locale/*' -not -path '*/schemas/*' -not -path '*/ui/*' -exec sh -c 'f=\"{}\"; p=${f#*/}; d=$(dirname $p); mkdir -p dist/compiled/$d; cp $f dist/compiled/$p' ';'",
+    "compile:gresource": "glib-compile-resources assets/org.gnome.shell.extensions.mediacontrols.gresource.xml --target=dist/compiled/org.gnome.shell.extensions.mediacontrols.gresource --sourcedir=dist/compiled/",
     "compile:clean": "rm -rf dist",
     "lint": "eslint src --ext .ts",
     "format": "prettier --write src"

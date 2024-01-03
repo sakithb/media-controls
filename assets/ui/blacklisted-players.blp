@@ -1,0 +1,26 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $BlacklistedPlayers: Adw.PreferencesGroup {
+  title: "Blacklist players";
+  description: "Blacklisted players will be ignored by the extension.";
+
+  header-suffix: Button add-btn {
+    halign: end;
+    valign: center;
+
+    styles [
+      "suggested-action"
+    ]
+
+    Adw.ButtonContent {
+      label: "Add";
+      icon-name: "list-add-symbolic";
+    }
+  };
+
+  ListBox list-box {
+    selection-mode: none;
+    styles ["boxed-list"]
+  }
+}

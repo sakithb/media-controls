@@ -1,0 +1,41 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $ElementList: Adw.PreferencesGroup {
+    title: "Elements";
+
+    ListBox list-box {
+      styles ["boxed-list"]
+      selection-mode: multiple;
+
+      Adw.ActionRow icon-row {
+        title: "Player icon";
+        activatable: true;
+
+        [suffix]
+        Image {
+          icon-name: "list-drag-handle-symbolic";
+        }
+      }
+
+      Adw.ActionRow label-row {
+        title: "Label";
+        activatable: true;
+
+        [suffix]
+        Image {
+          icon-name: "list-drag-handle-symbolic";
+        }
+      }
+
+      Adw.ActionRow controls-row {
+        title: "Player controls";
+        activatable: true;
+
+        [suffix]
+        Image {
+          icon-name: "list-drag-handle-symbolic";
+        }
+      }
+    }
+}

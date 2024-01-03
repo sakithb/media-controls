@@ -6,14 +6,24 @@ import Gtk from "gi://Gtk?version=4.0";
 
 import { LabelTypes } from "../types/enums/general.js";
 
-class LabelList extends Gtk.ListBox {
-    public readonly labels: string[];
+class LabelList extends Adw.PreferencesGroup {
+    public labels: string[];
+
     private labelsList: Gtk.StringList;
+    private listBox: Gtk.ListBox;
+    private addItemBtn: Gtk.Button;
+    private addTextBtn: Gtk.Button;
 
-    constructor(initLabels: string[]) {
-        super();
+    constructor(params = {}) {
+        super(params);
 
-        this.labels = initLabels;
+        // @ts-expect-error Typescript doesn't know about internal children
+        this.listBox = this._list_box;
+        // @ts-expect-error Typescript doesn't know about internal children
+        this.addItemBtn = this._add_item_btn;
+        // @ts-expect-error Typescript doesn't know about internal children
+        this.addTextBtn = this._add_text_btn;
+
         this.labelsList = new Gtk.StringList();
 
         for (const label of Object.values(LabelTypes)) {
@@ -22,7 +32,7 @@ class LabelList extends Gtk.ListBox {
 
         const dropTarget = Gtk.DropTarget.new(GObject.TYPE_UINT, Gdk.DragAction.MOVE);
         dropTarget.connect("drop", (_, sourceIndex, x, y) => {
-            const targetRow = this.get_row_at_y(y);
+            const targetRow = this.listBox.get_row_at_y(y);
             if (targetRow == null || sourceIndex == null) return;
 
             const sourceValue = this.labels[sourceIndex];
@@ -32,30 +42,32 @@ class LabelList extends Gtk.ListBox {
             this.labels.splice(sourceIndex > targetIndex ? sourceIndex + 1 : sourceIndex, 1);
 
             this.notify("labels");
-            this.drag_unhighlight_row();
+            this.listBox.drag_unhighlight_row();
             this.addElements();
         });
 
-        this.add_css_class("boxed-list");
-        this.set_selection_mode(Gtk.SelectionMode.NONE);
-        this.add_controller(dropTarget);
-        this.addElements();
+        this.addItemBtn.connect("clicked", () => {
+            this.labels.push("ALBUM");
+            this.notify("labels");
+            this.addElements();
+        });
+
+        this.addTextBtn.connect("clicked", () => {
+            this.labels.push("");
+            this.notify("labels");
+            this.addElements();
+        });
+
+        this.listBox.add_controller(dropTarget);
     }
 
-    public addItem() {
-        this.labels.push("ALBUM");
-        this.notify("labels");
-        this.addElements();
-    }
-
-    public addText() {
-        this.labels.push("");
-        this.notify("labels");
+    public initLabels(labels: string[]) {
+        this.labels = labels;
         this.addElements();
     }
 
     private addElements() {
-        this.remove_all();
+        this.listBox.remove_all();
 
         if (this.labels.length === 0) {
             const row = new Adw.ActionRow();
@@ -68,7 +80,7 @@ class LabelList extends Gtk.ListBox {
             label.marginBottom = 20;
 
             row.set_child(label);
-            this.append(row);
+            this.listBox.append(row);
             return;
         }
 
@@ -129,17 +141,17 @@ class LabelList extends Gtk.ListBox {
 
         dropController.connect("enter", (dropController) => {
             const row = dropController.widget as Adw.ComboRow | Adw.EntryRow;
-            this.drag_highlight_row(row);
+            this.listBox.drag_highlight_row(row);
         });
 
         dropController.connect("leave", () => {
-            this.drag_unhighlight_row();
+            this.listBox.drag_unhighlight_row();
         });
 
         row.add_controller(dragSource);
         row.add_controller(dropController);
 
-        this.append(row);
+        this.listBox.append(row);
     }
 
     private handleComboBoxChange(row: Adw.ComboRow) {
@@ -181,11 +193,16 @@ class LabelList extends Gtk.ListBox {
     }
 }
 
-const classPropertiers = {
-    GTypeName: "McLabelList",
-    Properties: {
-        labels: GObject.ParamSpec.jsobject("labels", "Labels", "Labels", GObject.ParamFlags.READABLE),
+const GLabelList = GObject.registerClass(
+    {
+        GTypeName: "LabelList",
+        Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/label-list.ui",
+        InternalChildren: ["list-box", "add-item-btn", "add-text-btn"],
+        Properties: {
+            labels: GObject.ParamSpec.jsobject("labels", "Labels", "Labels", GObject.ParamFlags.READABLE),
+        },
     },
-};
+    LabelList,
+);
 
-export default GObject.registerClass(classPropertiers, LabelList);
+export default GLabelList;

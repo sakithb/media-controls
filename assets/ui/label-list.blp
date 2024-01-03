@@ -1,0 +1,34 @@
+using Gtk 4.0;
+using Adw 1;
+
+template $LabelList: Adw.PreferencesGroup {
+  title: "Label";
+
+  header-suffix: Box {
+    halign: end;
+    valign: center;
+    margin-top: 10;
+    margin-bottom: 10;
+
+    styles [
+      "linked"
+    ]
+
+    Button add-item-btn {
+      label: "Add item";
+      halign: end;
+      valign: center;
+    }
+
+    Button add-text-btn {
+      label: "Add custom text";
+      halign: end;
+      valign: center;
+    }
+  };
+
+  ListBox list-box {
+    selection-mode: none;
+    styles [ "boxed-list" ]
+  }
+}

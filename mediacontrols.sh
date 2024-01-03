@@ -53,7 +53,7 @@ build() {
     ESFLAGS+=("--extra-source=$D")
   done
 
-  SCHEMA="$PWD/assets/schemas/org.gnome.shell.extensions.mediacontrols.gschema.xml"
+  SCHEMA="$PWD/assets/org.gnome.shell.extensions.mediacontrols.gschema.xml"
   PODIR="$PWD/assets/locale"
 
   mkdir -p "$BUILDDIR"

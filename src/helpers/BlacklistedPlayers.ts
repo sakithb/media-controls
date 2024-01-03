@@ -2,73 +2,44 @@ import Adw from "gi://Adw?version=1";
 import GObject from "gi://GObject?version=2.0";
 import Gio from "gi://Gio?version=2.0";
 import Gtk from "gi://Gtk?version=4.0";
+import AppChooser from "./AppChooser.js";
 
-class BlacklistedPlayers extends Gtk.ListBox {
-    public readonly players: string[];
-    private appChooserDialog: Adw.Window;
-    private appChooserList: Gtk.ListBox;
-    private appChooserSelectBtn: Gtk.Button;
-    private appChooserCancelBtn: Gtk.Button;
+GObject.type_ensure(AppChooser.$gtype);
 
-    constructor(initPlayers: string[], builder: Gtk.Builder) {
-        super();
+class BlacklistedPlayers extends Adw.PreferencesGroup {
+    public players: string[];
 
-        this.players = initPlayers;
-        this.appChooserDialog = builder.get_object("win-app-chooser") as Adw.Window;
-        this.appChooserList = builder.get_object("lb-app-chooser") as Gtk.ListBox;
-        this.appChooserSelectBtn = builder.get_object("btn-app-chooser-select") as Gtk.Button;
-        this.appChooserCancelBtn = builder.get_object("btn-app-chooser-cancel") as Gtk.Button;
+    private appChooser: InstanceType<typeof AppChooser>;
+    private listBox: Gtk.ListBox;
+    private addBtn: Gtk.Button;
 
-        this.add_css_class("boxed-list");
-        this.set_selection_mode(Gtk.SelectionMode.NONE);
-        this.initAppChooserDialog();
-        this.addElements();
-    }
+    constructor(params = {}) {
+        super(params);
 
-    public async newPlayer() {
-        const appId = await this.showAppChooserDialog();
-        this.players.unshift(appId);
-        this.notify("players");
-        this.addElements();
-    }
+        // @ts-expect-error Typescript doesn't know about the internal children
+        this.listBox = this._list_box;
+        // @ts-expect-error Typescript doesn't know about the internal children
+        this.addBtn = this._add_btn;
+        // @ts-expect-error Typescript doesn't know about the internal children
+        this.appChooser = this._app_chooser;
 
-    private initAppChooserDialog() {
-        const apps = Gio.AppInfo.get_all();
+        this.appChooser = new AppChooser();
 
-        for (const app of apps) {
-            if (app.should_show() === false) continue;
-
-            const row = new Adw.ActionRow();
-            row.title = app.get_display_name();
-            row.subtitle = app.get_id();
-            row.subtitleLines = 1;
-
-            const icon = new Gtk.Image({ gicon: app.get_icon() });
-            row.add_prefix(icon);
-
-            this.appChooserList.append(row);
-        }
-
-        this.appChooserCancelBtn.connect("clicked", () => {
-            this.appChooserDialog.close();
+        this.addBtn.connect("clicked", async () => {
+            const appId = await this.appChooser.showChooser();
+            this.players.unshift(appId);
+            this.notify("players");
+            this.addElements();
         });
     }
 
-    private showAppChooserDialog(): Promise<string> {
-        return new Promise((resolve) => {
-            this.appChooserSelectBtn.connect("clicked", () => {
-                this.appChooserDialog.close();
-
-                const row = this.appChooserList.get_selected_row() as Adw.ActionRow;
-                resolve(row.subtitle);
-            });
-
-            this.appChooserDialog.present();
-        });
+    public initPlayers(players: string[]) {
+        this.players = players;
+        this.addElements();
     }
 
     private addElements() {
-        this.remove_all();
+        this.listBox.remove_all();
 
         if (this.players.length === 0) {
             const row = new Adw.ActionRow();
@@ -81,7 +52,7 @@ class BlacklistedPlayers extends Gtk.ListBox {
             label.marginBottom = 20;
 
             row.set_child(label);
-            this.append(row);
+            this.listBox.append(row);
             return;
         }
 
@@ -101,30 +72,35 @@ class BlacklistedPlayers extends Gtk.ListBox {
             deleteBtn.marginBottom = 10;
             deleteBtn.add_css_class("flat");
             deleteBtn.add_css_class("circular");
-            deleteBtn.set_data("appId", player);
             row.add_suffix(deleteBtn);
 
-            deleteBtn.connect("clicked", (deleteBtn) => {
-                this.players.splice(this.players.indexOf(deleteBtn.get_data("appId")), 1);
+            deleteBtn.connect("clicked", () => {
+                const index = this.players.indexOf(player);
+                this.players.splice(index, 1);
                 this.notify("players");
                 this.addElements();
             });
 
-            this.append(row);
+            this.listBox.append(row);
         }
     }
 }
 
-const classPropertiers = {
-    GTypeName: "McBlacklistedPlayers",
-    Properties: {
-        players: GObject.ParamSpec.jsobject(
-            "players",
-            "Blacklisted players",
-            "Blacklisted players",
-            GObject.ParamFlags.READABLE,
-        ),
+const GBlacklistedPlayers = GObject.registerClass(
+    {
+        GTypeName: "BlacklistedPlayers",
+        Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/blacklisted-players.ui",
+        Properties: {
+            players: GObject.ParamSpec.jsobject(
+                "players",
+                "Blacklisted players",
+                "Blacklisted players",
+                GObject.ParamFlags.READABLE,
+            ),
+        },
+        InternalChildren: ["list-box", "add-btn"],
     },
-};
+    BlacklistedPlayers,
+);
 
-export default GObject.registerClass(classPropertiers, BlacklistedPlayers);
+export default GBlacklistedPlayers;

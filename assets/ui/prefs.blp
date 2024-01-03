@@ -179,36 +179,9 @@ Adw.PreferencesPage page-positions {
     }
   }
 
-  Adw.PreferencesGroup gp-positions-elements {
-    title: "Elements";
-  }
+  $ElementList gp-positions-elements {}
 
-  Adw.PreferencesGroup gp-positions-labels {
-    title: "Label";
-
-    header-suffix: Box {
-      halign: end;
-      valign: center;
-      margin-top: 10;
-      margin-bottom: 10;
-
-      styles [
-        "linked"
-      ]
-
-      Button btn-positions-labels-add-item {
-        label: "Add item";
-        halign: end;
-        valign: center;
-      }
-
-      Button btn-positions-labels-add-text {
-        label: "Add custom text";
-        halign: end;
-        valign: center;
-      }
-    };
-  }
+  $LabelList gp-positions-labels {}
 }
 
 Adw.PreferencesPage page-shortcuts {
@@ -295,24 +268,7 @@ Adw.PreferencesPage page-other {
     }
   }
 
-  Adw.PreferencesGroup gp-other-blacklist {
-    title: "Blacklist players";
-    description: "Blacklisted players will be ignored by the extension.";
-
-    header-suffix: Button btn-other-blacklist-add {
-      halign: end;
-      valign: center;
-
-      styles [
-        "suggested-action"
-      ]
-
-      Adw.ButtonContent {
-        label: "Add";
-        icon-name: "list-add-symbolic";
-      }
-    };
-  }
+  $BlacklistedPlayers gp-other-blacklist {}
 }
 
 Adw.Window win-shortcut-editor {
@@ -342,42 +298,6 @@ Adw.Window win-shortcut-editor {
         halign: center;
         valign: center;
         vexpand: true;
-      }
-    }
-  }
-}
-
-Adw.Window win-app-chooser {
-  title: "Select app to blacklist";
-  modal: true;
-  resizable: false;
-  default-width: 300;
-  default-height: 600;
-  hide-on-close: true;
-
-  Adw.ToolbarView {
-    [top]
-    Adw.HeaderBar {
-      decoration-layout: "";
-
-      [start]
-      Button btn-app-chooser-cancel {
-        label: "Cancel";
-      }
-
-      [end]
-      Button btn-app-chooser-select {
-        label: "Select";
-
-        styles [
-          "suggested-action"
-        ]
-      }
-    }
-
-    ScrolledWindow {
-      ListBox lb-app-chooser {
-        selection-mode: single;
       }
     }
   }
