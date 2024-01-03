@@ -52,24 +52,24 @@ Made with [contrib.rocks](https://contrib.rocks).
 
 #### Popup menu
 
-![Screenshot](assets/images/popup.png)
+[<img src="assets/images/popup.png" width="400">]()
 
 #### General settings
 
-![Screenshot](assets/images/prefs_general.png)
+[<img src="assets/images/prefs_general.png" width="400">]()
 
 #### Panel settings
 
-![Screenshot](assets/images/prefs_panel.png)
+[<img src="assets/images/prefs_panel.png" width="400">]()
 
 #### Position settings
 
-![Screenshot](assets/images/prefs_positions.png)
+[<img src="assets/images/prefs_positions.png" width="400">]()
 
 #### Shortcut settings
 
-![Screenshot](assets/images/prefs_shortcuts.png)
+[<img src="assets/images/prefs_shortcuts.png" width="400">]()
 
 #### Other settings
 
-![Screenshot](assets/images/prefs_other.png)
+[<img src="assets/images/prefs_other.png" width="400">]()
