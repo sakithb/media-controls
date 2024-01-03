@@ -26,7 +26,7 @@ Show controls and information of the currently playing media in the panel.
 
 [<img src="assets/images/ego.png" height="100">](https://extensions.gnome.org/extension/4470/media-controls/)
 
-#### Other distributions
+#### Manual installation
 
 Install from source
 
