@@ -8,22 +8,23 @@ import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
 
 import PanelButton from "./helpers/PanelButton.js";
 import PlayerProxy from "./helpers/PlayerProxy.js";
-import {
-    DBUS_IFACE_NAME,
-    DBUS_OBJECT_PATH,
-    DBUS_PROPERTIES_IFACE_NAME,
-    ExtensionPositions,
-    LabelTypes,
-    MPRIS_IFACE_NAME,
-    MPRIS_PLAYER_IFACE_NAME,
-    MouseActions,
-    PanelElements,
-} from "./types/enums/general.js";
-import { PlaybackStatus, WidgetFlags } from "./types/enums/shell.js";
 import { debugLog, enumValueByIndex, errorLog, handleError } from "./utils/misc.js";
-import { getAppByIdAndEntry, createDbusProxy } from "./utils/shell.js";
+import { getAppByIdAndEntry, createDbusProxy } from "./utils/shell_only.js";
 import { StdInterface } from "./types/dbus.js";
-import { KeysOf } from "./types/general.js";
+import { KeysOf } from "./types/misc.js";
+import {
+    PlaybackStatus,
+    WidgetFlags,
+    LabelTypes,
+    PanelElements,
+    MPRIS_PLAYER_IFACE_NAME,
+    DBUS_PROPERTIES_IFACE_NAME,
+    MPRIS_IFACE_NAME,
+    DBUS_OBJECT_PATH,
+    DBUS_IFACE_NAME,
+    ExtensionPositions,
+    MouseActions,
+} from "./types/enums/general.js";
 
 Gio._promisify(Gio.File.prototype, "load_contents_async", "load_contents_finish");
 
@@ -125,12 +126,12 @@ export default class MediaControls extends Extension {
         this.extensionIndex = this.settings.get_uint("extension-index");
         this.elementsOrder = this.settings.get_strv("elements-order") as ElementsOrder;
         this.labelsOrder = this.settings.get_strv("labels-order") as LabelsOrder;
-        this.mouseActionLeft = enumValueByIndex(MouseActions, this.settings.get_enum("mouse-action-left"));
-        this.mouseActionMiddle = enumValueByIndex(MouseActions, this.settings.get_enum("mouse-action-middle"));
-        this.mouseActionRight = enumValueByIndex(MouseActions, this.settings.get_enum("mouse-action-right"));
-        this.mouseActionDouble = enumValueByIndex(MouseActions, this.settings.get_enum("mouse-action-double"));
-        this.mouseActionScrollUp = enumValueByIndex(MouseActions, this.settings.get_enum("mouse-action-scroll-up"));
-        this.mouseActionScrollDown = enumValueByIndex(MouseActions, this.settings.get_enum("mouse-action-scroll-down"));
+        this.mouseActionLeft = this.settings.get_enum("mouse-action-left") as MouseActions;
+        this.mouseActionMiddle = this.settings.get_enum("mouse-action-middle") as MouseActions;
+        this.mouseActionRight = this.settings.get_enum("mouse-action-right") as MouseActions;
+        this.mouseActionDouble = this.settings.get_enum("mouse-action-double") as MouseActions;
+        this.mouseActionScrollUp = this.settings.get_enum("mouse-action-scroll-up") as MouseActions;
+        this.mouseActionScrollDown = this.settings.get_enum("mouse-action-scroll-down") as MouseActions;
         this.cacheArt = this.settings.get_boolean("cache-art");
         this.blacklistedPlayers = this.settings.get_strv("blacklisted-players");
 
@@ -223,33 +224,27 @@ export default class MediaControls extends Extension {
         });
 
         this.settings.connect("changed::mouse-action-left", () => {
-            const enumIndex = this.settings.get_enum("mouse-action-left");
-            this.mouseActionLeft = enumValueByIndex(MouseActions, enumIndex);
+            this.mouseActionLeft = this.settings.get_enum("mouse-action-left") as MouseActions;
         });
 
         this.settings.connect("changed::mouse-action-middle", () => {
-            const enumIndex = this.settings.get_enum("mouse-action-middle");
-            this.mouseActionMiddle = enumValueByIndex(MouseActions, enumIndex);
+            this.mouseActionMiddle = this.settings.get_enum("mouse-action-middle") as MouseActions;
         });
 
         this.settings.connect("changed::mouse-action-right", () => {
-            const enumIndex = this.settings.get_enum("mouse-action-right");
-            this.mouseActionRight = enumValueByIndex(MouseActions, enumIndex);
+            this.mouseActionRight = this.settings.get_enum("mouse-action-right") as MouseActions;
         });
 
         this.settings.connect("changed::mouse-action-double", () => {
-            const enumIndex = this.settings.get_enum("mouse-action-double");
-            this.mouseActionDouble = enumValueByIndex(MouseActions, enumIndex);
+            this.mouseActionDouble = this.settings.get_enum("mouse-action-double") as MouseActions;
         });
 
         this.settings.connect("changed::mouse-action-scroll-up", () => {
-            const enumIndex = this.settings.get_enum("mouse-action-scroll-up");
-            this.mouseActionScrollUp = enumValueByIndex(MouseActions, enumIndex);
+            this.mouseActionScrollUp = this.settings.get_enum("mouse-action-scroll-up") as MouseActions;
         });
 
         this.settings.connect("changed::mouse-action-scroll-down", () => {
-            const enumIndex = this.settings.get_enum("mouse-action-scroll-down");
-            this.mouseActionScrollDown = enumValueByIndex(MouseActions, enumIndex);
+            this.mouseActionScrollDown = this.settings.get_enum("mouse-action-scroll-down") as MouseActions;
         });
 
         this.settings.connect("changed::cache-art", () => {

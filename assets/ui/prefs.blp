@@ -3,15 +3,15 @@ using Gio 2.0;
 using Adw 1;
 
 Adw.PreferencesPage page-general {
-  title: "General";
+  title: _("General");
   icon-name: "settings-symbolic";
 
   Adw.PreferencesGroup {
-    title: "Common";
+    title: _("Common");
 
     Adw.ExpanderRow {
-      title: "Labels";
-      subtitle: "Customize the labels in the panel and the popup menu";
+      title: _("Labels");
+      subtitle: _("Customize the labels in the panel and the popup menu");
       expanded: true;
 
       Adw.SpinRow sr-general-label-width {
@@ -27,29 +27,29 @@ Adw.PreferencesPage page-general {
       }
 
       Adw.SwitchRow sr-general-label-fixed {
-        title: "Fixed width";
-        subtitle: "Use the specified width even when they are smaller than the width";
+        title: _("Fixed width");
+        subtitle: _("Use the specified width even when they are smaller than the width");
       }
 
       Adw.SwitchRow sr-general-scroll-labels {
-        title: "Scroll labels";
-        subtitle: "Scroll the labels when they are wider than the width";
+        title: _("Scroll labels");
+        subtitle: _("Scroll the labels when they are wider than the width");
       }
 
     }
 
     Adw.SwitchRow sr-general-hide-media-notification {
-      title: "Hide the media notification";
-      subtitle: "Hide the media notifications in the notification list";
+      title: _("Hide the media notification");
+      subtitle: _("Hide the media notifications in the notification list");
     }
 
   }
 
   Adw.PreferencesGroup {
-    title: "Information";
+    title: _("Information");
 
     Adw.ActionRow {
-      title: "Homepage";
+      title: _("Homepage");
       activatable-widget: lb-general-homepage;
 
       LinkButton lb-general-homepage {
@@ -61,7 +61,7 @@ Adw.PreferencesPage page-general {
     }
 
     Adw.ActionRow {
-      title: "Release notes";
+      title: _("Release notes");
       activatable-widget: lb-general-notes;
 
       LinkButton lb-general-notes {
@@ -73,11 +73,11 @@ Adw.PreferencesPage page-general {
     }
 
     Adw.ActionRow {
-      title: "Report an issue";
+      title: _("Report an issue");
       activatable-widget: lb-general-issues;
 
       LinkButton lb-general-issues {
-        label: "Report an issue";
+        label: _("Report an issue");
         icon-name: "link-symbolic";
         uri: "hhttps://github.com/sakithb/media-controls/issues";
         margin-top: 10;
@@ -88,58 +88,58 @@ Adw.PreferencesPage page-general {
 }
 
 Adw.PreferencesPage page-panel {
-  title: "Panel";
+  title: _("Panel");
   icon-name: "panel-top-symbolic";
 
   Adw.PreferencesGroup {
     Adw.SwitchRow sr-panel-show-label {
-      title: "Show label";
+      title: _("Show label");
     }
 
     Adw.ExpanderRow {
-      title: "Player controls";
+      title: _("Player controls");
       expanded: true;
 
       Adw.SwitchRow sr-panel-show-controls {
-        title: "Show player controls";
+        title: _("Show player controls");
       }
 
       Adw.SwitchRow sr-panel-show-play {
-        title: "Show play/pause button";
+        title: _("Show play/pause button");
         sensitive: bind sr-panel-show-controls.active;
       }
 
       Adw.SwitchRow sr-panel-show-next {
-        title: "Show next track button";
+        title: _("Show next track button");
         sensitive: bind sr-panel-show-controls.active;
       }
 
       Adw.SwitchRow sr-panel-show-prev {
-        title: "Show previous track button";
+        title: _("Show previous track button");
         sensitive: bind sr-panel-show-controls.active;
       }
 
       Adw.SwitchRow sr-panel-show-seek-forward {
-        title: "Show seek forward button";
+        title: _("Show seek forward button");
         sensitive: bind sr-panel-show-controls.active;
       }
 
       Adw.SwitchRow sr-panel-show-seek-backward {
-        title: "Show seek back button";
+        title: _("Show seek back button");
         sensitive: bind sr-panel-show-controls.active;
       }
     }
 
     Adw.ExpanderRow {
-      title: "Player icon";
+      title: _("Player icon");
       expanded: true;
 
       Adw.SwitchRow sr-panel-show-player {
-        title: "Show player icon";
+        title: _("Show player icon");
       }
       
       Adw.SwitchRow sr-panel-colored-player {
-        title: "Colored player icon";
+        title: _("Colored player icon");
         sensitive: bind sr-panel-show-player.active;
       }
     }
@@ -147,28 +147,28 @@ Adw.PreferencesPage page-panel {
 }
 
 Adw.PreferencesPage page-positions {
-  title: "Positions";
+  title: _("Positions");
   icon-name: "view-list-symbolic";
 
   Adw.PreferencesGroup {
-    title: "Extension";
+    title: _("Extension");
 
     Adw.ComboRow cr-positions-extension-position {
-      title: "Position";
-      subtitle: "Position of the extension in the panel";
+      title: _("Position");
+      subtitle: _("Position of the extension in the panel");
 
       model: StringList {
         strings [
-          "Left",
-          "Center",
-          "Right",
+          _("Left"),
+          _("Center"),
+          _("Right"),
         ]
       };
     }
 
     Adw.SpinRow sr-positions-extension-index {
-      title: "Index";
-      subtitle: "Index of the extension";
+      title: _("Index");
+      subtitle: _("Index of the extension");
 
       adjustment: Adjustment {
         lower: 0;
@@ -185,17 +185,17 @@ Adw.PreferencesPage page-positions {
 }
 
 Adw.PreferencesPage page-shortcuts {
-  title: "Shortcuts";
+  title: _("Shortcuts");
   icon-name: "keyboard-symbolic";
 
   Adw.PreferencesGroup {
     Adw.ActionRow row-shortcuts-popup {
-      title: "Show popup menu";
-      subtitle: "Shortcut to toggle the popup menu";
+      title: _("Show popup menu");
+      subtitle: _("Shortcut to toggle the popup menu");
       activatable-widget: sl-shortcuts-popup;
 
       ShortcutLabel sl-shortcuts-popup {
-        disabled-text: "Set shortcut";
+        disabled-text: _("Set shortcut");
         halign: center;
         valign: center;
       }
@@ -203,54 +203,54 @@ Adw.PreferencesPage page-shortcuts {
   }
 
   Adw.PreferencesGroup {
-    title: "Mouse actions";
+    title: _("Mouse actions");
 
     Adw.ComboRow cr-shortcuts-mouse-left {
-      title: "Left click / Tap";
+      title: _("Left click / Tap");
       model: mouse-actions;
     }
 
     Adw.ComboRow cr-shortcuts-mouse-middle {
-      title: "Middle click";
+      title: _("Middle click");
       model: mouse-actions;
     }
 
     Adw.ComboRow cr-shortcuts-mouse-right {
-      title: "Right click";
+      title: _("Right click");
       model: mouse-actions;
     }
 
     Adw.ComboRow cr-shortcuts-mouse-double {
-      title: "Double click / Double tap";
+      title: _("Double click / Double tap");
       model: mouse-actions;
     }
 
     Adw.ComboRow cr-shortcuts-mouse-scroll-up {
-      title: "Scroll up / Swipe right";
+      title: _("Scroll up / Swipe right");
       model: mouse-actions;
     }
 
     Adw.ComboRow cr-shortcuts-mouse-scroll-down {
-      title: "Scroll down / Swipe left";
+      title: _("Scroll down / Swipe left");
       model: mouse-actions;
     }
   }
 }
 
 Adw.PreferencesPage page-other {
-  title: "Other";
+  title: _("Other");
   icon-name: "settings-symbolic";
 
   Adw.PreferencesGroup {
-    title: "Cache";
-    description: "This extension cache album art to improve performance. You can clear the cache here.";
+    title: _("Cache");
+    description: _("This extension cache album art to improve performance. You can clear the cache here.");
 
     Adw.SwitchRow sr-other-cache {
-      title: "Cache album art";
+      title: _("Cache album art");
     }
 
     Adw.ActionRow row-other-cache-clear {
-      title: "Clear cache";
+      title: _("Clear cache");
 
       Button btn-other-cache-clear {
         halign: end;
@@ -261,7 +261,7 @@ Adw.PreferencesPage page-other {
         ]
 
         Adw.ButtonContent {
-          label: "Clear";
+          label: _("Clear");
           icon-name: "user-trash-symbolic";
         }
       }
@@ -272,7 +272,7 @@ Adw.PreferencesPage page-other {
 }
 
 Adw.Window win-shortcut-editor {
-  title: "Set shortcut";
+  title: _("Set shortcut");
   modal: true;
   resizable: false;
   default-width: 300;
@@ -288,13 +288,13 @@ Adw.Window win-shortcut-editor {
       margin-bottom: 20;
 
       Label {
-        label: "<small>Press escape to cancel.\nPress enter to set the shortcut.\nPress backspace to reset.</small>";
+        label: _("<small>Press escape to cancel.\nPress enter to set the shortcut.\nPress backspace to reset.</small>");
         use-markup: true;
         wrap: true;
       }
 
       ShortcutLabel sl-shortcut-editor {
-        disabled-text: "Press shortcut";
+        disabled-text: _("Press shortcut");
         halign: center;
         valign: center;
         vexpand: true;
@@ -305,18 +305,18 @@ Adw.Window win-shortcut-editor {
 
 StringList mouse-actions {
   strings [
-    "None",
-    "Play/Pause",
-    "Play",
-    "Pause",
-    "Next track",
-    "Previous track",
-    "Volume up",
-    "Volume down",
-    "Toggle loop",
-    "Toggle shuffle",
-    "Show popup menu",
-    "Raise player",
-    "Quit player",
+    _("None"),
+    _("Play/Pause"),
+    _("Play"),
+    _("Pause"),
+    _("Next track"),
+    _("Previous track"),
+    _("Volume up"),
+    _("Volume down"),
+    _("Toggle loop"),
+    _("Toggle shuffle"),
+    _("Show popup menu"),
+    _("Raise player"),
+    _("Quit player"),
   ]
 }

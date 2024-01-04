@@ -1,16 +1,16 @@
-import "./utils/initResource.js";
+import "./utils/init_resource.js";
 import Adw from "gi://Adw?version=1";
 import GLib from "gi://GLib?version=2.0";
 import Gdk from "gi://Gdk?version=4.0";
 import Gio from "gi://Gio?version=2.0";
 import Gtk from "gi://Gtk?version=4.0";
-import { ExtensionPreferences } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
+import GObject from "gi://GObject?version=2.0";
+import { ExtensionPreferences, gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
 import BlacklistedPlayers from "./helpers/BlacklistedPlayers.js";
 import ElementList from "./helpers/ElementList.js";
 import LabelList from "./helpers/LabelList.js";
-import { isValidBinding, isValidAccelerator } from "./utils/prefs.js";
-import GObject from "gi://GObject?version=2.0";
+import { isValidBinding, isValidAccelerator } from "./utils/prefs_only.js";
 
 GObject.type_ensure(BlacklistedPlayers.$gtype);
 GObject.type_ensure(ElementList.$gtype);
@@ -122,16 +122,16 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         const cacheClearBtn = this.builder.get_object("btn-other-cache-clear") as Gtk.Button;
 
         cacheClearBtn.connect("clicked", () => {
-            const dialog = Adw.MessageDialog.new(this.window, "", "Are you sure you want to clear the cache?");
-            dialog.add_response("cancel", "Cancel");
-            dialog.add_response("clear", "Clear cache");
+            const dialog = Adw.MessageDialog.new(this.window, "", _("Are you sure you want to clear the cache?"));
+            dialog.add_response("cancel", _("Cancel"));
+            dialog.add_response("clear", _("Clear cache"));
             dialog.set_response_appearance("clear", Adw.ResponseAppearance.DESTRUCTIVE);
 
-            dialog.connect("response", (_, response) => {
+            dialog.connect("response", (self, response) => {
                 if (response === "cancel") return;
 
                 this.clearCache().then(() => {
-                    cacheClearRow.subtitle = `Cache size: ${GLib.format_size(0)}`;
+                    cacheClearRow.subtitle = _("Cache size: %s").format(GLib.format_size(0));
                 });
             });
 
@@ -140,7 +140,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
 
         this.getCacheSize().then((size) => {
             const sizeReadable = GLib.format_size(size);
-            cacheClearRow.subtitle = `Cache size: ${sizeReadable}`;
+            cacheClearRow.subtitle = _("Cache size: %s").format(sizeReadable);
         });
 
         const blacklistedGrp = this.builder.get_object("gp-other-blacklist") as InstanceType<typeof BlacklistedPlayers>;
@@ -223,9 +223,9 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             const success = await folder.trash_async(null, null);
 
             if (success) {
-                this.sendToast("Cache cleared successfully!");
+                this.sendToast(_("Cache cleared successfully!"));
             } else {
-                this.sendToast("Failed to clear cache!");
+                this.sendToast(_("Failed to clear cache!"));
             }
         }
     }

@@ -1,7 +1,8 @@
 import Gio from "gi://Gio?version=2.0";
 import GLib from "gi://GLib?version=2.0";
-import { KeysOf } from "./general.js";
-import { LoopStatus, PlaybackStatus } from "./enums/shell.js";
+
+import { KeysOf } from "./misc.js";
+import { LoopStatus, PlaybackStatus } from "./enums/general.js";
 
 type MethodResult<T> = [T];
 

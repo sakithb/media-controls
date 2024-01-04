@@ -3,17 +3,19 @@ import GObject from "gi://GObject?version=2.0";
 import Gdk from "gi://Gdk?version=4.0";
 import Graphene from "gi://Graphene?version=1.0";
 import Gtk from "gi://Gtk?version=4.0";
-
 import { PanelElements } from "../types/enums/general.js";
-import { enumKeyByValue } from "../utils/misc.js";
+
+interface PanelElementRow extends Adw.ActionRow {
+    elementKey: string;
+}
 
 class ElementList extends Adw.PreferencesGroup {
     public elements: string[];
 
     private listBox: Gtk.ListBox;
-    private iconRow: Adw.ActionRow;
-    private labelRow: Adw.ActionRow;
-    private controlsRow: Adw.ActionRow;
+    private iconRow: PanelElementRow;
+    private labelRow: PanelElementRow;
+    private controlsRow: PanelElementRow;
 
     constructor(params = {}) {
         super(params);
@@ -22,10 +24,13 @@ class ElementList extends Adw.PreferencesGroup {
         this.listBox = this._list_box;
         // @ts-expect-error Typescript doesn't know about the internal children
         this.iconRow = this._icon_row;
+        this.iconRow.elementKey = "ICON";
         // @ts-expect-error Typescript doesn't know about the internal children
         this.labelRow = this._label_row;
+        this.labelRow.elementKey = "LABEL";
         // @ts-expect-error Typescript doesn't know about the internal children
         this.controlsRow = this._controls_row;
+        this.controlsRow.elementKey = "CONTROLS";
 
         this.elements = [];
 
@@ -46,9 +51,9 @@ class ElementList extends Adw.PreferencesGroup {
         });
 
         this.listBox.add_controller(dropTarget);
-        this.listBox.set_sort_func((firstRow: Adw.ActionRow, secondRow: Adw.ActionRow) => {
-            const firstIndex = this.elements.indexOf(enumKeyByValue(PanelElements, firstRow.title));
-            const secondIndex = this.elements.indexOf(enumKeyByValue(PanelElements, secondRow.title));
+        this.listBox.set_sort_func((firstRow: PanelElementRow, secondRow: PanelElementRow) => {
+            const firstIndex = this.elements.indexOf(firstRow.elementKey);
+            const secondIndex = this.elements.indexOf(secondRow.elementKey);
 
             return firstIndex - secondIndex;
         });

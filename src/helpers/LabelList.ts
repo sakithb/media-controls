@@ -3,7 +3,7 @@ import GObject from "gi://GObject?version=2.0";
 import Gdk from "gi://Gdk?version=4.0";
 import Graphene from "gi://Graphene?version=1.0";
 import Gtk from "gi://Gtk?version=4.0";
-
+import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 import { LabelTypes } from "../types/enums/general.js";
 
 class LabelList extends Adw.PreferencesGroup {
@@ -24,11 +24,9 @@ class LabelList extends Adw.PreferencesGroup {
         // @ts-expect-error Typescript doesn't know about internal children
         this.addTextBtn = this._add_text_btn;
 
-        this.labelsList = new Gtk.StringList();
-
-        for (const label of Object.values(LabelTypes)) {
-            this.labelsList.append(label);
-        }
+        this.labelsList = new Gtk.StringList({
+            strings: Object.values(LabelTypes).map(_),
+        });
 
         const dropTarget = Gtk.DropTarget.new(GObject.TYPE_UINT, Gdk.DragAction.MOVE);
         dropTarget.connect("drop", (_, sourceIndex, x, y) => {
@@ -88,7 +86,7 @@ class LabelList extends Adw.PreferencesGroup {
             const element = this.labels[i];
             if (Object.keys(LabelTypes).includes(element)) {
                 const row = new Adw.ComboRow();
-                row.title = LabelTypes[element];
+                row.title = _(LabelTypes[element]);
                 row.model = this.labelsList;
                 row.selected = Object.keys(LabelTypes).indexOf(element);
 

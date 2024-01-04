@@ -2,14 +2,14 @@ using Gtk 4.0;
 using Adw 1;
 
 template $ElementList: Adw.PreferencesGroup {
-    title: "Elements";
+    title: _("Elements");
 
     ListBox list-box {
       styles ["boxed-list"]
       selection-mode: multiple;
 
       Adw.ActionRow icon-row {
-        title: "Player icon";
+        title: _("Player icon");
         activatable: true;
 
         [suffix]
@@ -19,7 +19,7 @@ template $ElementList: Adw.PreferencesGroup {
       }
 
       Adw.ActionRow label-row {
-        title: "Label";
+        title: _("Label");
         activatable: true;
 
         [suffix]
@@ -29,7 +29,7 @@ template $ElementList: Adw.PreferencesGroup {
       }
 
       Adw.ActionRow controls-row {
-        title: "Player controls";
+        title: _("Player controls");
         activatable: true;
 
         [suffix]

@@ -12,19 +12,21 @@ import MediaControls from "../extension.js";
 import PlayerProxy from "./PlayerProxy.js";
 import ScrollingLabel from "./ScrollingLabel.js";
 import MenuSlider from "./MenuSlider.js";
-import { LabelTypes, MouseActions, PanelElements } from "../types/enums/general.js";
+import { KeysOf } from "../types/misc.js";
+import { debugLog, handleError } from "../utils/misc.js";
+import { getAppByIdAndEntry, getImage } from "../utils/shell_only.js";
+import { PlayerProxyProperties } from "../types/dbus.js";
+import { ControlIconOptions } from "../types/enums/shell_only.js";
 import {
+    LabelTypes,
+    PanelElements,
+    MouseActions,
     LoopStatus,
     PlaybackStatus,
     WidgetFlags,
-    ControlIconOptions,
-    MenuControlIconOptions,
-    PanelControlIconOptions,
-} from "../types/enums/shell.js";
-import { debugLog, handleError } from "../utils/misc.js";
-import { getAppByIdAndEntry, getImage } from "../utils/shell.js";
-import { KeysOf } from "../types/general.js";
-import { PlayerProxyProperties } from "../types/dbus.js";
+} from "../types/enums/general.js";
+import { PanelControlIconOptions } from "../types/enums/shell_only.js";
+import { MenuControlIconOptions } from "../types/enums/shell_only.js";
 
 Gio._promisify(GdkPixbuf.Pixbuf, "new_from_stream_async", "new_from_stream_finish");
 

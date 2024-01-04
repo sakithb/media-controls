@@ -2,8 +2,8 @@ using Gtk 4.0;
 using Adw 1;
 
 template $BlacklistedPlayers: Adw.PreferencesGroup {
-  title: "Blacklist players";
-  description: "Blacklisted players will be ignored by the extension.";
+  title: _("Blacklist players");
+  description: _("Blacklisted players will be ignored by the extension.");
 
   header-suffix: Button add-btn {
     halign: end;
@@ -14,7 +14,7 @@ template $BlacklistedPlayers: Adw.PreferencesGroup {
     ]
 
     Adw.ButtonContent {
-      label: "Add";
+      label: _("Add");
       icon-name: "list-add-symbolic";
     }
   };

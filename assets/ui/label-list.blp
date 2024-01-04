@@ -2,7 +2,7 @@ using Gtk 4.0;
 using Adw 1;
 
 template $LabelList: Adw.PreferencesGroup {
-  title: "Label";
+  title: _("Label");
 
   header-suffix: Box {
     halign: end;
@@ -15,13 +15,13 @@ template $LabelList: Adw.PreferencesGroup {
     ]
 
     Button add-item-btn {
-      label: "Add item";
+      label: _("Add item");
       halign: end;
       valign: center;
     }
 
     Button add-text-btn {
-      label: "Add custom text";
+      label: _("Add custom text");
       halign: end;
       valign: center;
     }

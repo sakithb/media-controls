@@ -1,4 +1,9 @@
 import Gio from "gi://Gio?version=2.0";
+
+import { MPRIS_PLAYER_IFACE_NAME, MPRIS_OBJECT_PATH, PlaybackStatus, LoopStatus } from "../types/enums/general.js";
+import { debugLog, errorLog, handleError } from "../utils/misc.js";
+import { createDbusProxy } from "../utils/shell_only.js";
+import { KeysOf } from "../types/misc.js";
 import {
     MprisInterface,
     MprisPlayerInterface,
@@ -8,11 +13,6 @@ import {
     PlayerProxyProperties,
     PropertiesInterface,
 } from "../types/dbus.js";
-import { MPRIS_OBJECT_PATH, MPRIS_PLAYER_IFACE_NAME } from "../types/enums/general.js";
-import { PlaybackStatus, LoopStatus } from "../types/enums/shell.js";
-import { debugLog, errorLog, handleError } from "../utils/misc.js";
-import { createDbusProxy } from "../utils/shell.js";
-import { KeysOf } from "../types/general.js";
 
 type PlayerProxyChangeListeners = Map<
     KeysOf<PlayerProxyProperties>,

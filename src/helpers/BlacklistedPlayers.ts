@@ -2,6 +2,8 @@ import Adw from "gi://Adw?version=1";
 import GObject from "gi://GObject?version=2.0";
 import Gio from "gi://Gio?version=2.0";
 import Gtk from "gi://Gtk?version=4.0";
+import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
+
 import AppChooser from "./AppChooser.js";
 
 GObject.type_ensure(AppChooser.$gtype);
@@ -45,7 +47,7 @@ class BlacklistedPlayers extends Adw.PreferencesGroup {
             const row = new Adw.ActionRow();
 
             const label = new Gtk.Label();
-            label.label = "<span size='x-large' weight='bold' color='#ccc'>No players are blacklisted</span>";
+            label.label = _("<span size='x-large' weight='bold' color='#ccc'>No players are blacklisted</span>");
             label.useMarkup = true;
             label.halign = Gtk.Align.CENTER;
             label.marginTop = 20;

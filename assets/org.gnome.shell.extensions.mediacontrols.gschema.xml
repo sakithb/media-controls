@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <schemalist>
   <enum id="org.gnome.shell.extensions.mediacontrols.mouseactions">
-    <value nick="None" value="0" />
-    <value nick="Play/Pause" value="1" />
-    <value nick="Play" value="2" />
-    <value nick="Pause" value="3" />
-    <value nick="Next Track" value="4" />
-    <value nick="Previous Track" value="5" />
-    <value nick="Volume up" value="6" />
-    <value nick="Volume down" value="7" />
-    <value nick="Toggle loop" value="8" />
-    <value nick="Toggle shuffle" value="9" />
-    <value nick="Show popup menu" value="10" />
-    <value nick="Raise player" value="11" />
-    <value nick="Quit player" value="12" />
+    <value nick="NONE" value="0" />
+    <value nick="PLAY_PAUSE" value="1" />
+    <value nick="PLAY" value="2" />
+    <value nick="pAUSE" value="3" />
+    <value nick="NEXT_TRACK" value="4" />
+    <value nick="PREVIOUS_TRACK" value="5" />
+    <value nick="VOLUME_UP" value="6" />
+    <value nick="VOLUME_DOWN" value="7" />
+    <value nick="TOGGLE_LOOP" value="8" />
+    <value nick="TOGGLE_SHUFFLE" value="9" />
+    <value nick="SHOW_POPUP_MENU" value="10" />
+    <value nick="RAISE_PLAYER" value="11" />
+    <value nick="QUIT_PLAYER" value="12" />
   </enum>
   <enum id="org.gnome.shell.extensions.mediacontrols.positions">
     <value nick="Left" value="0" />
@@ -73,22 +73,22 @@
       <default>['TITLE', '-', 'ARTIST']</default>
     </key>
     <key name="mouse-action-left" enum="org.gnome.shell.extensions.mediacontrols.mouseactions">
-      <default>'Show popup menu'</default>
+      <default>'SHOW_POPUP_MENU'</default>
     </key>
     <key name="mouse-action-middle" enum="org.gnome.shell.extensions.mediacontrols.mouseactions">
-      <default>'None'</default>
+      <default>'NONE'</default>
     </key>
     <key name="mouse-action-right" enum="org.gnome.shell.extensions.mediacontrols.mouseactions">
-      <default>'Raise player'</default>
+      <default>'RAISE_PLAYER'</default>
     </key>
     <key name="mouse-action-double" enum="org.gnome.shell.extensions.mediacontrols.mouseactions">
-      <default>'None'</default>
+      <default>'NONE'</default>
     </key>
     <key name="mouse-action-scroll-up" enum="org.gnome.shell.extensions.mediacontrols.mouseactions">
-      <default>'Volume up'</default>
+      <default>'VOLUME_UP'</default>
     </key>
     <key name="mouse-action-scroll-down" enum="org.gnome.shell.extensions.mediacontrols.mouseactions">
-      <default>'Volume down'</default>
+      <default>'VOLUME_DOWN'</default>
     </key>
     <key name="cache-art" type="b">
       <default>true</default>

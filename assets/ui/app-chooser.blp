@@ -2,7 +2,7 @@ using Gtk 4.0;
 using Adw 1;
   
 template $AppChooser: Adw.Window {
-  title: "Select app to blacklist";
+  title: _("Select app to blacklist");
   modal: true;
   resizable: false;
   default-width: 300;
@@ -16,12 +16,12 @@ template $AppChooser: Adw.Window {
 
       [start]
       Button cancel-btn {
-        label: "Cancel";
+        label: _("Cancel");
       }
 
       [end]
       Button select-btn {
-        label: "Select";
+        label: _("Select");
 
         styles [
           "suggested-action"

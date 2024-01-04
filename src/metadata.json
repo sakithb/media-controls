@@ -4,9 +4,7 @@
   "description": "Show controls and information of the currently playing media in the panel.",
   "url": "https://github.com/cliffniff/media-controls",
   "settings-schema": "org.gnome.shell.extensions.mediacontrols",
-  "gettext-domain": "mediacontrols",
+  "gettext-domain": "mediacontrols@cliffniff.github.com",
   "version-name": "2.0.0-beta.1",
-  "shell-version": [
-    "45"
-  ]
+  "shell-version": ["45"]
 }

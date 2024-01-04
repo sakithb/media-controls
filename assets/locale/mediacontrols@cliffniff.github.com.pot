@@ -1,0 +1,370 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-04 20:18+0530\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/prefs.ts:125
+msgid "Are you sure you want to clear the cache?"
+msgstr ""
+
+#: src/prefs.ts:126 assets/ui/app-chooser.blp:19
+msgid "Cancel"
+msgstr ""
+
+#: src/prefs.ts:127 assets/ui/prefs.blp:253
+msgid "Clear cache"
+msgstr ""
+
+#: src/prefs.ts:134 src/prefs.ts:143
+#, javascript-format
+msgid "Cache size: %s"
+msgstr ""
+
+#: src/prefs.ts:226
+msgid "Cache cleared successfully!"
+msgstr ""
+
+#: src/prefs.ts:228
+msgid "Failed to clear cache!"
+msgstr ""
+
+#: src/helpers/BlacklistedPlayers.ts:50
+msgid ""
+"<span size='x-large' weight='bold' color='#ccc'>No players are blacklisted</"
+"span>"
+msgstr ""
+
+#: src/helpers/LabelList.ts:9
+msgid "Artist"
+msgstr ""
+
+#: src/helpers/LabelList.ts:10
+msgid "Title"
+msgstr ""
+
+#: src/helpers/LabelList.ts:11
+msgid "Album"
+msgstr ""
+
+#: src/helpers/LabelList.ts:12
+msgid "Disc Number"
+msgstr ""
+
+#: src/helpers/LabelList.ts:13
+msgid "Track Number"
+msgstr ""
+
+#: assets/ui/app-chooser.blp:5
+msgid "Select app to blacklist"
+msgstr ""
+
+#: assets/ui/app-chooser.blp:24
+msgid "Select"
+msgstr ""
+
+#: assets/ui/blacklisted-players.blp:5
+msgid "Blacklist players"
+msgstr ""
+
+#: assets/ui/blacklisted-players.blp:6
+msgid "Blacklisted players will be ignored by the extension."
+msgstr ""
+
+#: assets/ui/blacklisted-players.blp:17
+msgid "Add"
+msgstr ""
+
+#: assets/ui/element-list.blp:5
+msgid "Elements"
+msgstr ""
+
+#: assets/ui/element-list.blp:12 assets/ui/prefs.blp:134
+msgid "Player icon"
+msgstr ""
+
+#: assets/ui/element-list.blp:22 assets/ui/label-list.blp:5
+msgid "Label"
+msgstr ""
+
+#: assets/ui/element-list.blp:32 assets/ui/prefs.blp:100
+msgid "Player controls"
+msgstr ""
+
+#: assets/ui/label-list.blp:18
+msgid "Add item"
+msgstr ""
+
+#: assets/ui/label-list.blp:24
+msgid "Add custom text"
+msgstr ""
+
+#: assets/ui/prefs.blp:6
+msgid "General"
+msgstr ""
+
+#: assets/ui/prefs.blp:10
+msgid "Common"
+msgstr ""
+
+#: assets/ui/prefs.blp:13
+msgid "Labels"
+msgstr ""
+
+#: assets/ui/prefs.blp:14
+msgid "Customize the labels in the panel and the popup menu"
+msgstr ""
+
+#: assets/ui/prefs.blp:30
+msgid "Fixed width"
+msgstr ""
+
+#: assets/ui/prefs.blp:31
+msgid "Use the specified width even when they are smaller than the width"
+msgstr ""
+
+#: assets/ui/prefs.blp:35
+msgid "Scroll labels"
+msgstr ""
+
+#: assets/ui/prefs.blp:36
+msgid "Scroll the labels when they are wider than the width"
+msgstr ""
+
+#: assets/ui/prefs.blp:42
+msgid "Hide the media notification"
+msgstr ""
+
+#: assets/ui/prefs.blp:43
+msgid "Hide the media notifications in the notification list"
+msgstr ""
+
+#: assets/ui/prefs.blp:49
+msgid "Information"
+msgstr ""
+
+#: assets/ui/prefs.blp:52
+msgid "Homepage"
+msgstr ""
+
+#: assets/ui/prefs.blp:64
+msgid "Release notes"
+msgstr ""
+
+#: assets/ui/prefs.blp:76 assets/ui/prefs.blp:80
+msgid "Report an issue"
+msgstr ""
+
+#: assets/ui/prefs.blp:91
+msgid "Panel"
+msgstr ""
+
+#: assets/ui/prefs.blp:96
+msgid "Show label"
+msgstr ""
+
+#: assets/ui/prefs.blp:104
+msgid "Show player controls"
+msgstr ""
+
+#: assets/ui/prefs.blp:108
+msgid "Show play/pause button"
+msgstr ""
+
+#: assets/ui/prefs.blp:113
+msgid "Show next track button"
+msgstr ""
+
+#: assets/ui/prefs.blp:118
+msgid "Show previous track button"
+msgstr ""
+
+#: assets/ui/prefs.blp:123
+msgid "Show seek forward button"
+msgstr ""
+
+#: assets/ui/prefs.blp:128
+msgid "Show seek back button"
+msgstr ""
+
+#: assets/ui/prefs.blp:138
+msgid "Show player icon"
+msgstr ""
+
+#: assets/ui/prefs.blp:142
+msgid "Colored player icon"
+msgstr ""
+
+#: assets/ui/prefs.blp:150
+msgid "Positions"
+msgstr ""
+
+#: assets/ui/prefs.blp:154
+msgid "Extension"
+msgstr ""
+
+#: assets/ui/prefs.blp:157
+msgid "Position"
+msgstr ""
+
+#: assets/ui/prefs.blp:158
+msgid "Position of the extension in the panel"
+msgstr ""
+
+#: assets/ui/prefs.blp:162
+msgid "Left"
+msgstr ""
+
+#: assets/ui/prefs.blp:163
+msgid "Center"
+msgstr ""
+
+#: assets/ui/prefs.blp:164
+msgid "Right"
+msgstr ""
+
+#: assets/ui/prefs.blp:170
+msgid "Index"
+msgstr ""
+
+#: assets/ui/prefs.blp:171
+msgid "Index of the extension"
+msgstr ""
+
+#: assets/ui/prefs.blp:188
+msgid "Shortcuts"
+msgstr ""
+
+#: assets/ui/prefs.blp:193 assets/ui/prefs.blp:318
+msgid "Show popup menu"
+msgstr ""
+
+#: assets/ui/prefs.blp:194
+msgid "Shortcut to toggle the popup menu"
+msgstr ""
+
+#: assets/ui/prefs.blp:198 assets/ui/prefs.blp:275
+msgid "Set shortcut"
+msgstr ""
+
+#: assets/ui/prefs.blp:206
+msgid "Mouse actions"
+msgstr ""
+
+#: assets/ui/prefs.blp:209
+msgid "Left click / Tap"
+msgstr ""
+
+#: assets/ui/prefs.blp:214
+msgid "Middle click"
+msgstr ""
+
+#: assets/ui/prefs.blp:219
+msgid "Right click"
+msgstr ""
+
+#: assets/ui/prefs.blp:224
+msgid "Double click / Double tap"
+msgstr ""
+
+#: assets/ui/prefs.blp:229
+msgid "Scroll up / Swipe right"
+msgstr ""
+
+#: assets/ui/prefs.blp:234
+msgid "Scroll down / Swipe left"
+msgstr ""
+
+#: assets/ui/prefs.blp:241
+msgid "Other"
+msgstr ""
+
+#: assets/ui/prefs.blp:245
+msgid "Cache"
+msgstr ""
+
+#: assets/ui/prefs.blp:246
+msgid ""
+"This extension cache album art to improve performance. You can clear the "
+"cache here."
+msgstr ""
+
+#: assets/ui/prefs.blp:249
+msgid "Cache album art"
+msgstr ""
+
+#: assets/ui/prefs.blp:264
+msgid "Clear"
+msgstr ""
+
+#: assets/ui/prefs.blp:291
+msgid ""
+"<small>Press escape to cancel.\n"
+"Press enter to set the shortcut.\n"
+"Press backspace to reset.</small>"
+msgstr ""
+
+#: assets/ui/prefs.blp:297
+msgid "Press shortcut"
+msgstr ""
+
+#: assets/ui/prefs.blp:308
+msgid "None"
+msgstr ""
+
+#: assets/ui/prefs.blp:309
+msgid "Play/Pause"
+msgstr ""
+
+#: assets/ui/prefs.blp:310
+msgid "Play"
+msgstr ""
+
+#: assets/ui/prefs.blp:311
+msgid "Pause"
+msgstr ""
+
+#: assets/ui/prefs.blp:312
+msgid "Next track"
+msgstr ""
+
+#: assets/ui/prefs.blp:313
+msgid "Previous track"
+msgstr ""
+
+#: assets/ui/prefs.blp:314
+msgid "Volume up"
+msgstr ""
+
+#: assets/ui/prefs.blp:315
+msgid "Volume down"
+msgstr ""
+
+#: assets/ui/prefs.blp:316
+msgid "Toggle loop"
+msgstr ""
+
+#: assets/ui/prefs.blp:317
+msgid "Toggle shuffle"
+msgstr ""
+
+#: assets/ui/prefs.blp:319
+msgid "Raise player"
+msgstr ""
+
+#: assets/ui/prefs.blp:320
+msgid "Quit player"
+msgstr ""
