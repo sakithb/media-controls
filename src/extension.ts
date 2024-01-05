@@ -92,6 +92,25 @@ export default class MediaControls extends Extension {
         debugLog("Enabled");
     }
 
+    public disable() {
+        this.playerProxies = null;
+
+        this.destroySettings();
+
+        this.watchIfaceInfo = null;
+        this.mprisIfaceInfo = null;
+        this.mprisPlayerIfaceInfo = null;
+        this.propertiesIfaceInfo = null;
+        this.watchProxy = null;
+
+        this.removePanelButton();
+        this.updateMediaNotificationVisiblity(true);
+
+        Main.wm.removeKeybinding("mediacontrols-show-popup-menu");
+
+        debugLog("Disabled");
+    }
+
     public getPlayers() {
         const players: PlayerProxy[] = [];
 
@@ -381,13 +400,15 @@ export default class MediaControls extends Extension {
         const isPlayerBlacklisted = this.isPlayerBlacklisted(playerProxy.identity, playerProxy.desktopEntry);
 
         if (isPlayerBlacklisted) {
-            debugLog("Player is blacklisted:", busName);
             return;
         }
 
-        playerProxy.onChanged("IsInvalid", this.setActivePlayer.bind(this));
         playerProxy.onChanged("IsPinned", this.setActivePlayer.bind(this));
         playerProxy.onChanged("PlaybackStatus", this.setActivePlayer.bind(this));
+        playerProxy.onChanged("IsInvalid", () => {
+            this.setActivePlayer();
+            this.panelBtn?.updateWidgets(WidgetFlags.MENU_PLAYERS);
+        });
 
         this.playerProxies.set(busName, playerProxy);
         this.panelBtn?.updateWidgets(WidgetFlags.MENU_PLAYERS);
@@ -402,8 +423,6 @@ export default class MediaControls extends Extension {
     }
 
     private setActivePlayer() {
-        debugLog("Setting active player");
-
         if (this.playerProxies.size === 0) {
             if (this.panelBtn != null) {
                 this.removePanelButton();
@@ -424,9 +443,9 @@ export default class MediaControls extends Extension {
                 break;
             }
 
-            if (this.panelBtn == null && chosenPlayer == null) {
+            if (chosenPlayer == null) {
                 chosenPlayer = playerProxy;
-            } else if (this.panelBtn?.isSamePlayer(playerProxy) && chosenPlayer == null) {
+            } else if (this.panelBtn?.isSamePlayer(playerProxy)) {
                 chosenPlayer = playerProxy;
             } else if (playerProxy.playbackStatus === PlaybackStatus.PLAYING) {
                 chosenPlayer = playerProxy;
@@ -521,22 +540,5 @@ export default class MediaControls extends Extension {
         this.mouseActionScrollDown = null;
         this.cacheArt = null;
         this.blacklistedPlayers = null;
-    }
-
-    public disable() {
-        this.watchProxy = null;
-        this.watchIfaceInfo = null;
-        this.mprisIfaceInfo = null;
-        this.mprisPlayerIfaceInfo = null;
-        this.propertiesIfaceInfo = null;
-        this.playerProxies = null;
-
-        this.removePanelButton();
-        this.updateMediaNotificationVisiblity(true);
-        this.destroySettings();
-
-        Main.wm.removeKeybinding("mediacontrols-show-popup-menu");
-
-        debugLog("Disabled");
     }
 }

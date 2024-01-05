@@ -1,7 +1,7 @@
 import Gio from "gi://Gio?version=2.0";
 
 import { MPRIS_PLAYER_IFACE_NAME, MPRIS_OBJECT_PATH, PlaybackStatus, LoopStatus } from "../types/enums/general.js";
-import { debugLog, errorLog, handleError } from "../utils/misc.js";
+import { errorLog, handleError } from "../utils/misc.js";
 import { createDbusProxy } from "../utils/shell_only.js";
 import { KeysOf } from "../types/misc.js";
 import {
@@ -13,6 +13,7 @@ import {
     PlayerProxyProperties,
     PropertiesInterface,
 } from "../types/dbus.js";
+import GLib from "gi://GLib?version=2.0";
 
 type PlayerProxyChangeListeners = Map<
     KeysOf<PlayerProxyProperties>,
@@ -25,6 +26,7 @@ export default class PlayerProxy {
     private mprisPlayerProxy: MprisPlayerInterface;
     private propertiesProxy: PropertiesInterface;
     private changeListeners: PlayerProxyChangeListeners;
+    private pollSourceId: number;
 
     public busName: string;
     public isInvalid: boolean;
@@ -69,8 +71,7 @@ export default class PlayerProxy {
 
         this.propertiesProxy.connectSignal(
             "PropertiesChanged",
-            (proxy: unknown, senderName: string, [, changedProperties, invalidatedProperties]) => {
-                debugLog(invalidatedProperties);
+            (proxy: unknown, senderName: string, [, changedProperties]) => {
                 for (const [property, value] of Object.entries(changedProperties)) {
                     this.callOnChangedListeners(property as KeysOf<PlayerProxyDBusProperties>, value.recursiveUnpack());
                 }
@@ -81,6 +82,7 @@ export default class PlayerProxy {
         this.onChanged("Identity", this.validatePlayer.bind(this));
         this.onChanged("DesktopEntry", this.validatePlayer.bind(this));
         this.validatePlayer();
+        this.pollTillInitialized();
 
         return true;
     }
@@ -99,14 +101,48 @@ export default class PlayerProxy {
         return this.isPinned;
     }
 
+    /**
+     * Some players don't set the initial position and metadata immediately on startup
+     */
+    private pollTillInitialized() {
+        const timeout = 2000;
+        const interval = 250;
+
+        let count = Math.ceil(timeout / interval);
+
+        this.pollSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, interval, () => {
+            count--;
+
+            const positionPromise = this.propertiesProxy.GetAsync(MPRIS_PLAYER_IFACE_NAME, "Position");
+            const metadataPromise = this.propertiesProxy.GetAsync(MPRIS_PLAYER_IFACE_NAME, "Metadata");
+
+            Promise.all([positionPromise, metadataPromise])
+                .then(([positionVariant, metadataVariant]) => {
+                    const unpackedPosition = positionVariant[0].recursiveUnpack() as number;
+                    const unpackedMetadata =
+                        metadataVariant[0].recursiveUnpack() as MprisPlayerInterfaceMetadataUnpacked;
+
+                    if ((unpackedPosition > 0 && unpackedMetadata["mpris:length"] > 0) || count <= 0) {
+                        this.mprisPlayerProxy.set_cached_property("Position", positionVariant[0]);
+                        this.mprisPlayerProxy.set_cached_property("Metadata", metadataVariant[0]);
+                        this.callOnChangedListeners("Metadata", unpackedMetadata);
+                        GLib.source_remove(this.pollSourceId);
+                    }
+                })
+                .catch(() => {
+                    GLib.source_remove(this.pollSourceId);
+                });
+
+            return GLib.SOURCE_CONTINUE;
+        });
+    }
+
     private validatePlayer() {
         const isValidName = this.mprisProxy.Identity || this.mprisProxy.DesktopEntry;
         const isValidMetadata = this.metadata && this.metadata["xesam:title"];
 
         this.isInvalid = !isValidName || !isValidMetadata;
         this.callOnChangedListeners("IsInvalid", this.isInvalid);
-
-        debugLog("Player", this.busName, "is", this.isInvalid ? "invalid" : "valid");
     }
 
     private unpackMetadata(metadata: MprisPlayerInterfaceMetadata) {
@@ -123,7 +159,6 @@ export default class PlayerProxy {
         property: T,
         value: PlayerProxyProperties[T],
     ) {
-        debugLog("Player", this.busName, "changed", property, "to", value);
         const listeners = this.changeListeners.get(property);
 
         if (listeners == null) {
@@ -169,7 +204,9 @@ export default class PlayerProxy {
             .then((result) => {
                 return result[0].get_int64();
             })
-            .catch(handleError);
+            .catch(() => {
+                return null;
+            });
     }
 
     get minimumRate(): number {

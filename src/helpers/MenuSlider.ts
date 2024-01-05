@@ -14,60 +14,38 @@ class MenuSlider extends St.BoxLayout {
     private durationLabel: St.Label;
 
     private dragPaused: boolean;
+    private disabled: boolean;
 
-    constructor(initLocation: number, initLength: number, initPaused: boolean) {
+    constructor() {
         super({ vertical: true });
 
-        initLocation = initLocation / 1000;
-        initLength = initLength / 1000;
-
-        const initialValue = initLocation / initLength;
-        const elapsedText = msToHHMMSS(initLocation);
-        const durationText = msToHHMMSS(initLength);
-
-        this.slider = new Slider.Slider(initialValue);
+        this.slider = new Slider.Slider(0);
         this.textBox = new St.BoxLayout();
 
         this.elapsedLabel = new St.Label({
-            text: elapsedText,
+            text: "00:00",
             xExpand: true,
             xAlign: Clutter.ActorAlign.START,
         });
 
         this.durationLabel = new St.Label({
-            text: durationText,
+            text: "00:00",
             xExpand: true,
             xAlign: Clutter.ActorAlign.END,
         });
 
-        const sliderInterval = new Clutter.Interval({
-            valueType: GObject.TYPE_DOUBLE,
-            initial: 0,
-            final: 1,
-        });
-
-        this.transition = new Clutter.PropertyTransition({
-            propertyName: "value",
-            progressMode: Clutter.AnimationMode.LINEAR,
-            interval: sliderInterval,
-            duration: initLength,
-            repeatCount: 1,
-        });
-
-        this.transition.connect("marker-reached", (_, name: string) => {
-            this.elapsedLabel.text = name;
-        });
-
         this.slider.connect("drag-begin", () => {
-            if (this.transition.is_playing()) {
+            if (this.transition.is_playing() && this.disabled === false) {
                 this.transition.pause();
                 this.dragPaused = true;
             }
+
             return Clutter.EVENT_PROPAGATE;
         });
 
         this.slider.connect("drag-end", () => {
             const ms = this.slider.value * this.transition.duration;
+            this.emit("seeked", Math.floor(ms * 1000));
 
             if (this.dragPaused) {
                 this.transition.advance(ms);
@@ -75,7 +53,6 @@ class MenuSlider extends St.BoxLayout {
                 this.dragPaused = false;
             }
 
-            this.emit("seeked", Math.floor(ms * 1000));
             return Clutter.EVENT_PROPAGATE;
         });
 
@@ -83,19 +60,80 @@ class MenuSlider extends St.BoxLayout {
             return Clutter.EVENT_STOP;
         });
 
-        this.updateMarkers();
-        this.slider.add_transition("progress", this.transition);
+        this.transition = new Clutter.PropertyTransition({
+            propertyName: "value",
+            progressMode: Clutter.AnimationMode.LINEAR,
+            repeatCount: 1,
+            interval: new Clutter.Interval({
+                valueType: GObject.TYPE_DOUBLE,
+                initial: 0,
+                final: 1,
+            }),
+        });
 
-        this.transition.skip(initLocation);
-
-        if (initPaused) {
-            this.pauseTransition();
-        }
+        this.transition.connect("marker-reached", (_, name: string) => {
+            this.elapsedLabel.text = name;
+        });
 
         this.textBox.add_child(this.elapsedLabel);
         this.textBox.add_child(this.durationLabel);
         this.add_child(this.textBox);
         this.add_child(this.slider);
+
+        this.slider.add_transition("progress", this.transition);
+        this.setDisabled(true);
+    }
+
+    public updateSlider(position: number, length: number) {
+        this.setLength(length);
+        this.setPosition(position);
+    }
+
+    public setPosition(position: number) {
+        position = position / 1000;
+
+        this.elapsedLabel.text = msToHHMMSS(position);
+        this.slider.value = position / this.transition.duration;
+        this.transition.advance(position);
+    }
+
+    public setLength(length: number) {
+        length = length / 1000;
+
+        this.durationLabel.text = msToHHMMSS(length);
+        this.slider.value = 0;
+        this.transition.set_duration(length);
+        this.transition.rewind();
+
+        this.updateMarkers();
+    }
+
+    public pauseTransition() {
+        if (this.disabled === false) {
+            this.transition.pause();
+        }
+    }
+
+    public resumeTransition() {
+        if (this.disabled === false) {
+            this.transition.start();
+        }
+    }
+
+    public setDisabled(disabled: boolean) {
+        this.disabled = disabled;
+        this.slider.reactive = disabled === false;
+        this.elapsedLabel.text = disabled ? "00:00" : this.elapsedLabel.text;
+        this.durationLabel.text = disabled ? "00:00" : this.durationLabel.text;
+        this.opacity = disabled ? 127 : 255;
+
+        if (disabled) {
+            this.transition.set_duration(1);
+            this.transition.stop();
+            this.slider.value = 0;
+        } else {
+            this.updateMarkers();
+        }
     }
 
     private updateMarkers() {
@@ -111,38 +149,6 @@ class MenuSlider extends St.BoxLayout {
             const elapsedText = msToHHMMSS(ms);
             this.transition.add_marker_at_time(elapsedText, ms);
         }
-    }
-
-    public setPosition(position: number) {
-        position = position / 1000;
-
-        this.transition.advance(position);
-        this.slider.value = position / this.transition.duration;
-        this.elapsedLabel.text = msToHHMMSS(position);
-    }
-
-    public setLength(length: number) {
-        length = length / 1000;
-
-        this.transition.set_duration(length);
-        this.durationLabel.text = msToHHMMSS(length);
-        this.updateMarkers();
-    }
-
-    public pauseTransition() {
-        this.transition.pause();
-    }
-
-    public resumeTransition() {
-        this.transition.start();
-    }
-
-    public setDisabled(disabled: boolean) {
-        this.slider.reactive = !disabled;
-        this.elapsedLabel.text = disabled ? "00:00" : this.elapsedLabel.text;
-        this.durationLabel.text = disabled ? "00:00" : this.durationLabel.text;
-        this.transition.set_duration(disabled ? 0 : this.transition.duration);
-        this.updateMarkers();
     }
 }
 

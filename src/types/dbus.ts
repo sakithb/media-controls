@@ -61,7 +61,7 @@ export interface PlayerProxyDBusProperties {
     LoopStatus: LoopStatus;
     Rate: number;
     Shuffle: boolean;
-    Metadata: MprisPlayerInterfaceMetadata;
+    Metadata: MprisPlayerInterfaceMetadata | MprisPlayerInterfaceMetadataUnpacked;
     Volume: number;
     Position: number;
     MinimumRate: number;
