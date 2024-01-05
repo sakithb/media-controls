@@ -1,3 +1,5 @@
+### This extension is being rewritten. [More information](https://github.com/sakithb/media-controls/issues/123)
+
 ## What does this extension do?
 
 Show controls and information of the currently playing media in the panel.
