@@ -445,10 +445,15 @@ export default class MediaControls extends Extension {
 
             if (chosenPlayer == null) {
                 chosenPlayer = playerProxy;
-            } else if (this.panelBtn?.isSamePlayer(playerProxy)) {
-                chosenPlayer = playerProxy;
-            } else if (playerProxy.playbackStatus === PlaybackStatus.PLAYING) {
-                chosenPlayer = playerProxy;
+                continue;
+            }
+
+            if (chosenPlayer?.playbackStatus !== PlaybackStatus.PLAYING) {
+                if (playerProxy.playbackStatus === PlaybackStatus.PLAYING) {
+                    chosenPlayer = playerProxy;
+                } else if (this.panelBtn?.isSamePlayer(playerProxy)) {
+                    chosenPlayer = playerProxy;
+                }
             }
         }
 
