@@ -2,3 +2,5 @@
 *.zip
 .vscode
 builds
+node_modules
+dist
