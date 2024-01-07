@@ -27,6 +27,7 @@ import {
 } from "../../types/enums/common.js";
 
 Gio._promisify(GdkPixbuf.Pixbuf, "new_from_stream_async", "new_from_stream_finish");
+Gio._promisify(Gio.File.prototype, "query_info_async", "query_info_finish");
 
 class PanelButton extends PanelMenu.Button {
     private playerProxy: PlayerProxy;
@@ -335,8 +336,29 @@ class PanelButton extends PanelMenu.Button {
             });
         }
 
-        const imgUrl = this.playerProxy.metadata["mpris:artUrl"];
-        const stream = await getImage(imgUrl);
+        let stream = await getImage(this.playerProxy.metadata["mpris:artUrl"]);
+
+        if (stream == null && this.playerProxy.metadata["xesam:url"] != null) {
+            const trackUri = GLib.uri_parse(this.playerProxy.metadata["xesam:url"], GLib.UriFlags.NONE);
+            if (trackUri != null && trackUri.get_scheme() === "file") {
+                const file = Gio.File.new_for_uri(trackUri.to_string());
+                const info = await file.query_info_async(
+                    Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH,
+                    Gio.FileQueryInfoFlags.NONE,
+                    null,
+                    null,
+                );
+
+                const path = info.get_attribute_byte_string(Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH);
+
+                if (path == null) {
+                    this.menuImage.gicon = info.get_icon();
+                } else {
+                    const thumb = Gio.File.new_for_path(path);
+                    stream = await getImage(thumb.get_uri());
+                }
+            }
+        }
 
         if (stream == null) {
             this.menuImage.content = null;
@@ -798,7 +820,13 @@ class PanelButton extends PanelMenu.Button {
     }
 
     private addProxyListener(property: KeysOf<PlayerProxyProperties>, callback: (...args: unknown[]) => void) {
-        const id = this.playerProxy.onChanged(property, callback);
+        const safeCallback = () => {
+            if (this.playerProxy != null) {
+                callback();
+            }
+        };
+
+        const id = this.playerProxy.onChanged(property, safeCallback);
         this.changeListenerIds.set(property, id);
     }
 
@@ -926,6 +954,9 @@ class PanelButton extends PanelMenu.Button {
     }
 
     private onDestroy() {
+        this.removeProxyListeners();
+        this.playerProxy = null;
+
         this.buttonIcon?.destroy();
         this.buttonLabel?.destroy();
         this.buttonControls?.destroy();
@@ -956,8 +987,6 @@ class PanelButton extends PanelMenu.Button {
             GLib.source_remove(this.doubleTapSourceId);
             this.doubleTapSourceId = null;
         }
-
-        this.removeProxyListeners();
     }
 }
 

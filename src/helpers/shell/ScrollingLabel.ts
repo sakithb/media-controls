@@ -37,7 +37,7 @@ class ScrollingLabel extends St.ScrollView {
         });
 
         const signalId = this.label.connect("show", () => {
-            if (this.label.allocation == null || this.label.visible === false) {
+            if (this.label.visible === false) {
                 return;
             }
 

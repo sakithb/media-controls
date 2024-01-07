@@ -37,7 +37,7 @@ export const getAppByIdAndEntry = (id: string, entry: string): Shell.App => {
 };
 
 export const getImage = async (url: string): Promise<Gio.InputStream> => {
-    if (url == null) {
+    if (url == null || url == "") {
         return null;
     }
 

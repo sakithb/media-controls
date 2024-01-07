@@ -169,7 +169,7 @@ export default class PlayerProxy {
             try {
                 listener(value);
             } catch (error) {
-                errorLog("Failed to call listener:", error);
+                errorLog(`Failed to call listener for property ${property}:`, error);
             }
         }
     }
