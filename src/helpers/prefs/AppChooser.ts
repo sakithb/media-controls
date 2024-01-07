@@ -1,7 +1,6 @@
-import Adw from "gi://Adw?version=1";
-import GObject from "gi://GObject?version=2.0";
-import Gio from "gi://Gio?version=2.0";
-import Gtk from "gi://Gtk?version=4.0";
+import Adw from "gi://Adw";
+import Gio from "gi://Gio";
+import Gtk from "gi://Gtk";
 
 class AppChooser extends Adw.Window {
     private listBox: Gtk.ListBox;
@@ -54,13 +53,4 @@ class AppChooser extends Adw.Window {
     }
 }
 
-const GAppChooser = GObject.registerClass(
-    {
-        GTypeName: "AppChooser",
-        Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/app-chooser.ui",
-        InternalChildren: ["list-box", "select-btn", "cancel-btn"],
-    },
-    AppChooser,
-);
-
-export default GAppChooser;
+export default AppChooser;

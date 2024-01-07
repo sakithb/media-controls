@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-06 15:50+0530\n"
+"POT-Creation-Date: 2024-01-07 19:02+0530\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,32 +17,35 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: src/prefs.ts:125
+#: src/prefs.ts:125 src/prefs.ts:192 src/prefs.ts:195 src/prefs.ts:194
 msgid "Are you sure you want to clear the cache?"
 msgstr ""
 
-#: src/prefs.ts:126 assets/ui/app-chooser.blp:19
+#: src/prefs.ts:126 assets/ui/app-chooser.blp:19 src/prefs.ts:193
+#: src/prefs.ts:196 src/prefs.ts:195
 msgid "Cancel"
 msgstr ""
 
-#: src/prefs.ts:127 assets/ui/prefs.blp:253
+#: src/prefs.ts:127 assets/ui/prefs.blp:253 src/prefs.ts:194 src/prefs.ts:197
+#: src/prefs.ts:196
 msgid "Clear cache"
 msgstr ""
 
-#: src/prefs.ts:134 src/prefs.ts:143
+#: src/prefs.ts:134 src/prefs.ts:143 src/prefs.ts:201 src/prefs.ts:210
+#: src/prefs.ts:204 src/prefs.ts:213 src/prefs.ts:203 src/prefs.ts:212
 #, javascript-format
 msgid "Cache size: %s"
 msgstr ""
 
-#: src/prefs.ts:226
+#: src/prefs.ts:226 src/prefs.ts:293 src/prefs.ts:296 src/prefs.ts:295
 msgid "Cache cleared successfully!"
 msgstr ""
 
-#: src/prefs.ts:228
+#: src/prefs.ts:228 src/prefs.ts:295 src/prefs.ts:298 src/prefs.ts:297
 msgid "Failed to clear cache!"
 msgstr ""
 
-#: src/helpers/BlacklistedPlayers.ts:50
+#: src/helpers/BlacklistedPlayers.ts:50 src/helpers/BlacklistedPlayers.ts:47
 msgid ""
 "<span size='x-large' weight='bold' color='#ccc'>No players are blacklisted</"
 "span>"

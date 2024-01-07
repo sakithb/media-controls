@@ -1,5 +1,5 @@
-import Gdk from "gi://Gdk?version=4.0";
-import Gtk from "gi://Gtk?version=4.0";
+import Gdk from "gi://Gdk";
+import Gtk from "gi://Gtk";
 
 export const FORBIDDEN_KEYVALS = [
     Gdk.KEY_Home,

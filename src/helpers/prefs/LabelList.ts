@@ -1,10 +1,10 @@
-import Adw from "gi://Adw?version=1";
-import GObject from "gi://GObject?version=2.0";
-import Gdk from "gi://Gdk?version=4.0";
-import Graphene from "gi://Graphene?version=1.0";
-import Gtk from "gi://Gtk?version=4.0";
+import Adw from "gi://Adw";
+import GObject from "gi://GObject";
+import Gdk from "gi://Gdk";
+import Graphene from "gi://Graphene";
+import Gtk from "gi://Gtk";
 import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
-import { LabelTypes } from "../types/enums/general.js";
+import { LabelTypes } from "../../types/enums/common.js";
 
 class LabelList extends Adw.PreferencesGroup {
     public labels: string[];
@@ -191,16 +191,4 @@ class LabelList extends Adw.PreferencesGroup {
     }
 }
 
-const GLabelList = GObject.registerClass(
-    {
-        GTypeName: "LabelList",
-        Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/label-list.ui",
-        InternalChildren: ["list-box", "add-item-btn", "add-text-btn"],
-        Properties: {
-            labels: GObject.ParamSpec.jsobject("labels", "Labels", "Labels", GObject.ParamFlags.READABLE),
-        },
-    },
-    LabelList,
-);
-
-export default GLabelList;
+export default LabelList;

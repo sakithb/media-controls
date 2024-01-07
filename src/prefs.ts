@@ -1,20 +1,21 @@
-import "./utils/init_resource.js";
-import Adw from "gi://Adw?version=1";
-import GLib from "gi://GLib?version=2.0";
-import Gdk from "gi://Gdk?version=4.0";
-import Gio from "gi://Gio?version=2.0";
-import Gtk from "gi://Gtk?version=4.0";
-import GObject from "gi://GObject?version=2.0";
+import Adw from "gi://Adw";
+import GLib from "gi://GLib";
+import Gdk from "gi://Gdk";
+import Gio from "gi://Gio";
+import Gtk from "gi://Gtk";
+import GObject from "gi://GObject";
 import { ExtensionPreferences, gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
-import BlacklistedPlayers from "./helpers/BlacklistedPlayers.js";
-import ElementList from "./helpers/ElementList.js";
-import LabelList from "./helpers/LabelList.js";
+import OBlacklistedPlayers from "./helpers/prefs/BlacklistedPlayers.js";
+import OElementList from "./helpers/prefs/ElementList.js";
+import OLabelList from "./helpers/prefs/LabelList.js";
+import OAppChooser from "./helpers/prefs/AppChooser.js";
 import { isValidBinding, isValidAccelerator } from "./utils/prefs_only.js";
 
-GObject.type_ensure(BlacklistedPlayers.$gtype);
-GObject.type_ensure(ElementList.$gtype);
-GObject.type_ensure(LabelList.$gtype);
+export let BlacklistedPlayers: typeof OBlacklistedPlayers;
+export let ElementList: typeof OElementList;
+export let LabelList: typeof OLabelList;
+export let AppChooser: typeof OAppChooser;
 
 Gio._promisify(Gio.File.prototype, "trash_async", "trash_finish");
 Gio._promisify(Gio.File.prototype, "query_info_async", "query_info_finish");
@@ -33,9 +34,71 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
     private otherPage: Adw.PreferencesPage;
 
     public fillPreferencesWindow(window: Adw.PreferencesWindow) {
+        const resourcePath = GLib.build_filenamev([this.path, "org.gnome.shell.extensions.mediacontrols.gresource"]);
+        Gio.resources_register(Gio.resource_load(resourcePath));
+
+        AppChooser = GObject.registerClass(
+            {
+                GTypeName: "AppChooser",
+                Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/app-chooser.ui",
+                InternalChildren: ["list-box", "select-btn", "cancel-btn"],
+            },
+            OAppChooser,
+        );
+
+        BlacklistedPlayers = GObject.registerClass(
+            {
+                GTypeName: "BlacklistedPlayers",
+                Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/blacklisted-players.ui",
+                Properties: {
+                    players: GObject.ParamSpec.jsobject(
+                        "players",
+                        "Blacklisted players",
+                        "Blacklisted players",
+                        GObject.ParamFlags.READABLE,
+                    ),
+                },
+                InternalChildren: ["list-box", "add-btn"],
+            },
+            OBlacklistedPlayers,
+        );
+
+        LabelList = GObject.registerClass(
+            {
+                GTypeName: "LabelList",
+                Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/label-list.ui",
+                InternalChildren: ["list-box", "add-item-btn", "add-text-btn"],
+                Properties: {
+                    labels: GObject.ParamSpec.jsobject("labels", "Labels", "Labels", GObject.ParamFlags.READABLE),
+                },
+            },
+            OLabelList,
+        );
+
+        ElementList = GObject.registerClass(
+            {
+                GTypeName: "ElementList",
+                Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/element-list.ui",
+                InternalChildren: ["list-box", "icon-row", "label-row", "controls-row"],
+                Properties: {
+                    elements: GObject.ParamSpec.jsobject(
+                        "elements",
+                        "Elements",
+                        "Elements",
+                        GObject.ParamFlags.READABLE,
+                    ),
+                },
+            },
+            OElementList,
+        );
+
+        GObject.type_ensure(BlacklistedPlayers.$gtype);
+        GObject.type_ensure(ElementList.$gtype);
+        GObject.type_ensure(LabelList.$gtype);
+        GObject.type_ensure(AppChooser.$gtype);
+
         this.window = window;
         this.settings = this.getSettings();
-
         this.builder = Gtk.Builder.new_from_resource("/org/gnome/shell/extensions/mediacontrols/ui/prefs.ui");
 
         this.generalPage = this.builder.get_object("page-general") as Adw.PreferencesPage;
@@ -52,6 +115,12 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
 
         this.initWidgets();
         this.bindSettings();
+
+        this.window.connect("close-request", () => {
+            this.window = null;
+            this.settings = null;
+            this.builder = null;
+        });
     }
 
     private initWidgets() {

@@ -1,14 +1,14 @@
-import Gio from "gi://Gio?version=2.0";
-import GLib from "gi://GLib?version=2.0";
-import Meta from "gi://Meta?version=13";
-import Shell from "gi://Shell?version=13";
+import Gio from "gi://Gio";
+import GLib from "gi://GLib";
+import Meta from "gi://Meta";
+import Shell from "gi://Shell";
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
 import * as Mpris from "resource:///org/gnome/shell/ui/mpris.js";
 import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
 
-import PanelButton from "./helpers/PanelButton.js";
-import PlayerProxy from "./helpers/PlayerProxy.js";
-import { debugLog, enumValueByIndex, errorLog, handleError } from "./utils/misc.js";
+import PanelButton from "./helpers/shell/PanelButton.js";
+import PlayerProxy from "./helpers/shell/PlayerProxy.js";
+import { debugLog, enumValueByIndex, errorLog, handleError } from "./utils/common.js";
 import { getAppByIdAndEntry, createDbusProxy } from "./utils/shell_only.js";
 import { StdInterface } from "./types/dbus.js";
 import { KeysOf } from "./types/misc.js";
@@ -24,7 +24,7 @@ import {
     DBUS_IFACE_NAME,
     ExtensionPositions,
     MouseActions,
-} from "./types/enums/general.js";
+} from "./types/enums/common.js";
 
 Gio._promisify(Gio.File.prototype, "load_contents_async", "load_contents_finish");
 

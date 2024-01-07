@@ -1,4 +1,4 @@
-import Clutter from "gi://Clutter?version=13";
+import Clutter from "gi://Clutter";
 import { Enum } from "../misc.js";
 
 export const ControlIconOptions = {

@@ -1,7 +1,7 @@
-import Clutter from "gi://Clutter?version=13";
-import GObject from "gi://GObject?version=2.0";
-import Pango from "gi://Pango?version=1.0";
-import St from "gi://St?version=13";
+import Clutter from "gi://Clutter";
+import GObject from "gi://GObject";
+import Pango from "gi://Pango";
+import St from "gi://St";
 
 const SCROLL_ANIMATION_SPEED = 0.04;
 

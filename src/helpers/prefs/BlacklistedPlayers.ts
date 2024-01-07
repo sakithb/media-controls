@@ -1,12 +1,9 @@
-import Adw from "gi://Adw?version=1";
-import GObject from "gi://GObject?version=2.0";
-import Gio from "gi://Gio?version=2.0";
-import Gtk from "gi://Gtk?version=4.0";
+import Adw from "gi://Adw";
+import Gio from "gi://Gio";
+import Gtk from "gi://Gtk";
 import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
-import AppChooser from "./AppChooser.js";
-
-GObject.type_ensure(AppChooser.$gtype);
+import { AppChooser } from "../../prefs.js";
 
 class BlacklistedPlayers extends Adw.PreferencesGroup {
     public players: string[];
@@ -88,21 +85,4 @@ class BlacklistedPlayers extends Adw.PreferencesGroup {
     }
 }
 
-const GBlacklistedPlayers = GObject.registerClass(
-    {
-        GTypeName: "BlacklistedPlayers",
-        Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/blacklisted-players.ui",
-        Properties: {
-            players: GObject.ParamSpec.jsobject(
-                "players",
-                "Blacklisted players",
-                "Blacklisted players",
-                GObject.ParamFlags.READABLE,
-            ),
-        },
-        InternalChildren: ["list-box", "add-btn"],
-    },
-    BlacklistedPlayers,
-);
-
-export default GBlacklistedPlayers;
+export default BlacklistedPlayers;

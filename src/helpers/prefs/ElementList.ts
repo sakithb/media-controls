@@ -1,9 +1,9 @@
-import Adw from "gi://Adw?version=1";
-import GObject from "gi://GObject?version=2.0";
-import Gdk from "gi://Gdk?version=4.0";
-import Graphene from "gi://Graphene?version=1.0";
-import Gtk from "gi://Gtk?version=4.0";
-import { PanelElements } from "../types/enums/general.js";
+import Adw from "gi://Adw";
+import GObject from "gi://GObject";
+import Gdk from "gi://Gdk";
+import Graphene from "gi://Graphene";
+import Gtk from "gi://Gtk";
+import { PanelElements } from "../../types/enums/common.js";
 
 interface PanelElementRow extends Adw.ActionRow {
     elementKey: string;
@@ -134,16 +134,4 @@ class ElementList extends Adw.PreferencesGroup {
     }
 }
 
-const GElementList = GObject.registerClass(
-    {
-        GTypeName: "ElementList",
-        Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/element-list.ui",
-        InternalChildren: ["list-box", "icon-row", "label-row", "controls-row"],
-        Properties: {
-            elements: GObject.ParamSpec.jsobject("elements", "Elements", "Elements", GObject.ParamFlags.READABLE),
-        },
-    },
-    ElementList,
-);
-
-export default GElementList;
+export default ElementList;
