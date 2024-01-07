@@ -10,7 +10,7 @@ import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
 
 import MediaControls from "../../extension.js";
 import PlayerProxy from "./PlayerProxy.js";
-import ScrollingLabel from "../ScrollingLabel.js";
+import ScrollingLabel from "./ScrollingLabel.js";
 import MenuSlider from "./MenuSlider.js";
 import { KeysOf } from "../../types/misc.js";
 import { debugLog, handleError } from "../../utils/common.js";
@@ -422,6 +422,7 @@ class PanelButton extends PanelMenu.Button {
     private async addMenuSlider() {
         const position = await this.playerProxy.position;
         const length = this.playerProxy.metadata["mpris:length"];
+        const rate = this.playerProxy.rate;
 
         if (this.menuSlider == null) {
             this.menuSlider = new MenuSlider();
@@ -433,7 +434,7 @@ class PanelButton extends PanelMenu.Button {
 
         if (position != null && length != null && length > 0) {
             this.menuSlider.setDisabled(false);
-            this.menuSlider.updateSlider(position, length);
+            this.menuSlider.updateSlider(position, length, rate);
 
             if (this.playerProxy.playbackStatus === PlaybackStatus.PLAYING) {
                 this.menuSlider.resumeTransition();
@@ -779,6 +780,10 @@ class PanelButton extends PanelMenu.Button {
 
         this.addProxyListener("IsPinned", () => {
             this.updateWidgets(WidgetFlags.MENU_PLAYERS);
+        });
+
+        this.addProxyListener("Rate", () => {
+            this.menuSlider.setRate(this.playerProxy.rate);
         });
 
         this.playerProxy.onSeeked((position) => {

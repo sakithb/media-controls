@@ -16,9 +16,12 @@ class MenuSlider extends St.BoxLayout {
     private dragPaused: boolean;
     private disabled: boolean;
 
+    private rate: number;
+
     constructor() {
         super({ vertical: true });
 
+        this.rate = 1.0;
         this.slider = new Slider.Slider(0);
         this.textBox = new St.BoxLayout();
 
@@ -84,17 +87,26 @@ class MenuSlider extends St.BoxLayout {
         this.setDisabled(true);
     }
 
-    public updateSlider(position: number, length: number) {
+    public updateSlider(position: number, length: number, rate: number) {
+        this.rate = rate || 1.0;
         this.setLength(length);
         this.setPosition(position);
+    }
+
+    public setRate(rate: number) {
+        const oldRate = this.rate;
+        this.rate = rate || 1.0;
+
+        this.setPosition(this.transition.get_elapsed_time() * oldRate * 1000);
+        this.setLength(this.transition.duration * oldRate * 1000);
     }
 
     public setPosition(position: number) {
         position = position / 1000;
 
         this.elapsedLabel.text = msToHHMMSS(position);
-        this.slider.value = position / this.transition.duration;
-        this.transition.advance(position);
+        this.slider.value = position / this.rate / this.transition.duration;
+        this.transition.advance(position / this.rate);
     }
 
     public setLength(length: number) {
@@ -102,7 +114,7 @@ class MenuSlider extends St.BoxLayout {
 
         this.durationLabel.text = msToHHMMSS(length);
         this.slider.value = 0;
-        this.transition.set_duration(length);
+        this.transition.set_duration(length / this.rate);
         this.transition.rewind();
 
         this.updateMarkers();
@@ -122,12 +134,13 @@ class MenuSlider extends St.BoxLayout {
 
     public setDisabled(disabled: boolean) {
         this.disabled = disabled;
-        this.slider.reactive = disabled === false;
-        this.elapsedLabel.text = disabled ? "00:00" : this.elapsedLabel.text;
-        this.durationLabel.text = disabled ? "00:00" : this.durationLabel.text;
+        this.slider.reactive = !disabled;
         this.opacity = disabled ? 127 : 255;
 
         if (disabled) {
+            this.durationLabel.text = "00:00";
+            this.elapsedLabel.text = "00:00";
+
             this.transition.set_duration(1);
             this.transition.stop();
             this.slider.value = 0;
@@ -137,7 +150,7 @@ class MenuSlider extends St.BoxLayout {
     }
 
     private updateMarkers() {
-        const noOfSecs = Math.floor(this.transition.duration / 1000);
+        const noOfSecs = Math.floor(this.transition.duration / (1000 / this.rate));
         const markers = this.transition.list_markers(-1);
 
         for (const marker of markers) {
@@ -147,7 +160,7 @@ class MenuSlider extends St.BoxLayout {
         for (let i = 0; i <= noOfSecs; i++) {
             const ms = i * 1000;
             const elapsedText = msToHHMMSS(ms);
-            this.transition.add_marker_at_time(elapsedText, ms);
+            this.transition.add_marker_at_time(elapsedText, ms / this.rate);
         }
     }
 }

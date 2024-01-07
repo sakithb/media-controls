@@ -80,17 +80,20 @@ reload() {
 }
 
 translations() {
-  xgettext --from-code=UTF-8 --output=assets/locale/mediacontrols.pot src/*.ts assets/schemas/*.xml
+  echo "Updating translations..."
 
-  cd assets/locale
+  touch assets/locale/mediacontrols@cliffniff.github.com.pot
+  xgettext --from-code=UTF-8 \
+    --add-comments \
+    --join-existing \
+    --keyword=_ \
+    --keyword=C_:1c,2 \
+    --language=Javascript \
+    --output=assets/locale/mediacontrols@cliffniff.github.com.pot \
+    src/*.ts src/**/*.ts \
+    assets/ui/*.blp
 
-  for POFILE in *.po; do
-    echo "Updating: $POFILE"
-    msgmerge -U "$POFILE" "mediacontrols.pot"
-  done
-
-  rm ./*.po~
-  echo "Done."
+  echo "Done"
 }
 
 lint() {

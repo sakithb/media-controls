@@ -1,13 +1,12 @@
 {
   "type": "module",
   "scripts": {
-    "compile": "npm run compile:clean && npm run compile:tsc && npm run compile:ui && npm run compile:assets && npm run compile:gresource && npm run compile:po",
+    "compile": "npm run compile:clean && npm run compile:tsc && npm run compile:ui && npm run compile:assets && npm run compile:gresource",
     "compile:tsc": "tsc",
     "compile:ui": "mkdir -p dist/compiled/ui;for i in assets/ui/*.blp;do BASENAME=$(basename $i);/usr/bin/env blueprint-compiler compile --output ./dist/compiled/ui/${BASENAME%.*}.ui $i;done",
     "compile:padding": "eslint --fix --rule \"{padding-line-between-statements: ['error', { 'blankLine': 'always', 'prev': '*', 'next': 'block-like' }, { 'blankLine': 'always', 'prev': 'block-like', 'next': '*' }, { 'blankLine': 'always', 'prev': 'multiline-expression', 'next': '*' }, { 'blankLine': 'always', 'prev': '*', 'next': 'multiline-expression' }, { 'blankLine': 'always', 'prev': 'import', 'next': 'expression' }, { 'blankLine': 'always', 'prev': 'expression', 'next': 'export' }, { 'blankLine': 'always', 'prev': 'expression', 'next': 'class' }]}\" dist/compiled/",
     "compile:assets": "find assets -type f -not -path '*/images/*' -not -path '*/locale/*' -not -path '*/schemas/*' -not -path '*/ui/*' -exec sh -c 'f=\"{}\"; p=${f#*/}; d=$(dirname $p); mkdir -p dist/compiled/$d; cp $f dist/compiled/$p' ';'",
     "compile:gresource": "glib-compile-resources assets/org.gnome.shell.extensions.mediacontrols.gresource.xml --target=dist/compiled/org.gnome.shell.extensions.mediacontrols.gresource --sourcedir=dist/compiled/",
-    "compile:po": "touch assets/locale/mediacontrols@cliffniff.github.com.pot && xgettext --from-code=UTF-8 --add-comments --join-existing --keyword=_ --keyword=C_:1c,2 --language=Javascript --output=assets/locale/mediacontrols@cliffniff.github.com.pot src/*.ts src/**/*.ts assets/ui/*.blp",
     "compile:post": "rm -rf dist/compiled/*.xml dist/compiled/ui/; ls dist/compiled/types/ | grep -xv \"enums\" | xargs -I \"$\" rm \"dist/compiled/types/$\"",
     "compile:clean": "rm -rf dist",
     "lint": "eslint src --ext .ts",
