@@ -387,32 +387,36 @@ export default class MediaControls extends Extension {
 
     private async addPlayer(busName: string) {
         debugLog("Adding player:", busName);
-        const playerProxy = new PlayerProxy(busName);
-        const initSuccess = await playerProxy
-            .initPlayer(this.mprisIfaceInfo, this.mprisPlayerIfaceInfo, this.propertiesIfaceInfo)
-            .catch(handleError);
+        try {
+            const playerProxy = new PlayerProxy(busName);
+            const initSuccess = await playerProxy
+                .initPlayer(this.mprisIfaceInfo, this.mprisPlayerIfaceInfo, this.propertiesIfaceInfo)
+                .catch(handleError);
 
-        if (initSuccess === false) {
-            errorLog("Failed to init player:", busName);
-            return;
-        }
+            if (initSuccess === false) {
+                errorLog("Failed to init player:", busName);
+                return;
+            }
 
-        const isPlayerBlacklisted = this.isPlayerBlacklisted(playerProxy.identity, playerProxy.desktopEntry);
+            const isPlayerBlacklisted = this.isPlayerBlacklisted(playerProxy.identity, playerProxy.desktopEntry);
 
-        if (isPlayerBlacklisted) {
-            return;
-        }
+            if (isPlayerBlacklisted) {
+                return;
+            }
 
-        playerProxy.onChanged("IsPinned", this.setActivePlayer.bind(this));
-        playerProxy.onChanged("PlaybackStatus", this.setActivePlayer.bind(this));
-        playerProxy.onChanged("IsInvalid", () => {
-            this.setActivePlayer();
+            playerProxy.onChanged("IsPinned", this.setActivePlayer.bind(this));
+            playerProxy.onChanged("PlaybackStatus", this.setActivePlayer.bind(this));
+            playerProxy.onChanged("IsInvalid", () => {
+                this.setActivePlayer();
+                this.panelBtn?.updateWidgets(WidgetFlags.MENU_PLAYERS);
+            });
+
+            this.playerProxies.set(busName, playerProxy);
             this.panelBtn?.updateWidgets(WidgetFlags.MENU_PLAYERS);
-        });
-
-        this.playerProxies.set(busName, playerProxy);
-        this.panelBtn?.updateWidgets(WidgetFlags.MENU_PLAYERS);
-        this.setActivePlayer();
+            this.setActivePlayer();
+        } catch (e) {
+            errorLog("Failed to add player:", busName, e);
+        }
     }
 
     private removePlayer(busName: string) {

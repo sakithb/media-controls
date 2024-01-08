@@ -114,7 +114,7 @@ class PanelButton extends PanelMenu.Button {
             ) {
                 if (this.extension.showPlayerIcon) {
                     this.addButtonIcon(i);
-                } else {
+                } else if (this.buttonIcon != null) {
                     this.buttonBox.remove_child(this.buttonIcon);
                     this.buttonIcon = null;
                 }
@@ -126,7 +126,7 @@ class PanelButton extends PanelMenu.Button {
             ) {
                 if (this.extension.showLabel) {
                     this.addButtonLabel(i);
-                } else {
+                } else if (this.buttonLabel != null) {
                     this.buttonBox.remove_child(this.buttonLabel);
                     this.buttonLabel = null;
                 }
@@ -138,7 +138,7 @@ class PanelButton extends PanelMenu.Button {
             ) {
                 if (this.extension.showControlIcons) {
                     this.addButtonControls(i, flags);
-                } else {
+                } else if (this.buttonControls != null) {
                     this.buttonBox.remove_child(this.buttonControls);
                     this.buttonControls = null;
                 }
