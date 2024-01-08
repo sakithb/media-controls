@@ -207,7 +207,7 @@ class PanelButton extends PanelMenu.Button {
 
         if (this.menuPlayersTextBoxPin == null) {
             this.menuPlayersTextBoxPin = new St.Icon({
-                iconName: "pin-symbolic",
+                iconName: "view-pin-symbolic",
                 styleClass: "popup-menu-icon",
                 yAlign: Clutter.ActorAlign.END,
                 xAlign: Clutter.ActorAlign.START,
