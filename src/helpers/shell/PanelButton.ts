@@ -756,12 +756,12 @@ class PanelButton extends PanelMenu.Button {
             this.updateWidgets(WidgetFlags.PANEL_CONTROLS_PLAYPAUSE | WidgetFlags.MENU_CONTROLS_PLAYPAUSE);
 
             if (this.playerProxy.playbackStatus !== PlaybackStatus.PLAYING) {
-                this.buttonLabel.pauseScrolling();
+                this.buttonLabel?.pauseScrolling();
                 this.menuLabelTitle.pauseScrolling();
                 this.menuLabelArtist.pauseScrolling();
                 this.menuSlider.pauseTransition();
             } else {
-                this.buttonLabel.resumeScrolling();
+                this.buttonLabel?.resumeScrolling();
                 this.menuLabelTitle.resumeScrolling();
                 this.menuLabelArtist.resumeScrolling();
                 this.menuSlider.resumeTransition();
