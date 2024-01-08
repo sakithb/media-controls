@@ -27,7 +27,6 @@ export const getAppByIdAndEntry = (id: string, entry: string): Shell.App => {
 
     if (idResults?.length > 0) {
         const app = runningApps.find((app) => idResults[0].includes(app.get_id()));
-
         if (app != null) {
             return app;
         }

@@ -253,8 +253,11 @@ class PanelButton extends PanelMenu.Button {
             const app = getAppByIdAndEntry(player.identity, player.desktopEntry);
             const isSamePlayer = this.isSamePlayer(player);
 
+            const appName = app?.get_name() ?? (player.identity || "Unknown player");
+            const appIcon = app?.get_icon() ?? Gio.Icon.new_for_string("audio-x-generic-symbolic");
+
             if (isSamePlayer) {
-                this.menuPlayersTextBoxLabel.text = app.get_name();
+                this.menuPlayersTextBoxLabel.text = appName;
 
                 if (players.length > 1) {
                     this.menuPlayersTextBoxIcon.gicon = null;
@@ -268,7 +271,7 @@ class PanelButton extends PanelMenu.Button {
 
                     this.menuPlayersTextBox.insert_child_at_index(this.menuPlayersTextBoxPin, 1);
                 } else {
-                    this.menuPlayersTextBoxIcon.gicon = app.get_icon();
+                    this.menuPlayersTextBoxIcon.gicon = appIcon;
                     this.menuPlayersTextBox.insert_child_at_index(this.menuPlayersTextBoxIcon, 0);
 
                     this.menuPlayersTextBoxLabel.xAlign = Clutter.ActorAlign.START;
@@ -283,7 +286,7 @@ class PanelButton extends PanelMenu.Button {
             if (players.length > 1) {
                 const icon = new St.Icon({
                     styleClass: "popup-menu-icon popup-menu-player-icons-icon",
-                    gicon: app.get_icon(),
+                    gicon: appIcon,
                     reactive: isPinned === false,
                     trackHover: isPinned === false,
                     xAlign: Clutter.ActorAlign.FILL,
