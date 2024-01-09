@@ -567,15 +567,12 @@ class PanelButton extends PanelMenu.Button {
 
     private addButtonIcon(index: number) {
         const app = getAppByIdAndEntry(this.playerProxy.identity, this.playerProxy.desktopEntry);
-
-        if (app == null) {
-            return;
-        }
+        const appIcon = app?.get_icon() ?? Gio.Icon.new_for_string("audio-x-generic-symbolic");
 
         const coloredClass = this.extension.coloredPlayerIcon ? "colored-icon" : "symbolic-icon";
 
         const icon = new St.Icon({
-            gicon: app.get_icon(),
+            gicon: appIcon,
             styleClass: `system-status-icon no-margin ${coloredClass}`,
         });
 
