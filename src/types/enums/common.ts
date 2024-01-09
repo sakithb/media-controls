@@ -53,6 +53,7 @@ export const MouseActions = {
     SHOW_POPUP_MENU: 10,
     RAISE_PLAYER: 11,
     QUIT_PLAYER: 12,
+    OPEN_SETTINGS: 13,
 } as const;
 
 export const WidgetFlags = {

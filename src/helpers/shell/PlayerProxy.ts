@@ -105,7 +105,7 @@ export default class PlayerProxy {
      * Some players don't set the initial position and metadata immediately on startup
      */
     private pollTillInitialized() {
-        const timeout = 2000;
+        const timeout = 5000;
         const interval = 250;
 
         let count = Math.ceil(timeout / interval);

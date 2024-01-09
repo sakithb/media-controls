@@ -948,6 +948,10 @@ class PanelButton extends PanelMenu.Button {
                 this.playerProxy.quit();
                 break;
             }
+            case MouseActions.OPEN_SETTINGS: {
+                this.extension.openPreferences();
+                break;
+            }
             default:
                 break;
         }
