@@ -64,10 +64,12 @@ class ScrollingLabel extends St.ScrollView {
 
     public pauseScrolling() {
         this.transition?.pause();
+        this.initPaused = true;
     }
 
     public resumeScrolling() {
         this.transition?.start();
+        this.initPaused = false;
     }
 
     private initScrolling() {
