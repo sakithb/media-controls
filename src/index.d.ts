@@ -25,3 +25,9 @@ declare global {
         format(...args: unknown[]): string;
     }
 }
+
+declare module "@girs/gobject-2.0" {
+    namespace GObject {
+        function type_from_name(name: string | null): GType | 0;
+    }
+}
