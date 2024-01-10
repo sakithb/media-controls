@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-07 19:36+0530\n"
+"POT-Creation-Date: 2024-01-10 18:03+0100\n"
 "PO-Revision-Date: 2024-01-08 16:16+0100\n"
 "Last-Translator: Christian Lauinger <christian@lauinger-clan.de>\n"
 "Language-Team: \n"
@@ -18,30 +18,34 @@ msgstr ""
 "X-Generator: Poedit 3.4.2\n"
 
 #: src/prefs.ts:125 src/prefs.ts:192 src/prefs.ts:195 src/prefs.ts:194
+#: src/prefs.ts:203
 msgid "Are you sure you want to clear the cache?"
 msgstr ""
 
 #: src/prefs.ts:126 assets/ui/app-chooser.blp:19 src/prefs.ts:193
-#: src/prefs.ts:196 src/prefs.ts:195
+#: src/prefs.ts:196 src/prefs.ts:195 src/prefs.ts:204
 msgid "Cancel"
 msgstr ""
 
 #: src/prefs.ts:127 assets/ui/prefs.blp:253 src/prefs.ts:194 src/prefs.ts:197
-#: src/prefs.ts:196
+#: src/prefs.ts:196 src/prefs.ts:205
 msgid "Clear cache"
 msgstr "Vyčistit mezipaměť"
 
 #: src/prefs.ts:134 src/prefs.ts:143 src/prefs.ts:201 src/prefs.ts:210
 #: src/prefs.ts:204 src/prefs.ts:213 src/prefs.ts:203 src/prefs.ts:212
+#: src/prefs.ts:221
 #, javascript-format
 msgid "Cache size: %s"
 msgstr ""
 
 #: src/prefs.ts:226 src/prefs.ts:293 src/prefs.ts:296 src/prefs.ts:295
+#: src/prefs.ts:304
 msgid "Cache cleared successfully!"
 msgstr ""
 
 #: src/prefs.ts:228 src/prefs.ts:295 src/prefs.ts:298 src/prefs.ts:297
+#: src/prefs.ts:306
 msgid "Failed to clear cache!"
 msgstr ""
 
@@ -371,6 +375,10 @@ msgstr "Přepnout další skladbu"
 #: assets/ui/prefs.blp:320
 msgid "Quit player"
 msgstr "Ukončit"
+
+#: assets/ui/prefs.blp:321
+msgid "Open preferences"
+msgstr ""
 
 #~ msgid "[MediaControls] Enabling"
 #~ msgstr "[MediaControls] Aktivace"

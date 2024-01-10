@@ -93,6 +93,12 @@ translations() {
     src/*.ts src/**/*.ts \
     assets/ui/*.blp
 
+  for pofile in assets/locale/*.po
+	  do
+  		echo "Updating: assets/locale/mediacontrols@cliffniff.github.com.pot"
+		  msgmerge -U "$pofile" "assets/locale/mediacontrols@cliffniff.github.com.pot"
+	  done
+    rm assets/locale/*.po~
   echo "Done"
 }
 
