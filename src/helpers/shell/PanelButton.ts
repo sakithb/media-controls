@@ -426,7 +426,7 @@ class PanelButton extends PanelMenu.Button {
         const albumText = this.playerProxy.metadata["xesam:album"] || "";
 
         this.menuLabelSubtitle = new ScrollingLabel(
-            [artistText, albumText].join(" / "),
+            albumText === "" ? artistText : `${artistText} / ${albumText}`,
             this.extension.labelWidth,
             true,
             this.extension.scrollLabels,
