@@ -13,10 +13,18 @@ class ScrollingLabel extends St.ScrollView {
 
     private initPaused: boolean;
     private labelWidth: number;
+    private direction: Clutter.TimelineDirection;
 
     private transition: Clutter.PropertyTransition;
 
-    constructor(text: string, labelWidth: number, isFixedWidth: boolean, isScrolling: boolean, initPaused: boolean) {
+    constructor(
+        text: string,
+        labelWidth: number,
+        isFixedWidth: boolean,
+        isScrolling: boolean,
+        initPaused: boolean,
+        direction = Clutter.TimelineDirection.FORWARD,
+    ) {
         super({
             hscrollbarPolicy: St.PolicyType.NEVER,
             vscrollbarPolicy: St.PolicyType.NEVER,
@@ -24,6 +32,7 @@ class ScrollingLabel extends St.ScrollView {
 
         this.initPaused = initPaused;
         this.labelWidth = labelWidth;
+        this.direction = direction;
 
         this.box = new St.BoxLayout({
             xExpand: true,
@@ -104,6 +113,7 @@ class ScrollingLabel extends St.ScrollView {
         this.transition = new Clutter.PropertyTransition({
             propertyName: "value",
             progressMode: Clutter.AnimationMode.LINEAR,
+            direction: this.direction,
             repeatCount: -1,
             duration,
             interval,
