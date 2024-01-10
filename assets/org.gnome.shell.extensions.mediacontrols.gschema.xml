@@ -14,7 +14,7 @@
     <value nick="SHOW_POPUP_MENU" value="10" />
     <value nick="RAISE_PLAYER" value="11" />
     <value nick="QUIT_PLAYER" value="12" />
-    <value nick="OPEN_SETTINGS" value="13" />
+    <value nick="OPEN_PREFERENCES" value="13" />
   </enum>
   <enum id="org.gnome.shell.extensions.mediacontrols.positions">
     <value nick="Left" value="0" />
@@ -77,7 +77,7 @@
       <default>'SHOW_POPUP_MENU'</default>
     </key>
     <key name="mouse-action-middle" enum="org.gnome.shell.extensions.mediacontrols.mouseactions">
-      <default>'OPEN_SETTINGS'</default>
+      <default>'OPEN_PREFERENCES'</default>
     </key>
     <key name="mouse-action-right" enum="org.gnome.shell.extensions.mediacontrols.mouseactions">
       <default>'RAISE_PLAYER'</default>

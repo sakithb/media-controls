@@ -108,6 +108,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         this.window = window;
         this.settings = this.getSettings();
         this.builder = Gtk.Builder.new_from_resource("/org/gnome/shell/extensions/mediacontrols/ui/prefs.ui");
+        this.builder.translationDomain = "mediacontrols@cliffniff.github.com";
 
         this.generalPage = this.builder.get_object("page-general") as Adw.PreferencesPage;
         this.panelPage = this.builder.get_object("page-panel") as Adw.PreferencesPage;
