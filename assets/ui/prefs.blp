@@ -81,7 +81,7 @@ Adw.PreferencesPage page-general {
       LinkButton lb-general-issues {
         label: _("Report an issue");
         icon-name: "go-next-symbolic";
-        uri: "hhttps://github.com/sakithb/media-controls/issues";
+        uri: "https://github.com/sakithb/media-controls/issues";
         margin-top: 10;
         margin-bottom: 10;
       }
@@ -139,7 +139,7 @@ Adw.PreferencesPage page-panel {
       Adw.SwitchRow sr-panel-show-player {
         title: _("Show player icon");
       }
-      
+
       Adw.SwitchRow sr-panel-colored-player {
         title: _("Colored player icon");
         sensitive: bind sr-panel-show-player.active;
@@ -281,7 +281,7 @@ Adw.Window win-shortcut-editor {
   default-height: 200;
   hide-on-close: true;
 
-  Adw.ToolbarView {   
+  Adw.ToolbarView {
     Box {
       orientation: vertical;
       margin-start: 20;
