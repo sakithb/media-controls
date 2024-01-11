@@ -50,13 +50,13 @@ class ScrollingLabel extends St.ScrollView {
                 return;
             }
 
-            const isLabelWider = this.label.width > this.labelWidth;
+            const isLabelWider = this.label.width > this.labelWidth && this.labelWidth > 0;
 
             if (isLabelWider && isScrolling) {
                 this.initScrolling();
             }
 
-            if (isFixedWidth) {
+            if (isFixedWidth && this.labelWidth > 0) {
                 this.box.width = this.labelWidth;
                 this.label.xAlign = Clutter.ActorAlign.CENTER;
                 this.label.xExpand = true;
