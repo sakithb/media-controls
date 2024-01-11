@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-01-11 20:59+0530\n"
-"PO-Revision-Date: 2024-01-08 16:16+0100\n"
+"PO-Revision-Date: 2024-01-11 16:52+0100\n"
 "Last-Translator: Christian Lauinger <christian@lauinger-clan.de>\n"
 "Language-Team: \n"
 "Language: cs\n"
@@ -391,9 +391,8 @@ msgid "Open preferences"
 msgstr ""
 
 #: src/helpers/prefs/LabelList.ts:97
-#, fuzzy
 msgid "Custom text"
-msgstr "Vlastní"
+msgstr ""
 
 #~ msgid "[MediaControls] Enabling"
 #~ msgstr "[MediaControls] Aktivace"
