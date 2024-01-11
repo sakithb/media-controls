@@ -94,7 +94,7 @@ class LabelList extends Adw.PreferencesGroup {
                 this.completeRowCreation(row, i);
             } else {
                 const row = new Adw.EntryRow();
-                row.title = "Custom text";
+                row.title = _("Custom text");
                 row.text = element;
 
                 this.handleEntryChange(row);
