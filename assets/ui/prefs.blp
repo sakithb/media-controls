@@ -4,7 +4,7 @@ using Adw 1;
 
 Adw.PreferencesPage page-general {
   title: _("General");
-  icon-name: "settings-symbolic";
+  icon-name: "preferences-system-symbolic";
 
   Adw.PreferencesGroup {
     title: _("Common");
@@ -53,7 +53,7 @@ Adw.PreferencesPage page-general {
       activatable-widget: lb-general-homepage;
 
       LinkButton lb-general-homepage {
-        icon-name: "link-symbolic";
+        icon-name: "dialog-information-symbolic";
         uri: "https://github.com/sakithb/media-controls/blob/main/README.md";
         margin-top: 10;
         margin-bottom: 10;
@@ -65,7 +65,7 @@ Adw.PreferencesPage page-general {
       activatable-widget: lb-general-notes;
 
       LinkButton lb-general-notes {
-        icon-name: "link-symbolic";
+        icon-name: "dialog-information-symbolic";
         uri: "https://github.com/sakithb/media-controls/releases/latest";
         margin-top: 10;
         margin-bottom: 10;
@@ -78,7 +78,7 @@ Adw.PreferencesPage page-general {
 
       LinkButton lb-general-issues {
         label: _("Report an issue");
-        icon-name: "link-symbolic";
+        icon-name: "dialog-information-symbolic";
         uri: "hhttps://github.com/sakithb/media-controls/issues";
         margin-top: 10;
         margin-bottom: 10;
@@ -89,7 +89,7 @@ Adw.PreferencesPage page-general {
 
 Adw.PreferencesPage page-panel {
   title: _("Panel");
-  icon-name: "panel-top-symbolic";
+  icon-name: "user-desktop-symbolic";
 
   Adw.PreferencesGroup {
     Adw.SwitchRow sr-panel-show-label {
@@ -186,7 +186,7 @@ Adw.PreferencesPage page-positions {
 
 Adw.PreferencesPage page-shortcuts {
   title: _("Shortcuts");
-  icon-name: "keyboard-symbolic";
+  icon-name: "input-keyboard-symbolic";
 
   Adw.PreferencesGroup {
     Adw.ActionRow row-shortcuts-popup {
@@ -239,7 +239,7 @@ Adw.PreferencesPage page-shortcuts {
 
 Adw.PreferencesPage page-other {
   title: _("Other");
-  icon-name: "settings-symbolic";
+  icon-name: "preferences-other-symbolic";
 
   Adw.PreferencesGroup {
     title: _("Cache");
