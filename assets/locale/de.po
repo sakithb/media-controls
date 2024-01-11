@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-11 20:43+0530\n"
+"POT-Creation-Date: 2024-01-11 20:59+0530\n"
 "PO-Revision-Date: 2024-01-10 18:04+0100\n"
 "Last-Translator: Christian Lauinger <christian@lauinger-clan.de>\n"
 "Language-Team: \n"
@@ -54,6 +54,7 @@ msgid "Failed to clear cache!"
 msgstr "Zwischenspeicher konnte nicht geleert werden !"
 
 #: src/helpers/BlacklistedPlayers.ts:50 src/helpers/BlacklistedPlayers.ts:47
+#: src/helpers/prefs/BlacklistedPlayers.ts:47
 msgid ""
 "<span size='x-large' weight='bold' color='#ccc'>No players are blacklisted</"
 "span>"
@@ -397,6 +398,11 @@ msgstr "Abspieler beenden"
 #: assets/ui/prefs.blp:321 assets/ui/prefs.blp:323
 msgid "Open preferences"
 msgstr "Öffne Einstellungen"
+
+#: src/helpers/prefs/LabelList.ts:97
+#, fuzzy
+msgid "Custom text"
+msgstr "Benutzerdefinierten Text hinzufügen"
 
 #~ msgid "[MediaControls] Enabling"
 #~ msgstr "[MediaControls] aktivieren"

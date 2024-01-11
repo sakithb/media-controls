@@ -83,22 +83,21 @@ translations() {
   echo "Updating translations..."
 
   touch assets/locale/mediacontrols@cliffniff.github.com.pot
-  xgettext --from-code=UTF-8 \
+
+  find . -type f -iname "*.blp" -o -iname "*.ts" -not -path "./node_modules/*" | xargs xgettext --from-code=UTF-8 \
     --add-comments \
     --join-existing \
     --keyword=_ \
     --keyword=C_:1c,2 \
     --language=Javascript \
-    --output=assets/locale/mediacontrols@cliffniff.github.com.pot \
-    src/*.ts src/**/*.ts \
-    assets/ui/*.blp
+    --output=assets/locale/mediacontrols@cliffniff.github.com.pot
 
-  for pofile in assets/locale/*.po
-	  do
-  		echo "Updating: assets/locale/mediacontrols@cliffniff.github.com.pot"
-		  msgmerge -U "$pofile" "assets/locale/mediacontrols@cliffniff.github.com.pot"
-	  done
-    rm assets/locale/*.po~
+  for pofile in assets/locale/*.po; do
+    echo "Updating: $pofile"
+    msgmerge -U "$pofile" "assets/locale/mediacontrols@cliffniff.github.com.pot"
+  done
+
+  rm assets/locale/*.po~ 2>/dev/null
   echo "Done"
 }
 
