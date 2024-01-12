@@ -350,13 +350,15 @@ class PanelButton extends PanelMenu.Button {
                     .query_info_async(Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH, Gio.FileQueryInfoFlags.NONE, null, null)
                     .catch(handleError);
 
-                const path = info.get_attribute_byte_string(Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH);
+                if (info != null) {
+                    const path = info.get_attribute_byte_string(Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH);
 
-                if (path == null) {
-                    this.menuImage.gicon = info.get_icon();
-                } else {
-                    const thumb = Gio.File.new_for_path(path);
-                    stream = await getImage(thumb.get_uri());
+                    if (path == null) {
+                        this.menuImage.gicon = info.get_icon();
+                    } else {
+                        const thumb = Gio.File.new_for_path(path);
+                        stream = await getImage(thumb.get_uri());
+                    }
                 }
             }
         }

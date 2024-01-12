@@ -4,6 +4,7 @@ import Gtk from "gi://Gtk";
 import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
 
 import { AppChooser } from "../../prefs.js";
+import { handleError } from "../../utils/common.js";
 
 class BlacklistedPlayers extends Adw.PreferencesGroup {
     public players: string[];
@@ -25,7 +26,7 @@ class BlacklistedPlayers extends Adw.PreferencesGroup {
         this.appChooser = new AppChooser();
 
         this.addBtn.connect("clicked", async () => {
-            const appId = await this.appChooser.showChooser();
+            const appId = await this.appChooser.showChooser().catch(handleError);
             if (appId == null) return;
 
             this.players.unshift(appId);
