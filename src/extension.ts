@@ -394,7 +394,7 @@ export default class MediaControls extends Extension {
                 .initPlayer(this.mprisIfaceInfo, this.mprisPlayerIfaceInfo, this.propertiesIfaceInfo)
                 .catch(handleError);
 
-            if (initSuccess === false) {
+            if (initSuccess == null || initSuccess === false) {
                 errorLog("Failed to init player:", busName);
                 return;
             }

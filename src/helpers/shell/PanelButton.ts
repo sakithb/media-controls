@@ -346,12 +346,9 @@ class PanelButton extends PanelMenu.Button {
             const trackUri = GLib.uri_parse(this.playerProxy.metadata["xesam:url"], GLib.UriFlags.NONE);
             if (trackUri != null && trackUri.get_scheme() === "file") {
                 const file = Gio.File.new_for_uri(trackUri.to_string());
-                const info = await file.query_info_async(
-                    Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH,
-                    Gio.FileQueryInfoFlags.NONE,
-                    null,
-                    null,
-                );
+                const info = await file
+                    .query_info_async(Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH, Gio.FileQueryInfoFlags.NONE, null, null)
+                    .catch(handleError);
 
                 const path = info.get_attribute_byte_string(Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH);
 
@@ -366,31 +363,35 @@ class PanelButton extends PanelMenu.Button {
 
         const width = this.extension.labelWidth > 0 ? this.getMenuItemWidth() : this.menuLabels.width;
 
-        if (stream == null) {
+        if (stream != null) {
             this.menuImage.content = null;
-            this.menuImage.gicon = Gio.ThemedIcon.new("audio-x-generic-symbolic");
 
+            // @ts-expect-error Types are wrong
+            const pixbufPromise = GdkPixbuf.Pixbuf.new_from_stream_async(stream, null) as Promise<GdkPixbuf.Pixbuf>;
+            const pixbuf = await pixbufPromise.catch(handleError);
+
+            if (pixbuf != null) {
+                const aspectRatio = pixbuf.width / pixbuf.height;
+                const height = width / aspectRatio;
+                const format = pixbuf.hasAlpha ? Cogl.PixelFormat.RGBA_8888 : Cogl.PixelFormat.RGB_888;
+
+                const image = St.ImageContent.new_with_preferred_size(width, height) as St.ImageContent & Clutter.Image;
+                image.set_bytes(pixbuf.pixelBytes, format, pixbuf.width, pixbuf.height, pixbuf.rowstride);
+
+                this.menuImage.iconSize = -1;
+                this.menuImage.gicon = null;
+
+                this.menuImage.width = width;
+                this.menuImage.height = height;
+                this.menuImage.content = image;
+            }
+        }
+
+        if (this.menuImage.content == null) {
+            this.menuImage.gicon = Gio.ThemedIcon.new("audio-x-generic-symbolic");
             this.menuImage.width = width;
             this.menuImage.height = width;
             this.menuImage.iconSize = width;
-        } else {
-            // @ts-expect-error Types are wrong
-            const pixbufPromise = GdkPixbuf.Pixbuf.new_from_stream_async(stream, null) as Promise<GdkPixbuf.Pixbuf>;
-            const pixbuf = await pixbufPromise;
-            const aspectRatio = pixbuf.width / pixbuf.height;
-
-            const height = width / aspectRatio;
-            const format = pixbuf.hasAlpha ? Cogl.PixelFormat.RGBA_8888 : Cogl.PixelFormat.RGB_888;
-
-            const image = St.ImageContent.new_with_preferred_size(width, height) as St.ImageContent & Clutter.Image;
-            image.set_bytes(pixbuf.pixelBytes, format, pixbuf.width, pixbuf.height, pixbuf.rowstride);
-
-            this.menuImage.iconSize = -1;
-            this.menuImage.gicon = null;
-
-            this.menuImage.width = width;
-            this.menuImage.height = height;
-            this.menuImage.content = image;
         }
 
         if (this.menuImage.get_parent() == null) {
@@ -450,7 +451,7 @@ class PanelButton extends PanelMenu.Button {
     }
 
     private async addMenuSlider() {
-        const position = await this.playerProxy.position;
+        const position = await this.playerProxy.position.catch(handleError);
         const length = this.playerProxy.metadata["mpris:length"];
         const rate = this.playerProxy.rate;
 
