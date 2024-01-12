@@ -59,8 +59,6 @@ export default class MediaControls extends Extension {
     public cacheArt: boolean;
     public blacklistedPlayers: string[];
 
-    private resource: Gio.Resource;
-
     private settings: Gio.Settings;
     private panelBtn: InstanceType<typeof PanelButton>;
 
