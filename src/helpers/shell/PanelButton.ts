@@ -334,8 +334,9 @@ class PanelButton extends PanelMenu.Button {
     private async addMenuImage() {
         if (this.menuImage == null) {
             this.menuImage = new St.Icon({
-                xExpand: true,
-                yExpand: true,
+                xExpand: false,
+                yExpand: false,
+                xAlign: Clutter.ActorAlign.CENTER,
             });
         }
 
@@ -363,28 +364,32 @@ class PanelButton extends PanelMenu.Button {
             }
         }
 
+        const width = this.extension.labelWidth > 0 ? this.getMenuItemWidth() : this.menuLabels.width;
+
         if (stream == null) {
             this.menuImage.content = null;
             this.menuImage.gicon = Gio.ThemedIcon.new("audio-x-generic-symbolic");
-            this.menuImage.width = this.extension.labelWidth;
-            this.menuImage.height = this.extension.labelWidth;
-            this.menuImage.iconSize = this.extension.labelWidth;
+
+            this.menuImage.width = width;
+            this.menuImage.height = width;
+            this.menuImage.iconSize = width;
         } else {
             // @ts-expect-error Types are wrong
             const pixbufPromise = GdkPixbuf.Pixbuf.new_from_stream_async(stream, null) as Promise<GdkPixbuf.Pixbuf>;
             const pixbuf = await pixbufPromise;
             const aspectRatio = pixbuf.width / pixbuf.height;
 
-            const width = this.extension.labelWidth;
             const height = width / aspectRatio;
             const format = pixbuf.hasAlpha ? Cogl.PixelFormat.RGBA_8888 : Cogl.PixelFormat.RGB_888;
 
             const image = St.ImageContent.new_with_preferred_size(width, height) as St.ImageContent & Clutter.Image;
             image.set_bytes(pixbuf.pixelBytes, format, pixbuf.width, pixbuf.height, pixbuf.rowstride);
 
+            this.menuImage.iconSize = -1;
+            this.menuImage.gicon = null;
+
             this.menuImage.width = width;
             this.menuImage.height = height;
-            this.menuImage.gicon = null;
             this.menuImage.content = image;
         }
 
@@ -410,33 +415,29 @@ class PanelButton extends PanelMenu.Button {
             this.menuLabels.remove_child(this.menuLabelSubtitle);
         }
 
-        this.menuLabelTitle = new ScrollingLabel(
-            this.playerProxy.metadata["xesam:title"],
-            this.extension.labelWidth,
-            true,
-            this.extension.scrollLabels,
-            this.playerProxy.playbackStatus !== PlaybackStatus.PLAYING,
-        );
+        const width = this.extension.labelWidth > 0 ? this.getMenuItemWidth() : 0;
 
-        this.menuLabelTitle.label.add_style_class_name("popup-menu-label-title");
-        this.menuLabelTitle.label.xAlign = Clutter.ActorAlign.CENTER;
-        this.menuLabelTitle.label.xExpand = true;
+        this.menuLabelTitle = new ScrollingLabel({
+            text: this.playerProxy.metadata["xesam:title"],
+            isScrolling: this.extension.scrollLabels,
+            initPaused: this.playerProxy.playbackStatus !== PlaybackStatus.PLAYING,
+            width,
+        });
 
         const artistText = this.playerProxy.metadata["xesam:artist"]?.join(", ") || "Unknown artist";
         const albumText = this.playerProxy.metadata["xesam:album"] || "";
 
-        this.menuLabelSubtitle = new ScrollingLabel(
-            albumText === "" ? artistText : `${artistText} / ${albumText}`,
-            this.extension.labelWidth,
-            true,
-            this.extension.scrollLabels,
-            this.playerProxy.playbackStatus !== PlaybackStatus.PLAYING,
-            Clutter.TimelineDirection.BACKWARD,
-        );
+        this.menuLabelSubtitle = new ScrollingLabel({
+            text: albumText === "" ? artistText : `${artistText} / ${albumText}`,
+            isScrolling: this.extension.scrollLabels,
+            initPaused: this.playerProxy.playbackStatus !== PlaybackStatus.PLAYING,
+            direction: Clutter.TimelineDirection.BACKWARD,
+            width,
+        });
 
-        // this.menuLabelArtist.label.add_style_class_name("popup-menu-label-artist");
-        this.menuLabelSubtitle.label.xAlign = Clutter.ActorAlign.CENTER;
-        this.menuLabelSubtitle.label.xExpand = true;
+        this.menuLabelTitle.label.add_style_class_name("popup-menu-label-title");
+        this.menuLabelTitle.box.xAlign = Clutter.ActorAlign.CENTER;
+        this.menuLabelSubtitle.box.xAlign = Clutter.ActorAlign.CENTER;
 
         this.menuLabels.add_child(this.menuLabelTitle);
         this.menuLabels.add_child(this.menuLabelSubtitle);
@@ -592,13 +593,13 @@ class PanelButton extends PanelMenu.Button {
     }
 
     private addButtonLabel(index: number) {
-        const label = new ScrollingLabel(
-            this.getButtonLabelText(),
-            this.extension.labelWidth,
-            this.extension.isFixedLabelWidth,
-            this.extension.scrollLabels,
-            this.playerProxy.playbackStatus !== PlaybackStatus.PLAYING,
-        );
+        const label = new ScrollingLabel({
+            text: this.getButtonLabelText(),
+            width: this.extension.labelWidth,
+            isFixedWidth: this.extension.isFixedLabelWidth,
+            isScrolling: this.extension.scrollLabels,
+            initPaused: this.playerProxy.playbackStatus !== PlaybackStatus.PLAYING,
+        });
 
         if (this.buttonLabel?.get_parent() === this.buttonBox) {
             this.buttonBox.replace_child(this.buttonLabel, label);
@@ -745,6 +746,13 @@ class PanelButton extends PanelMenu.Button {
         }
 
         return labelTextElements.join(" ");
+    }
+
+    private getMenuItemWidth() {
+        const menuContainer = this.menu.box.get_parent().get_parent() as St.Widget;
+        const minWidth = menuContainer.get_theme_node().get_min_width() - 24;
+
+        return Math.max(minWidth, this.extension.labelWidth);
     }
 
     private addProxyListeners() {

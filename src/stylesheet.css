@@ -43,6 +43,10 @@
     padding: 12px;
 }
 
+.popup-menu-box {
+    border-width: 0px;
+}
+
 .popup-menu-box > * {
     margin-top: 6px;
     margin-bottom: 6px;

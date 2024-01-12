@@ -3,35 +3,52 @@ import GObject from "gi://GObject";
 import Pango from "gi://Pango";
 import St from "gi://St";
 
+export interface ScrollingLabelParams {
+    text: string;
+    width: number;
+    direction?: Clutter.TimelineDirection;
+    isFixedWidth?: boolean;
+    isScrolling: boolean;
+    initPaused: boolean;
+}
+
 const SCROLL_ANIMATION_SPEED = 0.04;
 
 class ScrollingLabel extends St.ScrollView {
     public label: St.Label;
+    public box: St.BoxLayout;
 
-    private box: St.BoxLayout;
     private onAdjustmentChangedId: number;
+    private onShowChangedId: number;
 
+    private isScrolling: boolean;
+    private isFixedWidth: boolean;
     private initPaused: boolean;
     private labelWidth: number;
     private direction: Clutter.TimelineDirection;
 
     private transition: Clutter.PropertyTransition;
 
-    constructor(
-        text: string,
-        labelWidth: number,
-        isFixedWidth: boolean,
-        isScrolling: boolean,
-        initPaused: boolean,
-        direction = Clutter.TimelineDirection.FORWARD,
-    ) {
+    constructor(params: ScrollingLabelParams) {
         super({
             hscrollbarPolicy: St.PolicyType.NEVER,
             vscrollbarPolicy: St.PolicyType.NEVER,
         });
 
+        const defaultParams = {
+            direction: Clutter.TimelineDirection.FORWARD,
+            isFixedWidth: true,
+        };
+
+        const { text, width, direction, isFixedWidth, isScrolling, initPaused } = {
+            ...defaultParams,
+            ...params,
+        };
+
+        this.isScrolling = isScrolling;
+        this.isFixedWidth = isFixedWidth;
         this.initPaused = initPaused;
-        this.labelWidth = labelWidth;
+        this.labelWidth = width;
         this.direction = direction;
 
         this.box = new St.BoxLayout({
@@ -45,28 +62,7 @@ class ScrollingLabel extends St.ScrollView {
             xAlign: Clutter.ActorAlign.START,
         });
 
-        const signalId = this.label.connect("show", () => {
-            if (this.label.visible === false) {
-                return;
-            }
-
-            const isLabelWider = this.label.width > this.labelWidth && this.labelWidth > 0;
-
-            if (isLabelWider && isScrolling) {
-                this.initScrolling();
-            }
-
-            if (isFixedWidth && this.labelWidth > 0) {
-                this.box.width = this.labelWidth;
-                this.label.xAlign = Clutter.ActorAlign.CENTER;
-                this.label.xExpand = true;
-            } else if (isLabelWider) {
-                this.box.width = Math.min(this.label.width, this.labelWidth);
-            }
-
-            this.label.disconnect(signalId);
-        });
-
+        this.onShowChangedId = this.label.connect("show", this.onShowChanged.bind(this));
         this.box.add_child(this.label);
         this.add_actor(this.box);
     }
@@ -128,6 +124,28 @@ class ScrollingLabel extends St.ScrollView {
         }
     }
 
+    private onShowChanged() {
+        if (this.label.visible === false) {
+            return;
+        }
+
+        const isLabelWider = this.label.width > this.labelWidth && this.labelWidth > 0;
+
+        if (isLabelWider && this.isScrolling) {
+            this.initScrolling();
+        }
+
+        if (this.isFixedWidth && this.labelWidth > 0) {
+            this.box.width = this.labelWidth;
+            this.label.xAlign = Clutter.ActorAlign.CENTER;
+            this.label.xExpand = true;
+        } else if (isLabelWider) {
+            this.box.width = Math.min(this.label.width, this.labelWidth);
+        }
+
+        this.label.disconnect(this.onShowChangedId);
+    }
+
     vfunc_scroll_event(): boolean {
         return Clutter.EVENT_PROPAGATE;
     }
@@ -136,7 +154,6 @@ class ScrollingLabel extends St.ScrollView {
 const GScrollingLabel = GObject.registerClass(
     {
         GTypeName: "ScrollingLabel",
-        Properties: {},
     },
     ScrollingLabel,
 );
