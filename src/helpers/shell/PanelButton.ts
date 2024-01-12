@@ -236,6 +236,7 @@ class PanelButton extends PanelMenu.Button {
             });
         } else if (players.length === 1 && this.menuPlayerIcons != null) {
             this.menuPlayers.remove_child(this.menuPlayerIcons);
+            this.menuPlayerIcons = null;
         } else {
             this.menuPlayerIcons?.remove_all_children();
         }
@@ -259,13 +260,16 @@ class PanelButton extends PanelMenu.Button {
             if (isSamePlayer) {
                 this.menuPlayersTextBoxLabel.text = appName;
 
+                if (this.menuPlayersTextBoxIcon?.get_parent() != null) {
+                    this.menuPlayersTextBox.remove_child(this.menuPlayersTextBoxIcon);
+                }
+
+                if (this.menuPlayersTextBoxPin.get_parent() != null) {
+                    this.menuPlayersTextBox.remove_child(this.menuPlayersTextBoxPin);
+                }
+
                 if (players.length > 1) {
                     this.menuPlayersTextBoxIcon.gicon = null;
-
-                    if (this.menuPlayersTextBoxIcon?.get_parent() != null) {
-                        this.menuPlayersTextBox.remove_child(this.menuPlayersTextBoxIcon);
-                    }
-
                     this.menuPlayersTextBoxLabel.xAlign = Clutter.ActorAlign.END;
                     this.menuPlayersTextBoxLabel.xExpand = true;
 
@@ -276,10 +280,6 @@ class PanelButton extends PanelMenu.Button {
 
                     this.menuPlayersTextBoxLabel.xAlign = Clutter.ActorAlign.START;
                     this.menuPlayersTextBoxLabel.xExpand = true;
-
-                    if (this.menuPlayersTextBoxPin.get_parent() != null) {
-                        this.menuPlayersTextBox.remove_child(this.menuPlayersTextBoxPin);
-                    }
                 }
             }
 
@@ -340,6 +340,7 @@ class PanelButton extends PanelMenu.Button {
             });
         }
 
+        let artSet = false;
         let stream = await getImage(this.playerProxy.metadata["mpris:artUrl"]);
 
         if (stream == null && this.playerProxy.metadata["xesam:url"] != null) {
@@ -366,8 +367,6 @@ class PanelButton extends PanelMenu.Button {
         const width = this.extension.labelWidth > 0 ? this.getMenuItemWidth() : this.menuLabels.width;
 
         if (stream != null) {
-            this.menuImage.content = null;
-
             // @ts-expect-error Types are wrong
             const pixbufPromise = GdkPixbuf.Pixbuf.new_from_stream_async(stream, null) as Promise<GdkPixbuf.Pixbuf>;
             const pixbuf = await pixbufPromise.catch(handleError);
@@ -386,11 +385,15 @@ class PanelButton extends PanelMenu.Button {
                 this.menuImage.width = width;
                 this.menuImage.height = height;
                 this.menuImage.content = image;
+
+                artSet = true;
             }
         }
 
-        if (this.menuImage.content == null) {
+        if (artSet === false) {
+            this.menuImage.content = null;
             this.menuImage.gicon = Gio.ThemedIcon.new("audio-x-generic-symbolic");
+
             this.menuImage.width = width;
             this.menuImage.height = width;
             this.menuImage.iconSize = width;
