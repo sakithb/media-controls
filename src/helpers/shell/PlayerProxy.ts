@@ -122,10 +122,12 @@ export default class PlayerProxy {
                     const unpackedMetadata =
                         metadataVariant[0].recursiveUnpack() as MprisPlayerInterfaceMetadataUnpacked;
 
-                    if ((unpackedPosition > 0 && unpackedMetadata["mpris:length"] > 0) || count <= 0) {
+                    if (unpackedPosition > 0 && unpackedMetadata["mpris:length"] > 0) {
                         this.mprisPlayerProxy.set_cached_property("Position", positionVariant[0]);
                         this.mprisPlayerProxy.set_cached_property("Metadata", metadataVariant[0]);
                         this.callOnChangedListeners("Metadata", unpackedMetadata);
+                        GLib.source_remove(this.pollSourceId);
+                    } else if (count <= 0) {
                         GLib.source_remove(this.pollSourceId);
                     }
                 })

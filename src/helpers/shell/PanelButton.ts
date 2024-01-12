@@ -856,7 +856,7 @@ class PanelButton extends PanelMenu.Button {
 
                 if (device.deviceType !== Clutter.InputDeviceType.POINTER_DEVICE) {
                     this.doMouseAction(this.extension.mouseActionLeft);
-                    return;
+                    return GLib.SOURCE_REMOVE;
                 }
 
                 if (button === Clutter.BUTTON_PRIMARY) {
