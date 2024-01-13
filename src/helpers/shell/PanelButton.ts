@@ -7,6 +7,7 @@ import Gio from "gi://Gio";
 import St from "gi://St";
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
+import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
 
 import MediaControls from "../../extension.js";
 import PlayerProxy from "./PlayerProxy.js";
@@ -254,7 +255,7 @@ class PanelButton extends PanelMenu.Button {
             const app = getAppByIdAndEntry(player.identity, player.desktopEntry);
             const isSamePlayer = this.isSamePlayer(player);
 
-            const appName = app?.get_name() ?? (player.identity || "Unknown player");
+            const appName = app?.get_name() ?? (player.identity || _("Unknown player"));
             const appIcon = app?.get_icon() ?? Gio.Icon.new_for_string("audio-x-generic-symbolic");
 
             if (isSamePlayer) {
@@ -430,7 +431,7 @@ class PanelButton extends PanelMenu.Button {
             width,
         });
 
-        const artistText = this.playerProxy.metadata["xesam:artist"]?.join(", ") || "Unknown artist";
+        const artistText = this.playerProxy.metadata["xesam:artist"]?.join(", ") || _("Unknown artist");
         const albumText = this.playerProxy.metadata["xesam:album"] || "";
 
         this.menuLabelSubtitle = new ScrollingLabel({
@@ -741,7 +742,7 @@ class PanelButton extends PanelMenu.Button {
             } else if (LabelTypes[labelElement] === LabelTypes.ARTIST) {
                 labelTextElements.push(this.playerProxy.metadata["xesam:artist"]?.join(", ") || "Unknown artist");
             } else if (LabelTypes[labelElement] === LabelTypes.ALBUM) {
-                labelTextElements.push(this.playerProxy.metadata["xesam:album"]);
+                labelTextElements.push(this.playerProxy.metadata["xesam:album"] || _("Unknown album"));
             } else if (LabelTypes[labelElement] === LabelTypes.DISC_NUMBER) {
                 labelTextElements.push(this.playerProxy.metadata["xesam:discNumber"]);
             } else if (LabelTypes[labelElement] === LabelTypes.TRACK_NUMBER) {

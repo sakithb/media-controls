@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-11 20:59+0530\n"
-"PO-Revision-Date: 2024-01-11 16:51+0100\n"
+"POT-Creation-Date: 2024-01-13 11:19+0100\n"
+"PO-Revision-Date: 2024-01-13 11:21+0100\n"
 "Last-Translator: Christian Lauinger <christian@lauinger-clan.de>\n"
 "Language-Team: \n"
 "Language: de\n"
@@ -55,6 +55,7 @@ msgstr "Zwischenspeicher konnte nicht geleert werden !"
 
 #: src/helpers/BlacklistedPlayers.ts:50 src/helpers/BlacklistedPlayers.ts:47
 #: src/helpers/prefs/BlacklistedPlayers.ts:47
+#: src/helpers/prefs/BlacklistedPlayers.ts:50
 msgid ""
 "<span size='x-large' weight='bold' color='#ccc'>No players are blacklisted</"
 "span>"
@@ -221,11 +222,11 @@ msgstr "Zeige Rückwärtssuche-Taste"
 
 #: assets/ui/prefs.blp:138 assets/ui/prefs.blp:140
 msgid "Show player icon"
-msgstr "Zeige Spieler-Symbol"
+msgstr "Zeige Abspieler-Symbol"
 
 #: assets/ui/prefs.blp:142 assets/ui/prefs.blp:144
 msgid "Colored player icon"
-msgstr "Farbiges Spieler-Symbol"
+msgstr "Farbiges Abspieler-Symbol"
 
 #: assets/ui/prefs.blp:150 assets/ui/prefs.blp:152
 msgid "Positions"
@@ -403,6 +404,26 @@ msgstr "Öffne Einstellungen"
 msgid "Custom text"
 msgstr "Benutzerdefinierter Text"
 
+#: assets/ui/prefs.blp:20
+msgid "Width"
+msgstr "Breite"
+
+#: assets/ui/prefs.blp:21
+msgid "0 to take all available space"
+msgstr "0 um allen verfügbaren Platz zu verwenden"
+
+#: src/helpers/shell/PanelButton.ts:258
+msgid "Unknown player"
+msgstr "Unbekannter Abspieler"
+
+#: src/helpers/shell/PanelButton.ts:434
+msgid "Unknown artist"
+msgstr "Unbekannter Künstler"
+
+#: src/helpers/shell/PanelButton.ts:745
+msgid "Unknown album"
+msgstr "Unbekanntes Album"
+
 #~ msgid "[MediaControls] Enabling"
 #~ msgstr "[MediaControls] aktivieren"
 
@@ -411,12 +432,6 @@ msgstr "Benutzerdefinierter Text"
 
 #~ msgid "[MediaControls] Reloading"
 #~ msgstr "[MediaControls] Neu laden"
-
-#~ msgid "Unknown artist"
-#~ msgstr "Unbekannter Künstler"
-
-#~ msgid "Unknown album"
-#~ msgstr "Unbekanntes Album"
 
 #~ msgid "Track"
 #~ msgstr "Spur"

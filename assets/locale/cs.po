@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-01-11 20:59+0530\n"
-"PO-Revision-Date: 2024-01-11 16:52+0100\n"
+"POT-Creation-Date: 2024-01-13 11:19+0100\n"
+"PO-Revision-Date: 2024-01-13 11:21+0100\n"
 "Last-Translator: Christian Lauinger <christian@lauinger-clan.de>\n"
 "Language-Team: \n"
 "Language: cs\n"
@@ -54,6 +54,7 @@ msgstr ""
 
 #: src/helpers/BlacklistedPlayers.ts:50 src/helpers/BlacklistedPlayers.ts:47
 #: src/helpers/prefs/BlacklistedPlayers.ts:47
+#: src/helpers/prefs/BlacklistedPlayers.ts:50
 msgid ""
 "<span size='x-large' weight='bold' color='#ccc'>No players are blacklisted</"
 "span>"
@@ -394,6 +395,26 @@ msgstr ""
 msgid "Custom text"
 msgstr ""
 
+#: assets/ui/prefs.blp:20
+msgid "Width"
+msgstr ""
+
+#: assets/ui/prefs.blp:21
+msgid "0 to take all available space"
+msgstr ""
+
+#: src/helpers/shell/PanelButton.ts:258
+msgid "Unknown player"
+msgstr ""
+
+#: src/helpers/shell/PanelButton.ts:434
+msgid "Unknown artist"
+msgstr "Neznámý umělec"
+
+#: src/helpers/shell/PanelButton.ts:745
+msgid "Unknown album"
+msgstr "Neznámé album"
+
 #~ msgid "[MediaControls] Enabling"
 #~ msgstr "[MediaControls] Aktivace"
 
@@ -402,12 +423,6 @@ msgstr ""
 
 #~ msgid "[MediaControls] Reloading"
 #~ msgstr "[MediaControls] Opětovné načítání"
-
-#~ msgid "Unknown artist"
-#~ msgstr "Neznámý umělec"
-
-#~ msgid "Unknown album"
-#~ msgstr "Neznámé album"
 
 #~ msgid "Track"
 #~ msgstr "Skladba"
