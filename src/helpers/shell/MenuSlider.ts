@@ -84,6 +84,7 @@ class MenuSlider extends St.BoxLayout {
         this.add_child(this.slider);
 
         this.slider.add_transition("progress", this.transition);
+        this.connect("destroy", this.onDestroy.bind(this));
         this.setDisabled(true);
     }
 
@@ -162,6 +163,12 @@ class MenuSlider extends St.BoxLayout {
             const elapsedText = msToHHMMSS(ms);
             this.transition.add_marker_at_time(elapsedText, ms / this.rate);
         }
+    }
+
+    private onDestroy() {
+        this.transition.stop();
+        this.slider.destroy();
+        this.textBox.destroy();
     }
 }
 
