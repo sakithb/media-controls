@@ -740,7 +740,7 @@ class PanelButton extends PanelMenu.Button {
             if (LabelTypes[labelElement] === LabelTypes.TITLE) {
                 labelTextElements.push(this.playerProxy.metadata["xesam:title"]);
             } else if (LabelTypes[labelElement] === LabelTypes.ARTIST) {
-                labelTextElements.push(this.playerProxy.metadata["xesam:artist"]?.join(", ") || "Unknown artist");
+                labelTextElements.push(this.playerProxy.metadata["xesam:artist"]?.join(", ") || _("Unknown artist"));
             } else if (LabelTypes[labelElement] === LabelTypes.ALBUM) {
                 labelTextElements.push(this.playerProxy.metadata["xesam:album"] || _("Unknown album"));
             } else if (LabelTypes[labelElement] === LabelTypes.DISC_NUMBER) {
