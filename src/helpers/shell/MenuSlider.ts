@@ -166,7 +166,7 @@ class MenuSlider extends St.BoxLayout {
     }
 
     private onDestroy() {
-        this.transition.stop();
+        this.slider.remove_transition("progress");
         this.slider.destroy();
         this.textBox.destroy();
     }
