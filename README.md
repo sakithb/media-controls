@@ -40,7 +40,7 @@ Install from source
 
 Pull requests are welcome.
 
-To update the translation files run `./debug.sh -t` in the extensions directory after your code changes are finished. This will update the files in po folder. Then poedit (https://poedit.net/download) can be used to translate the strings. poedit can also be used to create new localization files.
+To update the translation files run `./mediacontrols.sh translations` in the extensions directory after your code changes are finished. This will update the files in po folder. Then poedit (https://poedit.net/download) can be used to translate the strings. poedit can also be used to create new localization files.
 
 <a href="https://github.com/sakithb/media-controls/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=sakithb/media-controls" />
