@@ -1,0 +1,325 @@
+using Gtk 4.0;
+using Gio 2.0;
+using Adw 1;
+
+translation-domain "mediacontrols@cliffniff.github.com";
+
+Adw.PreferencesPage page-general {
+  title: _("General");
+  icon-name: "preferences-system-symbolic";
+
+  Adw.PreferencesGroup {
+    title: _("Common");
+
+    Adw.ExpanderRow {
+      title: _("Labels");
+      subtitle: _("Customize the labels in the panel and the popup menu");
+      expanded: true;
+
+      Adw.SpinRow sr-general-label-width {
+        title: _("Width");
+        subtitle: _("0 to take all available space");
+
+        adjustment: Adjustment {
+          lower: 0;
+          upper: 1000;
+          step-increment: 10;
+          value: 200;
+        };
+      }
+
+      Adw.SwitchRow sr-general-label-fixed {
+        title: _("Fixed width");
+        subtitle: _("Use the specified width even when they are smaller than the width");
+      }
+
+      Adw.SwitchRow sr-general-scroll-labels {
+        title: _("Scroll labels");
+        subtitle: _("Scroll the labels when they are wider than the width");
+      }
+
+    }
+
+    Adw.SwitchRow sr-general-hide-media-notification {
+      title: _("Hide the media notification");
+      subtitle: _("Hide the media notifications in the notification list");
+    }
+
+  }
+
+  Adw.PreferencesGroup {
+    title: _("Information");
+
+    Adw.ActionRow {
+      title: _("Homepage");
+      activatable-widget: lb-general-homepage;
+
+      LinkButton lb-general-homepage {
+        icon-name: "go-next-symbolic";
+        uri: "https://github.com/sakithb/media-controls/blob/main/README.md";
+        margin-top: 10;
+        margin-bottom: 10;
+      }
+    }
+
+    Adw.ActionRow {
+      title: _("Release notes");
+      activatable-widget: lb-general-notes;
+
+      LinkButton lb-general-notes {
+        icon-name: "go-next-symbolic";
+        uri: "https://github.com/sakithb/media-controls/releases/latest";
+        margin-top: 10;
+        margin-bottom: 10;
+      }
+    }
+
+    Adw.ActionRow {
+      title: _("Report an issue");
+      activatable-widget: lb-general-issues;
+
+      LinkButton lb-general-issues {
+        label: _("Report an issue");
+        icon-name: "go-next-symbolic";
+        uri: "https://github.com/sakithb/media-controls/issues";
+        margin-top: 10;
+        margin-bottom: 10;
+      }
+    }
+  }
+}
+
+Adw.PreferencesPage page-panel {
+  title: _("Panel");
+  icon-name: "user-desktop-symbolic";
+
+  Adw.PreferencesGroup {
+    Adw.SwitchRow sr-panel-show-label {
+      title: _("Show label");
+    }
+
+    Adw.ExpanderRow {
+      title: _("Player controls");
+      expanded: true;
+
+      Adw.SwitchRow sr-panel-show-controls {
+        title: _("Show player controls");
+      }
+
+      Adw.SwitchRow sr-panel-show-play {
+        title: _("Show play/pause button");
+        sensitive: bind sr-panel-show-controls.active;
+      }
+
+      Adw.SwitchRow sr-panel-show-next {
+        title: _("Show next track button");
+        sensitive: bind sr-panel-show-controls.active;
+      }
+
+      Adw.SwitchRow sr-panel-show-prev {
+        title: _("Show previous track button");
+        sensitive: bind sr-panel-show-controls.active;
+      }
+
+      Adw.SwitchRow sr-panel-show-seek-forward {
+        title: _("Show seek forward button");
+        sensitive: bind sr-panel-show-controls.active;
+      }
+
+      Adw.SwitchRow sr-panel-show-seek-backward {
+        title: _("Show seek back button");
+        sensitive: bind sr-panel-show-controls.active;
+      }
+    }
+
+    Adw.ExpanderRow {
+      title: _("Player icon");
+      expanded: true;
+
+      Adw.SwitchRow sr-panel-show-player {
+        title: _("Show player icon");
+      }
+
+      Adw.SwitchRow sr-panel-colored-player {
+        title: _("Colored player icon");
+        sensitive: bind sr-panel-show-player.active;
+      }
+    }
+  }
+}
+
+Adw.PreferencesPage page-positions {
+  title: _("Positions");
+  icon-name: "view-list-symbolic";
+
+  Adw.PreferencesGroup {
+    title: _("Extension");
+
+    Adw.ComboRow cr-positions-extension-position {
+      title: _("Position");
+      subtitle: _("Position of the extension in the panel");
+
+      model: StringList {
+        strings [
+          _("Left"),
+          _("Center"),
+          _("Right"),
+        ]
+      };
+    }
+
+    Adw.SpinRow sr-positions-extension-index {
+      title: _("Index");
+      subtitle: _("Index of the extension");
+
+      adjustment: Adjustment {
+        lower: 0;
+        upper: 100;
+        value: 0;
+        step-increment: 1;
+      };
+    }
+  }
+
+  $ElementList gp-positions-elements {}
+
+  $LabelList gp-positions-labels {}
+}
+
+Adw.PreferencesPage page-shortcuts {
+  title: _("Shortcuts");
+  icon-name: "input-keyboard-symbolic";
+
+  Adw.PreferencesGroup {
+    Adw.ActionRow row-shortcuts-popup {
+      title: _("Show popup menu");
+      subtitle: _("Shortcut to toggle the popup menu");
+      activatable-widget: sl-shortcuts-popup;
+
+      ShortcutLabel sl-shortcuts-popup {
+        disabled-text: _("Set shortcut");
+        halign: center;
+        valign: center;
+      }
+    }
+  }
+
+  Adw.PreferencesGroup {
+    title: _("Mouse actions");
+
+    Adw.ComboRow cr-shortcuts-mouse-left {
+      title: _("Left click / Tap");
+      model: mouse-actions;
+    }
+
+    Adw.ComboRow cr-shortcuts-mouse-middle {
+      title: _("Middle click");
+      model: mouse-actions;
+    }
+
+    Adw.ComboRow cr-shortcuts-mouse-right {
+      title: _("Right click");
+      model: mouse-actions;
+    }
+
+    Adw.ComboRow cr-shortcuts-mouse-double {
+      title: _("Double click / Double tap");
+      model: mouse-actions;
+    }
+
+    Adw.ComboRow cr-shortcuts-mouse-scroll-up {
+      title: _("Scroll up / Swipe right");
+      model: mouse-actions;
+    }
+
+    Adw.ComboRow cr-shortcuts-mouse-scroll-down {
+      title: _("Scroll down / Swipe left");
+      model: mouse-actions;
+    }
+  }
+}
+
+Adw.PreferencesPage page-other {
+  title: _("Other");
+  icon-name: "preferences-other-symbolic";
+
+  Adw.PreferencesGroup {
+    title: _("Cache");
+    description: _("This extension cache album art to improve performance. You can clear the cache here.");
+
+    Adw.SwitchRow sr-other-cache {
+      title: _("Cache album art");
+    }
+
+    Adw.ActionRow row-other-cache-clear {
+      title: _("Clear cache");
+
+      Button btn-other-cache-clear {
+        halign: end;
+        valign: center;
+
+        styles [
+          "destructive-action"
+        ]
+
+        Adw.ButtonContent {
+          label: _("Clear");
+          icon-name: "user-trash-symbolic";
+        }
+      }
+    }
+  }
+
+  $BlacklistedPlayers gp-other-blacklist {}
+}
+
+Adw.Window win-shortcut-editor {
+  title: _("Set shortcut");
+  modal: true;
+  resizable: false;
+  default-width: 300;
+  default-height: 200;
+  hide-on-close: true;
+
+  Adw.ToolbarView {
+    Box {
+      orientation: vertical;
+      margin-start: 20;
+      margin-end: 20;
+      margin-top: 20;
+      margin-bottom: 20;
+
+      Label {
+        label: _("<small>Press escape to cancel.\nPress enter to set the shortcut.\nPress backspace to reset.</small>");
+        use-markup: true;
+        wrap: true;
+      }
+
+      ShortcutLabel sl-shortcut-editor {
+        disabled-text: _("Press shortcut");
+        halign: center;
+        valign: center;
+        vexpand: true;
+      }
+    }
+  }
+}
+
+StringList mouse-actions {
+  strings [
+    _("None"),
+    _("Play/Pause"),
+    _("Play"),
+    _("Pause"),
+    _("Next track"),
+    _("Previous track"),
+    _("Volume up"),
+    _("Volume down"),
+    _("Toggle loop"),
+    _("Toggle shuffle"),
+    _("Show popup menu"),
+    _("Raise player"),
+    _("Quit player"),
+    _("Open preferences")
+  ]
+}

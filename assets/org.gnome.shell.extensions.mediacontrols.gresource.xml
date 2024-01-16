@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gresources>
+  <gresource prefix="/org/gnome/shell/extensions/mediacontrols/">
+    <file>ui/prefs.ui</file>
+    <file>ui/blacklisted-players.ui</file>
+    <file>ui/element-list.ui</file>
+    <file>ui/label-list.ui</file>
+    <file>ui/app-chooser.ui</file>
+  </gresource>
+</gresources>

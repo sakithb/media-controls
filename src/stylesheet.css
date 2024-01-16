@@ -1,0 +1,100 @@
+.colored-icon {
+    -st-icon-style: requested;
+}
+
+.symbolic-icon {
+    -st-icon-style: symbolic;
+}
+
+.no-margin {
+    margin: 0;
+}
+
+.no-padding {
+    padding: 0;
+}
+
+.panel-button {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.panel-button-box > * {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.panel-button-box > *:last-child:not(.controls-box) {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.panel-controls-box {
+    padding-left: 0px;
+    padding-right: 0px;
+}
+
+.panel-controls-box > * {
+    padding-left: 6px;
+    padding-right: 6px;
+}
+
+.popup-menu-container {
+    padding: 12px;
+}
+
+.popup-menu-box {
+    border-width: 0px;
+}
+
+.popup-menu-box > * {
+    margin-top: 6px;
+    margin-bottom: 6px;
+}
+
+.popup-menu-player-icons {
+    margin-top: 6px;
+    border-radius: 6px;
+}
+
+.popup-menu-player-icons-icon {
+    padding: 6px;
+    background-color: rgba(0, 0, 0, 0.125);
+    transition-property: background-color;
+    transition-duration: 200ms;
+}
+
+.popup-menu-player-icons-icon-last {
+    border-radius: 0px 6px 6px 0px;
+}
+
+.popup-menu-player-icons-icon-first {
+    border-radius: 6px 0px 0px 6px;
+}
+
+.popup-menu-player-icons-icon:hover {
+    background-color: rgba(160, 160, 160, 0.25);
+}
+
+.popup-menu-player-icons-icon-active {
+    background-color: rgba(160, 160, 160, 0.25);
+}
+
+.popup-menu-player-label {
+    font-size: small;
+    margin-right: 6px;
+    margin-left: 6px;
+}
+
+.popup-menu-label-title {
+    font-size: large;
+}
+
+.popup-menu-control-icon {
+    padding: 6px;
+    border-radius: 99px;
+}
+
+.popup-menu-control-icon:hover {
+    background-color: rgba(160, 160, 160, 0.25);
+}

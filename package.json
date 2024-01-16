@@ -1,0 +1,41 @@
+{
+  "type": "module",
+  "scripts": {
+    "compile": "npm run compile:clean && npm run compile:tsc && npm run compile:ui && npm run compile:assets && npm run compile:gresource && npm run compile:post",
+    "compile:tsc": "tsc",
+    "compile:ui": "mkdir -p dist/compiled/ui;for i in assets/ui/*.blp;do BASENAME=$(basename $i);/usr/bin/env blueprint-compiler compile --output ./dist/compiled/ui/${BASENAME%.*}.ui $i;done",
+    "compile:padding": "eslint --fix --rule \"{padding-line-between-statements: ['error', { 'blankLine': 'always', 'prev': '*', 'next': 'block-like' }, { 'blankLine': 'always', 'prev': 'block-like', 'next': '*' }, { 'blankLine': 'always', 'prev': 'multiline-expression', 'next': '*' }, { 'blankLine': 'always', 'prev': '*', 'next': 'multiline-expression' }, { 'blankLine': 'always', 'prev': 'import', 'next': 'expression' }, { 'blankLine': 'always', 'prev': 'expression', 'next': 'export' }, { 'blankLine': 'always', 'prev': 'expression', 'next': 'class' }]}\" dist/compiled/",
+    "compile:assets": "find assets -type f -not -path '*/images/*' -not -path '*/locale/*' -not -path '*/schemas/*' -not -path '*/ui/*' -exec sh -c 'f=\"{}\"; p=${f#*/}; d=$(dirname $p); mkdir -p dist/compiled/$d; cp $f dist/compiled/$p' ';'",
+    "compile:gresource": "glib-compile-resources assets/org.gnome.shell.extensions.mediacontrols.gresource.xml --target=dist/compiled/org.gnome.shell.extensions.mediacontrols.gresource --sourcedir=dist/compiled/",
+    "compile:post": "rm -rf dist/compiled/*.xml dist/compiled/ui/; ls dist/compiled/types/ | grep -xv \"enums\" | xargs -I \"$\" rm \"dist/compiled/types/$\"",
+    "compile:clean": "rm -rf dist",
+    "lint": "eslint src --ext .ts",
+    "format": "prettier --write src"
+  },
+  "devDependencies": {
+    "@girs/adw-1": "1.4.0-3.2.6",
+    "@girs/clutter-13": "13.0.0-3.2.6",
+    "@girs/cogl-13": "13.0.0-3.2.6",
+    "@girs/gdk-4.0": "4.0.0-3.2.6",
+    "@girs/gdkpixbuf-2.0": "2.0.0-3.2.6",
+    "@girs/gio-2.0": "2.78.0-3.2.6",
+    "@girs/gjs": "^3.2.6",
+    "@girs/glib-2.0": "2.78.0-3.2.6",
+    "@girs/gnome-shell": "45.0.0-beta2",
+    "@girs/gobject-2.0": "2.78.0-3.2.6",
+    "@girs/graphene-1.0": "1.0.0-3.2.6",
+    "@girs/gsk-4.0": "4.0.0-3.2.6",
+    "@girs/gtk-4.0": "4.12.3-3.2.6",
+    "@girs/meta-13": "13.0.0-3.2.6",
+    "@girs/pango-1.0": "1.51.0-3.2.6",
+    "@girs/shell-13": "13.0.0-3.2.6",
+    "@girs/soup-3.0": "3.4.4-3.2.6",
+    "@girs/st-13": "13.0.0-3.2.6",
+    "@typescript-eslint/eslint-plugin": "^6.12.0",
+    "@typescript-eslint/parser": "^6.12.0",
+    "eslint": "^8.54.0",
+    "eslint-plugin-import": "^2.29.1",
+    "prettier": "^3.1.1",
+    "typescript": "^5.3.2"
+  }
+}

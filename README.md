@@ -1,31 +1,22 @@
-### This extension is being rewritten. [More information](https://github.com/sakithb/media-controls/issues/123)
-
 ## What does this extension do?
 
 Show controls and information of the currently playing media in the panel.
 
 ## Features
 
--   Customize how the extension looks
--   Disable elements you don't want
--   Invoke different actions in many ways through mouse actions
--   Basic media controls (play/pause/next/prev)
--   Other media controls (loop/shuffle)
--   And more...
-
----
-
-## Notes
-
--   Supports GNOME 3.36 and 3.38 (unmaintained), 40, 41, 42, 43, 44 and 45.
--   GNOME 44 and below will not receive updates after v29/v28;
+- Customize the extension the way you want it
+- Basic media controls (play/pause/next/previous/loop/shuffle/seek)
+- Mouse actions lets you run different actions via left/middle/right/scroll.
+- Popup with album art and a slider to control the playback
+- Scrolling animations
+- Blacklist players
 
 ---
 
 ## Reporting issues
 
--   Please attach a screenshot when you report something about visuals
--   Please include version of the extension, gnome version and linux distribution
+- Please attach a screenshot when you report something about visuals
+- Please include version of the extension, gnome version and linux distribution
 
 ---
 
@@ -33,21 +24,15 @@ Show controls and information of the currently playing media in the panel.
 
 #### Install from extensions.gnome.org (Recommended)
 
-[<img src="./images/get-ego.png" height="100">](https://extensions.gnome.org/extension/4470/media-controls/)
+[<img src="assets/images/ego.png" height="100">](https://extensions.gnome.org/extension/4470/media-controls/)
 
-#### Arch Linux (AUR)
-
-`yay -S gnome-shell-extension-media-controls` _Stable release_
-
-`yay -S gnome-shell-extension-media-controls-git` _Build of the main branch_
-
-#### Other distributions
+#### Manual installation
 
 Install from source
 
--   Download "extension.zip" file from the releases tab
--   Open a terminal in the path of extension.zip
--   Install and enable the extension by executing `gnome-extensions install extension.zip --force` in the terminal
+- Download archive file from the releases tab
+- Open a terminal in the directory containing the downloaded file
+- Install and enable the extension by executing `gnome-extensions install extension.zip --force` in the terminal
 
 ---
 
@@ -57,32 +42,34 @@ Pull requests are welcome.
 
 To update the translation files run `./debug.sh -t` in the extensions directory after your code changes are finished. This will update the files in po folder. Then poedit (https://poedit.net/download) can be used to translate the strings. poedit can also be used to create new localization files.
 
+<a href="https://github.com/sakithb/media-controls/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=sakithb/media-controls" />
+</a>
+
+Made with [contrib.rocks](https://contrib.rocks).
+
 ## Screenshots
 
-#### Track information menu
+#### Popup menu
 
-![Screenshot](/images/track_info_menu.png)
-
-#### Sources menu
-
-![Screenshot](/images/sources_menu.png)
+[<img src="assets/images/popup.png" width="400">]()
 
 #### General settings
 
-![Screenshot](/images/settings_page_1.png)
+[<img src="assets/images/prefs_general.png" width="400">]()
 
-#### Visibility settings
+#### Panel settings
 
-![Screenshot](/images/settings_page_2.png)
+[<img src="assets/images/prefs_panel.png" width="400">]()
 
-#### Appearance settings
+#### Position settings
 
-![Screenshot](/images/settings_page_3.png)
+[<img src="assets/images/prefs_positions.png" width="400">]()
 
 #### Shortcut settings
 
-![Screenshot](/images/settings_page_4.png)
+[<img src="assets/images/prefs_shortcuts.png" width="400">]()
 
 #### Other settings
 
-![Screenshot](/images/settings_page_5.png)
+[<img src="assets/images/prefs_other.png" width="400">]()
