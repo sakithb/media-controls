@@ -420,6 +420,7 @@ export default class MediaControls extends Extension {
 
     private removePlayer(busName: string) {
         debugLog("Removing player:", busName);
+        this.playerProxies.get(busName)?.onDestroy();
         this.playerProxies.delete(busName);
         this.panelBtn?.updateWidgets(WidgetFlags.MENU_PLAYERS);
         this.setActivePlayer();

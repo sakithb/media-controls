@@ -385,4 +385,10 @@ export default class PlayerProxy {
 
         listeners.splice(id, 1);
     }
+
+    public onDestroy() {
+        if (this.pollSourceId != null) {
+            GLib.source_remove(this.pollSourceId);
+        }
+    }
 }

@@ -129,6 +129,12 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             this.window = null;
             this.settings = null;
             this.builder = null;
+
+            this.generalPage = null;
+            this.panelPage = null;
+            this.positionsPage = null;
+            this.shortcutsPage = null;
+            this.otherPage = null;
         });
     }
 
