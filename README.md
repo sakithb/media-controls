@@ -13,13 +13,6 @@ Show controls and information of the currently playing media in the panel.
 
 ---
 
-## Reporting issues
-
-- Please attach a screenshot when you report something about visuals
-- Please include version of the extension, gnome version and linux distribution
-
----
-
 ## How to install
 
 #### Install from extensions.gnome.org (Recommended)
@@ -36,11 +29,24 @@ Install from source
 
 ---
 
-## Contributing
+## Reporting issues
 
-Pull requests are welcome.
+- Make sure your issue isn't a duplicate
+- Include the following information when creating the issue,
+    - Extension version
+    - Gnome version
+    - Your distribution
+    - A screenshot if it is possible
 
-To update the translation files run `./mediacontrols.sh translations` in the extensions directory after your code changes are finished. This will update the files in po folder. Then poedit (https://poedit.net/download) can be used to translate the strings. poedit can also be used to create new localization files.
+---
+
+## Get involved
+
+Any type of contribution is appreciated! If you have any suggestions for new features feel free to open a new issue.
+
+If you are interested in translating, download the [po file](https://github.com/sakithb/media-controls/blob/main/assets/locale/mediacontrols%40cliffniff.github.com.pot) and translate it. Then open a pull request with the translated file. You can use [Gtranslator](https://flathub.org/apps/org.gnome.Gtranslator) or [Poedit](https://flathub.org/apps/net.poedit.Poedit) to translate.
+
+If you are interested in contributing code. There are no specific guidelines for contributing. Just make sure you follow the coding style of the project. To update the translation files run `./mediacontrols.sh translations` in the extensions directory after your changes are done. This will update the files in the locale folder.
 
 <a href="https://github.com/sakithb/media-controls/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=sakithb/media-controls" />
