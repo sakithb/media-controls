@@ -42,7 +42,7 @@ build() {
   done
 
   EXTRAFILES=$(find "$JSSRCDIR" -maxdepth 1 -type f "${FINDFARGS[@]}")
-  EXTRADIRS=$(find "$JSSRCDIR" -type d "${FINDDARGS[@]}")
+  EXTRADIRS=$(find "$JSSRCDIR" -maxdepth 1 -type d "${FINDDARGS[@]}")
   ESFLAGS=()
 
   for F in $EXTRAFILES; do

@@ -985,13 +985,6 @@ class PanelButton extends PanelMenu.Button {
         this.buttonControls?.destroy();
         this.buttonBox?.destroy();
 
-        this.menuPlayers?.destroy();
-        this.menuImage?.destroy();
-        this.menuLabels?.destroy();
-        this.menuSlider?.destroy();
-        this.menuControls?.destroy();
-        this.menuBox?.destroy();
-
         this.buttonIcon = null;
         this.buttonLabel = null;
         this.buttonControls = null;

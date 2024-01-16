@@ -1,7 +1,7 @@
 {
   "type": "module",
   "scripts": {
-    "compile": "npm run compile:clean && npm run compile:tsc && npm run compile:ui && npm run compile:assets && npm run compile:gresource",
+    "compile": "npm run compile:clean && npm run compile:tsc && npm run compile:ui && npm run compile:assets && npm run compile:gresource && npm run compile:post",
     "compile:tsc": "tsc",
     "compile:ui": "mkdir -p dist/compiled/ui;for i in assets/ui/*.blp;do BASENAME=$(basename $i);/usr/bin/env blueprint-compiler compile --output ./dist/compiled/ui/${BASENAME%.*}.ui $i;done",
     "compile:padding": "eslint --fix --rule \"{padding-line-between-statements: ['error', { 'blankLine': 'always', 'prev': '*', 'next': 'block-like' }, { 'blankLine': 'always', 'prev': 'block-like', 'next': '*' }, { 'blankLine': 'always', 'prev': 'multiline-expression', 'next': '*' }, { 'blankLine': 'always', 'prev': '*', 'next': 'multiline-expression' }, { 'blankLine': 'always', 'prev': 'import', 'next': 'expression' }, { 'blankLine': 'always', 'prev': 'expression', 'next': 'export' }, { 'blankLine': 'always', 'prev': 'expression', 'next': 'class' }]}\" dist/compiled/",
