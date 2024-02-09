@@ -28,11 +28,5 @@ If applicable, add screenshots to help explain your problem.
  - GNOME version [e.g. 3.30, 45]
  - Extension Version [e.g. 45.0]
 
-**Smartphone (please complete the following information):**
- - Device: [e.g. iPhone6]
- - OS: [e.g. iOS8.1]
- - Browser [e.g. stock browser, safari]
- - Version [e.g. 22]
-
 **Additional context**
 Add any other context about the problem here.
