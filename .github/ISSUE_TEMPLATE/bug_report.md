@@ -23,10 +23,10 @@ A clear and concise description of what you expected to happen.
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
 
-**Desktop (please complete the following information):**
- - OS: [e.g. iOS]
- - GNOME version [e.g. 3.30, 45]
- - Extension Version [e.g. 45.0]
+**Environment:**
+ - Distro: [e.g. Ubuntu 23.10]
+ - GNOME version [e.g. 43, 45]
+ - Extension Version [e.g. 2.0.0]
 
 **Additional context**
 Add any other context about the problem here.
