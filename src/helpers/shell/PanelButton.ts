@@ -568,7 +568,7 @@ class PanelButton extends PanelMenu.Button {
         tapAction.connect("tap", onClick);
         icon.add_action(tapAction);
 
-        const oldIcon = this.menuControls.find_child_by_name(options.name);
+        const oldIcon = this.menuControls.get_child_at_index(options.menuProps.index);
 
         if (oldIcon?.get_parent() === this.menuControls) {
             this.menuControls.replace_child(oldIcon, icon);
@@ -716,7 +716,7 @@ class PanelButton extends PanelMenu.Button {
 
         icon.add_action(tapAction);
 
-        const oldIcon = this.buttonControls.find_child_by_name(options.name);
+        const oldIcon = this.buttonControls.get_child_at_index(options.panelProps.index);
 
         if (oldIcon != null) {
             this.buttonControls.replace_child(oldIcon, icon);
@@ -726,7 +726,7 @@ class PanelButton extends PanelMenu.Button {
     }
 
     private removeButtonControlIcon(options: ControlIconOptions) {
-        const icon = this.buttonControls.find_child_by_name(options.name);
+        const icon = this.buttonControls.get_child_at_index(options.menuProps.index);
 
         if (icon != null) {
             this.buttonControls.remove_child(icon);
