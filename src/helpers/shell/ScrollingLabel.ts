@@ -64,7 +64,11 @@ class ScrollingLabel extends St.ScrollView {
 
         this.onShowChangedId = this.label.connect("show", this.onShowChanged.bind(this));
         this.box.add_child(this.label);
-        this.add_actor(this.box);
+        if (Clutter.Container === undefined) {
+            this.add_child(this.box);
+        } else {
+            this.add_actor(this.box);
+        }
     }
 
     public pauseScrolling() {
