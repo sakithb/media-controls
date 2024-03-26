@@ -726,6 +726,7 @@ class PanelButton extends PanelMenu.Button {
     }
 
     private removeButtonControlIcon(options: ControlIconOptions) {
+        // @ts-expect-error typing error
         const icon = this.buttonControls.get_child_at_index(options.menuProps.index);
 
         if (icon != null) {
