@@ -182,7 +182,7 @@ watch)
   watch
   ;;
 *)
-  echo "Usage: $0 {prod|build|reload|debug|translations|lint|format|install|uninstall|enable|disable|prefs|watch}"
+  echo "Usage: $0 {release|build|reload|debug|translations|lint|format|install|uninstall|enable|disable|prefs|watch}"
   exit 1
   ;;
 esac
