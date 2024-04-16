@@ -64,6 +64,7 @@ class ScrollingLabel extends St.ScrollView {
 
         this.onShowChangedId = this.label.connect("show", this.onShowChanged.bind(this));
         this.box.add_child(this.label);
+
         if (Clutter.Container === undefined) {
             this.add_child(this.box);
         } else {
