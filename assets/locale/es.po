@@ -2,26 +2,27 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # Nosis <EMAIL@ADDRESS>, 2024.
+# Adolfo Jayme Barrientos <fitojb@ubuntu.com>, 2024.
 #
-#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: \n"
+"Project-Id-Version: unnamed project\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-01-13 11:19+0100\n"
-"PO-Revision-Date: 2024-02-28 18:26-0600\n"
-"Last-Translator: Nosis\n"
-"Language-Team: \n"
+"PO-Revision-Date: 2024-04-29 23:48-0600\n"
+"Last-Translator: Adolfo Jayme Barrientos <fitojb@ubuntu.com>\n"
+"Language-Team: Spanish\n"
 "Language: es\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 3.4.2\n"
+"X-Generator: Gtranslator 46.1\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
 #: src/prefs.ts:125 src/prefs.ts:192 src/prefs.ts:195 src/prefs.ts:194
 #: src/prefs.ts:203 src/prefs.ts:205 src/prefs.ts:202
 msgid "Are you sure you want to clear the cache?"
-msgstr "¿Estás seguro de que quieres borrar el caché?"
+msgstr "¿Confirma que quiere variar la antememoria?"
 
 #: src/prefs.ts:126 assets/ui/app-chooser.blp:19 src/prefs.ts:193
 #: src/prefs.ts:196 src/prefs.ts:195 src/prefs.ts:204 src/prefs.ts:206
@@ -33,7 +34,7 @@ msgstr "Cancelar"
 #: src/prefs.ts:196 src/prefs.ts:205 src/prefs.ts:207 src/prefs.ts:204
 #: assets/ui/prefs.blp:255
 msgid "Clear cache"
-msgstr "Limpiar cache"
+msgstr "Vaciar antememoria"
 
 #: src/prefs.ts:134 src/prefs.ts:143 src/prefs.ts:201 src/prefs.ts:210
 #: src/prefs.ts:204 src/prefs.ts:213 src/prefs.ts:203 src/prefs.ts:212
@@ -41,17 +42,17 @@ msgstr "Limpiar cache"
 #: src/prefs.ts:220
 #, javascript-format
 msgid "Cache size: %s"
-msgstr "Tamaño del caché: %s"
+msgstr "Tamaño de antememoria: %s"
 
 #: src/prefs.ts:226 src/prefs.ts:293 src/prefs.ts:296 src/prefs.ts:295
 #: src/prefs.ts:304 src/prefs.ts:306 src/prefs.ts:303
 msgid "Cache cleared successfully!"
-msgstr "¡Caché borrado exitosamente!"
+msgstr "Se vació la antememoria correctamente."
 
 #: src/prefs.ts:228 src/prefs.ts:295 src/prefs.ts:298 src/prefs.ts:297
 #: src/prefs.ts:306 src/prefs.ts:308 src/prefs.ts:305
 msgid "Failed to clear cache!"
-msgstr "¡No se pudo borrar el caché!"
+msgstr "No se pudo vaciar la antememoria."
 
 #: src/helpers/BlacklistedPlayers.ts:50 src/helpers/BlacklistedPlayers.ts:47
 #: src/helpers/prefs/BlacklistedPlayers.ts:47
@@ -60,8 +61,7 @@ msgid ""
 "<span size='x-large' weight='bold' color='#ccc'>No players are blacklisted</"
 "span>"
 msgstr ""
-"<span size='x-large' weight='bold' color='#ccc'>No hay reproductores en la "
-"lista negra</span>"
+"<span size='x-large' weight='bold' color='#ccc'>No hay reproductores vetados</span>"
 
 #: src/helpers/LabelList.ts:9
 msgid "Artist"
@@ -85,7 +85,7 @@ msgstr "Número de canción"
 
 #: assets/ui/app-chooser.blp:5 assets/ui/app-chooser.blp:7
 msgid "Select app to blacklist"
-msgstr "Seleccione la aplicación que desea incluir en la lista negra"
+msgstr "Seleccione la aplicación que desea vetar"
 
 #: assets/ui/app-chooser.blp:24 assets/ui/app-chooser.blp:26
 msgid "Select"
@@ -93,13 +93,11 @@ msgstr "Seleccionar"
 
 #: assets/ui/blacklisted-players.blp:5 assets/ui/blacklisted-players.blp:7
 msgid "Blacklist players"
-msgstr "Lista negra de reproductores"
+msgstr "Vetar reproductores"
 
 #: assets/ui/blacklisted-players.blp:6 assets/ui/blacklisted-players.blp:8
 msgid "Blacklisted players will be ignored by the extension."
-msgstr ""
-"Los reproductores incluidos en la lista negra serán ignorados por la "
-"extensión."
+msgstr "La extensión ignorará los reproductores vetados."
 
 #: assets/ui/blacklisted-players.blp:17 assets/ui/blacklisted-players.blp:19
 msgid "Add"
@@ -134,7 +132,7 @@ msgstr "Añadir un texto personalizado"
 
 #: assets/ui/prefs.blp:6 assets/ui/prefs.blp:8
 msgid "General"
-msgstr "General"
+msgstr "Generales"
 
 #: assets/ui/prefs.blp:10 assets/ui/prefs.blp:12
 msgid "Common"
@@ -150,24 +148,23 @@ msgstr "Personalizar las etiquetas del panel y del menú emergente"
 
 #: assets/ui/prefs.blp:30 assets/ui/prefs.blp:32
 msgid "Fixed width"
-msgstr "Ancho fijo"
+msgstr "Anchura fija"
 
 #: assets/ui/prefs.blp:31 assets/ui/prefs.blp:33
 msgid "Use the specified width even when they are smaller than the width"
-msgstr ""
-"Utilice el ancho especificado incluso cuando sean más pequeños que el ancho"
+msgstr "Utilizar anchura especificada aun cuando sean más pequeños que esta"
 
 #: assets/ui/prefs.blp:35 assets/ui/prefs.blp:37
 msgid "Scroll labels"
-msgstr "Etiquetas de desplazamiento"
+msgstr "Desplazar etiquetas"
 
 #: assets/ui/prefs.blp:36 assets/ui/prefs.blp:38
 msgid "Scroll the labels when they are wider than the width"
-msgstr "Desplazar las etiquetas cuando son más anchas que la anchura fija"
+msgstr "Desplazar etiquetas cuando superen la anchura fijada"
 
 #: assets/ui/prefs.blp:42 assets/ui/prefs.blp:44
 msgid "Hide the media notification"
-msgstr "Ocultar la notificación multimedia"
+msgstr "Ocultar notificaciones multimedia"
 
 #: assets/ui/prefs.blp:43 assets/ui/prefs.blp:45
 msgid "Hide the media notifications in the notification list"
@@ -179,16 +176,16 @@ msgstr "Información"
 
 #: assets/ui/prefs.blp:52 assets/ui/prefs.blp:54
 msgid "Homepage"
-msgstr "Página de inicio"
+msgstr "Sitio web"
 
 #: assets/ui/prefs.blp:64 assets/ui/prefs.blp:66
 msgid "Release notes"
-msgstr "Notas de la versión"
+msgstr "Novedades de la versión"
 
 #: assets/ui/prefs.blp:76 assets/ui/prefs.blp:80 assets/ui/prefs.blp:78
 #: assets/ui/prefs.blp:82
 msgid "Report an issue"
-msgstr "Informar sobre un problema"
+msgstr "Informar de un problema"
 
 #: assets/ui/prefs.blp:91 assets/ui/prefs.blp:93
 msgid "Panel"
@@ -224,7 +221,7 @@ msgstr "Mostrar el botón de atrasar"
 
 #: assets/ui/prefs.blp:138 assets/ui/prefs.blp:140
 msgid "Show player icon"
-msgstr "Show player icon"
+msgstr "Mostrar el icono del reproductor"
 
 #: assets/ui/prefs.blp:142 assets/ui/prefs.blp:144
 msgid "Colored player icon"
@@ -277,12 +274,12 @@ msgstr "Mostrar menú emergente"
 
 #: assets/ui/prefs.blp:194 assets/ui/prefs.blp:196
 msgid "Shortcut to toggle the popup menu"
-msgstr "Acceso directo para activar el menú emergente"
+msgstr "Atajo para activar el menú emergente"
 
 #: assets/ui/prefs.blp:198 assets/ui/prefs.blp:275 assets/ui/prefs.blp:200
 #: assets/ui/prefs.blp:277
 msgid "Set shortcut"
-msgstr "Configurar acceso directo"
+msgstr "Establecer atajo"
 
 #: assets/ui/prefs.blp:206 assets/ui/prefs.blp:208
 msgid "Mouse actions"
@@ -290,27 +287,27 @@ msgstr "Acciones con el ratón"
 
 #: assets/ui/prefs.blp:209 assets/ui/prefs.blp:211
 msgid "Left click / Tap"
-msgstr "Clic izquierdo / Toque"
+msgstr "Pulsación izquierda/toque"
 
 #: assets/ui/prefs.blp:214 assets/ui/prefs.blp:216
 msgid "Middle click"
-msgstr "Clic central"
+msgstr "Pulsación central"
 
 #: assets/ui/prefs.blp:219 assets/ui/prefs.blp:221
 msgid "Right click"
-msgstr "Clic derecho"
+msgstr "Pulsación derecha"
 
 #: assets/ui/prefs.blp:224 assets/ui/prefs.blp:226
 msgid "Double click / Double tap"
-msgstr "Doble clic/Doble toque"
+msgstr "Pulsación/toque doble"
 
 #: assets/ui/prefs.blp:229 assets/ui/prefs.blp:231
 msgid "Scroll up / Swipe right"
-msgstr "Desplazarse hacia arriba/deslizar hacia la derecha"
+msgstr "Desplazarse hacia arriba/deslizar a la derecha"
 
 #: assets/ui/prefs.blp:234 assets/ui/prefs.blp:236
 msgid "Scroll down / Swipe left"
-msgstr "Desplazarse hacia abajo/deslizar hacia la izquierda"
+msgstr "Desplazarse hacia abajo/deslizar a la izquierda"
 
 #: assets/ui/prefs.blp:241 assets/ui/prefs.blp:243
 msgid "Other"
@@ -318,23 +315,23 @@ msgstr "Otro"
 
 #: assets/ui/prefs.blp:245 assets/ui/prefs.blp:247
 msgid "Cache"
-msgstr "Cache"
+msgstr "Antememoria"
 
 #: assets/ui/prefs.blp:246 assets/ui/prefs.blp:248
 msgid ""
 "This extension cache album art to improve performance. You can clear the "
 "cache here."
 msgstr ""
-"Esta extensión almacena en caché la carátula del álbum para mejorar el "
-"rendimiento. Puedes borrar el caché aquí."
+"Esta extensión almacena en antememoria la portada del álbum para mejorar el "
+"rendimiento. Puede vaciar la antememoria aquí."
 
 #: assets/ui/prefs.blp:249 assets/ui/prefs.blp:251
 msgid "Cache album art"
-msgstr "Caché de carátulas"
+msgstr "Prealmacenar portadas de álbumes"
 
 #: assets/ui/prefs.blp:264 assets/ui/prefs.blp:266
 msgid "Clear"
-msgstr "Limpiar"
+msgstr "Vaciar"
 
 #: assets/ui/prefs.blp:291 assets/ui/prefs.blp:293
 msgid ""
@@ -342,13 +339,13 @@ msgid ""
 "Press enter to set the shortcut.\n"
 "Press backspace to reset.</small>"
 msgstr ""
-"<small>Presione escape para cancelar.\n"
-"Pulse Intro para establecer el acceso directo.\n"
-"Pulse retroceso para restablecer.</small>"
+"<small>Presione Escape para cancelar.\n"
+"Presione Intro para definir el atajo.\n"
+"Presione Retroceso para restablecer.</small>"
 
 #: assets/ui/prefs.blp:297 assets/ui/prefs.blp:299
 msgid "Press shortcut"
-msgstr "Pulsar acceso directo"
+msgstr "Pulse el atajo"
 
 #: assets/ui/prefs.blp:308 assets/ui/prefs.blp:310
 msgid "None"
@@ -356,7 +353,7 @@ msgstr "Ninguno"
 
 #: assets/ui/prefs.blp:309 assets/ui/prefs.blp:311
 msgid "Play/Pause"
-msgstr "Reproducir/Pausa"
+msgstr "Reproducir/pausar"
 
 #: assets/ui/prefs.blp:310 assets/ui/prefs.blp:312
 msgid "Play"
@@ -364,11 +361,11 @@ msgstr "Reproducir"
 
 #: assets/ui/prefs.blp:311 assets/ui/prefs.blp:313
 msgid "Pause"
-msgstr "Pausa"
+msgstr "Pausar"
 
 #: assets/ui/prefs.blp:312 assets/ui/prefs.blp:314
 msgid "Next track"
-msgstr "Siguiente pista"
+msgstr "Pista siguiente"
 
 #: assets/ui/prefs.blp:313 assets/ui/prefs.blp:315
 msgid "Previous track"
@@ -384,16 +381,16 @@ msgstr "Bajar volumen"
 
 #: assets/ui/prefs.blp:316 assets/ui/prefs.blp:318
 msgid "Toggle loop"
-msgstr "Interruptor del bucle"
+msgstr "Alternar reproducción en bucle"
 
 #: assets/ui/prefs.blp:317 assets/ui/prefs.blp:319
 msgid "Toggle shuffle"
-msgstr "Interruptor de reproducción aleatoria"
+msgstr "Alternar reproducción aleatoria"
 
-# Duda de la palabra Raise 
+# Duda de la palabra Raise
 #: assets/ui/prefs.blp:319 assets/ui/prefs.blp:321
 msgid "Raise player"
-msgstr "Aumentar reproductor"
+msgstr "Elevar reproductor"
 
 #: assets/ui/prefs.blp:320 assets/ui/prefs.blp:322
 msgid "Quit player"
@@ -409,7 +406,7 @@ msgstr "Texto personalizado"
 
 #: assets/ui/prefs.blp:20
 msgid "Width"
-msgstr "Ancho"
+msgstr "Anchura"
 
 #: assets/ui/prefs.blp:21
 msgid "0 to take all available space"
