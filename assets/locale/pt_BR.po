@@ -1,0 +1,425 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-01-13 11:19+0100\n"
+"PO-Revision-Date: 2024-05-21 11:37-0300\n"
+"Last-Translator: Andrey R. Visniewski\n"
+"Language-Team: portugues brasil\n"
+"Language: pt_BR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.4.3\n"
+
+#: src/prefs.ts:125 src/prefs.ts:192 src/prefs.ts:195 src/prefs.ts:194
+#: src/prefs.ts:203 src/prefs.ts:205 src/prefs.ts:202
+msgid "Are you sure you want to clear the cache?"
+msgstr "Tem certeza de que deseja limpar o cache?"
+
+#: src/prefs.ts:126 assets/ui/app-chooser.blp:19 src/prefs.ts:193
+#: src/prefs.ts:196 src/prefs.ts:195 src/prefs.ts:204 src/prefs.ts:206
+#: src/prefs.ts:203 assets/ui/app-chooser.blp:21
+msgid "Cancel"
+msgstr "Cancelar"
+
+#: src/prefs.ts:127 assets/ui/prefs.blp:253 src/prefs.ts:194 src/prefs.ts:197
+#: src/prefs.ts:196 src/prefs.ts:205 src/prefs.ts:207 src/prefs.ts:204
+#: assets/ui/prefs.blp:255
+msgid "Clear cache"
+msgstr "Limpar cache"
+
+#: src/prefs.ts:134 src/prefs.ts:143 src/prefs.ts:201 src/prefs.ts:210
+#: src/prefs.ts:204 src/prefs.ts:213 src/prefs.ts:203 src/prefs.ts:212
+#: src/prefs.ts:221 src/prefs.ts:214 src/prefs.ts:223 src/prefs.ts:211
+#: src/prefs.ts:220
+#, javascript-format
+msgid "Cache size: %s"
+msgstr "Tamanho do cache: %s"
+
+#: src/prefs.ts:226 src/prefs.ts:293 src/prefs.ts:296 src/prefs.ts:295
+#: src/prefs.ts:304 src/prefs.ts:306 src/prefs.ts:303
+msgid "Cache cleared successfully!"
+msgstr "Cache limpo com sucesso!"
+
+#: src/prefs.ts:228 src/prefs.ts:295 src/prefs.ts:298 src/prefs.ts:297
+#: src/prefs.ts:306 src/prefs.ts:308 src/prefs.ts:305
+msgid "Failed to clear cache!"
+msgstr "Falha ao limpar o cache!"
+
+#: src/helpers/BlacklistedPlayers.ts:50 src/helpers/BlacklistedPlayers.ts:47
+#: src/helpers/prefs/BlacklistedPlayers.ts:47
+#: src/helpers/prefs/BlacklistedPlayers.ts:50
+msgid ""
+"<span size='x-large' weight='bold' color='#ccc'>No players are blacklisted</"
+"span>"
+msgstr ""
+"<span size='x-large' weight='bold' color='#ccc'>Nenhum Reprodutor de mídia "
+"é colocada na lista negra</span>"
+
+#: src/helpers/LabelList.ts:9
+msgid "Artist"
+msgstr "Artista"
+
+#: src/helpers/LabelList.ts:10
+msgid "Title"
+msgstr "Título"
+
+#: src/helpers/LabelList.ts:11
+msgid "Album"
+msgstr "Álbum"
+
+#: src/helpers/LabelList.ts:12
+msgid "Disc Number"
+msgstr "Número do disco"
+
+#: src/helpers/LabelList.ts:13
+msgid "Track Number"
+msgstr "Número da Faixa"
+
+#: assets/ui/app-chooser.blp:5 assets/ui/app-chooser.blp:7
+msgid "Select app to blacklist"
+msgstr "Selecione o aplicativo para colocar na lista negra"
+
+#: assets/ui/app-chooser.blp:24 assets/ui/app-chooser.blp:26
+msgid "Select"
+msgstr "Selecionar"
+
+#: assets/ui/blacklisted-players.blp:5 assets/ui/blacklisted-players.blp:7
+msgid "Blacklist players"
+msgstr "Lista negra dos Reprodutores de mídia"
+
+#: assets/ui/blacklisted-players.blp:6 assets/ui/blacklisted-players.blp:8
+msgid "Blacklisted players will be ignored by the extension."
+msgstr ""
+"Os Reprodutores de mídia na lista negra serão ignorados pela extensão."
+
+#: assets/ui/blacklisted-players.blp:17 assets/ui/blacklisted-players.blp:19
+msgid "Add"
+msgstr "Adicionar"
+
+#: assets/ui/element-list.blp:5 assets/ui/element-list.blp:7
+msgid "Elements"
+msgstr "Elementos"
+
+#: assets/ui/element-list.blp:12 assets/ui/prefs.blp:134
+#: assets/ui/element-list.blp:14 assets/ui/prefs.blp:136
+msgid "Player icon"
+msgstr "Ícone do Reprodutor de mídia"
+
+#: assets/ui/element-list.blp:22 assets/ui/label-list.blp:5
+#: assets/ui/element-list.blp:24 assets/ui/label-list.blp:7
+msgid "Label"
+msgstr "Legenda"
+
+#: assets/ui/element-list.blp:32 assets/ui/prefs.blp:100
+#: assets/ui/element-list.blp:34 assets/ui/prefs.blp:102
+msgid "Player controls"
+msgstr "Controles do Reprodutor de mídia"
+
+#: assets/ui/label-list.blp:18 assets/ui/label-list.blp:20
+msgid "Add item"
+msgstr "Adicionar item"
+
+#: assets/ui/label-list.blp:24 assets/ui/label-list.blp:26
+msgid "Add custom text"
+msgstr "Adicionar texto customizado"
+
+#: assets/ui/prefs.blp:6 assets/ui/prefs.blp:8
+msgid "General"
+msgstr "Geral"
+
+#: assets/ui/prefs.blp:10 assets/ui/prefs.blp:12
+msgid "Common"
+msgstr "Comum"
+
+#: assets/ui/prefs.blp:13 assets/ui/prefs.blp:15
+msgid "Labels"
+msgstr "Legendas"
+
+#: assets/ui/prefs.blp:14 assets/ui/prefs.blp:16
+msgid "Customize the labels in the panel and the popup menu"
+msgstr "Personalize as legendas no painel e no menu pop-up"
+
+#: assets/ui/prefs.blp:30 assets/ui/prefs.blp:32
+msgid "Fixed width"
+msgstr "Largura fixa"
+
+#: assets/ui/prefs.blp:31 assets/ui/prefs.blp:33
+msgid "Use the specified width even when they are smaller than the width"
+msgstr "Use a largura especificada mesmo quando forem menores que a largura"
+
+#: assets/ui/prefs.blp:35 assets/ui/prefs.blp:37
+msgid "Scroll labels"
+msgstr "Rolar legendas"
+
+#: assets/ui/prefs.blp:36 assets/ui/prefs.blp:38
+msgid "Scroll the labels when they are wider than the width"
+msgstr "Role as legendas quando elas forem mais largas que a largura"
+
+#: assets/ui/prefs.blp:42 assets/ui/prefs.blp:44
+msgid "Hide the media notification"
+msgstr "Ocultar a notificação de mídia"
+
+#: assets/ui/prefs.blp:43 assets/ui/prefs.blp:45
+msgid "Hide the media notifications in the notification list"
+msgstr "Oculte as notificações de mídia na lista de notificações"
+
+#: assets/ui/prefs.blp:49 assets/ui/prefs.blp:51
+msgid "Information"
+msgstr "Informação"
+
+#: assets/ui/prefs.blp:52 assets/ui/prefs.blp:54
+msgid "Homepage"
+msgstr "Pagina inicial"
+
+#: assets/ui/prefs.blp:64 assets/ui/prefs.blp:66
+msgid "Release notes"
+msgstr "Notas de lançamento"
+
+#: assets/ui/prefs.blp:76 assets/ui/prefs.blp:80 assets/ui/prefs.blp:78
+#: assets/ui/prefs.blp:82
+msgid "Report an issue"
+msgstr "Informar um problema"
+
+#: assets/ui/prefs.blp:91 assets/ui/prefs.blp:93
+msgid "Panel"
+msgstr "Painel"
+
+#: assets/ui/prefs.blp:96 assets/ui/prefs.blp:98
+msgid "Show label"
+msgstr "Mostrar legenda"
+
+#: assets/ui/prefs.blp:104 assets/ui/prefs.blp:106
+msgid "Show player controls"
+msgstr "Mostrar controles do reprodutor de mídia"
+
+#: assets/ui/prefs.blp:108 assets/ui/prefs.blp:110
+msgid "Show play/pause button"
+msgstr "Mostrar botão play/pause"
+
+#: assets/ui/prefs.blp:113 assets/ui/prefs.blp:115
+msgid "Show next track button"
+msgstr "Mostrar botão da próxima musica"
+
+#: assets/ui/prefs.blp:118 assets/ui/prefs.blp:120
+msgid "Show previous track button"
+msgstr "Mostrar botão da musica anterior"
+
+#: assets/ui/prefs.blp:123 assets/ui/prefs.blp:125
+msgid "Show seek forward button"
+msgstr "Mostrar botão de busca para frente"
+
+#: assets/ui/prefs.blp:128 assets/ui/prefs.blp:130
+msgid "Show seek back button"
+msgstr "Mostrar botão de busca de retorno"
+
+#: assets/ui/prefs.blp:138 assets/ui/prefs.blp:140
+msgid "Show player icon"
+msgstr "Mostrar ícone do reprodutor de mídia"
+
+#: assets/ui/prefs.blp:142 assets/ui/prefs.blp:144
+msgid "Colored player icon"
+msgstr "Colorir ícone do reprodutor de mídia"
+
+#: assets/ui/prefs.blp:150 assets/ui/prefs.blp:152
+msgid "Positions"
+msgstr "Posições"
+
+#: assets/ui/prefs.blp:154 assets/ui/prefs.blp:156
+msgid "Extension"
+msgstr "Extensão"
+
+#: assets/ui/prefs.blp:157 assets/ui/prefs.blp:159
+msgid "Position"
+msgstr "Posição"
+
+#: assets/ui/prefs.blp:158 assets/ui/prefs.blp:160
+msgid "Position of the extension in the panel"
+msgstr "Posição da extensão no painel"
+
+#: assets/ui/prefs.blp:162 assets/ui/prefs.blp:164
+msgid "Left"
+msgstr "Esquerda"
+
+#: assets/ui/prefs.blp:163 assets/ui/prefs.blp:165
+msgid "Center"
+msgstr "Centro"
+
+#: assets/ui/prefs.blp:164 assets/ui/prefs.blp:166
+msgid "Right"
+msgstr "Direita"
+
+#: assets/ui/prefs.blp:170 assets/ui/prefs.blp:172
+msgid "Index"
+msgstr "Índice"
+
+#: assets/ui/prefs.blp:171 assets/ui/prefs.blp:173
+msgid "Index of the extension"
+msgstr "Índice da extensão"
+
+#: assets/ui/prefs.blp:188 assets/ui/prefs.blp:190
+msgid "Shortcuts"
+msgstr "Atalhos"
+
+#: assets/ui/prefs.blp:193 assets/ui/prefs.blp:318 assets/ui/prefs.blp:195
+#: assets/ui/prefs.blp:320
+msgid "Show popup menu"
+msgstr "Mostrar menu pop-up"
+
+#: assets/ui/prefs.blp:194 assets/ui/prefs.blp:196
+msgid "Shortcut to toggle the popup menu"
+msgstr "Atalho para alternar o menu pop-up"
+
+#: assets/ui/prefs.blp:198 assets/ui/prefs.blp:275 assets/ui/prefs.blp:200
+#: assets/ui/prefs.blp:277
+msgid "Set shortcut"
+msgstr "Definir atalho"
+
+#: assets/ui/prefs.blp:206 assets/ui/prefs.blp:208
+msgid "Mouse actions"
+msgstr "Ações do mouse"
+
+#: assets/ui/prefs.blp:209 assets/ui/prefs.blp:211
+msgid "Left click / Tap"
+msgstr "Clique esquerdo/ toque"
+
+#: assets/ui/prefs.blp:214 assets/ui/prefs.blp:216
+msgid "Middle click"
+msgstr "Clique com a rodinha do mouse"
+
+#: assets/ui/prefs.blp:219 assets/ui/prefs.blp:221
+msgid "Right click"
+msgstr "Clique com o botão direito"
+
+#: assets/ui/prefs.blp:224 assets/ui/prefs.blp:226
+msgid "Double click / Double tap"
+msgstr "Clique duplo / toque duplo"
+
+#: assets/ui/prefs.blp:229 assets/ui/prefs.blp:231
+msgid "Scroll up / Swipe right"
+msgstr "Rolar para cima / deslizar para a direita"
+
+#: assets/ui/prefs.blp:234 assets/ui/prefs.blp:236
+msgid "Scroll down / Swipe left"
+msgstr "Role para baixo / deslize para a esquerda"
+
+#: assets/ui/prefs.blp:241 assets/ui/prefs.blp:243
+msgid "Other"
+msgstr "Outro"
+
+#: assets/ui/prefs.blp:245 assets/ui/prefs.blp:247
+msgid "Cache"
+msgstr "Cache"
+
+#: assets/ui/prefs.blp:246 assets/ui/prefs.blp:248
+msgid ""
+"This extension cache album art to improve performance. You can clear the "
+"cache here."
+msgstr ""
+"Esta extensão armazena em cache a arte do álbum para melhorar o desempenho. "
+"Você pode limpar o cache aqui."
+
+#: assets/ui/prefs.blp:249 assets/ui/prefs.blp:251
+msgid "Cache album art"
+msgstr "Arte do álbum em cache"
+
+#: assets/ui/prefs.blp:264 assets/ui/prefs.blp:266
+msgid "Clear"
+msgstr "Limpar"
+
+#: assets/ui/prefs.blp:291 assets/ui/prefs.blp:293
+msgid ""
+"<small>Press escape to cancel.\n"
+"Press enter to set the shortcut.\n"
+"Press backspace to reset.</small>"
+msgstr ""
+"<small>Pressione espaço para cancelar.\n"
+"Pressione Enter para definir o atalho.\n"
+"Pressione backspace para redefinir.</small>"
+
+#: assets/ui/prefs.blp:297 assets/ui/prefs.blp:299
+msgid "Press shortcut"
+msgstr "Pressione o atalho"
+
+#: assets/ui/prefs.blp:308 assets/ui/prefs.blp:310
+msgid "None"
+msgstr "Nenhum"
+
+#: assets/ui/prefs.blp:309 assets/ui/prefs.blp:311
+msgid "Play/Pause"
+msgstr "Reproduzir/Pausar"
+
+#: assets/ui/prefs.blp:310 assets/ui/prefs.blp:312
+msgid "Play"
+msgstr "Play"
+
+#: assets/ui/prefs.blp:311 assets/ui/prefs.blp:313
+msgid "Pause"
+msgstr "Pausar"
+
+#: assets/ui/prefs.blp:312 assets/ui/prefs.blp:314
+msgid "Next track"
+msgstr "Próxima música"
+
+#: assets/ui/prefs.blp:313 assets/ui/prefs.blp:315
+msgid "Previous track"
+msgstr "Música anterior"
+
+#: assets/ui/prefs.blp:314 assets/ui/prefs.blp:316
+msgid "Volume up"
+msgstr "Aumentar o volume"
+
+#: assets/ui/prefs.blp:315 assets/ui/prefs.blp:317
+msgid "Volume down"
+msgstr "Diminuir volume"
+
+#: assets/ui/prefs.blp:316 assets/ui/prefs.blp:318
+msgid "Toggle loop"
+msgstr "Alternar loop"
+
+#: assets/ui/prefs.blp:317 assets/ui/prefs.blp:319
+msgid "Toggle shuffle"
+msgstr "Alternar ordem aleatória"
+
+#: assets/ui/prefs.blp:319 assets/ui/prefs.blp:321
+msgid "Raise player"
+msgstr "Aumentar o reprodutor de mídia"
+
+#: assets/ui/prefs.blp:320 assets/ui/prefs.blp:322
+msgid "Quit player"
+msgstr "Sair do reprodutor de mídia"
+
+#: assets/ui/prefs.blp:321 assets/ui/prefs.blp:323
+msgid "Open preferences"
+msgstr "Abrir preferências"
+
+#: src/helpers/prefs/LabelList.ts:97
+msgid "Custom text"
+msgstr "Texto personalizado"
+
+#: assets/ui/prefs.blp:20
+msgid "Width"
+msgstr "Largura"
+
+#: assets/ui/prefs.blp:21
+msgid "0 to take all available space"
+msgstr "0 para ocupar todo o espaço disponível"
+
+#: src/helpers/shell/PanelButton.ts:258
+msgid "Unknown player"
+msgstr "Reprodutor de mídia desconhecido"
+
+#: src/helpers/shell/PanelButton.ts:434
+msgid "Unknown artist"
+msgstr "Artista desconhecido"
+
+#: src/helpers/shell/PanelButton.ts:745
+msgid "Unknown album"
+msgstr "Álbum desconhecido"
