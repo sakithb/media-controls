@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2024-01-13 11:19+0100\n"
-"PO-Revision-Date: 2024-05-21 11:24-0300\n"
+"PO-Revision-Date: 2024-05-21 11:37-0300\n"
 "Last-Translator: Andrey R. Visniewski\n"
 "Language-Team: portugues brasil\n"
 "Language: pt_BR\n"
@@ -60,8 +60,8 @@ msgid ""
 "<span size='x-large' weight='bold' color='#ccc'>No players are blacklisted</"
 "span>"
 msgstr ""
-"<span size='x-large' weight='bold' color='#ccc'>Nenhuma musica é colocada "
-"na lista negra</span>"
+"<span size='x-large' weight='bold' color='#ccc'>Nenhum Reprodutor de mídia "
+"é colocada na lista negra</span>"
 
 #: src/helpers/LabelList.ts:9
 msgid "Artist"
@@ -121,7 +121,7 @@ msgstr "Legenda"
 #: assets/ui/element-list.blp:32 assets/ui/prefs.blp:100
 #: assets/ui/element-list.blp:34 assets/ui/prefs.blp:102
 msgid "Player controls"
-msgstr "Controles do Reprodutores de mídia"
+msgstr "Controles do Reprodutor de mídia"
 
 #: assets/ui/label-list.blp:18 assets/ui/label-list.blp:20
 msgid "Add item"
@@ -354,7 +354,7 @@ msgstr "Nenhum"
 
 #: assets/ui/prefs.blp:309 assets/ui/prefs.blp:311
 msgid "Play/Pause"
-msgstr "Play/Pause"
+msgstr "Reproduzir/Pausar"
 
 #: assets/ui/prefs.blp:310 assets/ui/prefs.blp:312
 msgid "Play"
@@ -414,7 +414,7 @@ msgstr "0 para ocupar todo o espaço disponível"
 
 #: src/helpers/shell/PanelButton.ts:258
 msgid "Unknown player"
-msgstr "Player desconhecido"
+msgstr "Reprodutor de mídia desconhecido"
 
 #: src/helpers/shell/PanelButton.ts:434
 msgid "Unknown artist"
