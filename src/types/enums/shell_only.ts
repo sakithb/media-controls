@@ -1,6 +1,4 @@
 import Clutter from "gi://Clutter";
-import { Enum } from "../misc.js";
-
 export const ControlIconOptions = {
     LOOP_NONE: {
         name: "loop",
@@ -110,7 +108,7 @@ export const ControlIconOptions = {
     },
     SHUFFLE_ON: {
         name: "shuffle",
-        iconName: "media-playlist-shuffle-symbolic",
+        iconName: "media-playlist-consecutive-symbolic",
         menuProps: {
             index: 4,
             options: {
@@ -121,7 +119,7 @@ export const ControlIconOptions = {
     },
     SHUFFLE_OFF: {
         name: "shuffle",
-        iconName: "media-playlist-no-shuffle-symbolic",
+        iconName: "media-playlist-shuffle-symbolic",
         menuProps: {
             index: 4,
             options: {
@@ -130,23 +128,4 @@ export const ControlIconOptions = {
             },
         },
     },
-} as const;
-
-export type ControlIconOptions = Enum<typeof ControlIconOptions>;
-export type MenuControlIconOptions = (typeof ControlIconOptions)[
-    | "LOOP_NONE"
-    | "LOOP_TRACK"
-    | "LOOP_PLAYLIST"
-    | "PREVIOUS"
-    | "PLAY"
-    | "PAUSE"
-    | "NEXT"
-    | "SHUFFLE_ON"
-    | "SHUFFLE_OFF"];
-export type PanelControlIconOptions = (typeof ControlIconOptions)[
-    | "SEEK_BACKWARD"
-    | "PREVIOUS"
-    | "PLAY"
-    | "PAUSE"
-    | "NEXT"
-    | "SEEK_FORWARD"];
+};
