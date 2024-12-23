@@ -121,7 +121,7 @@ export const ControlIconOptions = {
     },
     SHUFFLE_OFF: {
         name: "shuffle",
-        iconName: "media-playlist-consecutive-symbolic" || "media-playlist-no-shuffle-symbolic",
+        iconName: "media-playlist-consecutive-symbolic",
         menuProps: {
             index: 4,
             options: {
