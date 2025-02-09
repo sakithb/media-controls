@@ -3,7 +3,6 @@ import GLib from "gi://GLib";
 import Meta from "gi://Meta";
 import Shell from "gi://Shell";
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
-import * as Mpris from "resource:///org/gnome/shell/ui/mpris.js";
 import * as MessageList from "resource:///org/gnome/shell/ui/messageList.js";
 import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
 
