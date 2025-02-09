@@ -4,6 +4,7 @@ import Meta from "gi://Meta";
 import Shell from "gi://Shell";
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
 import * as Mpris from "resource:///org/gnome/shell/ui/mpris.js";
+import * as MessageList from "resource:///org/gnome/shell/ui/messageList.js";
 import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
 
 import PanelButton from "./helpers/shell/PanelButton.js";
@@ -487,13 +488,13 @@ export default class MediaControls extends Extension {
 
     private updateMediaNotificationVisiblity(shouldReset = false) {
         if (this.mediaSectionAddFunc && (shouldReset || this.hideMediaNotification === false)) {
-            Mpris.MediaSection.prototype._addPlayer = this.mediaSectionAddFunc;
+            MessageList.MediaSection.prototype._addPlayer = this.mediaSectionAddFunc;
             this.mediaSectionAddFunc = null;
 
             Main.panel.statusArea.dateMenu._messageList._mediaSection._onProxyReady();
         } else {
-            this.mediaSectionAddFunc = Mpris.MediaSection.prototype._addPlayer;
-            Mpris.MediaSection.prototype._addPlayer = function () {};
+            this.mediaSectionAddFunc = MessageList.MediaSection.prototype._addPlayer;
+            MessageList.MediaSection.prototype._addPlayer = function () {};
 
             if (Main.panel.statusArea.dateMenu._messageList._mediaSection._players != null) {
                 for (const player of Main.panel.statusArea.dateMenu._messageList._mediaSection._players.values()) {
