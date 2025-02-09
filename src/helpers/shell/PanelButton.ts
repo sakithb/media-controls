@@ -191,7 +191,7 @@ class PanelButton extends PanelMenu.Button {
     private addMenuPlayers() {
         if (this.menuPlayers == null) {
             this.menuPlayers = new St.BoxLayout({
-                vertical: true,
+                orientation: Clutter.Orientation.VERTICAL,
             });
         }
 
@@ -423,7 +423,7 @@ class PanelButton extends PanelMenu.Button {
     private addMenuLabels() {
         if (this.menuLabels == null) {
             this.menuLabels = new St.BoxLayout({
-                vertical: true,
+                orientation: Clutter.Orientation.VERTICAL,
             });
         }
 
