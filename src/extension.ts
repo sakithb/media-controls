@@ -487,16 +487,16 @@ export default class MediaControls extends Extension {
 
     private updateMediaNotificationVisiblity(shouldReset = false) {
         if (this.mediaSectionAddFunc && (shouldReset || this.hideMediaNotification === false)) {
-            Mpris.MediaSection.prototype._addPlayer = this.mediaSectionAddFunc;
+            Mpris.MprisSource.prototype._addPlayer = this.mediaSectionAddFunc;
             this.mediaSectionAddFunc = null;
 
-            Main.panel.statusArea.dateMenu._messageList._mediaSection._onProxyReady();
+            Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._onProxyReady();
         } else {
-            this.mediaSectionAddFunc = Mpris.MediaSection.prototype._addPlayer;
-            Mpris.MediaSection.prototype._addPlayer = function () {};
+            this.mediaSectionAddFunc = Mpris.MprisSource.prototype._addPlayer;
+            Mpris.MprisSource.prototype._addPlayer = function () {};
 
-            if (Main.panel.statusArea.dateMenu._messageList._mediaSection._players != null) {
-                for (const player of Main.panel.statusArea.dateMenu._messageList._mediaSection._players.values()) {
+            if (Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._players != null) {
+                for (const player of Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._players.values()) {
                     player._close();
                 }
             }

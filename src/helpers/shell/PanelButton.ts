@@ -191,7 +191,7 @@ class PanelButton extends PanelMenu.Button {
     private addMenuPlayers() {
         if (this.menuPlayers == null) {
             this.menuPlayers = new St.BoxLayout({
-                vertical: true,
+                orientation: Clutter.Orientation.VERTICAL,
             });
         }
 
@@ -390,7 +390,7 @@ class PanelButton extends PanelMenu.Button {
                 const height = width / aspectRatio;
                 const format = pixbuf.hasAlpha ? Cogl.PixelFormat.RGBA_8888 : Cogl.PixelFormat.RGB_888;
 
-                const image = St.ImageContent.new_with_preferred_size(width, height) as St.ImageContent & Clutter.Image;
+                const image = St.ImageContent.new_with_preferred_size(width, height) as St.ImageContent;
                 image.set_bytes(pixbuf.pixelBytes, format, pixbuf.width, pixbuf.height, pixbuf.rowstride);
 
                 this.menuImage.iconSize = -1;
@@ -423,7 +423,7 @@ class PanelButton extends PanelMenu.Button {
     private addMenuLabels() {
         if (this.menuLabels == null) {
             this.menuLabels = new St.BoxLayout({
-                vertical: true,
+                orientation: Clutter.Orientation.VERTICAL,
             });
         }
 

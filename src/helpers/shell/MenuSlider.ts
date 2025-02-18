@@ -19,7 +19,7 @@ class MenuSlider extends St.BoxLayout {
     private rate: number;
 
     constructor() {
-        super({ vertical: true });
+        super({ orientation: Clutter.Orientation.VERTICAL });
 
         this.rate = 1.0;
         this.slider = new Slider.Slider(0);
