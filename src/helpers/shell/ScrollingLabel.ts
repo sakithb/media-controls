@@ -84,7 +84,7 @@ class ScrollingLabel extends St.ScrollView {
 
     private initScrolling() {
         const adjustment = this.hscroll.adjustment;
-        const origText = this.label.text;
+        const origText = this.label.text + "     ";
 
         this.onAdjustmentChangedId = adjustment.connect(
             "changed",
