@@ -391,7 +391,8 @@ class PanelButton extends PanelMenu.Button {
                 const format = pixbuf.hasAlpha ? Cogl.PixelFormat.RGBA_8888 : Cogl.PixelFormat.RGB_888;
 
                 const image = St.ImageContent.new_with_preferred_size(width, height) as St.ImageContent;
-                image.set_bytes(pixbuf.pixelBytes, format, pixbuf.width, pixbuf.height, pixbuf.rowstride);
+                const context = global.stage.context.get_backend().get_cogl_context();
+                image.set_bytes(context, pixbuf.pixelBytes, format, pixbuf.width, pixbuf.height, pixbuf.rowstride);
 
                 this.menuImage.iconSize = -1;
                 this.menuImage.gicon = null;
