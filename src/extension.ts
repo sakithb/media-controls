@@ -305,22 +305,22 @@ export default class MediaControls extends Extension {
         const mprisNodeXml = textDecoder.decode(mprisBytes[0]);
 
         const watchNodeInfo = Gio.DBusNodeInfo.new_for_xml(watchNodeXml);
-        const watchInterface = watchNodeInfo.interfaces.find((iface) => iface.name === DBUS_IFACE_NAME);
+        const watchInterface = watchNodeInfo.lookup_interface(DBUS_IFACE_NAME);
 
         this.watchIfaceInfo = watchInterface;
 
         const mprisNodeInfo = Gio.DBusNodeInfo.new_for_xml(mprisNodeXml);
-        const mprisInterface = mprisNodeInfo.interfaces.find((iface) => iface.name === MPRIS_IFACE_NAME);
-        const mprisPlayerInterface = mprisNodeInfo.interfaces.find((iface) => iface.name === MPRIS_PLAYER_IFACE_NAME);
-        const propertiesInterface = mprisNodeInfo.interfaces.find((iface) => iface.name === DBUS_PROPERTIES_IFACE_NAME);
+        const mprisInterface = mprisNodeInfo.lookup_interface(MPRIS_IFACE_NAME);
+        const mprisPlayerInterface = mprisNodeInfo.lookup_interface(MPRIS_PLAYER_IFACE_NAME);
+        const propertiesInterface = mprisNodeInfo.lookup_interface(DBUS_PROPERTIES_IFACE_NAME);
 
-        const mprisInterfaceString = new GLib.String("");
+        const mprisInterfaceString = new GLib.String();
         mprisInterface.generate_xml(4, mprisInterfaceString);
 
-        const mprisPlayerInterfaceString = new GLib.String("");
+        const mprisPlayerInterfaceString = new GLib.String();
         mprisPlayerInterface.generate_xml(4, mprisPlayerInterfaceString);
 
-        const propertiesInterfaceString = new GLib.String("");
+        const propertiesInterfaceString = new GLib.String();
         propertiesInterface.generate_xml(4, propertiesInterfaceString);
 
         this.mprisIfaceInfo = mprisInterface;
@@ -490,12 +490,15 @@ export default class MediaControls extends Extension {
             Mpris.MprisSource.prototype._addPlayer = this.mediaSectionAddFunc;
             this.mediaSectionAddFunc = null;
 
+            // @ts-expect-error
             Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._onProxyReady();
         } else {
             this.mediaSectionAddFunc = Mpris.MprisSource.prototype._addPlayer;
             Mpris.MprisSource.prototype._addPlayer = function () {};
 
+            // @ts-expect-error
             if (Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._players != null) {
+                // @ts-expect-error
                 for (const player of Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._players.values()) {
                     player._close();
                 }

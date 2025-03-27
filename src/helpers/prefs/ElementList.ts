@@ -39,11 +39,12 @@ class ElementList extends Adw.PreferencesGroup {
             const targetRow = this.listBox.get_row_at_y(y);
             if (targetRow == null || sourceIndex == null) return;
 
-            const sourceValue = this.elements[sourceIndex];
+            const index = sourceIndex.get_uint();
+            const sourceValue = this.elements[index];
             const targetIndex = targetRow.get_index();
 
-            this.elements.splice(targetIndex > sourceIndex ? targetIndex + 1 : targetIndex, 0, sourceValue);
-            this.elements.splice(sourceIndex > targetIndex ? sourceIndex + 1 : sourceIndex, 1);
+            this.elements.splice(targetIndex > index ? targetIndex + 1 : targetIndex, 0, sourceValue);
+            this.elements.splice(index > targetIndex ? index + 1 : index, 1);
 
             this.notify("elements");
             this.listBox.drag_unhighlight_row();

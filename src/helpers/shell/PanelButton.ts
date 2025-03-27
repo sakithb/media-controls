@@ -7,6 +7,7 @@ import Gio from "gi://Gio";
 import St from "gi://St";
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
+import { SignalMap } from "resource:///org/gnome/shell/misc/signals.js";
 import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
 
 import MediaControls from "../../extension.js";
@@ -30,16 +31,12 @@ import {
 Gio._promisify(GdkPixbuf.Pixbuf, "new_from_stream_async", "new_from_stream_finish");
 Gio._promisify(Gio.File.prototype, "query_info_async", "query_info_finish");
 
-function find_child_by_name(parent: Clutter.Actor | Clutter.Container, name: string) {
-    if (Clutter.Container === undefined) {
-        const children = (parent as Clutter.Actor).get_children();
-        for (const child of children) {
-            if (child.get_name() === name) {
-                return child;
-            }
+function find_child_by_name(parent: Clutter.Actor, name: string) {
+    const children = parent.get_children();
+    for (const child of children) {
+        if (child.get_name() === name) {
+            return child;
         }
-    } else {
-        return parent.find_child_by_name(name);
     }
 }
 
@@ -82,6 +79,7 @@ class PanelButton extends PanelMenu.Button {
         this.addProxyListeners();
         this.initActions();
 
+        // @ts-expect-error
         this.menu.box.add_style_class_name("popup-menu-container");
         this.connect("destroy", this.onDestroy.bind(this));
     }
@@ -184,6 +182,7 @@ class PanelButton extends PanelMenu.Button {
         }
 
         if (this.menuBox.get_parent() == null) {
+            // @ts-expect-error
             this.menu.addMenuItem(this.menuBox);
         }
     }
@@ -770,6 +769,7 @@ class PanelButton extends PanelMenu.Button {
     }
 
     private getMenuItemWidth() {
+        // @ts-expect-error
         const menuContainer = this.menu.box.get_parent().get_parent() as St.Widget;
         const minWidth = menuContainer.get_theme_node().get_min_width() - 24;
 

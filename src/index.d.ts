@@ -17,6 +17,8 @@ import "@girs/cogl-13/ambient";
 import "@girs/gdkpixbuf-2.0/ambient";
 
 declare global {
+    var global: any;
+
     interface ImportMeta {
         url: string;
     }

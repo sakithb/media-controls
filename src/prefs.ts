@@ -34,7 +34,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
     private shortcutsPage: Adw.PreferencesPage;
     private otherPage: Adw.PreferencesPage;
 
-    public fillPreferencesWindow(window: Adw.PreferencesWindow) {
+    public async fillPreferencesWindow(window: Adw.PreferencesWindow) {
         const resourcePath = GLib.build_filenamev([this.path, "org.gnome.shell.extensions.mediacontrols.gresource"]);
         Gio.resources_register(Gio.resource_load(resourcePath));
 

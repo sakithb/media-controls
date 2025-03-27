@@ -33,11 +33,12 @@ class LabelList extends Adw.PreferencesGroup {
             const targetRow = this.listBox.get_row_at_y(y);
             if (targetRow == null || sourceIndex == null) return;
 
-            const sourceValue = this.labels[sourceIndex];
+            const index = sourceIndex.get_uint();
+            const sourceValue = this.labels[index];
             const targetIndex = targetRow.get_index();
 
-            this.labels.splice(targetIndex > sourceIndex ? targetIndex + 1 : targetIndex, 0, sourceValue);
-            this.labels.splice(sourceIndex > targetIndex ? sourceIndex + 1 : sourceIndex, 1);
+            this.labels.splice(targetIndex > index ? targetIndex + 1 : targetIndex, 0, sourceValue);
+            this.labels.splice(index > targetIndex ? index + 1 : index, 1);
 
             this.notify("labels");
             this.listBox.drag_unhighlight_row();
