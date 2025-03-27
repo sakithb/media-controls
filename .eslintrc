@@ -1,7 +1,7 @@
 {
   "root": true,
   "extends": ["eslint:recommended", "plugin:@typescript-eslint/recommended", "plugin:import/recommended", "plugin:import/typescript"],
-  "plugins": ["@typescript-eslint"],
+  "plugins": ["@typescript-eslint", "only-warn"],
   "parser": "@typescript-eslint/parser",
   "env": {
     "es2021": true

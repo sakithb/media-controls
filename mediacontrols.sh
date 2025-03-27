@@ -12,7 +12,7 @@ build() {
 
   if [ "$1" = "release" ]; then
     echo "Prettifying..."
-    npm run compile:padding 1>/dev/null
+    npm run compile:padding
 
     echo "Stripping debug values..."
     sed 's/const DEBUG = true;/const DEBUG = false;/g' ./dist/compiled/utils/common.js >./dist/compiled/utils/common.js.tmp

@@ -13,9 +13,6 @@
     "format": "prettier --write src"
   },
   "devDependencies": {
-    "@eslint/compat": "^1.2.7",
-    "@eslint/eslintrc": "^3.3.1",
-    "@eslint/js": "^9.23.0",
     "@girs/adw-1": "1.8.0-4.0.0-beta.23",
     "@girs/clutter-13": "13.0.0-4.0.0-beta.23",
     "@girs/cogl-13": "13.0.0-4.0.0-beta.23",
@@ -34,11 +31,12 @@
     "@girs/shell-13": "13.0.0-4.0.0-beta.23",
     "@girs/soup-3.0": "3.6.4-4.0.0-beta.23",
     "@girs/st-13": "13.0.0-4.0.0-beta.23",
-    "@typescript-eslint/eslint-plugin": "^8.28.0",
-    "@typescript-eslint/parser": "^8.28.0",
-    "eslint": "^9.23.0",
-    "eslint-plugin-import": "^2.31.0",
-    "prettier": "^3.5.3",
-    "typescript": "^5.8.2"
+    "@typescript-eslint/eslint-plugin": "^6.12.0",
+    "@typescript-eslint/parser": "^6.12.0",
+    "eslint": "^8.54.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-only-warn": "^1.1.0",
+    "prettier": "^3.1.1",
+    "typescript": "^5.3.2"
   }
 }
