@@ -314,13 +314,16 @@ export default class MediaControls extends Extension {
         const mprisPlayerInterface = mprisNodeInfo.lookup_interface(MPRIS_PLAYER_IFACE_NAME);
         const propertiesInterface = mprisNodeInfo.lookup_interface(DBUS_PROPERTIES_IFACE_NAME);
 
-        const mprisInterfaceString = new GLib.String();
+        // @ts-expect-error
+        const mprisInterfaceString = new GLib.String("");
         mprisInterface.generate_xml(4, mprisInterfaceString);
 
-        const mprisPlayerInterfaceString = new GLib.String();
+        // @ts-expect-error
+        const mprisPlayerInterfaceString = new GLib.String("");
         mprisPlayerInterface.generate_xml(4, mprisPlayerInterfaceString);
 
-        const propertiesInterfaceString = new GLib.String();
+        // @ts-expect-error
+        const propertiesInterfaceString = new GLib.String("");
         propertiesInterface.generate_xml(4, propertiesInterfaceString);
 
         this.mprisIfaceInfo = mprisInterface;
