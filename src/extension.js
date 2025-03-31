@@ -1,6 +1,7 @@
 /** @import { StdInterface } from './types/dbus.js' */
 /** @import { KeysOf } from './types/misc.js' */
 /** @import { MouseActions } from './types/enums/common.js' */
+
 import Gio from "gi://Gio";
 import GLib from "gi://GLib";
 import Meta from "gi://Meta";
@@ -22,149 +23,220 @@ import {
     DBUS_IFACE_NAME,
     ExtensionPositions,
 } from "./types/enums/common.js";
+
 Gio._promisify(Gio.File.prototype, "load_contents_async", "load_contents_finish");
-/** @extends Extension */
+
 export default class MediaControls extends Extension {
     /**
      * @public
+     * @type {number}
      */
     labelWidth;
+
     /**
      * @public
+     * @type {boolean}
      */
     isFixedLabelWidth;
+
     /**
      * @public
+     * @type {boolean}
      */
     scrollLabels;
+
     /**
      * @public
+     * @type {boolean}
      */
     hideMediaNotification;
+
     /**
      * @public
+     * @type {boolean}
      */
     showLabel;
+
     /**
      * @public
+     * @type {boolean}
      */
     showPlayerIcon;
+
     /**
      * @public
+     * @type {boolean}
      */
     showControlIcons;
+
     /**
      * @public
+     * @type {boolean}
      */
     showControlIconsPlay;
+
     /**
      * @public
+     * @type {boolean}
      */
     showControlIconsNext;
+
     /**
      * @public
+     * @type {boolean}
      */
     showControlIconsPrevious;
+
     /**
      * @public
+     * @type {boolean}
      */
     showControlIconsSeekForward;
+
     /**
      * @public
+     * @type {boolean}
      */
     showControlIconsSeekBackward;
+
     /**
      * @public
+     * @type {boolean}
      */
     coloredPlayerIcon;
+
     /**
      * @public
+     * @type {ExtensionPositions}
      */
     extensionPosition;
+
     /**
      * @public
+     * @type {number}
      */
     extensionIndex;
+
     /**
      * @public
+     * @type {ElementsOrder}
      */
     elementsOrder;
+
     /**
      * @public
+     * @type {LabelsOrder}
      */
     labelsOrder;
+
     /**
      * @public
+     * @type {string}
      */
     shortcutShowMenu;
+
     /**
      * @public
+     * @type {MouseActions}
      */
     mouseActionLeft;
+
     /**
      * @public
+     * @type {MouseActions}
      */
     mouseActionMiddle;
+
     /**
      * @public
+     * @type {MouseActions}
      */
     mouseActionRight;
+
     /**
      * @public
+     * @type {MouseActions}
      */
     mouseActionDouble;
+
     /**
      * @public
+     * @type {MouseActions}
      */
     mouseActionScrollUp;
+
     /**
      * @public
+     * @type {MouseActions}
      */
     mouseActionScrollDown;
+
     /**
      * @public
+     * @type {boolean}
      */
     cacheArt;
+
     /**
      * @public
+     * @type {string[]}
      */
     blacklistedPlayers;
+
     /**
      * @private
+     * @type {Gio.Settings}
      */
     settings;
+
     /**
      * @private
+     * @type {InstanceType<typeof PanelButton>}
      */
     panelBtn;
+
     /**
      * @private
+     * @type {StdInterface}
      */
     watchProxy;
+
     /**
      * @private
+     * @type {Map<string, PlayerProxy>}
      */
     playerProxies;
+
     /**
      * @private
+     * @type {Gio.DBusInterfaceInfo}
      */
     watchIfaceInfo;
+
     /**
      * @private
+     * @type {Gio.DBusInterfaceInfo}
      */
     mprisIfaceInfo;
+
     /**
      * @private
+     * @type {Gio.DBusInterfaceInfo}
      */
     mprisPlayerIfaceInfo;
+
     /**
      * @private
+     * @type {Gio.DBusInterfaceInfo}
      */
     propertiesIfaceInfo;
+
     /**
      * @private
+     * @type {(busName: string) => void}
      */
     mediaSectionAddFunc;
+
     /**
      * @public
      * @returns {void}
@@ -185,6 +257,7 @@ export default class MediaControls extends Extension {
         );
         debugLog("Enabled");
     }
+
     /**
      * @public
      * @returns {void}
@@ -202,6 +275,7 @@ export default class MediaControls extends Extension {
         Main.wm.removeKeybinding("mediacontrols-show-popup-menu");
         debugLog("Disabled");
     }
+
     /**
      * @public
      * @returns {PlayerProxy[]}
@@ -216,6 +290,7 @@ export default class MediaControls extends Extension {
         }
         return players;
     }
+
     /**
      * @private
      * @returns {void}
@@ -349,6 +424,7 @@ export default class MediaControls extends Extension {
             this.addRunningPlayers();
         });
     }
+
     /**
      * @private
      * @returns {Promise<void>}
@@ -394,6 +470,7 @@ export default class MediaControls extends Extension {
         }
         await this.addRunningPlayers();
     }
+
     /**
      * @private
      * @returns {Promise<boolean>}
@@ -417,6 +494,7 @@ export default class MediaControls extends Extension {
         });
         return true;
     }
+
     /**
      * @private
      * @returns {Promise<void>}
@@ -436,6 +514,7 @@ export default class MediaControls extends Extension {
         }
         await Promise.all(promises).catch(handleError);
     }
+
     /**
      * @private
      * @param {string} busName
@@ -469,6 +548,7 @@ export default class MediaControls extends Extension {
             errorLog("Failed to add player:", busName, e);
         }
     }
+
     /**
      * @private
      * @param {string} busName
@@ -481,6 +561,7 @@ export default class MediaControls extends Extension {
         this.panelBtn?.updateWidgets(WidgetFlags.MENU_PLAYERS);
         this.setActivePlayer();
     }
+
     /**
      * @private
      * @returns {void}
@@ -524,6 +605,7 @@ export default class MediaControls extends Extension {
             }
         }
     }
+
     /**
      * @private
      * @param {string} id
@@ -538,6 +620,7 @@ export default class MediaControls extends Extension {
         const appId = app.get_id();
         return this.blacklistedPlayers.includes(appId);
     }
+
     /**
      * @private
      * @param {boolean} [shouldReset=false]
@@ -561,6 +644,7 @@ export default class MediaControls extends Extension {
             }
         }
     }
+
     /**
      * @private
      * @param {string} busName
@@ -575,6 +659,7 @@ export default class MediaControls extends Extension {
         this.panelBtn = new PanelButton(playerProxy, this);
         Main.panel.addToStatusArea("Media Controls", this.panelBtn, this.extensionIndex, this.extensionPosition);
     }
+
     /**
      * @private
      * @returns {void}
@@ -584,6 +669,7 @@ export default class MediaControls extends Extension {
         this.panelBtn?.destroy();
         this.panelBtn = null;
     }
+
     /**
      * @private
      * @returns {void}
@@ -617,5 +703,6 @@ export default class MediaControls extends Extension {
         this.blacklistedPlayers = null;
     }
 }
+
 /** @typedef {KeysOf<typeof PanelElements>[]} ElementsOrder */
 /** @typedef {(KeysOf<typeof LabelTypes> | (string & NonNullable<unknown>))[]} LabelsOrder */
