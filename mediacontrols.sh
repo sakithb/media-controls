@@ -22,17 +22,17 @@ build() {
 
   echo "Packing..."
 
-  EXTRASRCS=$(find dist/temp -maxdepth 1 ! -name "metadata.json" ! -name "extension.js" ! -name "prefs.js" ! -name "stylesheet.css")
+  EXTRASRCS=$(find dist/temp/ -mindepth 1 -maxdepth 1 ! -name "metadata.json" ! -name "extension.js" ! -name "prefs.js" ! -name "stylesheet.css")
   ESFLAGS=()
 
   for F in $EXTRASRCS; do
-    ESFLAGS+=("--extra-source=$F")
+    ESFLAGS+=("--extra-source=$PWD/$F")
   done
 
   SCHEMA="$PWD/assets/org.gnome.shell.extensions.mediacontrols.gschema.xml"
   PODIR="$PWD/assets/locale"
 
-  gnome-extensions pack -f -o dist/builds/ --schema="$SCHEMA" --podir="$PODIR" "${ESFLAGS[@]}" dist/temp
+  gnome-extensions pack -f -o dist/builds/ --schema="$SCHEMA" --podir="$PODIR" "${ESFLAGS[@]}" dist/temp/
 }
 
 debug() {
