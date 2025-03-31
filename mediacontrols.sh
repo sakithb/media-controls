@@ -12,7 +12,9 @@ build() {
   mkdir -p dist/temp
   mkdir -p dist/builds
   rm -rf dist/temp/*
-  cp -r src/* dist/temp/.
+  cp -r $(find src -mindepth 1 -maxdepth 1 -not -name "assets") dist/temp/.
+
+  glib-compile-resources assets/org.gnome.shell.extensions.mediacontrols.gresource.xml --target=dist/temp/org.gnome.shell.extensions.mediacontrols.gresource --sourcedir=assets
 
   if [ "$1" = "release" ]; then
     echo "Stripping debug values..."
