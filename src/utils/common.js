@@ -54,8 +54,7 @@ export const msToHHMMSS = (ms) => {
     const hoursString = String(hours).padStart(2, "0");
     if (hours > 0) {
         return `${hoursString}:${minutesString}:${secondsString}`;
-    }
-    else {
+    } else {
         return `${minutesString}:${secondsString}`;
     }
 };

@@ -36,8 +36,7 @@ class BlacklistedPlayers extends Adw.PreferencesGroup {
         this.appChooser = new AppChooser();
         this.addBtn.connect("clicked", async () => {
             const appId = await this.appChooser.showChooser().catch(handleError);
-            if (appId == null)
-                return;
+            if (appId == null) return;
             this.players.unshift(appId);
             this.notify("players");
             this.addElements();

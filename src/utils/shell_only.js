@@ -57,8 +57,7 @@ export const getImage = async (url) => {
             return null;
         }
         return stream;
-    }
-    else {
+    } else {
         const uri = GLib.Uri.parse(url, GLib.UriFlags.NONE);
         if (uri == null) {
             return null;
@@ -75,8 +74,7 @@ export const getImage = async (url) => {
                 return null;
             }
             return stream;
-        }
-        else if (scheme === "http" || scheme === "https") {
+        } else if (scheme === "http" || scheme === "https") {
             const session = new Soup.Session();
             const message = new Soup.Message({ method: "GET", uri });
             const bytes = await session.send_and_read_async(message, null, null).catch(handleError);
@@ -97,8 +95,7 @@ export const getImage = async (url) => {
                 return null;
             }
             return stream;
-        }
-        else {
+        } else {
             errorLog(`Invalid scheme: ${scheme}`);
             return null;
         }
@@ -113,6 +110,14 @@ export const getImage = async (url) => {
  */
 export const createDbusProxy = async (ifaceInfo, name, object) => {
     // @ts-expect-error Types have not been promisified yet
-    const proxy = Gio.DBusProxy.new(Gio.DBus.session, Gio.DBusProxyFlags.NONE, ifaceInfo, name, object, ifaceInfo.name, null);
+    const proxy = Gio.DBusProxy.new(
+        Gio.DBus.session,
+        Gio.DBusProxyFlags.NONE,
+        ifaceInfo,
+        name,
+        object,
+        ifaceInfo.name,
+        null,
+    );
     return proxy;
 };

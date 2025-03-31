@@ -17,7 +17,14 @@ import MenuSlider from "./MenuSlider.js";
 import { debugLog, handleError } from "../../utils/common.js";
 import { getAppByIdAndEntry, getImage } from "../../utils/shell_only.js";
 import { ControlIconOptions } from "../../types/enums/shell_only.js";
-import { LabelTypes, PanelElements, MouseActions, LoopStatus, PlaybackStatus, WidgetFlags, } from "../../types/enums/common.js";
+import {
+    LabelTypes,
+    PanelElements,
+    MouseActions,
+    LoopStatus,
+    PlaybackStatus,
+    WidgetFlags,
+} from "../../types/enums/common.js";
 Gio._promisify(GdkPixbuf.Pixbuf, "new_from_stream_async", "new_from_stream_finish");
 Gio._promisify(Gio.File.prototype, "query_info_async", "query_info_finish");
 /**
@@ -166,8 +173,7 @@ class PanelButton extends PanelMenu.Button {
             this.buttonBox = new St.BoxLayout({
                 styleClass: "panel-button-box",
             });
-        }
-        else if (flags & WidgetFlags.PANEL_NO_REPLACE) {
+        } else if (flags & WidgetFlags.PANEL_NO_REPLACE) {
             this.buttonBox.remove_all_children();
         }
         if (this.menuBox == null) {
@@ -181,32 +187,35 @@ class PanelButton extends PanelMenu.Button {
         }
         for (let i = 0; i < this.extension.elementsOrder.length; i++) {
             const element = PanelElements[this.extension.elementsOrder[i]];
-            if (element === PanelElements.ICON &&
-                (flags & WidgetFlags.PANEL_ICON || flags & WidgetFlags.PANEL_NO_REPLACE)) {
+            if (
+                element === PanelElements.ICON &&
+                (flags & WidgetFlags.PANEL_ICON || flags & WidgetFlags.PANEL_NO_REPLACE)
+            ) {
                 if (this.extension.showPlayerIcon) {
                     this.addButtonIcon(i);
-                }
-                else if (this.buttonIcon != null) {
+                } else if (this.buttonIcon != null) {
                     this.buttonBox.remove_child(this.buttonIcon);
                     this.buttonIcon = null;
                 }
             }
-            if (element === PanelElements.LABEL &&
-                (flags & WidgetFlags.PANEL_LABEL || flags & WidgetFlags.PANEL_NO_REPLACE)) {
+            if (
+                element === PanelElements.LABEL &&
+                (flags & WidgetFlags.PANEL_LABEL || flags & WidgetFlags.PANEL_NO_REPLACE)
+            ) {
                 if (this.extension.showLabel) {
                     this.addButtonLabel(i);
-                }
-                else if (this.buttonLabel != null) {
+                } else if (this.buttonLabel != null) {
                     this.buttonBox.remove_child(this.buttonLabel);
                     this.buttonLabel = null;
                 }
             }
-            if (element === PanelElements.CONTROLS &&
-                (flags & WidgetFlags.PANEL_CONTROLS || flags & WidgetFlags.PANEL_NO_REPLACE)) {
+            if (
+                element === PanelElements.CONTROLS &&
+                (flags & WidgetFlags.PANEL_CONTROLS || flags & WidgetFlags.PANEL_NO_REPLACE)
+            ) {
                 if (this.extension.showControlIcons) {
                     this.addButtonControls(i, flags);
-                }
-                else if (this.buttonControls != null) {
+                } else if (this.buttonControls != null) {
                     this.buttonBox.remove_child(this.buttonControls);
                     this.buttonControls = null;
                 }
@@ -280,8 +289,7 @@ class PanelButton extends PanelMenu.Button {
             tapAction.connect("tap", () => {
                 if (this.playerProxy.isPlayerPinned()) {
                     this.playerProxy.unpinPlayer();
-                }
-                else {
+                } else {
                     this.playerProxy.pinPlayer();
                 }
             });
@@ -292,12 +300,10 @@ class PanelButton extends PanelMenu.Button {
             this.menuPlayerIcons = new St.BoxLayout({
                 styleClass: "popup-menu-player-icons",
             });
-        }
-        else if (players.length === 1 && this.menuPlayerIcons != null) {
+        } else if (players.length === 1 && this.menuPlayerIcons != null) {
             this.menuPlayers.remove_child(this.menuPlayerIcons);
             this.menuPlayerIcons = null;
-        }
-        else {
+        } else {
             this.menuPlayerIcons?.remove_all_children();
         }
         const isPinned = this.playerProxy.isPlayerPinned();
@@ -324,8 +330,7 @@ class PanelButton extends PanelMenu.Button {
                     this.menuPlayersTextBoxLabel.xAlign = Clutter.ActorAlign.END;
                     this.menuPlayersTextBoxLabel.xExpand = true;
                     this.menuPlayersTextBox.insert_child_at_index(this.menuPlayersTextBoxPin, 1);
-                }
-                else {
+                } else {
                     this.menuPlayersTextBoxIcon.gicon = appIcon;
                     this.menuPlayersTextBox.insert_child_at_index(this.menuPlayersTextBoxIcon, 0);
                     this.menuPlayersTextBoxLabel.xAlign = Clutter.ActorAlign.START;
@@ -343,14 +348,12 @@ class PanelButton extends PanelMenu.Button {
                 });
                 if (i === 0) {
                     icon.add_style_class_name("popup-menu-player-icons-icon-first");
-                }
-                else if (i === players.length - 1) {
+                } else if (i === players.length - 1) {
                     icon.add_style_class_name("popup-menu-player-icons-icon-last");
                 }
                 if (isSamePlayer) {
                     icon.add_style_class_name("popup-menu-player-icons-icon-active");
-                }
-                else {
+                } else {
                     const tapAction = new Clutter.TapAction();
                     tapAction.connect("tap", this.updateProxy.bind(this, player));
                     icon.add_action(tapAction);
@@ -397,8 +400,7 @@ class PanelButton extends PanelMenu.Button {
                     const path = info.get_attribute_byte_string(Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH);
                     if (path == null) {
                         this.menuImage.gicon = info.get_icon();
-                    }
-                    else {
+                    } else {
                         const thumb = Gio.File.new_for_path(path);
                         stream = await getImage(thumb.get_uri());
                     }
@@ -498,12 +500,10 @@ class PanelButton extends PanelMenu.Button {
             this.menuSlider.updateSlider(position, length, rate);
             if (this.playerProxy.playbackStatus === PlaybackStatus.PLAYING) {
                 this.menuSlider.resumeTransition();
-            }
-            else {
+            } else {
                 this.menuSlider.pauseTransition();
             }
-        }
-        else {
+        } else {
             this.menuSlider.setDisabled(true);
         }
         if (this.menuSlider.get_parent() == null) {
@@ -521,28 +521,51 @@ class PanelButton extends PanelMenu.Button {
             this.menuControls = new St.BoxLayout();
         }
         if (flags & WidgetFlags.MENU_CONTROLS_LOOP) {
-            this.addMenuControlIcon(this.playerProxy.loopStatus === LoopStatus.NONE
-                ? ControlIconOptions.LOOP_NONE
-                : this.playerProxy.loopStatus === LoopStatus.TRACK
-                    ? ControlIconOptions.LOOP_TRACK
-                    : ControlIconOptions.LOOP_PLAYLIST, this.playerProxy.loopStatus != null, this.playerProxy.toggleLoop.bind(this.playerProxy));
+            this.addMenuControlIcon(
+                this.playerProxy.loopStatus === LoopStatus.NONE
+                    ? ControlIconOptions.LOOP_NONE
+                    : this.playerProxy.loopStatus === LoopStatus.TRACK
+                      ? ControlIconOptions.LOOP_TRACK
+                      : ControlIconOptions.LOOP_PLAYLIST,
+                this.playerProxy.loopStatus != null,
+                this.playerProxy.toggleLoop.bind(this.playerProxy),
+            );
         }
         if (flags & WidgetFlags.MENU_CONTROLS_PREV) {
-            this.addMenuControlIcon(ControlIconOptions.PREVIOUS, this.playerProxy.canGoPrevious && this.playerProxy.canControl, this.playerProxy.previous.bind(this.playerProxy));
+            this.addMenuControlIcon(
+                ControlIconOptions.PREVIOUS,
+                this.playerProxy.canGoPrevious && this.playerProxy.canControl,
+                this.playerProxy.previous.bind(this.playerProxy),
+            );
         }
         if (flags & WidgetFlags.MENU_CONTROLS_PLAYPAUSE) {
             if (this.playerProxy.playbackStatus !== PlaybackStatus.PLAYING) {
-                this.addMenuControlIcon(ControlIconOptions.PLAY, this.playerProxy.canPlay && this.playerProxy.canControl, this.playerProxy.play.bind(this.playerProxy));
-            }
-            else {
-                this.addMenuControlIcon(ControlIconOptions.PAUSE, this.playerProxy.canPause && this.playerProxy.canControl, this.playerProxy.pause.bind(this.playerProxy));
+                this.addMenuControlIcon(
+                    ControlIconOptions.PLAY,
+                    this.playerProxy.canPlay && this.playerProxy.canControl,
+                    this.playerProxy.play.bind(this.playerProxy),
+                );
+            } else {
+                this.addMenuControlIcon(
+                    ControlIconOptions.PAUSE,
+                    this.playerProxy.canPause && this.playerProxy.canControl,
+                    this.playerProxy.pause.bind(this.playerProxy),
+                );
             }
         }
         if (flags & WidgetFlags.MENU_CONTROLS_NEXT) {
-            this.addMenuControlIcon(ControlIconOptions.NEXT, this.playerProxy.canGoNext && this.playerProxy.canControl, this.playerProxy.next.bind(this.playerProxy));
+            this.addMenuControlIcon(
+                ControlIconOptions.NEXT,
+                this.playerProxy.canGoNext && this.playerProxy.canControl,
+                this.playerProxy.next.bind(this.playerProxy),
+            );
         }
         if (flags & WidgetFlags.MENU_CONTROLS_SHUFFLE) {
-            this.addMenuControlIcon(this.playerProxy.shuffle ? ControlIconOptions.SHUFFLE_OFF : ControlIconOptions.SHUFFLE_ON, this.playerProxy.shuffle != null, this.playerProxy.toggleShuffle.bind(this.playerProxy));
+            this.addMenuControlIcon(
+                this.playerProxy.shuffle ? ControlIconOptions.SHUFFLE_OFF : ControlIconOptions.SHUFFLE_ON,
+                this.playerProxy.shuffle != null,
+                this.playerProxy.toggleShuffle.bind(this.playerProxy),
+            );
         }
         if (this.menuControls.get_parent() == null) {
             this.menuBox.add_child(this.menuControls);
@@ -572,8 +595,7 @@ class PanelButton extends PanelMenu.Button {
         const oldIcon = find_child_by_name(this.menuControls, options.name);
         if (oldIcon?.get_parent() === this.menuControls) {
             this.menuControls.replace_child(oldIcon, icon);
-        }
-        else {
+        } else {
             this.menuControls.insert_child_at_index(icon, options.menuProps.index);
         }
     }
@@ -592,8 +614,7 @@ class PanelButton extends PanelMenu.Button {
         });
         if (this.buttonIcon?.get_parent() === this.buttonBox) {
             this.buttonBox.replace_child(this.buttonIcon, icon);
-        }
-        else {
+        } else {
             this.buttonBox.insert_child_at_index(icon, index);
         }
         this.buttonIcon = icon;
@@ -614,8 +635,7 @@ class PanelButton extends PanelMenu.Button {
         });
         if (this.buttonLabel?.get_parent() === this.buttonBox) {
             this.buttonBox.replace_child(this.buttonLabel, label);
-        }
-        else {
+        } else {
             this.buttonBox.insert_child_at_index(label, index);
         }
         this.buttonLabel = label;
@@ -636,46 +656,64 @@ class PanelButton extends PanelMenu.Button {
         }
         if (flags & WidgetFlags.PANEL_CONTROLS_SEEK_BACKWARD) {
             if (this.extension.showControlIconsSeekBackward) {
-                this.addButtonControlIcon(ControlIconOptions.SEEK_BACKWARD, this.playerProxy.seek.bind(this.playerProxy, -5000000), this.playerProxy.canSeek && this.playerProxy.canControl);
-            }
-            else {
+                this.addButtonControlIcon(
+                    ControlIconOptions.SEEK_BACKWARD,
+                    this.playerProxy.seek.bind(this.playerProxy, -5000000),
+                    this.playerProxy.canSeek && this.playerProxy.canControl,
+                );
+            } else {
                 this.removeButtonControlIcon(ControlIconOptions.SEEK_BACKWARD);
             }
         }
         if (flags & WidgetFlags.PANEL_CONTROLS_PREVIOUS) {
             if (this.extension.showControlIconsPrevious) {
-                this.addButtonControlIcon(ControlIconOptions.PREVIOUS, this.playerProxy.previous.bind(this.playerProxy), this.playerProxy.canGoPrevious && this.playerProxy.canControl);
-            }
-            else {
+                this.addButtonControlIcon(
+                    ControlIconOptions.PREVIOUS,
+                    this.playerProxy.previous.bind(this.playerProxy),
+                    this.playerProxy.canGoPrevious && this.playerProxy.canControl,
+                );
+            } else {
                 this.removeButtonControlIcon(ControlIconOptions.PREVIOUS);
             }
         }
         if (flags & WidgetFlags.PANEL_CONTROLS_PLAYPAUSE) {
             if (this.extension.showControlIconsPlay) {
                 if (this.playerProxy.playbackStatus !== PlaybackStatus.PLAYING) {
-                    this.addButtonControlIcon(ControlIconOptions.PLAY, this.playerProxy.play.bind(this.playerProxy), this.playerProxy.canPlay && this.playerProxy.canControl);
+                    this.addButtonControlIcon(
+                        ControlIconOptions.PLAY,
+                        this.playerProxy.play.bind(this.playerProxy),
+                        this.playerProxy.canPlay && this.playerProxy.canControl,
+                    );
+                } else {
+                    this.addButtonControlIcon(
+                        ControlIconOptions.PAUSE,
+                        this.playerProxy.pause.bind(this.playerProxy),
+                        this.playerProxy.canPause && this.playerProxy.canControl,
+                    );
                 }
-                else {
-                    this.addButtonControlIcon(ControlIconOptions.PAUSE, this.playerProxy.pause.bind(this.playerProxy), this.playerProxy.canPause && this.playerProxy.canControl);
-                }
-            }
-            else {
+            } else {
                 this.removeButtonControlIcon(ControlIconOptions.PLAY);
             }
         }
         if (flags & WidgetFlags.PANEL_CONTROLS_NEXT) {
             if (this.extension.showControlIconsNext) {
-                this.addButtonControlIcon(ControlIconOptions.NEXT, this.playerProxy.next.bind(this.playerProxy), this.playerProxy.canGoNext && this.playerProxy.canControl);
-            }
-            else {
+                this.addButtonControlIcon(
+                    ControlIconOptions.NEXT,
+                    this.playerProxy.next.bind(this.playerProxy),
+                    this.playerProxy.canGoNext && this.playerProxy.canControl,
+                );
+            } else {
                 this.removeButtonControlIcon(ControlIconOptions.NEXT);
             }
         }
         if (flags & WidgetFlags.PANEL_CONTROLS_SEEK_FORWARD) {
             if (this.extension.showControlIconsSeekForward) {
-                this.addButtonControlIcon(ControlIconOptions.SEEK_FORWARD, this.playerProxy.seek.bind(this.playerProxy, 5000000), this.playerProxy.canSeek && this.playerProxy.canControl);
-            }
-            else {
+                this.addButtonControlIcon(
+                    ControlIconOptions.SEEK_FORWARD,
+                    this.playerProxy.seek.bind(this.playerProxy, 5000000),
+                    this.playerProxy.canSeek && this.playerProxy.canControl,
+                );
+            } else {
                 this.removeButtonControlIcon(ControlIconOptions.SEEK_FORWARD);
             }
         }
@@ -705,8 +743,7 @@ class PanelButton extends PanelMenu.Button {
         const oldIcon = find_child_by_name(this.buttonControls, options.name);
         if (oldIcon != null) {
             this.buttonControls.replace_child(oldIcon, icon);
-        }
-        else {
+        } else {
             this.buttonControls.insert_child_at_index(icon, options.panelProps.index);
         }
     }
@@ -730,20 +767,15 @@ class PanelButton extends PanelMenu.Button {
         for (const labelElement of this.extension.labelsOrder) {
             if (LabelTypes[labelElement] === LabelTypes.TITLE) {
                 labelTextElements.push(this.playerProxy.metadata["xesam:title"]);
-            }
-            else if (LabelTypes[labelElement] === LabelTypes.ARTIST) {
+            } else if (LabelTypes[labelElement] === LabelTypes.ARTIST) {
                 labelTextElements.push(this.playerProxy.metadata["xesam:artist"]?.join(", ") || _("Unknown artist"));
-            }
-            else if (LabelTypes[labelElement] === LabelTypes.ALBUM) {
+            } else if (LabelTypes[labelElement] === LabelTypes.ALBUM) {
                 labelTextElements.push(this.playerProxy.metadata["xesam:album"] || _("Unknown album"));
-            }
-            else if (LabelTypes[labelElement] === LabelTypes.DISC_NUMBER) {
+            } else if (LabelTypes[labelElement] === LabelTypes.DISC_NUMBER) {
                 labelTextElements.push(this.playerProxy.metadata["xesam:discNumber"]);
-            }
-            else if (LabelTypes[labelElement] === LabelTypes.TRACK_NUMBER) {
+            } else if (LabelTypes[labelElement] === LabelTypes.TRACK_NUMBER) {
                 labelTextElements.push(this.playerProxy.metadata["xesam:trackNumber"]);
-            }
-            else {
+            } else {
                 labelTextElements.push(labelElement);
             }
         }
@@ -766,7 +798,9 @@ class PanelButton extends PanelMenu.Button {
     addProxyListeners() {
         this.removeProxyListeners();
         this.addProxyListener("Metadata", () => {
-            this.updateWidgets(WidgetFlags.PANEL_LABEL | WidgetFlags.MENU_IMAGE | WidgetFlags.MENU_LABELS | WidgetFlags.MENU_SLIDER);
+            this.updateWidgets(
+                WidgetFlags.PANEL_LABEL | WidgetFlags.MENU_IMAGE | WidgetFlags.MENU_LABELS | WidgetFlags.MENU_SLIDER,
+            );
         });
         this.addProxyListener("PlaybackStatus", () => {
             this.updateWidgets(WidgetFlags.PANEL_CONTROLS_PLAYPAUSE | WidgetFlags.MENU_CONTROLS_PLAYPAUSE);
@@ -775,8 +809,7 @@ class PanelButton extends PanelMenu.Button {
                 this.menuLabelTitle.pauseScrolling();
                 this.menuLabelSubtitle.pauseScrolling();
                 this.menuSlider.pauseTransition();
-            }
-            else {
+            } else {
                 this.buttonLabel?.resumeScrolling();
                 this.menuLabelTitle.resumeScrolling();
                 this.menuLabelSubtitle.resumeScrolling();
@@ -994,8 +1027,11 @@ class PanelButton extends PanelMenu.Button {
         }
     }
 }
-const GPanelButton = GObject.registerClass({
-    GTypeName: "PanelButton",
-    Properties: {},
-}, PanelButton);
+const GPanelButton = GObject.registerClass(
+    {
+        GTypeName: "PanelButton",
+        Properties: {},
+    },
+    PanelButton,
+);
 export default GPanelButton;

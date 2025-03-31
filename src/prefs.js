@@ -62,41 +62,63 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         const resourcePath = GLib.build_filenamev([this.path, "org.gnome.shell.extensions.mediacontrols.gresource"]);
         Gio.resources_register(Gio.resource_load(resourcePath));
         if (AppChooser == null) {
-            AppChooser = GObject.registerClass({
-                GTypeName: "AppChooser",
-                Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/app-chooser.ui",
-                InternalChildren: ["list-box", "select-btn", "cancel-btn"],
-            }, AppChooserorig);
+            AppChooser = GObject.registerClass(
+                {
+                    GTypeName: "AppChooser",
+                    Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/app-chooser.ui",
+                    InternalChildren: ["list-box", "select-btn", "cancel-btn"],
+                },
+                AppChooserorig,
+            );
         }
         if (BlacklistedPlayers == null) {
-            BlacklistedPlayers = GObject.registerClass({
-                GTypeName: "BlacklistedPlayers",
-                Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/blacklisted-players.ui",
-                Properties: {
-                    players: GObject.ParamSpec.jsobject("players", "Blacklisted players", "Blacklisted players", GObject.ParamFlags.READABLE),
+            BlacklistedPlayers = GObject.registerClass(
+                {
+                    GTypeName: "BlacklistedPlayers",
+                    Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/blacklisted-players.ui",
+                    Properties: {
+                        players: GObject.ParamSpec.jsobject(
+                            "players",
+                            "Blacklisted players",
+                            "Blacklisted players",
+                            GObject.ParamFlags.READABLE,
+                        ),
+                    },
+                    InternalChildren: ["list-box", "add-btn"],
                 },
-                InternalChildren: ["list-box", "add-btn"],
-            }, BlacklistedPlayersOrig);
+                BlacklistedPlayersOrig,
+            );
         }
         if (LabelList == null) {
-            LabelList = GObject.registerClass({
-                GTypeName: "LabelList",
-                Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/label-list.ui",
-                InternalChildren: ["list-box", "add-item-btn", "add-text-btn"],
-                Properties: {
-                    labels: GObject.ParamSpec.jsobject("labels", "Labels", "Labels", GObject.ParamFlags.READABLE),
+            LabelList = GObject.registerClass(
+                {
+                    GTypeName: "LabelList",
+                    Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/label-list.ui",
+                    InternalChildren: ["list-box", "add-item-btn", "add-text-btn"],
+                    Properties: {
+                        labels: GObject.ParamSpec.jsobject("labels", "Labels", "Labels", GObject.ParamFlags.READABLE),
+                    },
                 },
-            }, LabelListOrig);
+                LabelListOrig,
+            );
         }
         if (ElementList == null) {
-            ElementList = GObject.registerClass({
-                GTypeName: "ElementList",
-                Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/element-list.ui",
-                InternalChildren: ["list-box", "icon-row", "label-row", "controls-row"],
-                Properties: {
-                    elements: GObject.ParamSpec.jsobject("elements", "Elements", "Elements", GObject.ParamFlags.READABLE),
+            ElementList = GObject.registerClass(
+                {
+                    GTypeName: "ElementList",
+                    Template: "resource:///org/gnome/shell/extensions/mediacontrols/ui/element-list.ui",
+                    InternalChildren: ["list-box", "icon-row", "label-row", "controls-row"],
+                    Properties: {
+                        elements: GObject.ParamSpec.jsobject(
+                            "elements",
+                            "Elements",
+                            "Elements",
+                            GObject.ParamFlags.READABLE,
+                        ),
+                    },
                 },
-            }, ElementListOrig);
+                ElementListOrig,
+            );
         }
         GObject.type_ensure(AppChooser.$gtype);
         GObject.type_ensure(BlacklistedPlayers.$gtype);
@@ -187,8 +209,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             dialog.add_response("clear", _("Clear cache"));
             dialog.set_response_appearance("clear", Adw.ResponseAppearance.DESTRUCTIVE);
             dialog.connect("response", (self, response) => {
-                if (response === "cancel")
-                    return;
+                if (response === "cancel") return;
                 this.clearCache().then(() => {
                     cacheClearRow.subtitle = _("Cache size: %s").format(GLib.format_size(0));
                 });
@@ -252,8 +273,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             this.settings.connect(`changed::${key}`, () => {
                 widget[property] = this.settings.get_enum(key);
             });
-        }
-        else if (property === "accelerator") {
+        } else if (property === "accelerator") {
             const widget = this.builder.get_object(widgetName);
             widget[property] = this.settings.get_strv(key)[0];
             widget.connect(`notify::${property}`, () => {
@@ -262,8 +282,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             this.settings.connect(`changed::${key}`, () => {
                 widget[property] = this.settings.get_strv(key)[0];
             });
-        }
-        else {
+        } else {
             const widget = this.builder.get_object(widgetName);
             widget[property] = this.settings.get_value(key).recursiveUnpack();
             const bindingFlags = Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.NO_SENSITIVITY;
@@ -290,8 +309,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
             const success = await folder.trash_async(null, null).catch(handleError);
             if (success) {
                 this.sendToast(_("Cache cleared successfully!"));
-            }
-            else {
+            } else {
                 this.sendToast(_("Failed to clear cache!"));
             }
         }
@@ -318,8 +336,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
                     if (retries < 3) {
                         retries++;
                         continue;
-                    }
-                    else {
+                    } else {
                         break;
                     }
                 }

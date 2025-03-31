@@ -102,7 +102,10 @@ class ScrollingLabel extends St.ScrollView {
     initScrolling() {
         const adjustment = this.get_hadjustment();
         const origText = this.label.text + "     ";
-        this.onAdjustmentChangedId = adjustment.connect("changed", this.onAdjustmentChanged.bind(this, adjustment, origText));
+        this.onAdjustmentChangedId = adjustment.connect(
+            "changed",
+            this.onAdjustmentChanged.bind(this, adjustment, origText),
+        );
         this.label.text = `${origText} `;
         this.label.clutterText.ellipsize = Pango.EllipsizeMode.NONE;
     }
@@ -160,8 +163,7 @@ class ScrollingLabel extends St.ScrollView {
             this.box.width = this.labelWidth;
             this.label.xAlign = Clutter.ActorAlign.CENTER;
             this.label.xExpand = true;
-        }
-        else if (isLabelWider) {
+        } else if (isLabelWider) {
             this.box.width = Math.min(this.label.width, this.labelWidth);
         }
         this.label.disconnect(this.onShowChangedId);
@@ -173,9 +175,12 @@ class ScrollingLabel extends St.ScrollView {
         return Clutter.EVENT_PROPAGATE;
     }
 }
-const GScrollingLabel = GObject.registerClass({
-    GTypeName: "ScrollingLabel",
-}, ScrollingLabel);
+const GScrollingLabel = GObject.registerClass(
+    {
+        GTypeName: "ScrollingLabel",
+    },
+    ScrollingLabel,
+);
 export default GScrollingLabel;
 /**
  * @typedef {Object} ScrollingLabelParams

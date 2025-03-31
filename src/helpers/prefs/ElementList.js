@@ -46,8 +46,7 @@ class ElementList extends Adw.PreferencesGroup {
         const dropTarget = Gtk.DropTarget.new(GObject.TYPE_UINT, Gdk.DragAction.MOVE);
         dropTarget.connect("drop", (_, sourceIndex, x, y) => {
             const targetRow = this.listBox.get_row_at_y(y);
-            if (targetRow == null || sourceIndex == null)
-                return;
+            if (targetRow == null || sourceIndex == null) return;
             const index = sourceIndex.get_uint();
             const sourceValue = this.elements[index];
             const targetIndex = targetRow.get_index();
@@ -102,12 +101,10 @@ class ElementList extends Adw.PreferencesGroup {
             if (element === PanelElements.ICON) {
                 this.iconRow.add_controller(dragSource);
                 this.iconRow.add_controller(dropController);
-            }
-            else if (element === PanelElements.LABEL) {
+            } else if (element === PanelElements.LABEL) {
                 this.labelRow.add_controller(dragSource);
                 this.labelRow.add_controller(dropController);
-            }
-            else if (element === PanelElements.CONTROLS) {
+            } else if (element === PanelElements.CONTROLS) {
                 this.controlsRow.add_controller(dragSource);
                 this.controlsRow.add_controller(dropController);
             }

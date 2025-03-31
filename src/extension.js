@@ -12,7 +12,16 @@ import PanelButton from "./helpers/shell/PanelButton.js";
 import PlayerProxy from "./helpers/shell/PlayerProxy.js";
 import { debugLog, enumValueByIndex, errorLog, handleError } from "./utils/common.js";
 import { getAppByIdAndEntry, createDbusProxy } from "./utils/shell_only.js";
-import { PlaybackStatus, WidgetFlags, MPRIS_PLAYER_IFACE_NAME, DBUS_PROPERTIES_IFACE_NAME, MPRIS_IFACE_NAME, DBUS_OBJECT_PATH, DBUS_IFACE_NAME, ExtensionPositions, } from "./types/enums/common.js";
+import {
+    PlaybackStatus,
+    WidgetFlags,
+    MPRIS_PLAYER_IFACE_NAME,
+    DBUS_PROPERTIES_IFACE_NAME,
+    MPRIS_IFACE_NAME,
+    DBUS_OBJECT_PATH,
+    DBUS_IFACE_NAME,
+    ExtensionPositions,
+} from "./types/enums/common.js";
 Gio._promisify(Gio.File.prototype, "load_contents_async", "load_contents_finish");
 /** @extends Extension */
 export default class MediaControls extends Extension {
@@ -165,9 +174,15 @@ export default class MediaControls extends Extension {
         this.initSettings();
         this.initProxies().catch(handleError);
         this.updateMediaNotificationVisiblity();
-        Main.wm.addKeybinding("mediacontrols-show-popup-menu", this.settings, Meta.KeyBindingFlags.NONE, Shell.ActionMode.NORMAL, () => {
-            this.panelBtn?.menu.toggle();
-        });
+        Main.wm.addKeybinding(
+            "mediacontrols-show-popup-menu",
+            this.settings,
+            Meta.KeyBindingFlags.NONE,
+            Shell.ActionMode.NORMAL,
+            () => {
+                this.panelBtn?.menu.toggle();
+            },
+        );
         debugLog("Enabled");
     }
     /**
@@ -384,7 +399,9 @@ export default class MediaControls extends Extension {
      * @returns {Promise<boolean>}
      */
     async initWatchProxy() {
-        this.watchProxy = await createDbusProxy(this.watchIfaceInfo, DBUS_IFACE_NAME, DBUS_OBJECT_PATH).catch(handleError);
+        this.watchProxy = await createDbusProxy(this.watchIfaceInfo, DBUS_IFACE_NAME, DBUS_OBJECT_PATH).catch(
+            handleError,
+        );
         if (this.watchProxy == null) {
             return false;
         }
@@ -394,8 +411,7 @@ export default class MediaControls extends Extension {
             }
             if (newOwner === "") {
                 this.removePlayer(busName);
-            }
-            else if (oldOwner === "") {
+            } else if (oldOwner === "") {
                 this.addPlayer(busName);
             }
         });
@@ -414,10 +430,8 @@ export default class MediaControls extends Extension {
         const busNames = namesResult[0];
         const promises = [];
         for (const busName of busNames) {
-            if (busName.startsWith(MPRIS_IFACE_NAME) === false)
-                continue;
-            if (this.playerProxies.has(busName))
-                continue;
+            if (busName.startsWith(MPRIS_IFACE_NAME) === false) continue;
+            if (this.playerProxies.has(busName)) continue;
             promises.push(this.addPlayer(busName));
         }
         await Promise.all(promises).catch(handleError);
@@ -451,8 +465,7 @@ export default class MediaControls extends Extension {
             this.playerProxies.set(busName, playerProxy);
             this.panelBtn?.updateWidgets(WidgetFlags.MENU_PLAYERS);
             this.setActivePlayer();
-        }
-        catch (e) {
+        } catch (e) {
             errorLog("Failed to add player:", busName, e);
         }
     }
@@ -495,8 +508,7 @@ export default class MediaControls extends Extension {
             if (chosenPlayer?.playbackStatus !== PlaybackStatus.PLAYING) {
                 if (playerProxy.playbackStatus === PlaybackStatus.PLAYING) {
                     chosenPlayer = playerProxy;
-                }
-                else if (this.panelBtn?.isSamePlayer(playerProxy)) {
+                } else if (this.panelBtn?.isSamePlayer(playerProxy)) {
                     chosenPlayer = playerProxy;
                 }
             }
@@ -504,12 +516,10 @@ export default class MediaControls extends Extension {
         debugLog("Chosen player:", chosenPlayer?.busName);
         if (chosenPlayer == null) {
             this.removePanelButton();
-        }
-        else {
+        } else {
             if (this.panelBtn == null) {
                 this.addPanelButton(chosenPlayer.busName);
-            }
-            else {
+            } else {
                 this.panelBtn.updateProxy(chosenPlayer);
             }
         }
@@ -539,10 +549,9 @@ export default class MediaControls extends Extension {
             this.mediaSectionAddFunc = null;
             // @ts-expect-error
             Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._onProxyReady();
-        }
-        else {
+        } else {
             this.mediaSectionAddFunc = Mpris.MprisSource.prototype._addPlayer;
-            Mpris.MprisSource.prototype._addPlayer = function () { };
+            Mpris.MprisSource.prototype._addPlayer = function () {};
             // @ts-expect-error
             if (Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._players != null) {
                 // @ts-expect-error

@@ -44,8 +44,7 @@ class LabelList extends Adw.PreferencesGroup {
         const dropTarget = Gtk.DropTarget.new(GObject.TYPE_UINT, Gdk.DragAction.MOVE);
         dropTarget.connect("drop", (_, sourceIndex, x, y) => {
             const targetRow = this.listBox.get_row_at_y(y);
-            if (targetRow == null || sourceIndex == null)
-                return;
+            if (targetRow == null || sourceIndex == null) return;
             const index = sourceIndex.get_uint();
             const sourceValue = this.labels[index];
             const targetIndex = targetRow.get_index();
@@ -103,8 +102,7 @@ class LabelList extends Adw.PreferencesGroup {
                 row.selected = Object.keys(LabelTypes).indexOf(element);
                 this.handleComboBoxChange(row);
                 this.completeRowCreation(row, i);
-            }
-            else {
+            } else {
                 const row = new Adw.EntryRow();
                 row.title = _("Custom text");
                 row.text = element;

@@ -182,8 +182,7 @@ class MenuSlider extends St.BoxLayout {
             this.transition.set_duration(1);
             this.transition.stop();
             this.slider.value = 0;
-        }
-        else {
+        } else {
             this.updateMarkers();
         }
     }
@@ -213,12 +212,15 @@ class MenuSlider extends St.BoxLayout {
         this.textBox.destroy();
     }
 }
-const GMenuSlider = GObject.registerClass({
-    GTypeName: "MenuSlider",
-    Signals: {
-        seeked: {
-            param_types: [GObject.TYPE_INT],
+const GMenuSlider = GObject.registerClass(
+    {
+        GTypeName: "MenuSlider",
+        Signals: {
+            seeked: {
+                param_types: [GObject.TYPE_INT],
+            },
         },
     },
-}, MenuSlider);
+    MenuSlider,
+);
 export default GMenuSlider;

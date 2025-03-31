@@ -114,21 +114,20 @@ export default class PlayerProxy {
             const metadataPromise = this.propertiesProxy.GetAsync(MPRIS_PLAYER_IFACE_NAME, "Metadata");
             Promise.all([positionPromise, metadataPromise])
                 .then(([positionVariant, metadataVariant]) => {
-                const unpackedPosition = positionVariant[0].recursiveUnpack();
-                const unpackedMetadata = metadataVariant[0].recursiveUnpack();
-                if (unpackedPosition > 0 && unpackedMetadata["mpris:length"] > 0) {
-                    this.mprisPlayerProxy.set_cached_property("Position", positionVariant[0]);
-                    this.mprisPlayerProxy.set_cached_property("Metadata", metadataVariant[0]);
-                    this.callOnChangedListeners("Metadata", unpackedMetadata);
-                    GLib.source_remove(this.pollSourceId);
-                }
-                else if (count <= 0) {
-                    GLib.source_remove(this.pollSourceId);
-                }
-            })
+                    const unpackedPosition = positionVariant[0].recursiveUnpack();
+                    const unpackedMetadata = metadataVariant[0].recursiveUnpack();
+                    if (unpackedPosition > 0 && unpackedMetadata["mpris:length"] > 0) {
+                        this.mprisPlayerProxy.set_cached_property("Position", positionVariant[0]);
+                        this.mprisPlayerProxy.set_cached_property("Metadata", metadataVariant[0]);
+                        this.callOnChangedListeners("Metadata", unpackedMetadata);
+                        GLib.source_remove(this.pollSourceId);
+                    } else if (count <= 0) {
+                        GLib.source_remove(this.pollSourceId);
+                    }
+                })
                 .catch(() => {
-                GLib.source_remove(this.pollSourceId);
-            });
+                    GLib.source_remove(this.pollSourceId);
+                });
             return GLib.SOURCE_CONTINUE;
         });
     }
@@ -169,8 +168,7 @@ export default class PlayerProxy {
         for (const listener of listeners) {
             try {
                 listener(value);
-            }
-            catch (error) {
+            } catch (error) {
                 errorLog(`Failed to call listener for property ${property}:`, error);
             }
         }
@@ -218,11 +216,11 @@ export default class PlayerProxy {
         return this.propertiesProxy
             .GetAsync(MPRIS_PLAYER_IFACE_NAME, "Position")
             .then((result) => {
-            return result[0].get_int64();
-        })
+                return result[0].get_int64();
+            })
             .catch(() => {
-            return null;
-        });
+                return null;
+            });
     }
     /**
      * @returns {number}
@@ -472,8 +470,7 @@ export default class PlayerProxy {
         if (listeners == null) {
             id = 0;
             this.changeListeners.set(property, [callback]);
-        }
-        else {
+        } else {
             id = listeners.push(callback);
         }
         return id;

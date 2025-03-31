@@ -28,8 +28,7 @@ class AppChooser extends Adw.Window {
         this.cancelBtn = this._cancel_btn;
         const apps = Gio.AppInfo.get_all();
         for (const app of apps) {
-            if (app.should_show() === false)
-                continue;
+            if (app.should_show() === false) continue;
             const row = new Adw.ActionRow();
             row.title = app.get_display_name();
             row.subtitle = app.get_id();
