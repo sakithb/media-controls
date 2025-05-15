@@ -1,6 +1,5 @@
 import Gdk from "gi://Gdk";
 import Gtk from "gi://Gtk";
-
 export const FORBIDDEN_KEYVALS = [
     Gdk.KEY_Home,
     Gdk.KEY_Left,
@@ -15,16 +14,24 @@ export const FORBIDDEN_KEYVALS = [
     Gdk.KEY_Return,
     Gdk.KEY_Mode_switch,
 ];
-
-export const isValidAccelerator = (mask: number, keyval: number) => {
+/**
+ * @param {number} mask
+ * @param {number} keyval
+ * @returns {any}
+ */
+export const isValidAccelerator = (mask, keyval) => {
     return Gtk.accelerator_valid(keyval, mask) || (keyval === Gdk.KEY_Tab && mask !== 0);
 };
-
-export const isValidBinding = (mask: number, keycode: number, keyval: number) => {
+/**
+ * @param {number} mask
+ * @param {number} keycode
+ * @param {number} keyval
+ * @returns {boolean}
+ */
+export const isValidBinding = (mask, keycode, keyval) => {
     if (mask === 0) {
         return false;
     }
-
     if (mask === Gdk.ModifierType.SHIFT_MASK && keycode !== 0) {
         if (keyval >= Gdk.KEY_a && keyval <= Gdk.KEY_z) {
             return false;
@@ -50,6 +57,5 @@ export const isValidBinding = (mask: number, keycode: number, keyval: number) =>
             return false;
         }
     }
-
     return true;
 };

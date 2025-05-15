@@ -7,57 +7,34 @@ nested() {
 }
 
 build() {
-  echo "Compiling..."
-  npm run compile
+  echo "Copying..."
+
+  mkdir -p dist/temp
+  mkdir -p dist/builds
+  rm -rf dist/temp/*
+  cp -r $(find src -mindepth 1 -maxdepth 1 -not -name "assets") dist/temp/.
+
+  glib-compile-resources assets/org.gnome.shell.extensions.mediacontrols.gresource.xml --target=dist/temp/org.gnome.shell.extensions.mediacontrols.gresource --sourcedir=assets
 
   if [ "$1" = "release" ]; then
-    echo "Prettifying..."
-    npm run compile:padding
-
     echo "Stripping debug values..."
-    sed 's/const DEBUG = true;/const DEBUG = false;/g' ./dist/compiled/utils/common.js >./dist/compiled/utils/common.js.tmp
-    mv ./dist/compiled/utils/common.js.tmp ./dist/compiled/utils/common.js
+    sed 's/const DEBUG = true;/const DEBUG = false;/g' ./dist/temp/utils/common.js >./dist/temp/utils/common.js.tmp
+    mv ./dist/temp/utils/common.js.tmp ./dist/temp/utils/common.js
   fi
-
-  cp src/metadata.json dist/compiled/metadata.json
-  cp src/stylesheet.css dist/compiled/stylesheet.css
 
   echo "Packing..."
 
-  EXCLUDEFILES=("metadata.json" "extension.js" "prefs.js" "stylesheet.css")
-  EXCLUDEDIRS=("compiled")
-  JSSRCDIR="$PWD/dist/compiled"
-  BUILDDIR="$PWD/dist/builds"
-
-  FINDFARGS=()
-
-  for F in "${EXCLUDEFILES[@]}"; do
-    FINDFARGS+=("!" "-name" "$F")
-  done
-
-  FINDDARGS=()
-
-  for D in "${EXCLUDEDIRS[@]}"; do
-    FINDDARGS+=("!" "-name" "$D")
-  done
-
-  EXTRAFILES=$(find "$JSSRCDIR" -maxdepth 1 -type f "${FINDFARGS[@]}")
-  EXTRADIRS=$(find "$JSSRCDIR" -maxdepth 1 -type d "${FINDDARGS[@]}")
+  EXTRASRCS=$(find dist/temp/ -mindepth 1 -maxdepth 1 ! -name "metadata.json" ! -name "extension.js" ! -name "prefs.js" ! -name "stylesheet.css")
   ESFLAGS=()
 
-  for F in $EXTRAFILES; do
-    ESFLAGS+=("--extra-source=$F")
-  done
-
-  for D in $EXTRADIRS; do
-    ESFLAGS+=("--extra-source=$D")
+  for F in $EXTRASRCS; do
+    ESFLAGS+=("--extra-source=$PWD/$F")
   done
 
   SCHEMA="$PWD/assets/org.gnome.shell.extensions.mediacontrols.gschema.xml"
   PODIR="$PWD/assets/locale"
 
-  mkdir -p "$BUILDDIR"
-  gnome-extensions pack -f -o "$BUILDDIR" --schema="$SCHEMA" --podir="$PODIR" "${ESFLAGS[@]}" "$JSSRCDIR"
+  gnome-extensions pack -f -o dist/builds/ --schema="$SCHEMA" --podir="$PODIR" "${ESFLAGS[@]}" dist/temp/
 }
 
 debug() {
@@ -84,7 +61,7 @@ translations() {
 
   touch assets/locale/mediacontrols@cliffniff.github.com.pot
 
-  find . -type f -iname "*.blp" -o -iname "*.ts" -not -path "./node_modules/*" | xargs xgettext --from-code=UTF-8 \
+  find . -type f -iname "*.ui" -o -iname "*.js" -not -path "./node_modules/*" | xargs xgettext --from-code=UTF-8 \
     --add-comments \
     --join-existing \
     --keyword=_ \
@@ -99,16 +76,6 @@ translations() {
 
   rm assets/locale/*.po~ 2>/dev/null
   echo "Done"
-}
-
-lint() {
-  echo "Linting..."
-  npm run lint
-}
-
-format() {
-  echo "Formatting..."
-  npm run format
 }
 
 install() {
@@ -157,12 +124,6 @@ reload)
 translations)
   translations
   ;;
-lint)
-  lint
-  ;;
-format)
-  format
-  ;;
 install)
   install
   ;;
@@ -182,7 +143,7 @@ watch)
   watch
   ;;
 *)
-  echo "Usage: $0 {release|build|reload|debug|translations|lint|format|install|uninstall|enable|disable|prefs|watch}"
+  echo "Usage: $0 {release|build|reload|debug|translations|install|uninstall|enable|disable|prefs|watch}"
   exit 1
   ;;
 esac
