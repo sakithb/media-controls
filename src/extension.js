@@ -430,8 +430,12 @@ export default class MediaControls extends Extension {
      * @returns {Promise<void>}
      */
     async initProxies() {
-        const mprisXmlFile = Gio.File.new_for_path(`${this.path}/dbus/mprisNode.xml`);
-        const watchXmlFile = Gio.File.new_for_path(`${this.path}/dbus/watchNode.xml`);
+        // Load gresource for accessing D-Bus XML files
+        const resourcePath = GLib.build_filenamev([this.path, "org.gnome.shell.extensions.mediacontrols.gresource"]);
+        Gio.resources_register(Gio.resource_load(resourcePath));
+        
+        const mprisXmlFile = Gio.File.new_for_uri("resource:///org/gnome/shell/extensions/mediacontrols/dbus/mprisNode.xml");
+        const watchXmlFile = Gio.File.new_for_uri("resource:///org/gnome/shell/extensions/mediacontrols/dbus/watchNode.xml");
         const mprisResult = mprisXmlFile.load_contents_async(null);
         const watchResult = watchXmlFile.load_contents_async(null);
         const readResults = await Promise.all([mprisResult, watchResult]).catch(handleError);

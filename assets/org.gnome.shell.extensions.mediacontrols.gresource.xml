@@ -6,5 +6,16 @@
     <file>ui/element-list.ui</file>
     <file>ui/label-list.ui</file>
     <file>ui/app-chooser.ui</file>
+    
+    <file>images/prefs_positions.png</file>
+    <file>images/prefs_shortcuts.png</file>
+    <file>images/prefs_other.png</file>
+    <file>images/prefs_panel.png</file>
+    <file>images/popup.png</file>
+    <file>images/prefs_general.png</file>
+    <file>images/ego.png</file>
+    
+    <file>dbus/mprisNode.xml</file>
+    <file>dbus/watchNode.xml</file>
   </gresource>
 </gresources>
