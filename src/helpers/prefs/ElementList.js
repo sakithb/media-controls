@@ -43,14 +43,21 @@ class ElementList extends Adw.PreferencesGroup {
         this.controlsRow = this._controls_row;
         this.controlsRow.elementKey = "CONTROLS";
         this.elements = [];
-        const dropTarget = Gtk.DropTarget.new(GObject.TYPE_UINT, Gdk.DragAction.MOVE);
+        const dropTarget = Gtk.DropTarget.new(
+            GObject.TYPE_UINT,
+            Gdk.DragAction.MOVE
+        );
         dropTarget.connect("drop", (_, sourceIndex, x, y) => {
             const targetRow = this.listBox.get_row_at_y(y);
             if (targetRow == null || sourceIndex == null) return;
-            const index = sourceIndex.get_uint();
+            const index = sourceIndex;
             const sourceValue = this.elements[index];
             const targetIndex = targetRow.get_index();
-            this.elements.splice(targetIndex > index ? targetIndex + 1 : targetIndex, 0, sourceValue);
+            this.elements.splice(
+                targetIndex > index ? targetIndex + 1 : targetIndex,
+                0,
+                sourceValue
+            );
             this.elements.splice(index > targetIndex ? index + 1 : index, 1);
             this.notify("elements");
             this.listBox.drag_unhighlight_row();
@@ -72,7 +79,9 @@ class ElementList extends Adw.PreferencesGroup {
         for (let i = 0; i < elements.length; i++) {
             let dragX = 0;
             let dragY = 0;
-            const dragSource = new Gtk.DragSource({ actions: Gdk.DragAction.MOVE });
+            const dragSource = new Gtk.DragSource({
+                actions: Gdk.DragAction.MOVE,
+            });
             const dropController = new Gtk.DropControllerMotion();
             dragSource.connect("prepare", (dragSource, x, y) => {
                 dragX = x;

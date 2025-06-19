@@ -41,14 +41,21 @@ class LabelList extends Adw.PreferencesGroup {
         this.labelsList = new Gtk.StringList({
             strings: Object.values(LabelTypes).map(_),
         });
-        const dropTarget = Gtk.DropTarget.new(GObject.TYPE_UINT, Gdk.DragAction.MOVE);
+        const dropTarget = Gtk.DropTarget.new(
+            GObject.TYPE_UINT,
+            Gdk.DragAction.MOVE
+        );
         dropTarget.connect("drop", (_, sourceIndex, x, y) => {
             const targetRow = this.listBox.get_row_at_y(y);
             if (targetRow == null || sourceIndex == null) return;
-            const index = sourceIndex.get_uint();
+            const index = sourceIndex;
             const sourceValue = this.labels[index];
             const targetIndex = targetRow.get_index();
-            this.labels.splice(targetIndex > index ? targetIndex + 1 : targetIndex, 0, sourceValue);
+            this.labels.splice(
+                targetIndex > index ? targetIndex + 1 : targetIndex,
+                0,
+                sourceValue
+            );
             this.labels.splice(index > targetIndex ? index + 1 : index, 1);
             this.notify("labels");
             this.listBox.drag_unhighlight_row();
@@ -84,7 +91,8 @@ class LabelList extends Adw.PreferencesGroup {
         if (this.labels.length === 0) {
             const row = new Adw.ActionRow();
             const label = new Gtk.Label();
-            label.label = "<span size='x-large' weight='bold' color='#ccc'>No labels added</span>";
+            label.label =
+                "<span size='x-large' weight='bold' color='#ccc'>No labels added</span>";
             label.useMarkup = true;
             label.halign = Gtk.Align.CENTER;
             label.marginTop = 20;
@@ -118,7 +126,9 @@ class LabelList extends Adw.PreferencesGroup {
      * @returns {void}
      */
     completeRowCreation(row, index) {
-        const dragIcon = new Gtk.Image({ icon_name: "list-drag-handle-symbolic" });
+        const dragIcon = new Gtk.Image({
+            icon_name: "list-drag-handle-symbolic",
+        });
         row.add_prefix(dragIcon);
         const deleteBtn = new Gtk.Button({ icon_name: "user-trash-symbolic" });
         deleteBtn.marginTop = 10;
@@ -135,7 +145,10 @@ class LabelList extends Adw.PreferencesGroup {
         value.init(GObject.TYPE_UINT);
         value.set_uint(index);
         const content = Gdk.ContentProvider.new_for_value(value);
-        const dragSource = new Gtk.DragSource({ actions: Gdk.DragAction.MOVE, content });
+        const dragSource = new Gtk.DragSource({
+            actions: Gdk.DragAction.MOVE,
+            content,
+        });
         const dropController = new Gtk.DropControllerMotion();
         dragSource.connect("prepare", (dragSource, x, y) => {
             const row = dragSource.widget;
