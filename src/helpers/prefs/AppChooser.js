@@ -26,7 +26,13 @@ class AppChooser extends Adw.Window {
         this.selectBtn = this._select_btn;
         // @ts-expect-error Typescript doesn't know about the internal children
         this.cancelBtn = this._cancel_btn;
-        const apps = Gio.AppInfo.get_all();
+        const apps = Gio.AppInfo.get_all()
+            .filter((app) => app.should_show())
+            .sort((a, b) => {
+                const nameA = a.get_display_name().toLowerCase();
+                const nameB = b.get_display_name().toLowerCase();
+                return nameA.localeCompare(nameB);
+            });
         for (const app of apps) {
             if (app.should_show() === false) continue;
             const row = new Adw.ActionRow();
