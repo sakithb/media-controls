@@ -33,10 +33,10 @@ Install from source
 
 - Make sure your issue isn't a duplicate
 - Include the following information when creating the issue,
-    - Extension version
-    - Gnome version
-    - Your distribution
-    - A screenshot if it is possible
+  - Extension version
+  - Gnome version
+  - Your distribution
+  - A screenshot if it is possible
 
 ---
 
