@@ -2,26 +2,33 @@ import Adw from "gi://Adw";
 import Gio from "gi://Gio";
 import Gtk from "gi://Gtk";
 import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
+
 import { AppChooser } from "../../prefs.js";
 import { handleError } from "../../utils/common.js";
-/** @extends Adw.PreferencesGroup */
+
 class BlacklistedPlayers extends Adw.PreferencesGroup {
     /**
      * @public
+     * @type {string[]}
      */
     players;
+
     /**
      * @private
+     * @type {InstanceType<typeof AppChooser>}
      */
     appChooser;
     /**
      * @private
+     * @type {Gtk.ListBox}
      */
     listBox;
     /**
      * @private
+     * @type {Gtk.ListBox}
      */
     addBtn;
+
     /**
      * @param {{}} [params={}]
      */
@@ -42,6 +49,7 @@ class BlacklistedPlayers extends Adw.PreferencesGroup {
             this.addElements();
         });
     }
+
     /**
      * @public
      * @param {string[]} players
@@ -51,6 +59,7 @@ class BlacklistedPlayers extends Adw.PreferencesGroup {
         this.players = players;
         this.addElements();
     }
+
     /**
      * @private
      * @returns {void}
@@ -92,4 +101,5 @@ class BlacklistedPlayers extends Adw.PreferencesGroup {
         }
     }
 }
+
 export default BlacklistedPlayers;

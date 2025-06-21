@@ -1,10 +1,9 @@
 ---
 name: Bug report
 about: Create a report to help us improve
-title: ''
+title: ""
 labels: bug
-assignees: ''
-
+assignees: ""
 ---
 
 **Describe the bug**
@@ -12,6 +11,7 @@ A clear and concise description of what the bug is.
 
 **To Reproduce**
 Steps to reproduce the behavior:
+
 1. Go to '...'
 2. Click on '....'
 3. Scroll down to '....'
@@ -24,9 +24,10 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Environment:**
- - Distro: [e.g. Ubuntu 23.10]
- - GNOME version [e.g. 43, 45]
- - Extension Version [e.g. 2.0.0]
+
+- Distro: [e.g. Ubuntu 23.10]
+- GNOME version [e.g. 43, 45]
+- Extension Version [e.g. 2.0.0]
 
 **Additional context**
 Add any other context about the problem here.

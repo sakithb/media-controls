@@ -1,7 +1,10 @@
+/** @import PlayerProxy from './PlayerProxy.js' */
+/** @import MediaControls from '../../extension.js' */
 /** @import { SignalMap } from 'resource:///org/gnome/shell/misc/signals.js' */
 /** @import { KeysOf } from '../../types/misc.js' */
 /** @import { PlayerProxyProperties } from '../../types/dbus.js' */
 /** @import { PanelControlIconOptions, MenuControlIconOptions } from '../../types/enums/shell_only.js' */
+
 import GObject from "gi://GObject";
 import Clutter from "gi://Clutter";
 import GdkPixbuf from "gi://GdkPixbuf";
@@ -12,6 +15,7 @@ import St from "gi://St";
 import * as PanelMenu from "resource:///org/gnome/shell/ui/panelMenu.js";
 import * as PopupMenu from "resource:///org/gnome/shell/ui/popupMenu.js";
 import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.js";
+
 import ScrollingLabel from "./ScrollingLabel.js";
 import MenuSlider from "./MenuSlider.js";
 import { debugLog, handleError } from "../../utils/common.js";
@@ -25,8 +29,10 @@ import {
     PlaybackStatus,
     WidgetFlags,
 } from "../../types/enums/common.js";
+
 Gio._promisify(GdkPixbuf.Pixbuf, "new_from_stream_async", "new_from_stream_finish");
 Gio._promisify(Gio.File.prototype, "query_info_async", "query_info_finish");
+
 /**
  * @param {Clutter.Actor} parent
  * @param {string} name
@@ -40,92 +46,120 @@ function find_child_by_name(parent, name) {
         }
     }
 }
+
 /** @extends PanelMenu.Button */
 class PanelButton extends PanelMenu.Button {
     /**
      * @private
+     * @type {PlayerProxy}
      */
     playerProxy;
     /**
      * @private
+     * @type {MediaControls}
      */
     extension;
+
     /**
      * @private
+     * @type {St.Icon}
      */
     buttonIcon;
     /**
      * @private
+     * @type {InstanceType<typeof ScrollingLabel>}
      */
     buttonLabel;
     /**
      * @private
+     * @type {St.BoxLayout}
      */
     buttonControls;
     /**
      * @private
+     * @type {St.BoxLayout}
      */
     buttonBox;
+
     /**
      * @private
+     * @type {PopupMenu.PopupBaseMenuItem}
      */
     menuBox;
     /**
      * @private
+     * @type {St.BoxLayout}
      */
     menuPlayers;
     /**
      * @private
+     * @type {St.Icon}
      */
     menuImage;
     /**
      * @private
+     * @type {St.BoxLayout}
      */
     menuLabels;
     /**
      * @private
+     * @type {InstanceType<typeof MenuSlider>}
      */
     menuSlider;
     /**
      * @private
+     * @type {St.BoxLayout}
      */
     menuControls;
+
     /**
      * @private
+     * @type {St.BoxLayout}
      */
     menuPlayersTextBox;
     /**
      * @private
+     * @type {St.Icon}
      */
     menuPlayersTextBoxIcon;
     /**
      * @private
+     * @type {St.Label}
      */
     menuPlayersTextBoxLabel;
     /**
      * @private
+     * @type {St.Icon}
      */
     menuPlayersTextBoxPin;
     /**
      * @private
+     * @type {St.BoxLayout}
      */
     menuPlayerIcons;
+
     /**
      * @private
+     * @type {InstanceType<typeof ScrollingLabel>}
      */
     menuLabelTitle;
     /**
      * @private
+     * @type {InstanceType<typeof ScrollingLabel>}
      */
     menuLabelSubtitle;
+
     /**
      * @private
+     * @type {number}
      */
     doubleTapSourceId;
     /**
      * @private
+     * @type {Map<KeysOf<PlayerProxyProperties>, number>}
      */
     changeListenerIds;
+
     /**
      * @param {PlayerProxy} playerProxy
      * @param {MediaControls} extension
@@ -142,6 +176,7 @@ class PanelButton extends PanelMenu.Button {
         this.menu.box.add_style_class_name("popup-menu-container");
         this.connect("destroy", this.onDestroy.bind(this));
     }
+
     /**
      * @public
      * @param {PlayerProxy} playerProxy
@@ -155,6 +190,7 @@ class PanelButton extends PanelMenu.Button {
             this.addProxyListeners();
         }
     }
+
     /**
      * @public
      * @param {PlayerProxy} playerProxy
@@ -163,6 +199,7 @@ class PanelButton extends PanelMenu.Button {
     isSamePlayer(playerProxy) {
         return this.playerProxy.busName === playerProxy.busName;
     }
+
     /**
      * @public
      * @param {WidgetFlags} flags
@@ -244,6 +281,7 @@ class PanelButton extends PanelMenu.Button {
             this.menu.addMenuItem(this.menuBox);
         }
     }
+
     /**
      * @private
      * @returns {void}
@@ -375,6 +413,7 @@ class PanelButton extends PanelMenu.Button {
         }
         debugLog("Added menu players");
     }
+
     /**
      * @private
      * @returns {Promise<void>}
@@ -409,14 +448,14 @@ class PanelButton extends PanelMenu.Button {
         }
         const width = this.extension.labelWidth > 0 ? this.getMenuItemWidth() : this.menuLabels.width;
         if (stream != null) {
-            // @ts-expect-error Types are wrong
-            const pixbufPromise = GdkPixbuf.Pixbuf.new_from_stream_async(stream, null);
+            /** @type {Promise<GdkPixbuf.Pixbuf>} */
+            const pixbufPromise = /** @type {any} */ (GdkPixbuf.Pixbuf.new_from_stream_async(stream, null));
             const pixbuf = await pixbufPromise.catch(handleError);
             if (pixbuf != null) {
                 const aspectRatio = pixbuf.width / pixbuf.height;
                 const height = width / aspectRatio;
                 const format = pixbuf.hasAlpha ? Cogl.PixelFormat.RGBA_8888 : Cogl.PixelFormat.RGB_888;
-                const image = St.ImageContent.new_with_preferred_size(width, height);
+                const image = /** @type {St.ImageContent} */ (St.ImageContent.new_with_preferred_size(width, height));
                 const context = global.stage.context.get_backend().get_cogl_context();
                 image.set_bytes(context, pixbuf.pixelBytes, format, pixbuf.width, pixbuf.height, pixbuf.rowstride);
                 this.menuImage.iconSize = -1;
@@ -439,6 +478,7 @@ class PanelButton extends PanelMenu.Button {
         }
         debugLog("Added menu image");
     }
+
     /**
      * @private
      * @returns {void}
@@ -481,6 +521,7 @@ class PanelButton extends PanelMenu.Button {
         }
         debugLog("Added menu labels");
     }
+
     /**
      * @private
      * @returns {Promise<void>}
@@ -511,6 +552,7 @@ class PanelButton extends PanelMenu.Button {
         }
         debugLog("Added menu slider");
     }
+
     /**
      * @private
      * @param {WidgetFlags} flags
@@ -572,6 +614,7 @@ class PanelButton extends PanelMenu.Button {
         }
         debugLog("Added menu controls");
     }
+
     /**
      * @private
      * @param {MenuControlIconOptions} options
@@ -599,6 +642,7 @@ class PanelButton extends PanelMenu.Button {
             this.menuControls.insert_child_at_index(icon, options.menuProps.index);
         }
     }
+
     /**
      * @private
      * @param {number} index
@@ -620,6 +664,7 @@ class PanelButton extends PanelMenu.Button {
         this.buttonIcon = icon;
         debugLog("Added icon");
     }
+
     /**
      * @private
      * @param {number} index
@@ -641,6 +686,7 @@ class PanelButton extends PanelMenu.Button {
         this.buttonLabel = label;
         debugLog("Added label");
     }
+
     /**
      * @private
      * @param {number} index
@@ -722,6 +768,7 @@ class PanelButton extends PanelMenu.Button {
         }
         debugLog("Added controls");
     }
+
     /**
      * @private
      * @param {PanelControlIconOptions} options
@@ -747,6 +794,7 @@ class PanelButton extends PanelMenu.Button {
             this.buttonControls.insert_child_at_index(icon, options.panelProps.index);
         }
     }
+
     /**
      * @private
      * @param {ControlIconOptions} options
@@ -758,6 +806,7 @@ class PanelButton extends PanelMenu.Button {
             this.buttonControls.remove_child(icon);
         }
     }
+
     /**
      * @private
      * @returns {string}
@@ -781,6 +830,7 @@ class PanelButton extends PanelMenu.Button {
         }
         return labelTextElements.join(" ");
     }
+
     /**
      * @private
      * @returns {number}
@@ -791,6 +841,7 @@ class PanelButton extends PanelMenu.Button {
         const minWidth = menuContainer.get_theme_node().get_min_width() - 24;
         return Math.max(minWidth, this.extension.labelWidth);
     }
+
     /**
      * @private
      * @returns {void}
@@ -850,6 +901,7 @@ class PanelButton extends PanelMenu.Button {
             this.menuSlider.setPosition(position);
         });
     }
+
     /**
      * @private
      * @returns {void}
@@ -859,6 +911,7 @@ class PanelButton extends PanelMenu.Button {
             this.playerProxy.removeListener(property, id);
         }
     }
+
     /**
      * @private
      * @param {KeysOf<PlayerProxyProperties>} property
@@ -874,6 +927,7 @@ class PanelButton extends PanelMenu.Button {
         const id = this.playerProxy.onChanged(property, safeCallback);
         this.changeListenerIds.set(property, id);
     }
+
     /**
      * @private
      * @returns {void}
@@ -930,6 +984,7 @@ class PanelButton extends PanelMenu.Button {
         this.add_action(swipeAction);
         this.add_action(tapAction);
     }
+
     /**
      * @private
      * @param {MouseActions} action
@@ -993,6 +1048,7 @@ class PanelButton extends PanelMenu.Button {
                 break;
         }
     }
+
     /**
      * @private
      * @returns {void}
@@ -1027,6 +1083,7 @@ class PanelButton extends PanelMenu.Button {
         }
     }
 }
+
 const GPanelButton = GObject.registerClass(
     {
         GTypeName: "PanelButton",
@@ -1034,4 +1091,5 @@ const GPanelButton = GObject.registerClass(
     },
     PanelButton,
 );
+
 export default GPanelButton;

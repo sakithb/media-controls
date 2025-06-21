@@ -3,29 +3,42 @@ import GObject from "gi://GObject";
 import Gdk from "gi://Gdk";
 import Graphene from "gi://Graphene";
 import Gtk from "gi://Gtk";
+
 import { PanelElements } from "../../types/enums/common.js";
-/** @extends Adw.PreferencesGroup */
+
+/**
+ * A row in the panel that extends Adw.ActionRow with an extra key.
+ * @typedef {Adw.ActionRow & { elementKey: string }} PanelElementRow
+ */
+
 class ElementList extends Adw.PreferencesGroup {
     /**
      * @public
+     * @type {string[]}
      */
     elements;
+
     /**
      * @private
+     * @type {Gtk.ListBox}
      */
     listBox;
     /**
      * @private
+     * @type {PanelElementRow}
      */
     iconRow;
     /**
      * @private
+     * @type {PanelElementRow}
      */
     labelRow;
     /**
      * @private
+     * @type {PanelElementRow}
      */
     controlsRow;
+
     /**
      * @param {{}} [params={}]
      */
@@ -43,21 +56,16 @@ class ElementList extends Adw.PreferencesGroup {
         this.controlsRow = this._controls_row;
         this.controlsRow.elementKey = "CONTROLS";
         this.elements = [];
-        const dropTarget = Gtk.DropTarget.new(
-            GObject.TYPE_UINT,
-            Gdk.DragAction.MOVE
-        );
+        const dropTarget = Gtk.DropTarget.new(GObject.TYPE_UINT, Gdk.DragAction.MOVE);
         dropTarget.connect("drop", (_, sourceIndex, x, y) => {
             const targetRow = this.listBox.get_row_at_y(y);
             if (targetRow == null || sourceIndex == null) return;
-            const index = sourceIndex;
+            // TODO: find out typeof of sourceIndex
+            // @ts-expect-error sourceIndex is a number
+            const index = /** @type {number} */ (sourceIndex);
             const sourceValue = this.elements[index];
             const targetIndex = targetRow.get_index();
-            this.elements.splice(
-                targetIndex > index ? targetIndex + 1 : targetIndex,
-                0,
-                sourceValue
-            );
+            this.elements.splice(targetIndex > index ? targetIndex + 1 : targetIndex, 0, sourceValue);
             this.elements.splice(index > targetIndex ? index + 1 : index, 1);
             this.notify("elements");
             this.listBox.drag_unhighlight_row();
@@ -65,11 +73,14 @@ class ElementList extends Adw.PreferencesGroup {
         });
         this.listBox.add_controller(dropTarget);
         this.listBox.set_sort_func((firstRow, secondRow) => {
+            // @ts-expect-error Typescript doesn't know about the custom property
             const firstIndex = this.elements.indexOf(firstRow.elementKey);
+            // @ts-expect-error Typescript doesn't know about the custom property
             const secondIndex = this.elements.indexOf(secondRow.elementKey);
             return firstIndex - secondIndex;
         });
     }
+
     /**
      * @public
      * @param {string[]} elements
@@ -86,7 +97,7 @@ class ElementList extends Adw.PreferencesGroup {
             dragSource.connect("prepare", (dragSource, x, y) => {
                 dragX = x;
                 dragY = y;
-                const row = dragSource.widget;
+                const row = /** @type {Adw.ActionRow} */ (dragSource.widget);
                 const index = row.get_index();
                 const value = new GObject.Value();
                 value.init(GObject.TYPE_UINT);
@@ -95,12 +106,12 @@ class ElementList extends Adw.PreferencesGroup {
                 return content;
             });
             dragSource.connect("drag-begin", (dragSource) => {
-                const row = dragSource.widget;
+                const row = /** @type {Adw.ActionRow} */ (dragSource.widget);
                 const icon = this.snapshotRow(row);
                 dragSource.set_icon(icon, dragX, dragY);
             });
             dropController.connect("enter", (dropController) => {
-                const row = dropController.widget;
+                const row = /** @type {Adw.ActionRow} */ (dropController.widget);
                 this.listBox.drag_highlight_row(row);
             });
             dropController.connect("leave", () => {
@@ -140,8 +151,5 @@ class ElementList extends Adw.PreferencesGroup {
         return texture;
     }
 }
+
 export default ElementList;
-/**
- * @typedef {Object} PanelElementRow
- * @property {string} elementKey
- */

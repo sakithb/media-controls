@@ -1,5 +1,6 @@
 import Gdk from "gi://Gdk";
 import Gtk from "gi://Gtk";
+
 export const FORBIDDEN_KEYVALS = [
     Gdk.KEY_Home,
     Gdk.KEY_Left,
@@ -14,6 +15,7 @@ export const FORBIDDEN_KEYVALS = [
     Gdk.KEY_Return,
     Gdk.KEY_Mode_switch,
 ];
+
 /**
  * @param {number} mask
  * @param {number} keyval
@@ -22,6 +24,7 @@ export const FORBIDDEN_KEYVALS = [
 export const isValidAccelerator = (mask, keyval) => {
     return Gtk.accelerator_valid(keyval, mask) || (keyval === Gdk.KEY_Tab && mask !== 0);
 };
+
 /**
  * @param {number} mask
  * @param {number} keycode

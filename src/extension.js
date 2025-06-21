@@ -1,6 +1,6 @@
 /** @import { StdInterface } from './types/dbus.js' */
 /** @import { KeysOf } from './types/misc.js' */
-/** @import { MouseActions } from './types/enums/common.js' */
+/** @import { MouseActions, PanelElements, LabelTypes } from './types/enums/common.js' */
 
 import Gio from "gi://Gio";
 import GLib from "gi://GLib";
@@ -9,6 +9,7 @@ import Shell from "gi://Shell";
 import * as Main from "resource:///org/gnome/shell/ui/main.js";
 import * as Mpris from "resource:///org/gnome/shell/ui/mpris.js";
 import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
+
 import PanelButton from "./helpers/shell/PanelButton.js";
 import PlayerProxy from "./helpers/shell/PlayerProxy.js";
 import { debugLog, enumValueByIndex, errorLog, handleError } from "./utils/common.js";
@@ -23,6 +24,9 @@ import {
     DBUS_IFACE_NAME,
     ExtensionPositions,
 } from "./types/enums/common.js";
+
+/** @typedef {KeysOf<typeof PanelElements>[]} ElementsOrder */
+/** @typedef {(KeysOf<typeof LabelTypes> | (string & NonNullable<unknown>))[]} LabelsOrder */
 
 Gio._promisify(Gio.File.prototype, "load_contents_async", "load_contents_finish");
 
@@ -312,7 +316,7 @@ export default class MediaControls extends Extension {
         this.coloredPlayerIcon = this.settings.get_boolean("colored-player-icon");
         this.extensionPosition = enumValueByIndex(ExtensionPositions, this.settings.get_enum("extension-position"));
         this.extensionIndex = this.settings.get_uint("extension-index");
-        this.elementsOrder = this.settings.get_strv("elements-order");
+        this.elementsOrder = /** @type {ElementsOrder} */ (this.settings.get_strv("elements-order"));
         this.labelsOrder = this.settings.get_strv("labels-order");
         this.mouseActionLeft = this.settings.get_enum("mouse-action-left");
         this.mouseActionMiddle = this.settings.get_enum("mouse-action-middle");
@@ -386,7 +390,7 @@ export default class MediaControls extends Extension {
             this.setActivePlayer();
         });
         this.settings.connect("changed::elements-order", () => {
-            this.elementsOrder = this.settings.get_strv("elements-order");
+            this.elementsOrder = /** @type {ElementsOrder} */ (this.settings.get_strv("elements-order"));
             this.panelBtn?.updateWidgets(WidgetFlags.PANEL_NO_REPLACE);
         });
         this.settings.connect("changed::labels-order", () => {
@@ -433,9 +437,13 @@ export default class MediaControls extends Extension {
         // Load gresource for accessing D-Bus XML files
         const resourcePath = GLib.build_filenamev([this.path, "org.gnome.shell.extensions.mediacontrols.gresource"]);
         Gio.resources_register(Gio.resource_load(resourcePath));
-        
-        const mprisXmlFile = Gio.File.new_for_uri("resource:///org/gnome/shell/extensions/mediacontrols/dbus/mprisNode.xml");
-        const watchXmlFile = Gio.File.new_for_uri("resource:///org/gnome/shell/extensions/mediacontrols/dbus/watchNode.xml");
+
+        const mprisXmlFile = Gio.File.new_for_uri(
+            "resource:///org/gnome/shell/extensions/mediacontrols/dbus/mprisNode.xml",
+        );
+        const watchXmlFile = Gio.File.new_for_uri(
+            "resource:///org/gnome/shell/extensions/mediacontrols/dbus/watchNode.xml",
+        );
         const mprisResult = mprisXmlFile.load_contents_async(null);
         const watchResult = watchXmlFile.load_contents_async(null);
         const readResults = await Promise.all([mprisResult, watchResult]).catch(handleError);
@@ -707,6 +715,3 @@ export default class MediaControls extends Extension {
         this.blacklistedPlayers = null;
     }
 }
-
-/** @typedef {KeysOf<typeof PanelElements>[]} ElementsOrder */
-/** @typedef {(KeysOf<typeof LabelTypes> | (string & NonNullable<unknown>))[]} LabelsOrder */

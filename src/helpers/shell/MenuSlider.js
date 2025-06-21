@@ -2,41 +2,55 @@ import Clutter from "gi://Clutter";
 import GObject from "gi://GObject";
 import St from "gi://St";
 import * as Slider from "resource:///org/gnome/shell/ui/slider.js";
+
 import { msToHHMMSS } from "../../utils/common.js";
+
 /** @extends St.BoxLayout */
 class MenuSlider extends St.BoxLayout {
     /**
      * @private
+     * @type {Clutter.PropertyTransition}
      */
     transition;
+
     /**
      * @private
+     * @type {Slider.Slider}
      */
     slider;
     /**
      * @private
+     * @type {St.BoxLayout}
      */
     textBox;
     /**
      * @private
+     * @type {St.Label}
      */
     elapsedLabel;
     /**
      * @private
+     * @type {St.Label}
      */
     durationLabel;
+
     /**
      * @private
+     * @type {boolean}
      */
     dragPaused;
     /**
      * @private
+     * @type {boolean}
      */
     disabled;
+
     /**
      * @private
+     * @type {number}
      */
     rate;
+
     /**
      *
      */
@@ -102,6 +116,7 @@ class MenuSlider extends St.BoxLayout {
         this.connect("destroy", this.onDestroy.bind(this));
         this.setDisabled(true);
     }
+
     /**
      * @public
      * @param {number} position
@@ -114,6 +129,7 @@ class MenuSlider extends St.BoxLayout {
         this.setLength(length);
         this.setPosition(position);
     }
+
     /**
      * @public
      * @param {number} rate
@@ -125,6 +141,7 @@ class MenuSlider extends St.BoxLayout {
         this.setPosition(this.transition.get_elapsed_time() * oldRate * 1000);
         this.setLength(this.transition.duration * oldRate * 1000);
     }
+
     /**
      * @public
      * @param {number} position
@@ -136,6 +153,7 @@ class MenuSlider extends St.BoxLayout {
         this.slider.value = position / this.rate / this.transition.duration;
         this.transition.advance(position / this.rate);
     }
+
     /**
      * @public
      * @param {number} length
@@ -149,6 +167,7 @@ class MenuSlider extends St.BoxLayout {
         this.transition.rewind();
         this.updateMarkers();
     }
+
     /**
      * @public
      * @returns {void}
@@ -158,6 +177,7 @@ class MenuSlider extends St.BoxLayout {
             this.transition.pause();
         }
     }
+
     /**
      * @public
      * @returns {void}
@@ -167,6 +187,7 @@ class MenuSlider extends St.BoxLayout {
             this.transition.start();
         }
     }
+
     /**
      * @public
      * @param {boolean} disabled
@@ -186,6 +207,7 @@ class MenuSlider extends St.BoxLayout {
             this.updateMarkers();
         }
     }
+
     /**
      * @private
      * @returns {void}
@@ -223,4 +245,5 @@ const GMenuSlider = GObject.registerClass(
     },
     MenuSlider,
 );
+
 export default GMenuSlider;

@@ -3,7 +3,7 @@
     "checkJs": true,
     "module": "ESNext",
     "target": "ESNext",
-    "moduleResolution": "nodenext",
+    "moduleResolution": "nodenext"
   },
-  "include": ["./src/**/*", "global.d.ts"],
+  "include": ["./src/**/*", "global.d.ts"]
 }

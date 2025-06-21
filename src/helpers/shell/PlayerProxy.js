@@ -1,41 +1,64 @@
 /** @import { PlaybackStatus } from '../../types/enums/common.js' */
+/** @import { MprisInterface, MprisPlayerInterface, PropertiesInterface, PlayerProxyProperties, MprisPlayerInterfaceMetadata, MprisPlayerInterfaceMetadataUnpacked } from '../../types/dbus.js' */
+/** @import { KeysOf } from '../../types/misc.js' */
 import { MPRIS_PLAYER_IFACE_NAME, MPRIS_OBJECT_PATH, LoopStatus } from "../../types/enums/common.js";
 import { errorLog, handleError } from "../../utils/common.js";
 import { createDbusProxy } from "../../utils/shell_only.js";
+
 import GLib from "gi://GLib";
+
+/** @import Gio from 'gi://Gio' */
+
+/**
+ * @typedef {Map<
+ *     KeysOf<PlayerProxyProperties>,
+ *     ((value: PlayerProxyProperties[KeysOf<PlayerProxyProperties>]) => void)[]
+ * >} PlayerProxyChangeListeners
+ */
+
 export default class PlayerProxy {
     /**
      * @private
+     * @type {boolean}
      */
     isPinned;
     /**
      * @private
+     * @type {MprisInterface}
      */
     mprisProxy;
     /**
      * @private
+     * @type {MprisPlayerInterface}
      */
     mprisPlayerProxy;
     /**
      * @private
+     * @type {PropertiesInterface}
      */
     propertiesProxy;
     /**
      * @private
+     * @type {PlayerProxyChangeListeners}
      */
     changeListeners;
     /**
      * @private
+     * @type {number}
      */
     pollSourceId;
+
     /**
      * @public
+     * @type {string}
      */
     busName;
     /**
      * @public
+     * @type {boolean}
      */
     isInvalid;
+
     /**
      * @param {string} busName
      */
@@ -45,6 +68,7 @@ export default class PlayerProxy {
         this.isInvalid = true;
         this.changeListeners = new Map();
     }
+
     /**
      * @public
      * @param {Gio.DBusInterfaceInfo} mprisIface
@@ -66,7 +90,10 @@ export default class PlayerProxy {
         this.propertiesProxy = proxies[2];
         this.propertiesProxy.connectSignal("PropertiesChanged", (proxy, senderName, [, changedProperties]) => {
             for (const [property, value] of Object.entries(changedProperties)) {
-                this.callOnChangedListeners(property, value.recursiveUnpack());
+                this.callOnChangedListeners(
+                    /** @type {KeysOf<PlayerProxyProperties>} */ (property),
+                    value.recursiveUnpack(),
+                );
             }
         });
         this.onChanged("Metadata", this.validatePlayer.bind(this));
@@ -76,6 +103,7 @@ export default class PlayerProxy {
         this.pollTillInitialized();
         return true;
     }
+
     /**
      * @public
      * @returns {void}
@@ -84,6 +112,7 @@ export default class PlayerProxy {
         this.isPinned = true;
         this.callOnChangedListeners("IsPinned", this.isPinned);
     }
+
     /**
      * @public
      * @returns {void}
@@ -92,6 +121,7 @@ export default class PlayerProxy {
         this.isPinned = false;
         this.callOnChangedListeners("IsPinned", this.isPinned);
     }
+
     /**
      * @public
      * @returns {boolean}
@@ -99,6 +129,7 @@ export default class PlayerProxy {
     isPlayerPinned() {
         return this.isPinned;
     }
+
     /**
      * Some players don't set the initial position and metadata immediately on startup
      * @private
@@ -131,6 +162,7 @@ export default class PlayerProxy {
             return GLib.SOURCE_CONTINUE;
         });
     }
+
     /**
      * @private
      * @returns {void}
@@ -141,6 +173,7 @@ export default class PlayerProxy {
         this.isInvalid = !isValidName || !isValidMetadata;
         this.callOnChangedListeners("IsInvalid", this.isInvalid);
     }
+
     /**
      * @private
      * @param {MprisPlayerInterfaceMetadata} metadata
@@ -151,8 +184,9 @@ export default class PlayerProxy {
         for (const [key, value] of Object.entries(metadata)) {
             unpackedMetadata[key] = value.recursiveUnpack();
         }
-        return unpackedMetadata;
+        return /** @type {MprisPlayerInterfaceMetadataUnpacked} */ (unpackedMetadata);
     }
+
     /**
      * @private
      * @template {KeysOf<PlayerProxyProperties>} T
@@ -173,42 +207,49 @@ export default class PlayerProxy {
             }
         }
     }
+
     /**
      * @returns {PlaybackStatus}
      */
     get playbackStatus() {
         return this.mprisPlayerProxy.PlaybackStatus;
     }
+
     /**
      * @returns {LoopStatus}
      */
     get loopStatus() {
         return this.mprisPlayerProxy.LoopStatus;
     }
+
     /**
      * @returns {number}
      */
     get rate() {
         return this.mprisPlayerProxy.Rate;
     }
+
     /**
      * @returns {boolean}
      */
     get shuffle() {
         return this.mprisPlayerProxy.Shuffle;
     }
+
     /**
      * @returns {MprisPlayerInterfaceMetadataUnpacked}
      */
     get metadata() {
         return this.unpackMetadata(this.mprisPlayerProxy.Metadata);
     }
+
     /**
      * @returns {number}
      */
     get volume() {
         return this.mprisPlayerProxy.Volume;
     }
+
     /**
      * @returns {Promise<number>}
      */
@@ -222,132 +263,154 @@ export default class PlayerProxy {
                 return null;
             });
     }
+
     /**
      * @returns {number}
      */
     get minimumRate() {
         return this.mprisPlayerProxy.MinimumRate;
     }
+
     /**
      * @returns {number}
      */
     get maximumRate() {
         return this.mprisPlayerProxy.MaximumRate;
     }
+
     /**
      * @returns {boolean}
      */
     get canGoNext() {
         return this.mprisPlayerProxy.CanGoNext;
     }
+
     /**
      * @returns {boolean}
      */
     get canGoPrevious() {
         return this.mprisPlayerProxy.CanGoPrevious;
     }
+
     /**
      * @returns {boolean}
      */
     get canPlay() {
         return this.mprisPlayerProxy.CanPlay;
     }
+
     /**
      * @returns {boolean}
      */
     get canPause() {
         return this.mprisPlayerProxy.CanPause;
     }
+
     /**
      * @returns {boolean}
      */
     get canSeek() {
         return this.mprisPlayerProxy.CanSeek;
     }
+
     /**
      * @returns {boolean}
      */
     get canControl() {
         return this.mprisPlayerProxy.CanControl;
     }
+
     /**
      * @returns {boolean}
      */
     get canQuit() {
         return this.mprisProxy.CanQuit;
     }
+
     /**
      * @returns {boolean}
      */
     get canRaise() {
         return this.mprisProxy.CanRaise;
     }
+
     /**
      * @returns {boolean}
      */
     get canSetFullscreen() {
         return this.mprisProxy.CanSetFullscreen;
     }
+
     /**
      * @returns {string}
      */
     get desktopEntry() {
         return this.mprisProxy.DesktopEntry;
     }
+
     /**
      * @returns {boolean}
      */
     get hasTrackList() {
         return this.mprisProxy.HasTrackList;
     }
+
     /**
      * @returns {string}
      */
     get identity() {
         return this.mprisProxy.Identity;
     }
+
     /**
      * @returns {string[]}
      */
     get supportedMimeTypes() {
         return this.mprisProxy.SupportedMimeTypes;
     }
+
     /**
      * @returns {string[]}
      */
     get supportedUriSchemes() {
         return this.mprisProxy.SupportedUriSchemes;
     }
+
     /**
      * @param {LoopStatus} loopStatus
      */
     set loopStatus(loopStatus) {
         this.mprisPlayerProxy.LoopStatus = loopStatus;
     }
+
     /**
      * @param {number} rate
      */
     set rate(rate) {
         this.mprisPlayerProxy.Rate = rate;
     }
+
     /**
      * @param {boolean} shuffle
      */
     set shuffle(shuffle) {
         this.mprisPlayerProxy.Shuffle = shuffle;
     }
+
     /**
      * @param {number} volume
      */
     set volume(volume) {
         this.mprisPlayerProxy.Volume = volume;
     }
+
     /**
      * @param {boolean} fullscreen
      */
     set fullscreen(fullscreen) {
         this.mprisProxy.Fullscreen = fullscreen;
     }
+
     /**
      * @public
      * @returns {Promise<void>}
@@ -355,6 +418,7 @@ export default class PlayerProxy {
     async next() {
         await this.mprisPlayerProxy.NextAsync().catch(handleError);
     }
+
     /**
      * @public
      * @returns {Promise<void>}
@@ -362,6 +426,7 @@ export default class PlayerProxy {
     async previous() {
         await this.mprisPlayerProxy.PreviousAsync().catch(handleError);
     }
+
     /**
      * @public
      * @returns {Promise<void>}
@@ -369,6 +434,7 @@ export default class PlayerProxy {
     async pause() {
         await this.mprisPlayerProxy.PauseAsync().catch(handleError);
     }
+
     /**
      * @public
      * @returns {Promise<void>}
@@ -376,6 +442,7 @@ export default class PlayerProxy {
     async playPause() {
         await this.mprisPlayerProxy.PlayPauseAsync().catch(handleError);
     }
+
     /**
      * @public
      * @returns {Promise<void>}
@@ -383,6 +450,7 @@ export default class PlayerProxy {
     async stop() {
         await this.mprisPlayerProxy.StopAsync().catch(handleError);
     }
+
     /**
      * @public
      * @returns {Promise<void>}
@@ -390,6 +458,7 @@ export default class PlayerProxy {
     async play() {
         await this.mprisPlayerProxy.PlayAsync().catch(handleError);
     }
+
     /**
      * @public
      * @param {number} offset
@@ -398,6 +467,7 @@ export default class PlayerProxy {
     async seek(offset) {
         await this.mprisPlayerProxy.SeekAsync(offset).catch(handleError);
     }
+
     /**
      * @public
      * @param {string} trackId
@@ -407,6 +477,7 @@ export default class PlayerProxy {
     async setPosition(trackId, position) {
         await this.mprisPlayerProxy.SetPositionAsync(trackId, position).catch(handleError);
     }
+
     /**
      * @public
      * @param {string} uri
@@ -415,6 +486,7 @@ export default class PlayerProxy {
     async openUri(uri) {
         await this.mprisPlayerProxy.OpenUriAsync(uri).catch(handleError);
     }
+
     /**
      * @public
      * @returns {Promise<void>}
@@ -422,6 +494,7 @@ export default class PlayerProxy {
     async raise() {
         await this.mprisProxy.RaiseAsync().catch(handleError);
     }
+
     /**
      * @public
      * @returns {Promise<void>}
@@ -429,6 +502,7 @@ export default class PlayerProxy {
     async quit() {
         await this.mprisProxy.QuitAsync().catch(handleError);
     }
+
     /**
      * @public
      * @returns {void}
@@ -439,6 +513,7 @@ export default class PlayerProxy {
         const nextIndex = (currentIndex + 1 + loopStatuses.length) % loopStatuses.length;
         this.loopStatus = loopStatuses[nextIndex];
     }
+
     /**
      * @public
      * @returns {void}
@@ -446,6 +521,7 @@ export default class PlayerProxy {
     toggleShuffle() {
         this.shuffle = !this.shuffle;
     }
+
     /**
      * @public
      * @param {(position: number) => void} callback
@@ -457,6 +533,7 @@ export default class PlayerProxy {
         });
         return this.mprisPlayerProxy.disconnectSignal.bind(this.mprisPlayerProxy, signalId);
     }
+
     /**
      * @public
      * @template {KeysOf<PlayerProxyProperties>} T
@@ -475,6 +552,7 @@ export default class PlayerProxy {
         }
         return id;
     }
+
     /**
      * @public
      * @template {KeysOf<PlayerProxyProperties>} T
@@ -489,6 +567,7 @@ export default class PlayerProxy {
         }
         listeners.splice(id, 1);
     }
+
     /**
      * @public
      * @returns {void}
@@ -499,9 +578,3 @@ export default class PlayerProxy {
         }
     }
 }
-/**
- * @typedef {Map<
- *     KeysOf<PlayerProxyProperties>,
- *     ((value: PlayerProxyProperties[KeysOf<PlayerProxyProperties>]) => void)[]
- * >} PlayerProxyChangeListeners
- */

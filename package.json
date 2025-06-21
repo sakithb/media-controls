@@ -1,5 +1,8 @@
 {
   "type": "module",
+  "scripts": {
+    "format": "prettier --write ."
+  },
   "devDependencies": {
     "@girs/adw-1": "1.8.0-4.0.0-beta.23",
     "@girs/clutter-13": "13.0.0-4.0.0-beta.23",
@@ -18,6 +21,7 @@
     "@girs/pango-1.0": "1.56.4-4.0.0-beta.23",
     "@girs/shell-13": "13.0.0-4.0.0-beta.23",
     "@girs/soup-3.0": "3.6.4-4.0.0-beta.23",
-    "@girs/st-13": "13.0.0-4.0.0-beta.23"
+    "@girs/st-13": "13.0.0-4.0.0-beta.23",
+    "prettier": "^3.5.3"
   }
 }

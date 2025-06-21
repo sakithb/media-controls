@@ -4,29 +4,39 @@ import Gdk from "gi://Gdk";
 import Graphene from "gi://Graphene";
 import Gtk from "gi://Gtk";
 import { gettext as _ } from "resource:///org/gnome/Shell/Extensions/js/extensions/prefs.js";
+
 import { LabelTypes } from "../../types/enums/common.js";
+
 /** @extends Adw.PreferencesGroup */
+
 class LabelList extends Adw.PreferencesGroup {
     /**
      * @public
+     * @type {string[]}
      */
     labels;
+
     /**
      * @private
+     * @type {Gtk.StringList}
      */
     labelsList;
     /**
      * @private
+     * @type {Gtk.ListBox}
      */
     listBox;
     /**
      * @private
+     * @type {Gtk.Button}
      */
     addItemBtn;
     /**
      * @private
+     * @type {Gtk.Button}
      */
     addTextBtn;
+
     /**
      * @param {{}} [params={}]
      */
@@ -41,21 +51,16 @@ class LabelList extends Adw.PreferencesGroup {
         this.labelsList = new Gtk.StringList({
             strings: Object.values(LabelTypes).map(_),
         });
-        const dropTarget = Gtk.DropTarget.new(
-            GObject.TYPE_UINT,
-            Gdk.DragAction.MOVE
-        );
+        const dropTarget = Gtk.DropTarget.new(GObject.TYPE_UINT, Gdk.DragAction.MOVE);
         dropTarget.connect("drop", (_, sourceIndex, x, y) => {
             const targetRow = this.listBox.get_row_at_y(y);
             if (targetRow == null || sourceIndex == null) return;
-            const index = sourceIndex;
+            // TODO: find out typeof of sourceIndex
+            // @ts-expect-error sourceIndex is a number
+            const index = /** @type {number} */ (sourceIndex);
             const sourceValue = this.labels[index];
             const targetIndex = targetRow.get_index();
-            this.labels.splice(
-                targetIndex > index ? targetIndex + 1 : targetIndex,
-                0,
-                sourceValue
-            );
+            this.labels.splice(targetIndex > index ? targetIndex + 1 : targetIndex, 0, sourceValue);
             this.labels.splice(index > targetIndex ? index + 1 : index, 1);
             this.notify("labels");
             this.listBox.drag_unhighlight_row();
@@ -73,6 +78,7 @@ class LabelList extends Adw.PreferencesGroup {
         });
         this.listBox.add_controller(dropTarget);
     }
+
     /**
      * @public
      * @param {string[]} labels
@@ -82,6 +88,7 @@ class LabelList extends Adw.PreferencesGroup {
         this.labels = labels;
         this.addElements();
     }
+
     /**
      * @private
      * @returns {void}
@@ -91,8 +98,7 @@ class LabelList extends Adw.PreferencesGroup {
         if (this.labels.length === 0) {
             const row = new Adw.ActionRow();
             const label = new Gtk.Label();
-            label.label =
-                "<span size='x-large' weight='bold' color='#ccc'>No labels added</span>";
+            label.label = "<span size='x-large' weight='bold' color='#ccc'>No labels added</span>";
             label.useMarkup = true;
             label.halign = Gtk.Align.CENTER;
             label.marginTop = 20;
@@ -119,6 +125,7 @@ class LabelList extends Adw.PreferencesGroup {
             }
         }
     }
+
     /**
      * @private
      * @param {Adw.ComboRow | Adw.EntryRow} row
@@ -151,13 +158,13 @@ class LabelList extends Adw.PreferencesGroup {
         });
         const dropController = new Gtk.DropControllerMotion();
         dragSource.connect("prepare", (dragSource, x, y) => {
-            const row = dragSource.widget;
+            const row = /** @type {Adw.ComboRow | Adw.EntryRow} */ (dragSource.widget);
             const snapshot = this.snapshotRow(row);
             dragSource.set_icon(snapshot, x, y);
             return dragSource.content;
         });
         dropController.connect("enter", (dropController) => {
-            const row = dropController.widget;
+            const row = /** @type {Adw.ComboRow | Adw.EntryRow} */ (dropController.widget);
             this.listBox.drag_highlight_row(row);
         });
         dropController.connect("leave", () => {
@@ -167,6 +174,7 @@ class LabelList extends Adw.PreferencesGroup {
         row.add_controller(dropController);
         this.listBox.append(row);
     }
+
     /**
      * @private
      * @param {Adw.ComboRow} row
@@ -182,6 +190,7 @@ class LabelList extends Adw.PreferencesGroup {
             this.addElements();
         });
     }
+
     /**
      * @private
      * @param {Adw.EntryRow} row
@@ -194,6 +203,7 @@ class LabelList extends Adw.PreferencesGroup {
             this.notify("labels");
         });
     }
+
     /**
      * @private
      * @param {Adw.PreferencesRow} row
@@ -213,4 +223,5 @@ class LabelList extends Adw.PreferencesGroup {
         return texture;
     }
 }
+
 export default LabelList;

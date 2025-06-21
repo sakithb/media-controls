@@ -1,25 +1,20 @@
 // Utils only used in the extension. Do not import this file in the preferences window because Shell is not available there.
+
 import GLib from "gi://GLib";
 import Soup from "gi://Soup";
-import Shell from "gi://Shell";
 import Gio from "gi://Gio";
-import { debugLog, errorLog, handleError } from "./common.js";
+
+import { errorLog, handleError } from "./common.js";
+
 Gio._promisify(Gio.DBusProxy, "new", "new_finish");
-Gio._promisify(
-    Gio.File.prototype,
-    "replace_contents_bytes_async",
-    "replace_contents_finish"
-);
+Gio._promisify(Gio.File.prototype, "replace_contents_bytes_async", "replace_contents_finish");
 Gio._promisify(Gio.File.prototype, "read_async", "read_finish");
-Gio._promisify(
-    Soup.Session.prototype,
-    "send_and_read_async",
-    "send_and_read_finish"
-);
+Gio._promisify(Soup.Session.prototype, "send_and_read_async", "send_and_read_finish");
+
 /**
  * @param {string} id
  * @param {string} entry
- * @returns {Shell.App}
+ * @returns {Gio.AppInfo | null}
  */
 export const getAppByIdAndEntry = (id, entry) => {
     const apps = Gio.AppInfo.get_all();
@@ -33,6 +28,8 @@ export const getAppByIdAndEntry = (id, entry) => {
             return app;
         }
     }
+
+    return null;
 };
 
 /**
@@ -46,11 +43,7 @@ export const getImage = async (url) => {
     const encoder = new TextEncoder();
     const urlBytes = encoder.encode(url);
     const encodedUrl = GLib.base64_encode(urlBytes);
-    const path = GLib.build_filenamev([
-        GLib.get_user_cache_dir(),
-        "mediacontrols@cliffniff.github.com",
-        encodedUrl,
-    ]);
+    const path = GLib.build_filenamev([GLib.get_user_cache_dir(), "mediacontrols@cliffniff.github.com", encodedUrl]);
     const exitCode = GLib.mkdir_with_parents(GLib.path_get_dirname(path), 493);
     if (exitCode === -1) {
         errorLog(`Failed to create cache directory: ${path}`);
@@ -84,20 +77,14 @@ export const getImage = async (url) => {
         } else if (scheme === "http" || scheme === "https") {
             const session = new Soup.Session();
             const message = new Soup.Message({ method: "GET", uri });
-            const bytes = await session
-                .send_and_read_async(message, null, null)
-                .catch(handleError);
+            const bytes = await session.send_and_read_async(message, null, null).catch(handleError);
             if (bytes == null) {
                 errorLog(`Failed to load image: ${url}`);
                 return null;
             }
-            // @ts-expect-error Types are wrong
-            const resultPromise = file.replace_contents_bytes_async(
-                bytes,
-                null,
-                false,
-                Gio.FileCreateFlags.NONE,
-                null
+            /** @type {Promise<[boolean] | null>} */
+            const resultPromise = /** @type {any} */ (
+                file.replace_contents_bytes_async(bytes, null, false, Gio.FileCreateFlags.NONE, null)
             );
             const result = await resultPromise.catch(handleError);
             if (result?.[0] === false) {
@@ -116,6 +103,7 @@ export const getImage = async (url) => {
         }
     }
 };
+
 /**
  * @template T
  * @param {Gio.DBusInterfaceInfo} ifaceInfo
@@ -124,15 +112,9 @@ export const getImage = async (url) => {
  * @returns {Promise<T>}
  */
 export const createDbusProxy = async (ifaceInfo, name, object) => {
-    // @ts-expect-error Types have not been promisified yet
-    const proxy = Gio.DBusProxy.new(
-        Gio.DBus.session,
-        Gio.DBusProxyFlags.NONE,
-        ifaceInfo,
-        name,
-        object,
-        ifaceInfo.name,
-        null
+    /** @type {Promise<T>} */
+    const proxy = /** @type {any} */ (
+        Gio.DBusProxy.new(Gio.DBus.session, Gio.DBusProxyFlags.NONE, ifaceInfo, name, object, ifaceInfo.name, null)
     );
     return proxy;
 };

@@ -2,49 +2,73 @@ import Clutter from "gi://Clutter";
 import GObject from "gi://GObject";
 import Pango from "gi://Pango";
 import St from "gi://St";
+
 const SCROLL_ANIMATION_SPEED = 0.04;
+
+/**
+ * @typedef {Object} ScrollingLabelParams
+ * @property {string} text
+ * @property {number} width
+ * @property {Clutter.TimelineDirection} [direction]
+ * @property {boolean} [isFixedWidth]
+ * @property {boolean} isScrolling
+ * @property {boolean} initPaused
+ */
+
 /** @extends St.ScrollView */
 class ScrollingLabel extends St.ScrollView {
     /**
      * @public
+     * @type {St.Label}
      */
     label;
     /**
      * @public
+     * @type {St.BoxLayout}
      */
     box;
     /**
      * @private
+     * @type {number}
      */
     onAdjustmentChangedId;
     /**
      * @private
+     * @type {number}
      */
     onShowChangedId;
+
     /**
      * @private
+     * @type {boolean}
      */
     isScrolling;
     /**
      * @private
+     * @type {boolean}
      */
     isFixedWidth;
     /**
      * @private
+     * @type {boolean}
      */
     initPaused;
     /**
      * @private
+     * @type {number}
      */
     labelWidth;
     /**
      * @private
+     * @type {Clutter.TimelineDirection}
      */
     direction;
     /**
      * @private
+     * @type {Clutter.PropertyTransition}
      */
     transition;
+
     /**
      * @param {ScrollingLabelParams} params
      */
@@ -79,6 +103,7 @@ class ScrollingLabel extends St.ScrollView {
         this.box.add_child(this.label);
         this.add_child(this.box);
     }
+
     /**
      * @public
      * @returns {void}
@@ -87,6 +112,7 @@ class ScrollingLabel extends St.ScrollView {
         this.transition?.pause();
         this.initPaused = true;
     }
+
     /**
      * @public
      * @returns {void}
@@ -95,6 +121,7 @@ class ScrollingLabel extends St.ScrollView {
         this.transition?.start();
         this.initPaused = false;
     }
+
     /**
      * @private
      * @returns {void}
@@ -109,6 +136,7 @@ class ScrollingLabel extends St.ScrollView {
         this.label.text = `${origText} `;
         this.label.clutterText.ellipsize = Pango.EllipsizeMode.NONE;
     }
+
     /**
      * @private
      * @param {St.Adjustment} adjustment
@@ -147,6 +175,7 @@ class ScrollingLabel extends St.ScrollView {
             this.transition.pause();
         }
     }
+
     /**
      * @private
      * @returns {void}
@@ -168,6 +197,7 @@ class ScrollingLabel extends St.ScrollView {
         }
         this.label.disconnect(this.onShowChangedId);
     }
+
     /**
      * @returns {boolean}
      */
@@ -175,19 +205,12 @@ class ScrollingLabel extends St.ScrollView {
         return Clutter.EVENT_PROPAGATE;
     }
 }
+
 const GScrollingLabel = GObject.registerClass(
     {
         GTypeName: "ScrollingLabel",
     },
     ScrollingLabel,
 );
+
 export default GScrollingLabel;
-/**
- * @typedef {Object} ScrollingLabelParams
- * @property {string} text
- * @property {number} width
- * @property {Clutter.TimelineDirection} [direction]
- * @property {boolean} [isFixedWidth]
- * @property {boolean} isScrolling
- * @property {boolean} initPaused
- */

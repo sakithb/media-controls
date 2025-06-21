@@ -1,20 +1,24 @@
 import Adw from "gi://Adw";
 import Gio from "gi://Gio";
 import Gtk from "gi://Gtk";
-/** @extends Adw.Window */
+
 class AppChooser extends Adw.Window {
     /**
      * @private
+     * @type {Gtk.ListBox}
      */
     listBox;
     /**
      * @private
+     * @type {Gtk.Button}
      */
     selectBtn;
     /**
      * @private
+     * @type {Gtk.Button}
      */
     cancelBtn;
+
     /**
      * @param {{}} [params={}]
      */
@@ -47,6 +51,7 @@ class AppChooser extends Adw.Window {
             this.close();
         });
     }
+
     /**
      * @public
      * @returns {Promise<string>}
@@ -56,7 +61,7 @@ class AppChooser extends Adw.Window {
             const signalId = this.selectBtn.connect("clicked", () => {
                 this.close();
                 this.selectBtn.disconnect(signalId);
-                const row = this.listBox.get_selected_row();
+                const row = /** @type {Adw.ActionRow} */ (this.listBox.get_selected_row());
                 resolve(row.subtitle);
             });
             this.present();
