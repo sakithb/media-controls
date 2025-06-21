@@ -13,7 +13,7 @@ import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
 import PanelButton from "./helpers/shell/PanelButton.js";
 import PlayerProxy from "./helpers/shell/PlayerProxy.js";
 import { debugLog, enumValueByIndex, errorLog, handleError } from "./utils/common.js";
-import { getAppByIdAndEntry, createDbusProxy } from "./utils/shell_only.js";
+import { getAppInfoByIdAndEntry, createDbusProxy } from "./utils/shell_only.js";
 import {
     PlaybackStatus,
     WidgetFlags,
@@ -625,7 +625,7 @@ export default class MediaControls extends Extension {
      * @returns {boolean}
      */
     isPlayerBlacklisted(id, entry) {
-        const app = getAppByIdAndEntry(id, entry);
+        const app = getAppInfoByIdAndEntry(id, entry);
         if (app == null) {
             return false;
         }

@@ -2,21 +2,19 @@
 
 import GLib from "gi://GLib";
 import Soup from "gi://Soup";
+import Shell from "gi://Shell";
 import Gio from "gi://Gio";
-
 import { errorLog, handleError } from "./common.js";
-
 Gio._promisify(Gio.DBusProxy, "new", "new_finish");
 Gio._promisify(Gio.File.prototype, "replace_contents_bytes_async", "replace_contents_finish");
 Gio._promisify(Gio.File.prototype, "read_async", "read_finish");
 Gio._promisify(Soup.Session.prototype, "send_and_read_async", "send_and_read_finish");
-
 /**
  * @param {string} id
  * @param {string} entry
  * @returns {Gio.AppInfo | null}
  */
-export const getAppByIdAndEntry = (id, entry) => {
+export const getAppInfoByIdAndEntry = (id, entry) => {
     const apps = Gio.AppInfo.get_all();
     for (const app of apps) {
         if (
@@ -28,10 +26,32 @@ export const getAppByIdAndEntry = (id, entry) => {
             return app;
         }
     }
-
     return null;
 };
-
+/**
+ * @param {string} id
+ * @param {string} entry
+ * @returns {Gio.Application | null}
+ */
+export const getAppByIdAndEntry = (id, entry) => {
+    const appSystem = Shell.AppSystem.get_default();
+    const runningApps = appSystem.get_running();
+    const idResults = Shell.AppSystem.search(id ?? "");
+    const entryResults = Shell.AppSystem.search(entry ?? "");
+    if (entryResults?.length > 0) {
+        const app = runningApps.find((app) => entryResults[0].includes(app.get_id()));
+        if (app != null) {
+            return app;
+        }
+    }
+    if (idResults?.length > 0) {
+        const app = runningApps.find((app) => idResults[0].includes(app.get_id()));
+        if (app != null) {
+            return app;
+        }
+    }
+    return null;
+};
 /**
  * @param {string} url
  * @returns {Promise<Gio.InputStream>}
@@ -82,10 +102,8 @@ export const getImage = async (url) => {
                 errorLog(`Failed to load image: ${url}`);
                 return null;
             }
-            /** @type {Promise<[boolean] | null>} */
-            const resultPromise = /** @type {any} */ (
-                file.replace_contents_bytes_async(bytes, null, false, Gio.FileCreateFlags.NONE, null)
-            );
+            // @ts-expect-error Types are wrong
+            const resultPromise = file.replace_contents_bytes_async(bytes, null, false, Gio.FileCreateFlags.NONE, null);
             const result = await resultPromise.catch(handleError);
             if (result?.[0] === false) {
                 errorLog(`Failed to cache image: ${url}`);
@@ -112,9 +130,15 @@ export const getImage = async (url) => {
  * @returns {Promise<T>}
  */
 export const createDbusProxy = async (ifaceInfo, name, object) => {
-    /** @type {Promise<T>} */
-    const proxy = /** @type {any} */ (
-        Gio.DBusProxy.new(Gio.DBus.session, Gio.DBusProxyFlags.NONE, ifaceInfo, name, object, ifaceInfo.name, null)
+    // @ts-expect-error Types have not been promisified yet
+    const proxy = Gio.DBusProxy.new(
+        Gio.DBus.session,
+        Gio.DBusProxyFlags.NONE,
+        ifaceInfo,
+        name,
+        object,
+        ifaceInfo.name,
+        null,
     );
     return proxy;
 };
