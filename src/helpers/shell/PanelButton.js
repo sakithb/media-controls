@@ -268,7 +268,12 @@ class PanelButton extends PanelMenu.Button {
             this.addMenuLabels();
         }
         if (flags & WidgetFlags.MENU_SLIDER) {
-            this.addMenuSlider().catch(handleError);
+            if (this.extension.showTrackSlider) {
+                this.addMenuSlider().catch(handleError);
+            } else if (this.menuSlider != null) {
+                this.menuBox.remove_child(this.menuSlider);
+                this.menuSlider = null;
+            }
         }
         if (flags & WidgetFlags.MENU_CONTROLS) {
             this.addMenuControls(flags);

@@ -47,6 +47,12 @@
             <property name="subtitle" translatable="true">Hide the media notifications in the notification list</property>
           </object>
         </child>
+        <child>
+          <object class="AdwSwitchRow" id="sr-general-show-track-slider">
+            <property name="title" translatable="true">Show the track slider</property>
+            <property name="subtitle" translatable="true">Show the track slider in popup</property>
+          </object>
+        </child>
       </object>
     </child>
     <child>
