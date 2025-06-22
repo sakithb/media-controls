@@ -177,9 +177,13 @@ export default class PlayerProxy {
     /**
      * @private
      * @param {MprisPlayerInterfaceMetadata} metadata
-     * @returns {MprisPlayerInterfaceMetadataUnpacked}
+     * @returns {MprisPlayerInterfaceMetadataUnpacked | null}
      */
     unpackMetadata(metadata) {
+        if (metadata == null) {
+            return null;
+        }
+
         const unpackedMetadata = {};
         for (const [key, value] of Object.entries(metadata)) {
             unpackedMetadata[key] = value.recursiveUnpack();

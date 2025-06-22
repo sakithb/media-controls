@@ -651,7 +651,12 @@ export default class MediaControls extends Extension {
             if (Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._players != null) {
                 // @ts-expect-error
                 for (const player of Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._players.values()) {
-                    player._close();
+                    // @ts-expect-error
+                    Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._onNameOwnerChanged(
+                        null,
+                        null,
+                        [player._busName, player._busName, ""],
+                    );
                 }
             }
         }

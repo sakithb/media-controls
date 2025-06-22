@@ -5,10 +5,13 @@ import Soup from "gi://Soup";
 import Shell from "gi://Shell";
 import Gio from "gi://Gio";
 import { errorLog, handleError } from "./common.js";
+
 Gio._promisify(Gio.DBusProxy, "new", "new_finish");
 Gio._promisify(Gio.File.prototype, "replace_contents_bytes_async", "replace_contents_finish");
 Gio._promisify(Gio.File.prototype, "read_async", "read_finish");
 Gio._promisify(Soup.Session.prototype, "send_and_read_async", "send_and_read_finish");
+
+// TODO: sort this out
 /**
  * @param {string} id
  * @param {string} entry
@@ -28,10 +31,11 @@ export const getAppInfoByIdAndEntry = (id, entry) => {
     }
     return null;
 };
+
 /**
  * @param {string} id
  * @param {string} entry
- * @returns {Gio.Application | null}
+ * @returns {Shell.App | null}
  */
 export const getAppByIdAndEntry = (id, entry) => {
     const appSystem = Shell.AppSystem.get_default();
@@ -52,6 +56,7 @@ export const getAppByIdAndEntry = (id, entry) => {
     }
     return null;
 };
+
 /**
  * @param {string} url
  * @returns {Promise<Gio.InputStream>}
