@@ -864,12 +864,12 @@ class PanelButton extends PanelMenu.Button {
                 this.buttonLabel?.pauseScrolling();
                 this.menuLabelTitle.pauseScrolling();
                 this.menuLabelSubtitle.pauseScrolling();
-                this.menuSlider.pauseTransition();
+                this.menuSlider?.pauseTransition();
             } else {
                 this.buttonLabel?.resumeScrolling();
                 this.menuLabelTitle.resumeScrolling();
                 this.menuLabelSubtitle.resumeScrolling();
-                this.menuSlider.resumeTransition();
+                this.menuSlider?.resumeTransition();
             }
         });
         this.addProxyListener("CanPlay", () => {
@@ -900,10 +900,10 @@ class PanelButton extends PanelMenu.Button {
             this.updateWidgets(WidgetFlags.MENU_PLAYERS);
         });
         this.addProxyListener("Rate", () => {
-            this.menuSlider.setRate(this.playerProxy.rate);
+            this.menuSlider?.setRate(this.playerProxy.rate);
         });
         this.playerProxy.onSeeked((position) => {
-            this.menuSlider.setPosition(position);
+            this.menuSlider?.setPosition(position);
         });
     }
 
