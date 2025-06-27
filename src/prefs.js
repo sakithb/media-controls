@@ -13,10 +13,14 @@ import AppChooserorig from "./helpers/prefs/AppChooser.js";
 import { isValidBinding, isValidAccelerator } from "./utils/prefs_only.js";
 import { handleError } from "./utils/common.js";
 
-export let BlacklistedPlayers: typeof BlacklistedPlayersOrig;
-export let ElementList: typeof ElementListOrig;
-export let LabelList: typeof LabelListOrig;
-export let AppChooser: typeof AppChooserorig;
+/** @type {typeof BlacklistedPlayersOrig} */
+export let BlacklistedPlayers;
+/** @type {typeof ElementListOrig} */
+export let ElementList;
+/** @type {typeof LabelListOrig} */
+export let LabelList;
+/** @type {typeof AppChooserorig} */
+export let AppChooser;
 
 Gio._promisify(Gio.File.prototype, "trash_async", "trash_finish");
 Gio._promisify(Gio.File.prototype, "query_info_async", "query_info_finish");
@@ -24,20 +28,56 @@ Gio._promisify(Gio.File.prototype, "enumerate_children_async", "enumerate_childr
 Gio._promisify(Gio.FileEnumerator.prototype, "next_files_async", "next_files_finish");
 
 export default class MediaControlsPreferences extends ExtensionPreferences {
-    private window: Adw.PreferencesWindow;
-    private settings: Gio.Settings;
-    private builder: Gtk.Builder;
+    /**
+     * @private
+     * @type {Adw.PreferencesWindow}
+     */
+    window;
+    /**
+     * @private
+     * @type {Gio.Settings}
+     */
+    settings;
+    /**
+     * @private
+     * @type {Gtk.Builder}
+     */
+    builder;
 
-    private generalPage: Adw.PreferencesPage;
-    private panelPage: Adw.PreferencesPage;
-    private positionsPage: Adw.PreferencesPage;
-    private shortcutsPage: Adw.PreferencesPage;
-    private otherPage: Adw.PreferencesPage;
+    /**
+     * @private
+     * @type {Adw.PreferencesPage}
+     */
+    generalPage;
+    /**
+     * @private
+     * @type {Adw.PreferencesPage}
+     */
+    panelPage;
+    /**
+     * @private
+     * @type {Adw.PreferencesPage}
+     */
+    positionsPage;
+    /**
+     * @private
+     * @type {Adw.PreferencesPage}
+     */
+    shortcutsPage;
+    /**
+     * @private
+     * @type {Adw.PreferencesPage}
+     */
+    otherPage;
 
-    public async fillPreferencesWindow(window: Adw.PreferencesWindow) {
+    /**
+     * @public
+     * @param {Adw.PreferencesWindow} window
+     * @returns {Promise<void>}
+     */
+    async fillPreferencesWindow(window) {
         const resourcePath = GLib.build_filenamev([this.path, "org.gnome.shell.extensions.mediacontrols.gresource"]);
         Gio.resources_register(Gio.resource_load(resourcePath));
-
         if (AppChooser == null) {
             AppChooser = GObject.registerClass(
                 {
@@ -48,7 +88,6 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
                 AppChooserorig,
             );
         }
-
         if (BlacklistedPlayers == null) {
             BlacklistedPlayers = GObject.registerClass(
                 {
@@ -67,7 +106,6 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
                 BlacklistedPlayersOrig,
             );
         }
-
         if (LabelList == null) {
             LabelList = GObject.registerClass(
                 {
@@ -81,7 +119,6 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
                 LabelListOrig,
             );
         }
-
         if (ElementList == null) {
             ElementList = GObject.registerClass(
                 {
@@ -100,36 +137,29 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
                 ElementListOrig,
             );
         }
-
         GObject.type_ensure(AppChooser.$gtype);
         GObject.type_ensure(BlacklistedPlayers.$gtype);
         GObject.type_ensure(LabelList.$gtype);
         GObject.type_ensure(ElementList.$gtype);
-
         this.window = window;
         this.settings = this.getSettings();
         this.builder = Gtk.Builder.new_from_resource("/org/gnome/shell/extensions/mediacontrols/ui/prefs.ui");
-
-        this.generalPage = this.builder.get_object("page-general") as Adw.PreferencesPage;
-        this.panelPage = this.builder.get_object("page-panel") as Adw.PreferencesPage;
-        this.positionsPage = this.builder.get_object("page-positions") as Adw.PreferencesPage;
-        this.shortcutsPage = this.builder.get_object("page-shortcuts") as Adw.PreferencesPage;
-        this.otherPage = this.builder.get_object("page-other") as Adw.PreferencesPage;
-
+        this.generalPage = this.builder.get_object("page-general");
+        this.panelPage = this.builder.get_object("page-panel");
+        this.positionsPage = this.builder.get_object("page-positions");
+        this.shortcutsPage = this.builder.get_object("page-shortcuts");
+        this.otherPage = this.builder.get_object("page-other");
         this.window.add(this.generalPage);
         this.window.add(this.panelPage);
         this.window.add(this.positionsPage);
         this.window.add(this.shortcutsPage);
         this.window.add(this.otherPage);
-
         this.initWidgets();
         this.bindSettings();
-
         this.window.connect("close-request", () => {
             this.window = null;
             this.settings = null;
             this.builder = null;
-
             this.generalPage = null;
             this.panelPage = null;
             this.positionsPage = null;
@@ -138,109 +168,102 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         });
     }
 
-    private initWidgets() {
+    /**
+     * @private
+     * @returns {void}
+     */
+    initWidgets() {
         const elementsOrder = this.settings.get_strv("elements-order");
-        const elementsGroup = this.builder.get_object("gp-positions-elements") as InstanceType<typeof ElementList>;
-
+        const elementsGroup = /** @type {InstanceType<typeof ElementList>} */ (
+            this.builder.get_object("gp-positions-elements")
+        );
         elementsGroup.initElements(elementsOrder);
         elementsGroup.connect("notify::elements", () => {
             this.settings.set_strv("elements-order", elementsGroup.elements);
         });
-
-        const labelsGroup = this.builder.get_object("gp-positions-labels") as InstanceType<typeof LabelList>;
+        const labelsGroup = /** @type {InstanceType<typeof LabelList>} */ (
+            this.builder.get_object("gp-positions-labels")
+        );
         const labelsOrder = this.settings.get_strv("labels-order");
-
         labelsGroup.initLabels(labelsOrder);
         labelsGroup.connect("notify::labels", () => {
             this.settings.set_strv("labels-order", labelsGroup.labels);
         });
+        const shortcutRow = /** @type {Adw.ActionRow} */ (this.builder.get_object("row-shortcuts-popup"));
+        const shortcutLabel = /** @type {Gtk.ShortcutLabel} */ (this.builder.get_object("sl-shortcuts-popup"));
 
-        const shortcutRow = this.builder.get_object("row-shortcuts-popup") as Adw.ActionRow;
-        const shortcutLabel = this.builder.get_object("sl-shortcuts-popup") as Gtk.ShortcutLabel;
-
-        const shortcutEditorWindow = this.builder.get_object("win-shortcut-editor") as Adw.Window;
-        const shortcutEditorLabel = this.builder.get_object("sl-shortcut-editor") as Gtk.ShortcutLabel;
+        const shortcutEditorWindow = /** @type {Adw.Window} */ (this.builder.get_object("win-shortcut-editor"));
+        const shortcutEditorLabel = /** @type {Gtk.ShortcutLabel} */ (this.builder.get_object("sl-shortcut-editor"));
 
         shortcutRow.connect("activated", () => {
             const controller = new Gtk.EventControllerKey();
             shortcutEditorWindow.add_controller(controller);
-
             const currentShortcut = this.settings.get_strv("mediacontrols-show-popup-menu");
             shortcutEditorLabel.accelerator = currentShortcut[0];
-
             controller.connect("key-pressed", (_, keyval, keycode, state) => {
                 let mask = state & Gtk.accelerator_get_default_mod_mask();
                 mask &= ~Gdk.ModifierType.LOCK_MASK;
-
                 if (!mask && keyval === Gdk.KEY_Escape) {
                     shortcutEditorWindow.close();
                     return Gdk.EVENT_STOP;
                 }
-
                 if (!mask && keyval === Gdk.KEY_BackSpace) {
                     shortcutEditorLabel.accelerator = "";
                     return Gdk.EVENT_STOP;
                 }
-
                 if (!mask && keyval === Gdk.KEY_Return) {
                     const shortcut = shortcutEditorLabel.accelerator;
-
                     shortcutLabel.accelerator = shortcut;
                     this.settings.set_strv("mediacontrols-show-popup-menu", [shortcut]);
-
                     shortcutEditorWindow.close();
                     return Gdk.EVENT_STOP;
                 }
-
                 if (isValidBinding(mask, keycode, keyval) && isValidAccelerator(mask, keyval)) {
                     shortcutEditorLabel.accelerator = Gtk.accelerator_name_with_keycode(null, keyval, keycode, mask);
                 }
-
                 return Gdk.EVENT_STOP;
             });
-
             shortcutEditorWindow.present();
         });
-
-        const cacheClearRow = this.builder.get_object("row-other-cache-clear") as Adw.ActionRow;
-        const cacheClearBtn = this.builder.get_object("btn-other-cache-clear") as Gtk.Button;
-
+        const cacheClearRow = /** @type {Adw.ActionRow} */ (this.builder.get_object("row-other-cache-clear"));
+        const cacheClearBtn = /** @type {Gtk.Button} */ (this.builder.get_object("btn-other-cache-clear"));
         cacheClearBtn.connect("clicked", () => {
             const dialog = Adw.MessageDialog.new(this.window, "", _("Are you sure you want to clear the cache?"));
             dialog.add_response("cancel", _("Cancel"));
             dialog.add_response("clear", _("Clear cache"));
             dialog.set_response_appearance("clear", Adw.ResponseAppearance.DESTRUCTIVE);
-
             dialog.connect("response", (self, response) => {
                 if (response === "cancel") return;
-
                 this.clearCache().then(() => {
                     cacheClearRow.subtitle = _("Cache size: %s").format(GLib.format_size(0));
                 });
             });
-
             dialog.present();
         });
-
         this.getCacheSize().then((size) => {
             const sizeReadable = GLib.format_size(size);
             cacheClearRow.subtitle = _("Cache size: %s").format(sizeReadable);
         });
-
-        const blacklistedGrp = this.builder.get_object("gp-other-blacklist") as InstanceType<typeof BlacklistedPlayers>;
+        const blacklistedGrp = /** @type {InstanceType<typeof BlacklistedPlayers>} */ (
+            this.builder.get_object("gp-other-blacklist")
+        );
         const blacklistedPlayers = this.settings.get_strv("blacklisted-players");
-
         blacklistedGrp.initPlayers(blacklistedPlayers);
         blacklistedGrp.connect("notify::players", () => {
             this.settings.set_strv("blacklisted-players", blacklistedGrp.players);
         });
     }
 
-    private bindSettings() {
+    /**
+     * @private
+     * @returns {void}
+     */
+    bindSettings() {
         this.bindSetting("label-width", "sr-general-label-width", "value");
         this.bindSetting("fixed-label-width", "sr-general-label-fixed", "active");
         this.bindSetting("scroll-labels", "sr-general-scroll-labels", "active");
         this.bindSetting("hide-media-notification", "sr-general-hide-media-notification", "active");
+        this.bindSetting("show-track-slider", "sr-general-show-track-slider", "active");
         this.bindSetting("show-label", "sr-panel-show-label", "active");
         this.bindSetting("show-control-icons", "sr-panel-show-controls", "active");
         this.bindSetting("show-control-icons-play", "sr-panel-show-play", "active");
@@ -262,50 +285,59 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         this.bindSetting("cache-art", "sr-other-cache", "active");
     }
 
-    private bindSetting(key: string, widgetName: string, property: string) {
+    /**
+     * @private
+     * @param {string} key
+     * @param {string} widgetName
+     * @param {string} property
+     * @returns {void}
+     */
+    bindSetting(key, widgetName, property) {
         if (property === "selected") {
-            const widget = this.builder.get_object(widgetName) as Adw.ComboRow;
+            const widget = this.builder.get_object(widgetName);
             widget[property] = this.settings.get_enum(key);
-
             widget.connect(`notify::${property}`, () => {
                 this.settings.set_enum(key, widget[property]);
             });
-
             this.settings.connect(`changed::${key}`, () => {
                 widget[property] = this.settings.get_enum(key);
             });
         } else if (property === "accelerator") {
-            const widget = this.builder.get_object(widgetName) as Gtk.ShortcutLabel;
+            const widget = this.builder.get_object(widgetName);
             widget[property] = this.settings.get_strv(key)[0];
-
             widget.connect(`notify::${property}`, () => {
                 this.settings.set_strv(key, [widget[property]]);
             });
-
             this.settings.connect(`changed::${key}`, () => {
                 widget[property] = this.settings.get_strv(key)[0];
             });
         } else {
-            const widget = this.builder.get_object(widgetName) as Gtk.Widget;
+            const widget = this.builder.get_object(widgetName);
             widget[property] = this.settings.get_value(key).recursiveUnpack();
-
             const bindingFlags = Gio.SettingsBindFlags.DEFAULT | Gio.SettingsBindFlags.NO_SENSITIVITY;
             this.settings.bind(key, widget, property, bindingFlags);
         }
     }
 
-    private sendToast(title: string) {
+    /**
+     * @private
+     * @param {string} title
+     * @returns {void}
+     */
+    sendToast(title) {
         const toast = new Adw.Toast({ title, timeout: 3 });
         this.window.add_toast(toast);
     }
 
-    private async clearCache() {
+    /**
+     * @private
+     * @returns {Promise<void>}
+     */
+    async clearCache() {
         const cacheDir = GLib.build_pathv("/", [GLib.get_user_cache_dir(), "mediacontrols@cliffniff.github.com"]);
-
         if (GLib.file_test(cacheDir, GLib.FileTest.EXISTS)) {
             const folder = Gio.File.new_for_path(cacheDir);
             const success = await folder.trash_async(null, null).catch(handleError);
-
             if (success) {
                 this.sendToast(_("Cache cleared successfully!"));
             } else {
@@ -314,25 +346,24 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         }
     }
 
-    private async getCacheSize() {
+    /**
+     * @private
+     * @returns {Promise<number>}
+     */
+    async getCacheSize() {
         const cacheDir = GLib.build_pathv("/", [GLib.get_user_cache_dir(), "mediacontrols@cliffniff.github.com"]);
-
         if (GLib.file_test(cacheDir, GLib.FileTest.EXISTS)) {
             const folder = Gio.File.new_for_path(cacheDir);
             const enumerator = await folder
                 .enumerate_children_async("standard::*", Gio.FileQueryInfoFlags.NONE, 0, null)
                 .catch(handleError);
-
             if (enumerator == null) {
                 return 0;
             }
-
             let size = 0;
             let retries = 0;
-
             while (true) {
                 const fileInfos = await enumerator.next_files_async(10, null, null).catch(handleError);
-
                 if (fileInfos == null) {
                     if (retries < 3) {
                         retries++;
@@ -341,25 +372,20 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
                         break;
                     }
                 }
-
                 if (fileInfos.length === 0) {
                     break;
                 }
-
                 for (const fileInfo of fileInfos) {
                     const file = enumerator.get_child(fileInfo);
                     const info = await file
                         .query_info_async("standard::size", Gio.FileQueryInfoFlags.NONE, 0, null)
                         .catch(handleError);
-
                     const fileSize = info?.get_size() ?? 0;
                     size += fileSize;
                 }
             }
-
             return size;
         }
-
         return 0;
     }
 }

@@ -4,7 +4,7 @@
     <value nick="NONE" value="0" />
     <value nick="PLAY_PAUSE" value="1" />
     <value nick="PLAY" value="2" />
-    <value nick="pAUSE" value="3" />
+    <value nick="PAUSE" value="3" />
     <value nick="NEXT_TRACK" value="4" />
     <value nick="PREVIOUS_TRACK" value="5" />
     <value nick="VOLUME_UP" value="6" />
@@ -32,6 +32,9 @@
       <default>true</default>
     </key>
     <key name="hide-media-notification" type="b">
+      <default>true</default>
+    </key>
+    <key name="show-track-slider" type="b">
       <default>true</default>
     </key>
     <key name="show-label" type="b">
