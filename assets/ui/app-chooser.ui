@@ -3,7 +3,7 @@
 <interface domain="mediacontrols@cliffniff.github.com">
   <requires lib="gtk" version="4.0"/>
   <template class="AppChooser" parent="AdwWindow">
-    <property name="title" translatable="true">Select app to blacklist</property>
+    <property name="title" translatable="yes">Select app to blacklist</property>
     <property name="modal">true</property>
     <property name="resizable">false</property>
     <property name="default-width">300</property>
@@ -16,12 +16,12 @@
             <property name="decoration-layout"></property>
             <child type="start">
               <object class="GtkButton" id="cancel-btn">
-                <property name="label" translatable="true">Cancel</property>
+                <property name="label" translatable="yes">Cancel</property>
               </object>
             </child>
             <child type="end">
               <object class="GtkButton" id="select-btn">
-                <property name="label" translatable="true">Select</property>
+                <property name="label" translatable="yes">Select</property>
                 <style>
                   <class name="suggested-action"/>
                 </style>

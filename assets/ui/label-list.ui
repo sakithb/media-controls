@@ -3,7 +3,7 @@
 <interface domain="mediacontrols@cliffniff.github.com">
   <requires lib="gtk" version="4.0"/>
   <template class="LabelList" parent="AdwPreferencesGroup">
-    <property name="title" translatable="true">Label</property>
+    <property name="title" translatable="yes">Label</property>
     <property name="header-suffix">
       <object class="GtkBox">
         <property name="halign">2</property>
@@ -15,14 +15,14 @@
         </style>
         <child>
           <object class="GtkButton" id="add-item-btn">
-            <property name="label" translatable="true">Add item</property>
+            <property name="label" translatable="yes">Add item</property>
             <property name="halign">2</property>
             <property name="valign">3</property>
           </object>
         </child>
         <child>
           <object class="GtkButton" id="add-text-btn">
-            <property name="label" translatable="true">Add custom text</property>
+            <property name="label" translatable="yes">Add custom text</property>
             <property name="halign">2</property>
             <property name="valign">3</property>
           </object>

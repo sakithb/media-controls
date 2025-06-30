@@ -3,20 +3,20 @@
 <interface domain="mediacontrols@cliffniff.github.com">
   <requires lib="gtk" version="4.0"/>
   <object class="AdwPreferencesPage" id="page-general">
-    <property name="title" translatable="true">General</property>
+    <property name="title" translatable="yes">General</property>
     <property name="icon-name">preferences-system-symbolic</property>
     <child>
       <object class="AdwPreferencesGroup">
-        <property name="title" translatable="true">Common</property>
+        <property name="title" translatable="yes">Common</property>
         <child>
           <object class="AdwExpanderRow">
-            <property name="title" translatable="true">Labels</property>
-            <property name="subtitle" translatable="true">Customize the labels in the panel and the popup menu</property>
+            <property name="title" translatable="yes">Labels</property>
+            <property name="subtitle" translatable="yes">Customize the labels in the panel and the popup menu</property>
             <property name="expanded">true</property>
             <child>
               <object class="AdwSpinRow" id="sr-general-label-width">
-                <property name="title" translatable="true">Width</property>
-                <property name="subtitle" translatable="true">0 to take all available space</property>
+                <property name="title" translatable="yes">Width</property>
+                <property name="subtitle" translatable="yes">0 to take all available space</property>
                 <property name="adjustment">
                   <object class="GtkAdjustment">
                     <property name="lower">0</property>
@@ -29,38 +29,38 @@
             </child>
             <child>
               <object class="AdwSwitchRow" id="sr-general-label-fixed">
-                <property name="title" translatable="true">Fixed width</property>
-                <property name="subtitle" translatable="true">Use the specified width even when they are smaller than the width</property>
+                <property name="title" translatable="yes">Fixed width</property>
+                <property name="subtitle" translatable="yes">Use the specified width even when they are smaller than the width</property>
               </object>
             </child>
             <child>
               <object class="AdwSwitchRow" id="sr-general-scroll-labels">
-                <property name="title" translatable="true">Scroll labels</property>
-                <property name="subtitle" translatable="true">Scroll the labels when they are wider than the width</property>
+                <property name="title" translatable="yes">Scroll labels</property>
+                <property name="subtitle" translatable="yes">Scroll the labels when they are wider than the width</property>
               </object>
             </child>
           </object>
         </child>
         <child>
           <object class="AdwSwitchRow" id="sr-general-hide-media-notification">
-            <property name="title" translatable="true">Hide the media notification</property>
-            <property name="subtitle" translatable="true">Hide the media notifications in the notification list</property>
+            <property name="title" translatable="yes">Hide the media notification</property>
+            <property name="subtitle" translatable="yes">Hide the media notifications in the notification list</property>
           </object>
         </child>
         <child>
           <object class="AdwSwitchRow" id="sr-general-show-track-slider">
-            <property name="title" translatable="true">Show the track slider</property>
-            <property name="subtitle" translatable="true">Show the track slider in popup</property>
+            <property name="title" translatable="yes">Show the track slider</property>
+            <property name="subtitle" translatable="yes">Show the track slider in popup</property>
           </object>
         </child>
       </object>
     </child>
     <child>
       <object class="AdwPreferencesGroup">
-        <property name="title" translatable="true">Information</property>
+        <property name="title" translatable="yes">Information</property>
         <child>
           <object class="AdwActionRow">
-            <property name="title" translatable="true">Homepage</property>
+            <property name="title" translatable="yes">Homepage</property>
             <property name="activatable-widget">lb-general-homepage</property>
             <child>
               <object class="GtkLinkButton" id="lb-general-homepage">
@@ -74,7 +74,7 @@
         </child>
         <child>
           <object class="AdwActionRow">
-            <property name="title" translatable="true">Release notes</property>
+            <property name="title" translatable="yes">Release notes</property>
             <property name="activatable-widget">lb-general-notes</property>
             <child>
               <object class="GtkLinkButton" id="lb-general-notes">
@@ -88,11 +88,11 @@
         </child>
         <child>
           <object class="AdwActionRow">
-            <property name="title" translatable="true">Report an issue</property>
+            <property name="title" translatable="yes">Report an issue</property>
             <property name="activatable-widget">lb-general-issues</property>
             <child>
               <object class="GtkLinkButton" id="lb-general-issues">
-                <property name="label" translatable="true">Report an issue</property>
+                <property name="label" translatable="yes">Report an issue</property>
                 <property name="icon-name">go-next-symbolic</property>
                 <property name="uri">https://github.com/sakithb/media-controls/issues</property>
                 <property name="margin-top">10</property>
@@ -105,51 +105,51 @@
     </child>
   </object>
   <object class="AdwPreferencesPage" id="page-panel">
-    <property name="title" translatable="true">Panel</property>
+    <property name="title" translatable="yes">Panel</property>
     <property name="icon-name">user-desktop-symbolic</property>
     <child>
       <object class="AdwPreferencesGroup">
         <child>
           <object class="AdwSwitchRow" id="sr-panel-show-label">
-            <property name="title" translatable="true">Show label</property>
+            <property name="title" translatable="yes">Show label</property>
           </object>
         </child>
         <child>
           <object class="AdwExpanderRow">
-            <property name="title" translatable="true">Player controls</property>
+            <property name="title" translatable="yes">Player controls</property>
             <property name="expanded">true</property>
             <child>
               <object class="AdwSwitchRow" id="sr-panel-show-controls">
-                <property name="title" translatable="true">Show player controls</property>
+                <property name="title" translatable="yes">Show player controls</property>
               </object>
             </child>
             <child>
               <object class="AdwSwitchRow" id="sr-panel-show-play">
-                <property name="title" translatable="true">Show play/pause button</property>
+                <property name="title" translatable="yes">Show play/pause button</property>
                 <property name="sensitive" bind-source="sr-panel-show-controls" bind-property="active" bind-flags="sync-create"/>
               </object>
             </child>
             <child>
               <object class="AdwSwitchRow" id="sr-panel-show-next">
-                <property name="title" translatable="true">Show next track button</property>
+                <property name="title" translatable="yes">Show next track button</property>
                 <property name="sensitive" bind-source="sr-panel-show-controls" bind-property="active" bind-flags="sync-create"/>
               </object>
             </child>
             <child>
               <object class="AdwSwitchRow" id="sr-panel-show-prev">
-                <property name="title" translatable="true">Show previous track button</property>
+                <property name="title" translatable="yes">Show previous track button</property>
                 <property name="sensitive" bind-source="sr-panel-show-controls" bind-property="active" bind-flags="sync-create"/>
               </object>
             </child>
             <child>
               <object class="AdwSwitchRow" id="sr-panel-show-seek-forward">
-                <property name="title" translatable="true">Show seek forward button</property>
+                <property name="title" translatable="yes">Show seek forward button</property>
                 <property name="sensitive" bind-source="sr-panel-show-controls" bind-property="active" bind-flags="sync-create"/>
               </object>
             </child>
             <child>
               <object class="AdwSwitchRow" id="sr-panel-show-seek-backward">
-                <property name="title" translatable="true">Show seek back button</property>
+                <property name="title" translatable="yes">Show seek back button</property>
                 <property name="sensitive" bind-source="sr-panel-show-controls" bind-property="active" bind-flags="sync-create"/>
               </object>
             </child>
@@ -157,16 +157,16 @@
         </child>
         <child>
           <object class="AdwExpanderRow">
-            <property name="title" translatable="true">Player icon</property>
+            <property name="title" translatable="yes">Player icon</property>
             <property name="expanded">true</property>
             <child>
               <object class="AdwSwitchRow" id="sr-panel-show-player">
-                <property name="title" translatable="true">Show player icon</property>
+                <property name="title" translatable="yes">Show player icon</property>
               </object>
             </child>
             <child>
               <object class="AdwSwitchRow" id="sr-panel-colored-player">
-                <property name="title" translatable="true">Colored player icon</property>
+                <property name="title" translatable="yes">Colored player icon</property>
                 <property name="sensitive" bind-source="sr-panel-show-player" bind-property="active" bind-flags="sync-create"/>
               </object>
             </child>
@@ -176,21 +176,21 @@
     </child>
   </object>
   <object class="AdwPreferencesPage" id="page-positions">
-    <property name="title" translatable="true">Positions</property>
+    <property name="title" translatable="yes">Positions</property>
     <property name="icon-name">view-list-symbolic</property>
     <child>
       <object class="AdwPreferencesGroup">
-        <property name="title" translatable="true">Extension</property>
+        <property name="title" translatable="yes">Extension</property>
         <child>
           <object class="AdwComboRow" id="cr-positions-extension-position">
-            <property name="title" translatable="true">Position</property>
-            <property name="subtitle" translatable="true">Position of the extension in the panel</property>
+            <property name="title" translatable="yes">Position</property>
+            <property name="subtitle" translatable="yes">Position of the extension in the panel</property>
             <property name="model">
               <object class="GtkStringList">
                 <items>
-                  <item translatable="true">Left</item>
-                  <item translatable="true">Center</item>
-                  <item translatable="true">Right</item>
+                  <item translatable="yes">Left</item>
+                  <item translatable="yes">Center</item>
+                  <item translatable="yes">Right</item>
                 </items>
               </object>
             </property>
@@ -198,8 +198,8 @@
         </child>
         <child>
           <object class="AdwSpinRow" id="sr-positions-extension-index">
-            <property name="title" translatable="true">Index</property>
-            <property name="subtitle" translatable="true">Index of the extension</property>
+            <property name="title" translatable="yes">Index</property>
+            <property name="subtitle" translatable="yes">Index of the extension</property>
             <property name="adjustment">
               <object class="GtkAdjustment">
                 <property name="lower">0</property>
@@ -220,18 +220,18 @@
     </child>
   </object>
   <object class="AdwPreferencesPage" id="page-shortcuts">
-    <property name="title" translatable="true">Shortcuts</property>
+    <property name="title" translatable="yes">Shortcuts</property>
     <property name="icon-name">input-keyboard-symbolic</property>
     <child>
       <object class="AdwPreferencesGroup">
         <child>
           <object class="AdwActionRow" id="row-shortcuts-popup">
-            <property name="title" translatable="true">Show popup menu</property>
-            <property name="subtitle" translatable="true">Shortcut to toggle the popup menu</property>
+            <property name="title" translatable="yes">Show popup menu</property>
+            <property name="subtitle" translatable="yes">Shortcut to toggle the popup menu</property>
             <property name="activatable-widget">sl-shortcuts-popup</property>
             <child>
               <object class="GtkShortcutLabel" id="sl-shortcuts-popup">
-                <property name="disabled-text" translatable="true">Set shortcut</property>
+                <property name="disabled-text" translatable="yes">Set shortcut</property>
                 <property name="halign">3</property>
                 <property name="valign">3</property>
               </object>
@@ -242,40 +242,40 @@
     </child>
     <child>
       <object class="AdwPreferencesGroup">
-        <property name="title" translatable="true">Mouse actions</property>
+        <property name="title" translatable="yes">Mouse actions</property>
         <child>
           <object class="AdwComboRow" id="cr-shortcuts-mouse-left">
-            <property name="title" translatable="true">Left click / Tap</property>
+            <property name="title" translatable="yes">Left click / Tap</property>
             <property name="model">mouse-actions</property>
           </object>
         </child>
         <child>
           <object class="AdwComboRow" id="cr-shortcuts-mouse-middle">
-            <property name="title" translatable="true">Middle click</property>
+            <property name="title" translatable="yes">Middle click</property>
             <property name="model">mouse-actions</property>
           </object>
         </child>
         <child>
           <object class="AdwComboRow" id="cr-shortcuts-mouse-right">
-            <property name="title" translatable="true">Right click</property>
+            <property name="title" translatable="yes">Right click</property>
             <property name="model">mouse-actions</property>
           </object>
         </child>
         <child>
           <object class="AdwComboRow" id="cr-shortcuts-mouse-double">
-            <property name="title" translatable="true">Double click / Double tap</property>
+            <property name="title" translatable="yes">Double click / Double tap</property>
             <property name="model">mouse-actions</property>
           </object>
         </child>
         <child>
           <object class="AdwComboRow" id="cr-shortcuts-mouse-scroll-up">
-            <property name="title" translatable="true">Scroll up / Swipe right</property>
+            <property name="title" translatable="yes">Scroll up / Swipe right</property>
             <property name="model">mouse-actions</property>
           </object>
         </child>
         <child>
           <object class="AdwComboRow" id="cr-shortcuts-mouse-scroll-down">
-            <property name="title" translatable="true">Scroll down / Swipe left</property>
+            <property name="title" translatable="yes">Scroll down / Swipe left</property>
             <property name="model">mouse-actions</property>
           </object>
         </child>
@@ -283,20 +283,20 @@
     </child>
   </object>
   <object class="AdwPreferencesPage" id="page-other">
-    <property name="title" translatable="true">Other</property>
+    <property name="title" translatable="yes">Other</property>
     <property name="icon-name">preferences-other-symbolic</property>
     <child>
       <object class="AdwPreferencesGroup">
-        <property name="title" translatable="true">Cache</property>
-        <property name="description" translatable="true">This extension cache album art to improve performance. You can clear the cache here.</property>
+        <property name="title" translatable="yes">Cache</property>
+        <property name="description" translatable="yes">This extension cache album art to improve performance. You can clear the cache here.</property>
         <child>
           <object class="AdwSwitchRow" id="sr-other-cache">
-            <property name="title" translatable="true">Cache album art</property>
+            <property name="title" translatable="yes">Cache album art</property>
           </object>
         </child>
         <child>
           <object class="AdwActionRow" id="row-other-cache-clear">
-            <property name="title" translatable="true">Clear cache</property>
+            <property name="title" translatable="yes">Clear cache</property>
             <child>
               <object class="GtkButton" id="btn-other-cache-clear">
                 <property name="halign">2</property>
@@ -306,7 +306,7 @@
                 </style>
                 <child>
                   <object class="AdwButtonContent">
-                    <property name="label" translatable="true">Clear</property>
+                    <property name="label" translatable="yes">Clear</property>
                     <property name="icon-name">user-trash-symbolic</property>
                   </object>
                 </child>
@@ -321,7 +321,7 @@
     </child>
   </object>
   <object class="AdwWindow" id="win-shortcut-editor">
-    <property name="title" translatable="true">Set shortcut</property>
+    <property name="title" translatable="yes">Set shortcut</property>
     <property name="modal">true</property>
     <property name="resizable">false</property>
     <property name="default-width">300</property>
@@ -338,7 +338,7 @@
             <property name="margin-bottom">20</property>
             <child>
               <object class="GtkLabel">
-                <property name="label" translatable="true">&lt;small&gt;Press escape to cancel.
+                <property name="label" translatable="yes">&lt;small&gt;Press escape to cancel.
 Press enter to set the shortcut.
 Press backspace to reset.&lt;/small&gt;</property>
                 <property name="use-markup">true</property>
@@ -347,7 +347,7 @@ Press backspace to reset.&lt;/small&gt;</property>
             </child>
             <child>
               <object class="GtkShortcutLabel" id="sl-shortcut-editor">
-                <property name="disabled-text" translatable="true">Press shortcut</property>
+                <property name="disabled-text" translatable="yes">Press shortcut</property>
                 <property name="halign">3</property>
                 <property name="valign">3</property>
                 <property name="vexpand">true</property>
@@ -360,20 +360,20 @@ Press backspace to reset.&lt;/small&gt;</property>
   </object>
   <object class="GtkStringList" id="mouse-actions">
     <items>
-      <item translatable="true">None</item>
-      <item translatable="true">Play/Pause</item>
-      <item translatable="true">Play</item>
-      <item translatable="true">Pause</item>
-      <item translatable="true">Next track</item>
-      <item translatable="true">Previous track</item>
-      <item translatable="true">Volume up</item>
-      <item translatable="true">Volume down</item>
-      <item translatable="true">Toggle loop</item>
-      <item translatable="true">Toggle shuffle</item>
-      <item translatable="true">Show popup menu</item>
-      <item translatable="true">Raise player</item>
-      <item translatable="true">Quit player</item>
-      <item translatable="true">Open preferences</item>
+      <item translatable="yes">None</item>
+      <item translatable="yes">Play/Pause</item>
+      <item translatable="yes">Play</item>
+      <item translatable="yes">Pause</item>
+      <item translatable="yes">Next track</item>
+      <item translatable="yes">Previous track</item>
+      <item translatable="yes">Volume up</item>
+      <item translatable="yes">Volume down</item>
+      <item translatable="yes">Toggle loop</item>
+      <item translatable="yes">Toggle shuffle</item>
+      <item translatable="yes">Show popup menu</item>
+      <item translatable="yes">Raise player</item>
+      <item translatable="yes">Quit player</item>
+      <item translatable="yes">Open preferences</item>
     </items>
   </object>
 </interface>
