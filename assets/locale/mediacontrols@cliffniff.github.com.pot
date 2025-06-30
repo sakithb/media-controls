@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-30 18:44+0200\n"
+"POT-Creation-Date: 2025-06-30 19:27+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,6 +22,7 @@ msgid "Select app to blacklist"
 msgstr ""
 
 #: assets/ui/app-chooser.ui:19 src/prefs.js:232 dist/temp/prefs.js:232
+#: src/prefs.js:232 dist/temp/prefs.js:232
 msgid "Cancel"
 msgstr ""
 
@@ -276,6 +277,7 @@ msgid "Cache album art"
 msgstr ""
 
 #: assets/ui/prefs.ui:299 src/prefs.js:233 dist/temp/prefs.js:233
+#: src/prefs.js:233 dist/temp/prefs.js:233
 msgid "Clear cache"
 msgstr ""
 
@@ -346,24 +348,30 @@ msgstr ""
 msgid "Open preferences"
 msgstr ""
 
-#: src/prefs.js:231 dist/temp/prefs.js:231
+#: src/prefs.js:231 dist/temp/prefs.js:231 src/prefs.js:231
+#: dist/temp/prefs.js:231
 msgid "Are you sure you want to clear the cache?"
 msgstr ""
 
 #: src/prefs.js:238 src/prefs.js:245 dist/temp/prefs.js:238
-#: dist/temp/prefs.js:245
+#: dist/temp/prefs.js:245 src/prefs.js:238 src/prefs.js:245
+#: dist/temp/prefs.js:238 dist/temp/prefs.js:245
 #, javascript-format
 msgid "Cache size: %s"
 msgstr ""
 
-#: src/prefs.js:342 dist/temp/prefs.js:342
+#: src/prefs.js:342 dist/temp/prefs.js:342 src/prefs.js:342
+#: dist/temp/prefs.js:342
 msgid "Cache cleared successfully!"
 msgstr ""
 
-#: src/prefs.js:344 dist/temp/prefs.js:344
+#: src/prefs.js:344 dist/temp/prefs.js:344 src/prefs.js:344
+#: dist/temp/prefs.js:344
 msgid "Failed to clear cache!"
 msgstr ""
 
+#: src/helpers/shell/PanelButton.js:361
+#: dist/temp/helpers/shell/PanelButton.js:361
 #: src/helpers/shell/PanelButton.js:361
 #: dist/temp/helpers/shell/PanelButton.js:361
 msgid "Unknown player"
@@ -372,9 +380,14 @@ msgstr ""
 #: src/helpers/shell/PanelButton.js:510 src/helpers/shell/PanelButton.js:825
 #: dist/temp/helpers/shell/PanelButton.js:510
 #: dist/temp/helpers/shell/PanelButton.js:825
+#: src/helpers/shell/PanelButton.js:510 src/helpers/shell/PanelButton.js:825
+#: dist/temp/helpers/shell/PanelButton.js:510
+#: dist/temp/helpers/shell/PanelButton.js:825
 msgid "Unknown artist"
 msgstr ""
 
+#: src/helpers/shell/PanelButton.js:827
+#: dist/temp/helpers/shell/PanelButton.js:827
 #: src/helpers/shell/PanelButton.js:827
 #: dist/temp/helpers/shell/PanelButton.js:827
 msgid "Unknown album"
@@ -382,11 +395,14 @@ msgstr ""
 
 #: src/helpers/prefs/BlacklistedPlayers.js:72
 #: dist/temp/helpers/prefs/BlacklistedPlayers.js:72
+#: src/helpers/prefs/BlacklistedPlayers.js:72
+#: dist/temp/helpers/prefs/BlacklistedPlayers.js:72
 msgid ""
 "<span size='x-large' weight='bold' color='#ccc'>No players are blacklisted</"
 "span>"
 msgstr ""
 
+#: src/helpers/prefs/LabelList.js:121 dist/temp/helpers/prefs/LabelList.js:121
 #: src/helpers/prefs/LabelList.js:121 dist/temp/helpers/prefs/LabelList.js:121
 msgid "Custom text"
 msgstr ""

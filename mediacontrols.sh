@@ -61,7 +61,8 @@ translations() {
 
   touch assets/locale/mediacontrols@cliffniff.github.com.pot
 
-  find . -type f -iname "*.ui" -o -iname "*.js" -not -path "./node_modules/*" | xargs xgettext --from-code=UTF-8 \
+  find . -type f -iname "*.ui" -o -iname "*.js" -not -path "./node_modules/*" >POTFILES.txt
+  xgettext --files-from=POTFILES.txt --from-code=UTF-8 \
     --add-comments \
     --join-existing \
     --keyword=_ \
@@ -73,7 +74,7 @@ translations() {
     echo "Updating: $pofile"
     msgmerge -U "$pofile" "assets/locale/mediacontrols@cliffniff.github.com.pot"
   done
-
+  rm POTFILES.txt 2>/dev/null
   rm assets/locale/*.po~ 2>/dev/null
   echo "Done"
 }
