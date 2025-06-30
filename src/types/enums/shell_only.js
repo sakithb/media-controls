@@ -1,5 +1,6 @@
+/** @import { Enum } from '../misc.js' */
+
 import Clutter from "gi://Clutter";
-import { Enum } from "../misc.js";
 
 export const ControlIconOptions = {
     LOOP_NONE: {
@@ -130,23 +131,29 @@ export const ControlIconOptions = {
             },
         },
     },
-} as const;
+};
 
-export type ControlIconOptions = Enum<typeof ControlIconOptions>;
-export type MenuControlIconOptions = (typeof ControlIconOptions)[
-    | "LOOP_NONE"
-    | "LOOP_TRACK"
-    | "LOOP_PLAYLIST"
-    | "PREVIOUS"
-    | "PLAY"
-    | "PAUSE"
-    | "NEXT"
-    | "SHUFFLE_ON"
-    | "SHUFFLE_OFF"];
-export type PanelControlIconOptions = (typeof ControlIconOptions)[
-    | "SEEK_BACKWARD"
-    | "PREVIOUS"
-    | "PLAY"
-    | "PAUSE"
-    | "NEXT"
-    | "SEEK_FORWARD"];
+/** @typedef {Enum<typeof ControlIconOptions>} ControlIconOptions */
+
+/**
+ * @typedef {(typeof ControlIconOptions)[
+ *     | "LOOP_NONE"
+ *     | "LOOP_TRACK"
+ *     | "LOOP_PLAYLIST"
+ *     | "PREVIOUS"
+ *     | "PLAY"
+ *     | "PAUSE"
+ *     | "NEXT"
+ *     | "SHUFFLE_ON"
+ *     | "SHUFFLE_OFF"]} MenuControlIconOptions
+ */
+
+/**
+ * @typedef {(typeof ControlIconOptions)[
+ *     | "SEEK_BACKWARD"
+ *     | "PREVIOUS"
+ *     | "PLAY"
+ *     | "PAUSE"
+ *     | "NEXT"
+ *     | "SEEK_FORWARD"]} PanelControlIconOptions
+ */

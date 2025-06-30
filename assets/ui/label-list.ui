@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<interface domain="mediacontrols@cliffniff.github.com">
+  <requires lib="gtk" version="4.0"/>
+  <template class="LabelList" parent="AdwPreferencesGroup">
+    <property name="title" translatable="yes">Label</property>
+    <property name="header-suffix">
+      <object class="GtkBox">
+        <property name="halign">2</property>
+        <property name="valign">3</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
+        <style>
+          <class name="linked"/>
+        </style>
+        <child>
+          <object class="GtkButton" id="add-item-btn">
+            <property name="label" translatable="yes">Add item</property>
+            <property name="halign">2</property>
+            <property name="valign">3</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkButton" id="add-text-btn">
+            <property name="label" translatable="yes">Add custom text</property>
+            <property name="halign">2</property>
+            <property name="valign">3</property>
+          </object>
+        </child>
+      </object>
+    </property>
+    <child>
+      <object class="GtkListBox" id="list-box">
+        <property name="selection-mode">0</property>
+        <style>
+          <class name="boxed-list"/>
+        </style>
+      </object>
+    </child>
+  </template>
+</interface>

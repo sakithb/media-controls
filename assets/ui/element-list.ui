@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<interface domain="mediacontrols@cliffniff.github.com">
+  <requires lib="gtk" version="4.0"/>
+  <template class="ElementList" parent="AdwPreferencesGroup">
+    <property name="title" translatable="yes">Elements</property>
+    <child>
+      <object class="GtkListBox" id="list-box">
+        <style>
+          <class name="boxed-list"/>
+        </style>
+        <property name="selection-mode">3</property>
+        <child>
+          <object class="AdwActionRow" id="icon-row">
+            <property name="title" translatable="yes">Player icon</property>
+            <property name="activatable">true</property>
+            <child type="suffix">
+              <object class="GtkImage">
+                <property name="icon-name">list-drag-handle-symbolic</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="label-row">
+            <property name="title" translatable="yes">Label</property>
+            <property name="activatable">true</property>
+            <child type="suffix">
+              <object class="GtkImage">
+                <property name="icon-name">list-drag-handle-symbolic</property>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="AdwActionRow" id="controls-row">
+            <property name="title" translatable="yes">Player controls</property>
+            <property name="activatable">true</property>
+            <child type="suffix">
+              <object class="GtkImage">
+                <property name="icon-name">list-drag-handle-symbolic</property>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </template>
+</interface>
