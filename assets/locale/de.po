@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-06-30 18:44+0200\n"
+"POT-Creation-Date: 2025-07-04 18:57+0200\n"
 "PO-Revision-Date: 2025-06-30 18:45+0200\n"
 "Last-Translator: Christian Lauinger <christian@lauinger-clan.de>\n"
 "Language-Team: \n"
@@ -373,17 +373,20 @@ msgstr "Zwischenspeicher konnte nicht geleert werden !"
 
 #: src/helpers/shell/PanelButton.js:361
 #: dist/temp/helpers/shell/PanelButton.js:361
+#: src/helpers/shell/PanelButton.js:440
 msgid "Unknown player"
 msgstr "Unbekannter Abspieler"
 
 #: src/helpers/shell/PanelButton.js:510 src/helpers/shell/PanelButton.js:825
 #: dist/temp/helpers/shell/PanelButton.js:510
 #: dist/temp/helpers/shell/PanelButton.js:825
+#: src/helpers/shell/PanelButton.js:606 src/helpers/shell/PanelButton.js:921
 msgid "Unknown artist"
 msgstr "Unbekannter Künstler"
 
 #: src/helpers/shell/PanelButton.js:827
 #: dist/temp/helpers/shell/PanelButton.js:827
+#: src/helpers/shell/PanelButton.js:923
 msgid "Unknown album"
 msgstr "Unbekanntes Album"
 
@@ -400,20 +403,30 @@ msgstr ""
 msgid "Custom text"
 msgstr "Benutzerdefinierter Text"
 
-#~ msgid "Artist"
-#~ msgstr "Künstler"
+#.
+#. the next lines are only here to be caugth by translation
+#. this is is not packed with the extension or installed - only purpose is to catch the strings and
+#. add them to po file by xgettext
+#.
+#: src/helpers/translation/translation.js:8
+msgid "Artist"
+msgstr "Künstler"
 
-#~ msgid "Title"
-#~ msgstr "Titel"
+#: src/helpers/translation/translation.js:9
+msgid "Title"
+msgstr "Titel"
 
-#~ msgid "Album"
-#~ msgstr "Album"
+#: src/helpers/translation/translation.js:10
+msgid "Album"
+msgstr "Album"
 
-#~ msgid "Disc Number"
-#~ msgstr "Disknummer"
+#: src/helpers/translation/translation.js:11
+msgid "Disc Number"
+msgstr "Disknummer"
 
-#~ msgid "Track Number"
-#~ msgstr "Spurnummer"
+#: src/helpers/translation/translation.js:12
+msgid "Track Number"
+msgstr "Spurnummer"
 
 #~ msgid "[MediaControls] Enabling"
 #~ msgstr "[MediaControls] aktivieren"
