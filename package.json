@@ -1,27 +1,30 @@
 {
-  "type": "module",
+  "name": "media-controls",
+  "version": "2.2.0",
+  "description": "A mpris client for the Gnome shell.",
+  "main": "media-controls/src/extension.js",
   "scripts": {
-    "format": "prettier --write ."
+    "lint": "eslint .",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sakithb/media-controls.git"
+  },
+  "keywords": [
+    "gnome-shell-extension",
+    "gnome",
+    "mpris"
+  ],
+  "author": "Sakith B.",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sakithb/media-controls/issues"
+  },
+  "homepage": "https://github.com/sakithb/media-controls/",
   "devDependencies": {
-    "@girs/adw-1": "1.8.0-4.0.0-beta.23",
-    "@girs/clutter-13": "13.0.0-4.0.0-beta.23",
-    "@girs/cogl-13": "13.0.0-4.0.0-beta.23",
-    "@girs/gdk-4.0": "4.0.0-4.0.0-beta.23",
-    "@girs/gdkpixbuf-2.0": "2.0.0-4.0.0-beta.23",
-    "@girs/gio-2.0": "2.84.0-4.0.0-beta.23",
-    "@girs/gjs": "4.0.0-beta.23",
-    "@girs/glib-2.0": "2.84.0-4.0.0-beta.23",
-    "@girs/gnome-shell": "48.0.2",
-    "@girs/gobject-2.0": "2.84.0-4.0.0-beta.23",
-    "@girs/graphene-1.0": "1.0.0-4.0.0-beta.23",
-    "@girs/gsk-4.0": "4.0.0-4.0.0-beta.23",
-    "@girs/gtk-4.0": "4.18.3-4.0.0-beta.23",
-    "@girs/meta-13": "13.0.0-4.0.0-beta.23",
-    "@girs/pango-1.0": "1.56.4-4.0.0-beta.23",
-    "@girs/shell-13": "13.0.0-4.0.0-beta.23",
-    "@girs/soup-3.0": "3.6.4-4.0.0-beta.23",
-    "@girs/st-13": "13.0.0-4.0.0-beta.23",
-    "prettier": "^3.5.3"
-  }
+    "eslint": "^9.0.0",
+    "@eslint/js": "^9.0.0"
+  },
+  "type": "module"
 }
