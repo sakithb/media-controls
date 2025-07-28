@@ -82,6 +82,9 @@ class BlacklistedPlayers extends Adw.PreferencesGroup {
         for (const player of this.players) {
             const row = new Adw.ActionRow();
             const app = apps.find((app) => app.get_id() === player);
+            if (!app) {
+                continue;
+            }
             row.title = app.get_display_name();
             const icon = new Gtk.Image({ gicon: app.get_icon(), iconSize: Gtk.IconSize.LARGE });
             row.add_prefix(icon);
