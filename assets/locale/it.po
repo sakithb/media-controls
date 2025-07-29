@@ -1,0 +1,398 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-07-27 10:15+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Jimmy Scionti <jimmy.scionti@gmail.com>\n"
+"Language-Team: Jimmy Scionti <jimmy.scionti@gmail.com>\n"
+"Language: it_IT\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: assets/ui/app-chooser.ui:6
+msgid "Select app to blacklist"
+msgstr "Seleziona l'app da escludere"
+
+#: assets/ui/app-chooser.ui:19 src/prefs.js:232 dist/temp/prefs.js:232
+msgid "Cancel"
+msgstr "Annulla"
+
+#: assets/ui/app-chooser.ui:24
+msgid "Select"
+msgstr "Seleziona"
+
+#: assets/ui/blacklisted-players.ui:6
+msgid "Blacklist players"
+msgstr "Riproduttori esclusi"
+
+#: assets/ui/blacklisted-players.ui:7
+msgid "Blacklisted players will be ignored by the extension."
+msgstr "I lettori esclusi saranno ignorati dall'estensione."
+
+#: assets/ui/blacklisted-players.ui:17
+msgid "Add"
+msgstr "Aggiungi"
+
+#: assets/ui/element-list.ui:6
+msgid "Elements"
+msgstr "Elementi"
+
+#: assets/ui/element-list.ui:15 assets/ui/prefs.ui:160
+msgid "Player icon"
+msgstr "Icona del lettore"
+
+#: assets/ui/element-list.ui:26 assets/ui/label-list.ui:6
+msgid "Label"
+msgstr "Etichetta"
+
+#: assets/ui/element-list.ui:37 assets/ui/prefs.ui:119
+msgid "Player controls"
+msgstr "Controlli del lettore"
+
+#: assets/ui/label-list.ui:18
+msgid "Add item"
+msgstr "Aggiungi elemento"
+
+#: assets/ui/label-list.ui:25
+msgid "Add custom text"
+msgstr "Aggiungi testo personalizzato"
+
+#: assets/ui/prefs.ui:6
+msgid "General"
+msgstr "Generale"
+
+#: assets/ui/prefs.ui:10
+msgid "Common"
+msgstr "Comune"
+
+#: assets/ui/prefs.ui:13
+msgid "Labels"
+msgstr "Etichette"
+
+#: assets/ui/prefs.ui:14
+msgid "Customize the labels in the panel and the popup menu"
+msgstr "Personalizza le etichette nel pannello e nel menu a comparsa"
+
+#: assets/ui/prefs.ui:18
+msgid "Width"
+msgstr "Larghezza"
+
+#: assets/ui/prefs.ui:19
+msgid "0 to take all available space"
+msgstr "0 per usare tutto lo spazio disponibile"
+
+#: assets/ui/prefs.ui:32
+msgid "Fixed width"
+msgstr "Larghezza fissa"
+
+#: assets/ui/prefs.ui:33
+msgid "Use the specified width even when they are smaller than the width"
+msgstr "Usa la larghezza specificata anche se gli elementi sono più piccoli"
+
+#: assets/ui/prefs.ui:38
+msgid "Scroll labels"
+msgstr "Scorri le etichette"
+
+#: assets/ui/prefs.ui:39
+msgid "Scroll the labels when they are wider than the width"
+msgstr "Scorri le etichette quando sono più larghe della larghezza"
+
+#: assets/ui/prefs.ui:46
+msgid "Hide the media notification"
+msgstr "Nascondi la notifica multimediale"
+
+#: assets/ui/prefs.ui:47
+msgid "Hide the media notifications in the notification list"
+msgstr "Nascondi le notifiche multimediali nell'elenco delle notifiche"
+
+#: assets/ui/prefs.ui:52
+msgid "Show the track slider"
+msgstr "Mostra il cursore del brano"
+
+#: assets/ui/prefs.ui:53
+msgid "Show the track slider in popup"
+msgstr "Mostra il cursore del brano nel menu a comparsa"
+
+#: assets/ui/prefs.ui:60
+msgid "Information"
+msgstr "Informazioni"
+
+#: assets/ui/prefs.ui:63
+msgid "Homepage"
+msgstr "Pagina iniziale"
+
+#: assets/ui/prefs.ui:77
+msgid "Release notes"
+msgstr "Note di rilascio"
+
+#: assets/ui/prefs.ui:91 assets/ui/prefs.ui:95
+msgid "Report an issue"
+msgstr "Segnala un problema"
+
+#: assets/ui/prefs.ui:108
+msgid "Panel"
+msgstr "Pannello"
+
+#: assets/ui/prefs.ui:114
+msgid "Show label"
+msgstr "Mostra etichetta"
+
+#: assets/ui/prefs.ui:123
+msgid "Show player controls"
+msgstr "Mostra i controlli del lettore"
+
+#: assets/ui/prefs.ui:128
+msgid "Show play/pause button"
+msgstr "Mostra il pulsante play/pausa"
+
+#: assets/ui/prefs.ui:134
+msgid "Show next track button"
+msgstr "Mostra il pulsante brano successivo"
+
+#: assets/ui/prefs.ui:140
+msgid "Show previous track button"
+msgstr "Mostra il pulsante brano precedente"
+
+#: assets/ui/prefs.ui:146
+msgid "Show seek forward button"
+msgstr "Mostra il pulsante avanti veloce"
+
+#: assets/ui/prefs.ui:152
+msgid "Show seek back button"
+msgstr "Mostra il pulsante indietro veloce"
+
+#: assets/ui/prefs.ui:164
+msgid "Show player icon"
+msgstr "Mostra l'icona del lettore"
+
+#: assets/ui/prefs.ui:169
+msgid "Colored player icon"
+msgstr "Icona del lettore colorata"
+
+#: assets/ui/prefs.ui:179
+msgid "Positions"
+msgstr "Posizioni"
+
+#: assets/ui/prefs.ui:183
+msgid "Extension"
+msgstr "Estensione"
+
+#: assets/ui/prefs.ui:186
+msgid "Position"
+msgstr "Posizione"
+
+#: assets/ui/prefs.ui:187
+msgid "Position of the extension in the panel"
+msgstr "Posizione dell'estensione nel pannello"
+
+#: assets/ui/prefs.ui:191
+msgid "Left"
+msgstr "Sinistra"
+
+#: assets/ui/prefs.ui:192
+msgid "Center"
+msgstr "Centro"
+
+#: assets/ui/prefs.ui:193
+msgid "Right"
+msgstr "Destra"
+
+#: assets/ui/prefs.ui:201
+msgid "Index"
+msgstr "Indice"
+
+#: assets/ui/prefs.ui:202
+msgid "Index of the extension"
+msgstr "Indice dell'estensione"
+
+#: assets/ui/prefs.ui:223
+msgid "Shortcuts"
+msgstr "Scorciatoie"
+
+#: assets/ui/prefs.ui:229 assets/ui/prefs.ui:373
+msgid "Show popup menu"
+msgstr "Mostra il menu a comparsa"
+
+#: assets/ui/prefs.ui:230
+msgid "Shortcut to toggle the popup menu"
+msgstr "Scorciatoia per mostrare/nascondere il menu a comparsa"
+
+#: assets/ui/prefs.ui:234 assets/ui/prefs.ui:324
+msgid "Set shortcut"
+msgstr "Imposta scorciatoia"
+
+#: assets/ui/prefs.ui:245
+msgid "Mouse actions"
+msgstr "Azioni del mouse"
+
+#: assets/ui/prefs.ui:248
+msgid "Left click / Tap"
+msgstr "Click sinistro / Tap"
+
+#: assets/ui/prefs.ui:254
+msgid "Middle click"
+msgstr "Click centrale"
+
+#: assets/ui/prefs.ui:260
+msgid "Right click"
+msgstr "Click destro"
+
+#: assets/ui/prefs.ui:266
+msgid "Double click / Double tap"
+msgstr "Doppio click / Doppio tap"
+
+#: assets/ui/prefs.ui:272
+msgid "Scroll up / Swipe right"
+msgstr "Scorri su / Swipe a destra"
+
+#: assets/ui/prefs.ui:278
+msgid "Scroll down / Swipe left"
+msgstr "Scorri giù / Swipe a sinistra"
+
+#: assets/ui/prefs.ui:286
+msgid "Other"
+msgstr "Altro"
+
+#: assets/ui/prefs.ui:290
+msgid "Cache"
+msgstr "Cache"
+
+#: assets/ui/prefs.ui:291
+msgid ""
+"This extension cache album art to improve performance. You can clear the "
+"cache here."
+msgstr ""
+"Questa estensione memorizza le copertine degli album per migliorare le prestazioni. Puoi svuotare la cache qui."
+
+#: assets/ui/prefs.ui:294
+msgid "Cache album art"
+msgstr "Salva le copertine in cache"
+
+#: assets/ui/prefs.ui:299 src/prefs.js:233 dist/temp/prefs.js:233
+msgid "Clear cache"
+msgstr "Svuota cache"
+
+#: assets/ui/prefs.ui:309
+msgid "Clear"
+msgstr "Svuota"
+
+#: assets/ui/prefs.ui:341
+msgid ""
+"<small>Press escape to cancel.\n"
+"Press enter to set the shortcut.\n"
+"Press backspace to reset.</small>"
+msgstr ""
+"<small>Premere Esc per annullare.\n"
+"Premere Invio per impostare la scorciatoia.\n"
+"Premere Backspace per reimpostare.</small>"
+
+#: assets/ui/prefs.ui:350
+msgid "Press shortcut"
+msgstr "Premi la scorciatoia"
+
+#: assets/ui/prefs.ui:363
+msgid "None"
+msgstr "Nessuna"
+
+#: assets/ui/prefs.ui:364
+msgid "Play/Pause"
+msgstr "Play/Pausa"
+
+#: assets/ui/prefs.ui:365
+msgid "Play"
+msgstr "Play"
+
+#: assets/ui/prefs.ui:366
+msgid "Pause"
+msgstr "Pausa"
+
+#: assets/ui/prefs.ui:367
+msgid "Next track"
+msgstr "Brano successivo"
+
+#: assets/ui/prefs.ui:368
+msgid "Previous track"
+msgstr "Brano precedente"
+
+#: assets/ui/prefs.ui:369
+msgid "Volume up"
+msgstr "Aumenta volume"
+
+#: assets/ui/prefs.ui:370
+msgid "Volume down"
+msgstr "Diminuisci volume"
+
+#: assets/ui/prefs.ui:371
+msgid "Toggle loop"
+msgstr "Attiva/disattiva ripetizione"
+
+#: assets/ui/prefs.ui:372
+msgid "Toggle shuffle"
+msgstr "Attiva/disattiva casuale"
+
+#: assets/ui/prefs.ui:374
+msgid "Raise player"
+msgstr "Porta in primo piano il lettore"
+
+#: assets/ui/prefs.ui:375
+msgid "Quit player"
+msgstr "Chiudi lettore"
+
+#: assets/ui/prefs.ui:376
+msgid "Open preferences"
+msgstr "Apri le preferenze"
+
+#: src/prefs.js:231 dist/temp/prefs.js:231
+msgid "Are you sure you want to clear the cache?"
+msgstr "Sei sicuro di voler svuotare la cache?"
+
+#: src/prefs.js:238 src/prefs.js:245 dist/temp/prefs.js:238
+#: dist/temp/prefs.js:245
+#, javascript-format
+msgid "Cache size: %s"
+msgstr "Dimensione cache: %s"
+
+#: src/prefs.js:342 dist/temp/prefs.js:342
+msgid "Cache cleared successfully!"
+msgstr "Cache svuotata con successo!"
+
+#: src/prefs.js:344 dist/temp/prefs.js:344
+msgid "Failed to clear cache!"
+msgstr "Impossibile svuotare la cache!"
+
+#: src/helpers/shell/PanelButton.js:361
+#: dist/temp/helpers/shell/PanelButton.js:361
+msgid "Unknown player"
+msgstr "Lettore sconosciuto"
+
+#: src/helpers/shell/PanelButton.js:510 src/helpers/shell/PanelButton.js:825
+#: dist/temp/helpers/shell/PanelButton.js:510
+#: dist/temp/helpers/shell/PanelButton.js:825
+msgid "Unknown artist"
+msgstr "Artista sconosciuto"
+
+#: src/helpers/shell/PanelButton.js:827
+#: dist/temp/helpers/shell/PanelButton.js:827
+msgid "Unknown album"
+msgstr "Album sconosciuto"
+
+#: src/helpers/prefs/BlacklistedPlayers.js:72
+#: dist/temp/helpers/prefs/BlacklistedPlayers.js:72
+msgid ""
+"<span size='x-large' weight='bold' color='#ccc'>No players are blacklisted</"
+"span>"
+msgstr ""
+"<span size='x-large' weight='bold' color='#ccc'>Nessun lettore è escluso</span>"
+
+#: src/helpers/prefs/LabelList.js:121 dist/temp/helpers/prefs/LabelList.js:121
+msgid "Custom text"
+msgstr "Testo personalizzato"
+
