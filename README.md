@@ -1,4 +1,4 @@
-> ⚠️ MAINTAINERS NEEDED!
+> ⚠️ MAINTAINERS NEEDED! See #222
 
 ## What does this extension do?
 
