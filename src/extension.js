@@ -260,7 +260,7 @@ export default class MediaControls extends Extension {
             "mediacontrols-show-popup-menu",
             this.settings,
             Meta.KeyBindingFlags.NONE,
-            Shell.ActionMode.NORMAL,
+            Shell.ActionMode.ALL,
             () => {
                 this.panelBtn?.menu.toggle();
             },
