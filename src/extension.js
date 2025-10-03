@@ -657,7 +657,7 @@ export default class MediaControls extends Extension {
             Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._onProxyReady();
         } else {
             this.mediaSectionAddFunc = Mpris.MprisSource.prototype._addPlayer;
-            Mpris.MprisSource.prototype._addPlayer = function () {};
+            Mpris.MprisSource.prototype._addPlayer = function () { };
             // @ts-expect-error
             if (Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._players != null) {
                 // @ts-expect-error
@@ -685,7 +685,41 @@ export default class MediaControls extends Extension {
             return;
         }
         this.panelBtn = new PanelButton(playerProxy, this);
-        Main.panel.addToStatusArea("Media Controls", this.panelBtn, this.extensionIndex, this.extensionPosition);
+
+        // Handle special positions
+        let position;
+        let index = this.extensionIndex;
+
+        switch (this.extensionPosition) {
+            case ExtensionPositions.LEFT:
+                position = "left";
+                // Use custom index, or 0 for leftmost in left section
+                break;
+            case ExtensionPositions.RIGHTMOST_LEFT:
+                position = "left";
+                index = -1; // Rightmost position in left section
+                break;
+            case ExtensionPositions.CENTER:
+                position = "center";
+                // Use custom index
+                break;
+            case ExtensionPositions.LEFTMOST_RIGHT:
+                position = "right";
+                index = 0; // Leftmost position in right section
+                break;
+            case ExtensionPositions.RIGHT:
+                position = "right";
+                // For right section, if index is 0 (default), use -1 to place at rightmost
+                if (index === 0) {
+                    index = -1;
+                }
+                break;
+            default:
+                position = "right";
+                break;
+        }
+
+        Main.panel.addToStatusArea("Media Controls", this.panelBtn, index, position);
     }
 
     /**

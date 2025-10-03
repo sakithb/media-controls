@@ -18,8 +18,10 @@
   </enum>
   <enum id="org.gnome.shell.extensions.mediacontrols.positions">
     <value nick="Left" value="0" />
-    <value nick="Center" value="1" />
-    <value nick="Right" value="2" />
+    <value nick="RightMostLeft" value="1" />
+    <value nick="Center" value="2" />
+    <value nick="LeftMostRight" value="3" />
+    <value nick="Right" value="4" />
   </enum>
   <schema id="org.gnome.shell.extensions.mediacontrols" path="/org/gnome/shell/extensions/mediacontrols/">
     <key name="label-width" type="u">

@@ -27,7 +27,9 @@ export const LoopStatus = {
 };
 export const ExtensionPositions = {
     LEFT: "left",
+    RIGHTMOST_LEFT: "rightmost-left",
     CENTER: "center",
+    LEFTMOST_RIGHT: "leftmost-right",
     RIGHT: "right",
 };
 export const LabelTypes = {

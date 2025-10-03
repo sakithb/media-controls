@@ -189,7 +189,9 @@
               <object class="GtkStringList">
                 <items>
                   <item translatable="yes">Left</item>
+                  <item translatable="yes">Rightmost Left</item>
                   <item translatable="yes">Center</item>
+                  <item translatable="yes">Leftmost Right</item>
                   <item translatable="yes">Right</item>
                 </items>
               </object>
