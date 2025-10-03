@@ -178,6 +178,37 @@ class PanelButton extends PanelMenu.Button {
     }
 
     /**
+     * Override vfunc_event to handle button clicks before parent class
+     * @param {Clutter.Event} event
+     * @returns {boolean}
+     */
+    vfunc_event(event) {
+        if (event.type() === Clutter.EventType.BUTTON_PRESS) {
+            const button = event.get_button();
+
+            // Determine which action will be triggered
+            let action;
+            if (button === Clutter.BUTTON_PRIMARY) {
+                action = this.extension.mouseActionLeft;
+            } else if (button === Clutter.BUTTON_MIDDLE) {
+                action = this.extension.mouseActionMiddle;
+            } else if (button === Clutter.BUTTON_SECONDARY) {
+                action = this.extension.mouseActionRight;
+            }
+
+            // For middle and right clicks with custom actions, handle immediately
+            if (button === Clutter.BUTTON_MIDDLE || button === Clutter.BUTTON_SECONDARY) {
+                if (action !== MouseActions.SHOW_POPUP_MENU && action !== MouseActions.NONE) {
+                    this.doMouseAction(action);
+                    return Clutter.EVENT_STOP;
+                }
+            }
+        }
+
+        return super.vfunc_event(event);
+    }
+
+    /**
      * @public
      * @param {PlayerProxy} playerProxy
      * @returns {void}
@@ -572,8 +603,8 @@ class PanelButton extends PanelMenu.Button {
                 this.playerProxy.loopStatus === LoopStatus.NONE
                     ? ControlIconOptions.LOOP_NONE
                     : this.playerProxy.loopStatus === LoopStatus.TRACK
-                        ? ControlIconOptions.LOOP_TRACK
-                        : ControlIconOptions.LOOP_PLAYLIST,
+                      ? ControlIconOptions.LOOP_TRACK
+                      : ControlIconOptions.LOOP_PLAYLIST,
                 this.playerProxy.loopStatus != null,
                 this.playerProxy.toggleLoop.bind(this.playerProxy),
             );
@@ -943,21 +974,19 @@ class PanelButton extends PanelMenu.Button {
         this.connect("button-press-event", (_, event) => {
             const button = event.get_button();
 
-            // Determine which action will be triggered
-            let action;
-            if (button === Clutter.BUTTON_PRIMARY) {
-                action = this.extension.mouseActionLeft;
-            } else if (button === Clutter.BUTTON_MIDDLE) {
-                action = this.extension.mouseActionMiddle;
-            } else if (button === Clutter.BUTTON_SECONDARY) {
-                action = this.extension.mouseActionRight;
+            // Middle and right clicks are handled in vfunc_event, only handle left click here
+            if (button !== Clutter.BUTTON_PRIMARY) {
+                return Clutter.EVENT_PROPAGATE;
             }
+
+            const action = this.extension.mouseActionLeft;
 
             // If action is SHOW_POPUP_MENU or NONE, let the default behavior handle it
             if (action === MouseActions.SHOW_POPUP_MENU || action === MouseActions.NONE) {
                 return Clutter.EVENT_PROPAGATE;
             }
 
+            // Left click uses double-tap detection
             if (this.doubleTapSourceId != null) {
                 GLib.source_remove(this.doubleTapSourceId);
                 this.doubleTapSourceId = null;
@@ -966,15 +995,7 @@ class PanelButton extends PanelMenu.Button {
             }
             this.doubleTapSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
                 this.doubleTapSourceId = null;
-                if (button === Clutter.BUTTON_PRIMARY) {
-                    this.doMouseAction(this.extension.mouseActionLeft);
-                }
-                if (button === Clutter.BUTTON_MIDDLE) {
-                    this.doMouseAction(this.extension.mouseActionMiddle);
-                }
-                if (button === Clutter.BUTTON_SECONDARY) {
-                    this.doMouseAction(this.extension.mouseActionRight);
-                }
+                this.doMouseAction(this.extension.mouseActionLeft);
                 return GLib.SOURCE_REMOVE;
             });
             return Clutter.EVENT_STOP;
@@ -984,8 +1005,10 @@ class PanelButton extends PanelMenu.Button {
             const eventType = event.type();
             if (eventType === Clutter.EventType.TOUCH_BEGIN) {
                 // If left action is SHOW_POPUP_MENU or NONE, let default behavior handle it
-                if (this.extension.mouseActionLeft === MouseActions.SHOW_POPUP_MENU ||
-                    this.extension.mouseActionLeft === MouseActions.NONE) {
+                if (
+                    this.extension.mouseActionLeft === MouseActions.SHOW_POPUP_MENU ||
+                    this.extension.mouseActionLeft === MouseActions.NONE
+                ) {
                     return Clutter.EVENT_PROPAGATE;
                 }
 
