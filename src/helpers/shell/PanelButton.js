@@ -942,6 +942,22 @@ class PanelButton extends PanelMenu.Button {
     initActions() {
         this.connect("button-press-event", (_, event) => {
             const button = event.get_button();
+
+            // Determine which action will be triggered
+            let action;
+            if (button === Clutter.BUTTON_PRIMARY) {
+                action = this.extension.mouseActionLeft;
+            } else if (button === Clutter.BUTTON_MIDDLE) {
+                action = this.extension.mouseActionMiddle;
+            } else if (button === Clutter.BUTTON_SECONDARY) {
+                action = this.extension.mouseActionRight;
+            }
+
+            // If action is SHOW_POPUP_MENU or NONE, let the default behavior handle it
+            if (action === MouseActions.SHOW_POPUP_MENU || action === MouseActions.NONE) {
+                return Clutter.EVENT_PROPAGATE;
+            }
+
             if (this.doubleTapSourceId != null) {
                 GLib.source_remove(this.doubleTapSourceId);
                 this.doubleTapSourceId = null;
@@ -967,6 +983,12 @@ class PanelButton extends PanelMenu.Button {
         this.connect("touch-event", (_, event) => {
             const eventType = event.type();
             if (eventType === Clutter.EventType.TOUCH_BEGIN) {
+                // If left action is SHOW_POPUP_MENU or NONE, let default behavior handle it
+                if (this.extension.mouseActionLeft === MouseActions.SHOW_POPUP_MENU ||
+                    this.extension.mouseActionLeft === MouseActions.NONE) {
+                    return Clutter.EVENT_PROPAGATE;
+                }
+
                 if (this.doubleTapSourceId != null) {
                     GLib.source_remove(this.doubleTapSourceId);
                     this.doubleTapSourceId = null;
