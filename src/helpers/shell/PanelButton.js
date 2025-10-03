@@ -328,15 +328,14 @@ class PanelButton extends PanelMenu.Button {
                 xExpand: true,
                 reactive: true,
             });
-            const tapAction = new Clutter.TapAction();
-            tapAction.connect("tap", () => {
+            this.menuPlayersTextBoxPin.connect("button-press-event", () => {
                 if (this.playerProxy.isPlayerPinned()) {
                     this.playerProxy.unpinPlayer();
                 } else {
                     this.playerProxy.pinPlayer();
                 }
+                return Clutter.EVENT_STOP;
             });
-            this.menuPlayersTextBoxPin.add_action(tapAction);
         }
         const players = this.extension.getPlayers();
         if (players.length > 1 && this.menuPlayerIcons == null) {
@@ -397,9 +396,10 @@ class PanelButton extends PanelMenu.Button {
                 if (isSamePlayer) {
                     icon.add_style_class_name("popup-menu-player-icons-icon-active");
                 } else {
-                    const tapAction = new Clutter.TapAction();
-                    tapAction.connect("tap", this.updateProxy.bind(this, player));
-                    icon.add_action(tapAction);
+                    icon.connect("button-press-event", () => {
+                        this.updateProxy(player);
+                        return Clutter.EVENT_STOP;
+                    });
                 }
                 this.menuPlayerIcons.add_child(icon);
             }
@@ -572,8 +572,8 @@ class PanelButton extends PanelMenu.Button {
                 this.playerProxy.loopStatus === LoopStatus.NONE
                     ? ControlIconOptions.LOOP_NONE
                     : this.playerProxy.loopStatus === LoopStatus.TRACK
-                      ? ControlIconOptions.LOOP_TRACK
-                      : ControlIconOptions.LOOP_PLAYLIST,
+                        ? ControlIconOptions.LOOP_TRACK
+                        : ControlIconOptions.LOOP_PLAYLIST,
                 this.playerProxy.loopStatus != null,
                 this.playerProxy.toggleLoop.bind(this.playerProxy),
             );
@@ -637,9 +637,10 @@ class PanelButton extends PanelMenu.Button {
             reactive,
             ...options.menuProps.options,
         });
-        const tapAction = new Clutter.TapAction();
-        tapAction.connect("tap", onClick);
-        icon.add_action(tapAction);
+        icon.connect("button-press-event", () => {
+            onClick();
+            return Clutter.EVENT_STOP;
+        });
         const oldIcon = find_child_by_name(this.menuControls, options.name);
         if (oldIcon?.get_parent() === this.menuControls) {
             this.menuControls.replace_child(oldIcon, icon);
@@ -789,9 +790,10 @@ class PanelButton extends PanelMenu.Button {
             opacity: reactive ? 255 : 160,
             reactive,
         });
-        const tapAction = new Clutter.TapAction();
-        tapAction.connect("tap", onClick);
-        icon.add_action(tapAction);
+        icon.connect("button-press-event", () => {
+            onClick();
+            return Clutter.EVENT_STOP;
+        });
         const oldIcon = find_child_by_name(this.buttonControls, options.name);
         if (oldIcon != null) {
             this.buttonControls.replace_child(oldIcon, icon);
@@ -938,24 +940,16 @@ class PanelButton extends PanelMenu.Button {
      * @returns {void}
      */
     initActions() {
-        const tapAction = new Clutter.TapAction();
-        const swipeAction = new Clutter.SwipeAction();
-        tapAction.connect("tap", () => {
-            const device = tapAction.get_device(tapAction.nTouchPoints - 1);
-            const event = tapAction.get_last_event(tapAction.nTouchPoints - 1);
+        this.connect("button-press-event", (_, event) => {
             const button = event.get_button();
             if (this.doubleTapSourceId != null) {
                 GLib.source_remove(this.doubleTapSourceId);
                 this.doubleTapSourceId = null;
                 this.doMouseAction(this.extension.mouseActionDouble);
-                return;
+                return Clutter.EVENT_STOP;
             }
             this.doubleTapSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
                 this.doubleTapSourceId = null;
-                if (device.deviceType !== Clutter.InputDeviceType.POINTER_DEVICE) {
-                    this.doMouseAction(this.extension.mouseActionLeft);
-                    return GLib.SOURCE_REMOVE;
-                }
                 if (button === Clutter.BUTTON_PRIMARY) {
                     this.doMouseAction(this.extension.mouseActionLeft);
                 }
@@ -967,15 +961,27 @@ class PanelButton extends PanelMenu.Button {
                 }
                 return GLib.SOURCE_REMOVE;
             });
+            return Clutter.EVENT_STOP;
         });
-        swipeAction.connect("swipe", (_, __, direction) => {
-            if (direction === Clutter.SwipeDirection.RIGHT) {
-                this.doMouseAction(this.extension.mouseActionScrollUp);
+
+        this.connect("touch-event", (_, event) => {
+            const eventType = event.type();
+            if (eventType === Clutter.EventType.TOUCH_BEGIN) {
+                if (this.doubleTapSourceId != null) {
+                    GLib.source_remove(this.doubleTapSourceId);
+                    this.doubleTapSourceId = null;
+                    this.doMouseAction(this.extension.mouseActionDouble);
+                    return Clutter.EVENT_STOP;
+                }
+                this.doubleTapSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
+                    this.doubleTapSourceId = null;
+                    this.doMouseAction(this.extension.mouseActionLeft);
+                    return GLib.SOURCE_REMOVE;
+                });
             }
-            if (direction === Clutter.SwipeDirection.LEFT) {
-                this.doMouseAction(this.extension.mouseActionScrollDown);
-            }
+            return Clutter.EVENT_STOP;
         });
+
         this.connect("scroll-event", (_, event) => {
             const direction = event.get_scroll_direction();
             if (direction === Clutter.ScrollDirection.UP) {
@@ -984,10 +990,8 @@ class PanelButton extends PanelMenu.Button {
             if (direction === Clutter.ScrollDirection.DOWN) {
                 this.doMouseAction(this.extension.mouseActionScrollDown);
             }
+            return Clutter.EVENT_STOP;
         });
-        // Tap action is added last to prevent it from blocking button press events
-        this.add_action(swipeAction);
-        this.add_action(tapAction);
     }
 
     /**
