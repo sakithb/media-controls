@@ -657,7 +657,7 @@ export default class MediaControls extends Extension {
             Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._onProxyReady();
         } else {
             this.mediaSectionAddFunc = Mpris.MprisSource.prototype._addPlayer;
-            Mpris.MprisSource.prototype._addPlayer = function () { };
+            Mpris.MprisSource.prototype._addPlayer = function () {};
             // @ts-expect-error
             if (Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._players != null) {
                 // @ts-expect-error
