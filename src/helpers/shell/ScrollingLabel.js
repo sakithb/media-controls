@@ -2,6 +2,7 @@ import Clutter from "gi://Clutter";
 import GObject from "gi://GObject";
 import Pango from "gi://Pango";
 import St from "gi://St";
+import GLib from "gi://GLib";
 
 const SCROLL_ANIMATION_SPEED = 0.04;
 
@@ -129,10 +130,16 @@ class ScrollingLabel extends St.ScrollView {
     initScrolling() {
         const adjustment = this.get_hadjustment();
         const origText = this.label.text + "     ";
-        this.onAdjustmentChangedId = adjustment.connect(
-            "changed",
-            this.onAdjustmentChanged.bind(this, adjustment, origText),
-        );
+        this.onAdjustmentChangedId = adjustment.connect("changed", () => {
+            // Defer animation creation to ensure we're fully ready
+            GLib.idle_add(GLib.PRIORITY_DEFAULT_IDLE, () => {
+                if (adjustment.upper > adjustment.pageSize) {
+                    this.onAdjustmentChanged(adjustment, origText);
+                }
+                return GLib.SOURCE_REMOVE;
+            });
+            adjustment.disconnect(this.onAdjustmentChangedId);
+        });
         this.label.text = `${origText} `;
         this.label.clutterText.ellipsize = Pango.EllipsizeMode.NONE;
     }
@@ -144,9 +151,12 @@ class ScrollingLabel extends St.ScrollView {
      * @returns {void}
      */
     onAdjustmentChanged(adjustment, origText) {
-        if (adjustment.upper <= adjustment.pageSize) {
+        // Ensure we're actually on stage before creating transition
+        const stage = this.get_stage();
+        if (!stage) {
             return;
         }
+
         const initial = new GObject.Value();
         initial.init(GObject.TYPE_INT);
         initial.set_int(adjustment.value);
@@ -168,9 +178,15 @@ class ScrollingLabel extends St.ScrollView {
             duration,
             interval,
         });
+
+        // Set the animatable to the adjustment
+        this.transition.set_animatable(adjustment);
+
         this.label.text = `${origText} ${origText}`;
-        adjustment.add_transition("scroll", this.transition);
-        adjustment.disconnect(this.onAdjustmentChangedId);
+
+        // Add transition to this actor (which is on stage) to avoid "detached actor" warning
+        this.add_transition("scroll", this.transition);
+
         if (this.initPaused) {
             this.transition.pause();
         }
