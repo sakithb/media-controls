@@ -95,6 +95,16 @@ class ScrollingLabel extends St.ScrollView {
      * @type {Clutter.PropertyTransition}
      */
     transition;
+    /**
+     * @private
+     * @type {number[]}
+     */
+    pendingTimeouts;
+    /**
+     * @private
+     * @type {St.Adjustment}
+     */
+    adjustment;
 
     /**
      * @param {ScrollingLabelParams} params
@@ -118,6 +128,8 @@ class ScrollingLabel extends St.ScrollView {
         this.isInitiallyVisible = false;
         this.labelWidth = width;
         this.direction = direction;
+        this.pendingTimeouts = [];
+        this.adjustment = null;
         this.box = new St.BoxLayout({
             xExpand: true,
             yExpand: true,
@@ -193,14 +205,14 @@ class ScrollingLabel extends St.ScrollView {
     }
 
     reallyDoInitScrolling() {
-        const adjustment = this.get_hadjustment();
-        if (!adjustment) {
+        this.adjustment = this.get_hadjustment();
+        if (!this.adjustment) {
             return;
         }
         const origText = this.label.text + "     ";
-        this.onAdjustmentChangedId = adjustment.connect(
+        this.onAdjustmentChangedId = this.adjustment.connect(
             "changed",
-            this.onAdjustmentChanged.bind(this, adjustment, origText),
+            this.onAdjustmentChanged.bind(this, this.adjustment, origText),
         );
         this.label.text = `${origText} `;
         this.label.clutterText.ellipsize = Pango.EllipsizeMode.NONE;
@@ -221,16 +233,18 @@ class ScrollingLabel extends St.ScrollView {
         const onStage = this.get_stage() !== null;
         if (!onStage || !this.mapped || !this.label.mapped || !isActorProperlyAllocated(this) || !isActorProperlyAllocated(this.label)) {
             // Retry after a small delay if not properly allocated
-            GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
+            const timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
                 const nowOnStage = this.get_stage() !== null;
                 if (nowOnStage && this.mapped && this.label.mapped &&
                     isActorProperlyAllocated(this) &&
                     isActorProperlyAllocated(this.label)) {
+                    this.removePendingTimeout(timeoutId);
                     this.createScrollTransition(adjustment, origText);
                     return GLib.SOURCE_REMOVE;
                 }
                 return GLib.SOURCE_CONTINUE;
             });
+            this.pendingTimeouts.push(timeoutId);
             return;
         }
 
@@ -347,10 +361,77 @@ class ScrollingLabel extends St.ScrollView {
     }
 
     /**
+     * @private
+     * @param {number} timeoutId
+     * @returns {void}
+     */
+    removePendingTimeout(timeoutId) {
+        const index = this.pendingTimeouts.indexOf(timeoutId);
+        if (index > -1) {
+            this.pendingTimeouts.splice(index, 1);
+        }
+    }
+
+    /**
      * @returns {boolean}
      */
     vfunc_scroll_event() {
         return Clutter.EVENT_PROPAGATE;
+    }
+
+    /**
+     * Clean up resources before destruction
+     * @public
+     * @returns {void}
+     */
+    cleanup() {
+        // Disconnect signals - check if widgets still exist and haven't been destroyed
+        if (this.label && this.onShowChangedId) {
+            try {
+                // Check if the label is still valid before disconnecting
+                if (!this.label.toString().includes('disposed')) {
+                    this.label.disconnect(this.onShowChangedId);
+                }
+            } catch (e) {
+                // Label already destroyed, ignore
+            }
+            this.onShowChangedId = null;
+        }
+
+        if (this.adjustment && this.onAdjustmentChangedId) {
+            try {
+                this.adjustment.disconnect(this.onAdjustmentChangedId);
+            } catch (e) {
+                // Adjustment already destroyed, ignore
+            }
+            this.onAdjustmentChangedId = null;
+        }
+
+        // Stop and remove transition
+        if (this.transition) {
+            try {
+                this.transition.stop();
+                if (this.adjustment) {
+                    this.adjustment.remove_transition("scroll");
+                }
+            } catch (e) {
+                // Transition or adjustment already destroyed, ignore
+            }
+            this.transition = null;
+        }
+
+        // Clear all pending timeouts
+        for (const timeoutId of this.pendingTimeouts) {
+            try {
+                GLib.source_remove(timeoutId);
+            } catch (e) {
+                // Timeout already removed, ignore
+            }
+        }
+        this.pendingTimeouts = [];
+
+        // Clear references
+        this.adjustment = null;
     }
 }
 

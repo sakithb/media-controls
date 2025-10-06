@@ -273,7 +273,12 @@ class PanelButton extends PanelMenu.Button {
                 if (this.extension.showLabel) {
                     this.addButtonLabel(i);
                 } else if (this.buttonLabel != null) {
+                    // Cleanup before removing from parent
+                    if (this.buttonLabel.cleanup) {
+                        this.buttonLabel.cleanup();
+                    }
                     this.buttonBox.remove_child(this.buttonLabel);
+                    this.buttonLabel.destroy();
                     this.buttonLabel = null;
                 }
             }
@@ -532,10 +537,20 @@ class PanelButton extends PanelMenu.Button {
             });
         }
         if (this.menuLabelTitle != null) {
+            // Cleanup before removing from parent
+            if (this.menuLabelTitle.cleanup) {
+                this.menuLabelTitle.cleanup();
+            }
             this.menuLabels.remove_child(this.menuLabelTitle);
+            this.menuLabelTitle.destroy();
         }
         if (this.menuLabelSubtitle != null) {
+            // Cleanup before removing from parent
+            if (this.menuLabelSubtitle.cleanup) {
+                this.menuLabelSubtitle.cleanup();
+            }
             this.menuLabels.remove_child(this.menuLabelSubtitle);
+            this.menuLabelSubtitle.destroy();
         }
         const width = this.extension.labelWidth > 0 ? this.getMenuItemWidth() : 0;
         this.menuLabelTitle = new ScrollingLabel({
@@ -1123,6 +1138,10 @@ class PanelButton extends PanelMenu.Button {
         this.menuLabels = null;
         this.menuControls = null;
         this.buttonIcon?.destroy();
+        // Clean up ScrollingLabel before destroying
+        if (this.buttonLabel?.cleanup) {
+            this.buttonLabel.cleanup();
+        }
         this.buttonLabel?.destroy();
         this.buttonControls?.destroy();
         this.buttonBox?.destroy();
@@ -1139,6 +1158,13 @@ class PanelButton extends PanelMenu.Button {
             this.menuPlayerIcons.get_children().forEach((child) => child.destroy());
         }
         this.menuPlayerIcons = null;
+        // Clean up ScrollingLabels before nulling
+        if (this.menuLabelTitle?.cleanup) {
+            this.menuLabelTitle.cleanup();
+        }
+        if (this.menuLabelSubtitle?.cleanup) {
+            this.menuLabelSubtitle.cleanup();
+        }
         this.menuLabelTitle = null;
         this.menuLabelSubtitle = null;
         if (this.doubleTapSourceId != null) {
