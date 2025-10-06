@@ -79,7 +79,7 @@ class MenuSlider extends St.BoxLayout {
         this.slider.connect("drag-end", () => {
             const ms = this.slider.value * this.transition.duration;
             this.emit("seeked", Math.floor(ms * 1000));
-            if (this.dragPaused) {
+            if (this.dragPaused && this.get_stage() != null) {
                 this.transition.advance(ms);
                 this.transition.start();
                 this.dragPaused = false;
@@ -112,6 +112,8 @@ class MenuSlider extends St.BoxLayout {
         this.textBox.add_child(this.durationLabel);
         this.add_child(this.textBox);
         this.add_child(this.slider);
+        // Pause transition before adding to prevent auto-start
+        this.transition.pause();
         this.slider.add_transition("progress", this.transition);
         this.connect("destroy", this.onDestroy.bind(this));
         this.setDisabled(true);
@@ -183,7 +185,7 @@ class MenuSlider extends St.BoxLayout {
      * @returns {void}
      */
     resumeTransition() {
-        if (this.disabled === false) {
+        if (this.disabled === false && this.get_stage() != null) {
             this.transition.start();
         }
     }
