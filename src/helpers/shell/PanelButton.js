@@ -1061,6 +1061,12 @@ class PanelButton extends PanelMenu.Button {
     onDestroy() {
         this.removeProxyListeners();
         this.playerProxy = null;
+        // Null out references to child widgets before parent destroys them
+        this.menuSlider = null;
+        this.menuPlayers = null;
+        this.menuImage = null;
+        this.menuLabels = null;
+        this.menuControls = null;
         this.buttonIcon?.destroy();
         this.buttonLabel?.destroy();
         this.buttonControls?.destroy();
@@ -1070,11 +1076,6 @@ class PanelButton extends PanelMenu.Button {
         this.buttonControls = null;
         this.buttonBox = null;
         this.menuBox = null;
-        this.menuPlayers = null;
-        this.menuImage = null;
-        this.menuLabels = null;
-        this.menuSlider = null;
-        this.menuControls = null;
         this.menuPlayersTextBox = null;
         this.menuPlayersTextBoxIcon = null;
         this.menuPlayersTextBoxLabel = null;
