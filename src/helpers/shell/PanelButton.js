@@ -285,6 +285,7 @@ class PanelButton extends PanelMenu.Button {
                     this.addButtonControls(i, flags);
                 } else if (this.buttonControls != null) {
                     this.buttonBox.remove_child(this.buttonControls);
+                    this.buttonControls.destroy();
                     this.buttonControls = null;
                 }
             }
