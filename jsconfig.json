@@ -1,9 +1,9 @@
 {
   "compilerOptions": {
     "checkJs": true,
-    "module": "ESNext",
+    "module": "NodeNext",
     "target": "ESNext",
-    "moduleResolution": "nodenext"
+    "moduleResolution": "NodeNext"
   },
   "include": ["./src/**/*", "global.d.ts"]
 }
