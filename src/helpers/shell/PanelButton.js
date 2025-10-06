@@ -374,10 +374,11 @@ class PanelButton extends PanelMenu.Button {
                 styleClass: "popup-menu-player-icons",
             });
         } else if (players.length === 1 && this.menuPlayerIcons != null) {
+            this.menuPlayerIcons.get_children().forEach((child) => child.destroy());
             this.menuPlayers.remove_child(this.menuPlayerIcons);
             this.menuPlayerIcons = null;
-        } else {
-            this.menuPlayerIcons?.remove_all_children();
+        } else if (this.menuPlayerIcons != null) {
+            this.menuPlayerIcons.get_children().forEach((child) => child.destroy());
         }
         const isPinned = this.playerProxy.isPlayerPinned();
         this.menuPlayersTextBoxPin.opacity = isPinned ? 255 : 160;
@@ -1127,12 +1128,16 @@ class PanelButton extends PanelMenu.Button {
         this.menuPlayers = null;
         this.menuImage = null;
         this.menuLabels = null;
+        this.menuSlider?.destroy();
         this.menuSlider = null;
         this.menuControls = null;
         this.menuPlayersTextBox = null;
         this.menuPlayersTextBoxIcon = null;
         this.menuPlayersTextBoxLabel = null;
         this.menuPlayersTextBoxPin = null;
+        if (this.menuPlayerIcons != null) {
+            this.menuPlayerIcons.get_children().forEach((child) => child.destroy());
+        }
         this.menuPlayerIcons = null;
         this.menuLabelTitle = null;
         this.menuLabelSubtitle = null;
