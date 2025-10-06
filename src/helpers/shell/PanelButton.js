@@ -469,7 +469,12 @@ class PanelButton extends PanelMenu.Button {
             if (trackUri != null && trackUri.get_scheme() === "file") {
                 const file = Gio.File.new_for_uri(trackUri.to_string());
                 const info = await file
-                    .query_info_async(Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH, Gio.FileQueryInfoFlags.NONE, null, null)
+                    .query_info_async(
+                        `${Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH},${Gio.FILE_ATTRIBUTE_STANDARD_ICON}`,
+                        Gio.FileQueryInfoFlags.NONE,
+                        null,
+                        null,
+                    )
                     .catch(handleError);
                 if (info != null) {
                     const path = info.get_attribute_byte_string(Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH);
