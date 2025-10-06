@@ -42,6 +42,8 @@ export const getAppByIdAndEntry = (id, entry) => {
     const runningApps = appSystem.get_running();
     const idResults = Shell.AppSystem.search(id ?? "");
     const entryResults = Shell.AppSystem.search(entry ?? "");
+
+    // Try to find in running apps first
     if (entryResults?.length > 0) {
         const app = runningApps.find((app) => entryResults[0].includes(app.get_id()));
         if (app != null) {
@@ -54,6 +56,34 @@ export const getAppByIdAndEntry = (id, entry) => {
             return app;
         }
     }
+
+    // If not found in running apps, try to lookup by desktop file ID
+    if (entry) {
+        // Try with .desktop extension
+        let app = appSystem.lookup_app(`${entry}.desktop`);
+        if (app != null) {
+            return app;
+        }
+        // Try without extension in case it already has it
+        app = appSystem.lookup_app(entry);
+        if (app != null) {
+            return app;
+        }
+    }
+
+    if (id) {
+        // Try with .desktop extension
+        let app = appSystem.lookup_app(`${id}.desktop`);
+        if (app != null) {
+            return app;
+        }
+        // Try without extension
+        app = appSystem.lookup_app(id);
+        if (app != null) {
+            return app;
+        }
+    }
+
     return null;
 };
 

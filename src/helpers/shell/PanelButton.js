@@ -178,6 +178,37 @@ class PanelButton extends PanelMenu.Button {
     }
 
     /**
+     * Override vfunc_event to handle button clicks before parent class
+     * @param {Clutter.Event} event
+     * @returns {boolean}
+     */
+    vfunc_event(event) {
+        if (event.type() === Clutter.EventType.BUTTON_PRESS) {
+            const button = event.get_button();
+
+            // Determine which action will be triggered
+            let action;
+            if (button === Clutter.BUTTON_PRIMARY) {
+                action = this.extension.mouseActionLeft;
+            } else if (button === Clutter.BUTTON_MIDDLE) {
+                action = this.extension.mouseActionMiddle;
+            } else if (button === Clutter.BUTTON_SECONDARY) {
+                action = this.extension.mouseActionRight;
+            }
+
+            // For middle and right clicks with custom actions, handle immediately
+            if (button === Clutter.BUTTON_MIDDLE || button === Clutter.BUTTON_SECONDARY) {
+                if (action !== MouseActions.SHOW_POPUP_MENU && action !== MouseActions.NONE) {
+                    this.doMouseAction(action);
+                    return Clutter.EVENT_STOP;
+                }
+            }
+        }
+
+        return super.vfunc_event(event);
+    }
+
+    /**
      * @public
      * @param {PlayerProxy} playerProxy
      * @returns {void}
@@ -328,15 +359,14 @@ class PanelButton extends PanelMenu.Button {
                 xExpand: true,
                 reactive: true,
             });
-            const tapAction = new Clutter.TapAction();
-            tapAction.connect("tap", () => {
+            this.menuPlayersTextBoxPin.connect("button-press-event", () => {
                 if (this.playerProxy.isPlayerPinned()) {
                     this.playerProxy.unpinPlayer();
                 } else {
                     this.playerProxy.pinPlayer();
                 }
+                return Clutter.EVENT_STOP;
             });
-            this.menuPlayersTextBoxPin.add_action(tapAction);
         }
         const players = this.extension.getPlayers();
         if (players.length > 1 && this.menuPlayerIcons == null) {
@@ -344,10 +374,11 @@ class PanelButton extends PanelMenu.Button {
                 styleClass: "popup-menu-player-icons",
             });
         } else if (players.length === 1 && this.menuPlayerIcons != null) {
+            this.menuPlayerIcons.get_children().forEach((child) => child.destroy());
             this.menuPlayers.remove_child(this.menuPlayerIcons);
             this.menuPlayerIcons = null;
-        } else {
-            this.menuPlayerIcons?.remove_all_children();
+        } else if (this.menuPlayerIcons != null) {
+            this.menuPlayerIcons.get_children().forEach((child) => child.destroy());
         }
         const isPinned = this.playerProxy.isPlayerPinned();
         this.menuPlayersTextBoxPin.opacity = isPinned ? 255 : 160;
@@ -397,9 +428,10 @@ class PanelButton extends PanelMenu.Button {
                 if (isSamePlayer) {
                     icon.add_style_class_name("popup-menu-player-icons-icon-active");
                 } else {
-                    const tapAction = new Clutter.TapAction();
-                    tapAction.connect("tap", this.updateProxy.bind(this, player));
-                    icon.add_action(tapAction);
+                    icon.connect("button-press-event", () => {
+                        this.updateProxy(player);
+                        return Clutter.EVENT_STOP;
+                    });
                 }
                 this.menuPlayerIcons.add_child(icon);
             }
@@ -438,7 +470,12 @@ class PanelButton extends PanelMenu.Button {
             if (trackUri != null && trackUri.get_scheme() === "file") {
                 const file = Gio.File.new_for_uri(trackUri.to_string());
                 const info = await file
-                    .query_info_async(Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH, Gio.FileQueryInfoFlags.NONE, null, null)
+                    .query_info_async(
+                        `${Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH},${Gio.FILE_ATTRIBUTE_STANDARD_ICON}`,
+                        Gio.FileQueryInfoFlags.NONE,
+                        null,
+                        null,
+                    )
                     .catch(handleError);
                 if (info != null) {
                     const path = info.get_attribute_byte_string(Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH);
@@ -637,9 +674,10 @@ class PanelButton extends PanelMenu.Button {
             reactive,
             ...options.menuProps.options,
         });
-        const tapAction = new Clutter.TapAction();
-        tapAction.connect("tap", onClick);
-        icon.add_action(tapAction);
+        icon.connect("button-press-event", () => {
+            onClick();
+            return Clutter.EVENT_STOP;
+        });
         const oldIcon = find_child_by_name(this.menuControls, options.name);
         if (oldIcon?.get_parent() === this.menuControls) {
             this.menuControls.replace_child(oldIcon, icon);
@@ -789,9 +827,10 @@ class PanelButton extends PanelMenu.Button {
             opacity: reactive ? 255 : 160,
             reactive,
         });
-        const tapAction = new Clutter.TapAction();
-        tapAction.connect("tap", onClick);
-        icon.add_action(tapAction);
+        icon.connect("button-press-event", () => {
+            onClick();
+            return Clutter.EVENT_STOP;
+        });
         const oldIcon = find_child_by_name(this.buttonControls, options.name);
         if (oldIcon != null) {
             this.buttonControls.replace_child(oldIcon, icon);
@@ -938,44 +977,62 @@ class PanelButton extends PanelMenu.Button {
      * @returns {void}
      */
     initActions() {
-        const tapAction = new Clutter.TapAction();
-        const swipeAction = new Clutter.SwipeAction();
-        tapAction.connect("tap", () => {
-            const device = tapAction.get_device(tapAction.nTouchPoints - 1);
-            const event = tapAction.get_last_event(tapAction.nTouchPoints - 1);
+        this.connect("button-press-event", (_, event) => {
             const button = event.get_button();
+
+            // Middle and right clicks are handled in vfunc_event, only handle left click here
+            if (button !== Clutter.BUTTON_PRIMARY) {
+                return Clutter.EVENT_PROPAGATE;
+            }
+
+            const action = this.extension.mouseActionLeft;
+
+            // If action is SHOW_POPUP_MENU or NONE, let the default behavior handle it
+            if (action === MouseActions.SHOW_POPUP_MENU || action === MouseActions.NONE) {
+                return Clutter.EVENT_PROPAGATE;
+            }
+
+            // Left click uses double-tap detection
             if (this.doubleTapSourceId != null) {
                 GLib.source_remove(this.doubleTapSourceId);
                 this.doubleTapSourceId = null;
                 this.doMouseAction(this.extension.mouseActionDouble);
-                return;
+                return Clutter.EVENT_STOP;
             }
             this.doubleTapSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
                 this.doubleTapSourceId = null;
-                if (device.deviceType !== Clutter.InputDeviceType.POINTER_DEVICE) {
-                    this.doMouseAction(this.extension.mouseActionLeft);
-                    return GLib.SOURCE_REMOVE;
-                }
-                if (button === Clutter.BUTTON_PRIMARY) {
-                    this.doMouseAction(this.extension.mouseActionLeft);
-                }
-                if (button === Clutter.BUTTON_MIDDLE) {
-                    this.doMouseAction(this.extension.mouseActionMiddle);
-                }
-                if (button === Clutter.BUTTON_SECONDARY) {
-                    this.doMouseAction(this.extension.mouseActionRight);
-                }
+                this.doMouseAction(this.extension.mouseActionLeft);
                 return GLib.SOURCE_REMOVE;
             });
+            return Clutter.EVENT_STOP;
         });
-        swipeAction.connect("swipe", (_, __, direction) => {
-            if (direction === Clutter.SwipeDirection.RIGHT) {
-                this.doMouseAction(this.extension.mouseActionScrollUp);
+
+        this.connect("touch-event", (_, event) => {
+            const eventType = event.type();
+            if (eventType === Clutter.EventType.TOUCH_BEGIN) {
+                // If left action is SHOW_POPUP_MENU or NONE, let default behavior handle it
+                if (
+                    this.extension.mouseActionLeft === MouseActions.SHOW_POPUP_MENU ||
+                    this.extension.mouseActionLeft === MouseActions.NONE
+                ) {
+                    return Clutter.EVENT_PROPAGATE;
+                }
+
+                if (this.doubleTapSourceId != null) {
+                    GLib.source_remove(this.doubleTapSourceId);
+                    this.doubleTapSourceId = null;
+                    this.doMouseAction(this.extension.mouseActionDouble);
+                    return Clutter.EVENT_STOP;
+                }
+                this.doubleTapSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
+                    this.doubleTapSourceId = null;
+                    this.doMouseAction(this.extension.mouseActionLeft);
+                    return GLib.SOURCE_REMOVE;
+                });
             }
-            if (direction === Clutter.SwipeDirection.LEFT) {
-                this.doMouseAction(this.extension.mouseActionScrollDown);
-            }
+            return Clutter.EVENT_STOP;
         });
+
         this.connect("scroll-event", (_, event) => {
             const direction = event.get_scroll_direction();
             if (direction === Clutter.ScrollDirection.UP) {
@@ -984,10 +1041,8 @@ class PanelButton extends PanelMenu.Button {
             if (direction === Clutter.ScrollDirection.DOWN) {
                 this.doMouseAction(this.extension.mouseActionScrollDown);
             }
+            return Clutter.EVENT_STOP;
         });
-        // Tap action is added last to prevent it from blocking button press events
-        this.add_action(swipeAction);
-        this.add_action(tapAction);
     }
 
     /**
@@ -1061,6 +1116,12 @@ class PanelButton extends PanelMenu.Button {
     onDestroy() {
         this.removeProxyListeners();
         this.playerProxy = null;
+        // Null out references to child widgets before parent destroys them
+        this.menuSlider = null;
+        this.menuPlayers = null;
+        this.menuImage = null;
+        this.menuLabels = null;
+        this.menuControls = null;
         this.buttonIcon?.destroy();
         this.buttonLabel?.destroy();
         this.buttonControls?.destroy();
@@ -1070,15 +1131,13 @@ class PanelButton extends PanelMenu.Button {
         this.buttonControls = null;
         this.buttonBox = null;
         this.menuBox = null;
-        this.menuPlayers = null;
-        this.menuImage = null;
-        this.menuLabels = null;
-        this.menuSlider = null;
-        this.menuControls = null;
         this.menuPlayersTextBox = null;
         this.menuPlayersTextBoxIcon = null;
         this.menuPlayersTextBoxLabel = null;
         this.menuPlayersTextBoxPin = null;
+        if (this.menuPlayerIcons != null) {
+            this.menuPlayerIcons.get_children().forEach((child) => child.destroy());
+        }
         this.menuPlayerIcons = null;
         this.menuLabelTitle = null;
         this.menuLabelSubtitle = null;
