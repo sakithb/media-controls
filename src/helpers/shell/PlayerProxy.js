@@ -204,6 +204,9 @@ export default class PlayerProxy {
             return;
         }
         for (const listener of listeners) {
+            if (typeof listener !== "function") {
+                continue;
+            }
             try {
                 listener(value);
             } catch (error) {
@@ -547,14 +550,14 @@ export default class PlayerProxy {
      */
     onChanged(property, callback) {
         const listeners = this.changeListeners.get(property);
-        let id;
         if (listeners == null) {
-            id = 0;
             this.changeListeners.set(property, [callback]);
+            return 0;
         } else {
-            id = listeners.push(callback);
+            const id = listeners.length;
+            listeners.push(callback);
+            return id;
         }
-        return id;
     }
 
     /**
@@ -569,7 +572,7 @@ export default class PlayerProxy {
         if (listeners == null) {
             return;
         }
-        listeners.splice(id, 1);
+        listeners[id] = null;
     }
 
     /**
