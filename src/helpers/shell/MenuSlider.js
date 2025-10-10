@@ -56,6 +56,7 @@ class MenuSlider extends St.BoxLayout {
      */
     constructor() {
         super({ orientation: Clutter.Orientation.VERTICAL });
+        this._isCleanedUp = false;
         this.rate = 1.0;
         this.slider = new Slider.Slider(0);
         this.textBox = new St.BoxLayout();
@@ -148,10 +149,17 @@ class MenuSlider extends St.BoxLayout {
      * @returns {void}
      */
     setPosition(position) {
+        if (this._isCleanedUp) {
+            return;
+        }
         position = position / 1000;
-        this.elapsedLabel.text = msToHHMMSS(position);
-        this.slider.value = position / this.rate / this.transition.duration;
-        this.transition.advance(position / this.rate);
+        try {
+            this.elapsedLabel.text = msToHHMMSS(position);
+            this.slider.value = position / this.rate / this.transition.duration;
+            this.transition.advance(position / this.rate);
+        } catch (e) {
+            // Silently ignore - widget is disposed
+        }
     }
 
     /**
@@ -160,12 +168,19 @@ class MenuSlider extends St.BoxLayout {
      * @returns {void}
      */
     setLength(length) {
+        if (this._isCleanedUp) {
+            return;
+        }
         length = length / 1000;
-        this.durationLabel.text = msToHHMMSS(length);
-        this.slider.value = 0;
-        this.transition.set_duration(length / this.rate);
-        this.transition.rewind();
-        this.updateMarkers();
+        try {
+            this.durationLabel.text = msToHHMMSS(length);
+            this.slider.value = 0;
+            this.transition.set_duration(length / this.rate);
+            this.transition.rewind();
+            this.updateMarkers();
+        } catch (e) {
+            // Silently ignore - widget is disposed
+        }
     }
 
     /**
@@ -173,8 +188,13 @@ class MenuSlider extends St.BoxLayout {
      * @returns {void}
      */
     pauseTransition() {
-        if (this.disabled === false) {
+        if (this._isCleanedUp || this.disabled === true) {
+            return;
+        }
+        try {
             this.transition.pause();
+        } catch (e) {
+            // Silently ignore - widget is disposed
         }
     }
 
@@ -183,8 +203,15 @@ class MenuSlider extends St.BoxLayout {
      * @returns {void}
      */
     resumeTransition() {
-        if (this.disabled === false) {
-            this.transition.start();
+        if (this._isCleanedUp) {
+            return;
+        }
+        try {
+            if (this.disabled === false && this.get_stage() != null) {
+                this.transition.start();
+            }
+        } catch (e) {
+            // Silently ignore - widget is disposed
         }
     }
 
@@ -194,17 +221,24 @@ class MenuSlider extends St.BoxLayout {
      * @returns {void}
      */
     setDisabled(disabled) {
-        this.disabled = disabled;
-        this.slider.reactive = !disabled;
-        this.opacity = disabled ? 127 : 255;
-        if (disabled) {
-            this.durationLabel.text = "00:00";
-            this.elapsedLabel.text = "00:00";
-            this.transition.set_duration(1);
-            this.transition.stop();
-            this.slider.value = 0;
-        } else {
-            this.updateMarkers();
+        if (this._isCleanedUp) {
+            return;
+        }
+        try {
+            this.disabled = disabled;
+            this.slider.reactive = !disabled;
+            this.opacity = disabled ? 127 : 255;
+            if (disabled) {
+                this.durationLabel.text = "00:00";
+                this.elapsedLabel.text = "00:00";
+                this.transition.set_duration(1);
+                this.transition.stop();
+                this.slider.value = 0;
+            } else {
+                this.updateMarkers();
+            }
+        } catch (e) {
+            // Silently ignore - widget is disposed
         }
     }
 
@@ -224,11 +258,34 @@ class MenuSlider extends St.BoxLayout {
             this.transition.add_marker_at_time(elapsedText, ms / this.rate);
         }
     }
+
+    /**
+     * Clean up resources before destruction
+     * @public
+     * @returns {void}
+     */
+    cleanup() {
+        if (this._isCleanedUp) {
+            return;
+        }
+        this._isCleanedUp = true;
+
+        // Stop transition
+        if (this.transition) {
+            try {
+                this.transition.stop();
+            } catch (e) {
+                // Silently ignore
+            }
+        }
+    }
+
     /**
      * @private
      * @returns {void}
      */
     onDestroy() {
+        this.cleanup();
         this.slider.remove_transition("progress");
         this.slider.destroy();
         this.textBox.destroy();

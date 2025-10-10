@@ -694,8 +694,18 @@ export default class MediaControls extends Extension {
      */
     removePanelButton() {
         debugLog("Removing panel button");
-        this.panelBtn?.destroy();
-        this.panelBtn = null;
+        if (this.panelBtn) {
+            try {
+                // Call cleanup BEFORE destroy to disconnect signals while widgets are still valid
+                if (this.panelBtn.cleanup) {
+                    this.panelBtn.cleanup();
+                }
+                this.panelBtn.destroy();
+            } catch (e) {
+                handleError(e);
+            }
+            this.panelBtn = null;
+        }
     }
 
     /**

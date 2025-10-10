@@ -169,6 +169,7 @@ class PanelButton extends PanelMenu.Button {
         this.playerProxy = playerProxy;
         this.extension = extension;
         this.changeListenerIds = new Map();
+        this._isDestroyed = false;
         this.updateWidgets(WidgetFlags.ALL);
         this.addProxyListeners();
         this.initActions();
@@ -237,6 +238,11 @@ class PanelButton extends PanelMenu.Button {
      * @returns {void}
      */
     updateWidgets(flags) {
+        // Don't update if already destroyed
+        if (this._isDestroyed) {
+            return;
+        }
+
         if (this.buttonBox == null) {
             this.buttonBox = new St.BoxLayout({
                 styleClass: "panel-button-box",
@@ -461,6 +467,11 @@ class PanelButton extends PanelMenu.Button {
      * @returns {Promise<void>}
      */
     async addMenuImage() {
+        // Don't update if already destroyed or metadata is null
+        if (this._isDestroyed || !this.playerProxy.metadata) {
+            return;
+        }
+
         if (this.menuImage == null) {
             this.menuImage = new St.Icon({
                 xExpand: false,
@@ -541,16 +552,30 @@ class PanelButton extends PanelMenu.Button {
             if (this.menuLabelTitle.cleanup) {
                 this.menuLabelTitle.cleanup();
             }
-            this.menuLabels.remove_child(this.menuLabelTitle);
-            this.menuLabelTitle.destroy();
+            try {
+                if (this.menuLabelTitle.get_parent()) {
+                    this.menuLabels.remove_child(this.menuLabelTitle);
+                }
+                this.menuLabelTitle.destroy();
+            } catch (e) {
+                // Widget already disposed, ignore
+            }
+            this.menuLabelTitle = null;
         }
         if (this.menuLabelSubtitle != null) {
             // Cleanup before removing from parent
             if (this.menuLabelSubtitle.cleanup) {
                 this.menuLabelSubtitle.cleanup();
             }
-            this.menuLabels.remove_child(this.menuLabelSubtitle);
-            this.menuLabelSubtitle.destroy();
+            try {
+                if (this.menuLabelSubtitle.get_parent()) {
+                    this.menuLabels.remove_child(this.menuLabelSubtitle);
+                }
+                this.menuLabelSubtitle.destroy();
+            } catch (e) {
+                // Widget already disposed, ignore
+            }
+            this.menuLabelSubtitle = null;
         }
         const width = this.extension.labelWidth > 0 ? this.getMenuItemWidth() : 0;
         this.menuLabelTitle = new ScrollingLabel({
@@ -729,6 +754,11 @@ class PanelButton extends PanelMenu.Button {
      * @returns {void}
      */
     addButtonLabel(index) {
+        // Cleanup old label before replacing
+        if (this.buttonLabel?.cleanup) {
+            this.buttonLabel.cleanup();
+        }
+
         const label = new ScrollingLabel({
             text: this.getButtonLabelText(),
             width: this.extension.labelWidth,
@@ -895,10 +925,21 @@ class PanelButton extends PanelMenu.Button {
      * @returns {number}
      */
     getMenuItemWidth() {
-        // @ts-expect-error
-        const menuContainer = this.menu.box.get_parent().get_parent();
-        const minWidth = menuContainer.get_theme_node().get_min_width() - 24;
-        return Math.max(minWidth, this.extension.labelWidth);
+        try {
+            // @ts-expect-error
+            const parent = this.menu.box.get_parent();
+            if (!parent) {
+                return this.extension.labelWidth;
+            }
+            const menuContainer = parent.get_parent();
+            if (!menuContainer) {
+                return this.extension.labelWidth;
+            }
+            const minWidth = menuContainer.get_theme_node().get_min_width() - 24;
+            return Math.max(minWidth, this.extension.labelWidth);
+        } catch (e) {
+            return this.extension.labelWidth;
+        }
     }
 
     /**
@@ -1125,51 +1166,98 @@ class PanelButton extends PanelMenu.Button {
     }
 
     /**
+     * Clean up resources before destruction
+     * @public
+     * @returns {void}
+     */
+    cleanup() {
+        if (this._isDestroyed) {
+            return;
+        }
+        this._isDestroyed = true;
+
+        // Clean up ScrollingLabels and MenuSlider BEFORE the parent widget is destroyed
+        // This ensures signals are disconnected while child widgets are still valid
+        if (this.buttonLabel?.cleanup) {
+            try {
+                this.buttonLabel.cleanup();
+            } catch (e) {
+                // Silently ignore
+            }
+        }
+        if (this.menuLabelTitle?.cleanup) {
+            try {
+                this.menuLabelTitle.cleanup();
+            } catch (e) {
+                // Silently ignore
+            }
+        }
+        if (this.menuLabelSubtitle?.cleanup) {
+            try {
+                this.menuLabelSubtitle.cleanup();
+            } catch (e) {
+                // Silently ignore
+            }
+        }
+        if (this.menuSlider?.cleanup) {
+            try {
+                this.menuSlider.cleanup();
+            } catch (e) {
+                // Silently ignore
+            }
+        }
+    }
+
+    /**
      * @private
      * @returns {void}
      */
     onDestroy() {
-        this.removeProxyListeners();
-        this.playerProxy = null;
-        // Null out references to child widgets before parent destroys them
-        this.menuSlider = null;
-        this.menuPlayers = null;
-        this.menuImage = null;
-        this.menuLabels = null;
-        this.menuControls = null;
-        this.buttonIcon?.destroy();
-        // Clean up ScrollingLabel before destroying
-        if (this.buttonLabel?.cleanup) {
-            this.buttonLabel.cleanup();
+        if (this._isDestroyed) {
+            return;
         }
-        this.buttonLabel?.destroy();
-        this.buttonControls?.destroy();
-        this.buttonBox?.destroy();
-        this.buttonIcon = null;
-        this.buttonLabel = null;
-        this.buttonControls = null;
-        this.buttonBox = null;
-        this.menuBox = null;
-        this.menuPlayersTextBox = null;
-        this.menuPlayersTextBoxIcon = null;
-        this.menuPlayersTextBoxLabel = null;
-        this.menuPlayersTextBoxPin = null;
-        if (this.menuPlayerIcons != null) {
-            this.menuPlayerIcons.get_children().forEach((child) => child.destroy());
-        }
-        this.menuPlayerIcons = null;
-        // Clean up ScrollingLabels before nulling
-        if (this.menuLabelTitle?.cleanup) {
-            this.menuLabelTitle.cleanup();
-        }
-        if (this.menuLabelSubtitle?.cleanup) {
-            this.menuLabelSubtitle.cleanup();
-        }
-        this.menuLabelTitle = null;
-        this.menuLabelSubtitle = null;
-        if (this.doubleTapSourceId != null) {
-            GLib.source_remove(this.doubleTapSourceId);
-            this.doubleTapSourceId = null;
+
+        // Call cleanup if it hasn't been called yet
+        this.cleanup();
+
+        try {
+            this.removeProxyListeners();
+            this.playerProxy = null;
+            // Null out references to child widgets before parent destroys them
+            this.menuSlider = null;
+            this.menuPlayers = null;
+            this.menuImage = null;
+            this.menuLabels = null;
+            this.menuControls = null;
+            this.buttonIcon?.destroy();
+            this.buttonLabel?.destroy();
+            this.buttonControls?.destroy();
+            this.buttonBox?.destroy();
+            this.buttonIcon = null;
+            this.buttonLabel = null;
+            this.buttonControls = null;
+            this.buttonBox = null;
+            this.menuBox = null;
+            this.menuPlayersTextBox = null;
+            this.menuPlayersTextBoxIcon = null;
+            this.menuPlayersTextBoxLabel = null;
+            this.menuPlayersTextBoxPin = null;
+            if (this.menuPlayerIcons != null) {
+                this.menuPlayerIcons.get_children().forEach((child) => child.destroy());
+            }
+            this.menuPlayerIcons = null;
+            this.menuLabelTitle = null;
+            this.menuLabelSubtitle = null;
+            if (this.doubleTapSourceId != null) {
+                try {
+                    GLib.source_remove(this.doubleTapSourceId);
+                } catch (e) {
+                    // Source already removed, ignore
+                }
+                this.doubleTapSourceId = null;
+            }
+        } catch (e) {
+            this._isDestroyed = true; // Ensure flag is set even if error occurs
         }
     }
 }

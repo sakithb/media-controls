@@ -20,8 +20,8 @@ const isActorProperlyAllocated = (actor) => {
     const visible = actor.visible;
     const hasAllocation = actor.has_allocation();
     const allocationBox = hasAllocation ? actor.get_allocation_box() : null;
-    const hasWidth = allocationBox ? (allocationBox.x2 - allocationBox.x1) > 0 : false;
-    const hasHeight = allocationBox ? (allocationBox.y2 - allocationBox.y1) > 0 : false;
+    const hasWidth = allocationBox ? allocationBox.x2 - allocationBox.x1 > 0 : false;
+    const hasHeight = allocationBox ? allocationBox.y2 - allocationBox.y1 > 0 : false;
     const hasParent = actor.get_parent() !== null;
 
     return mapped && visible && hasAllocation && hasWidth && hasHeight && hasParent;
@@ -130,6 +130,7 @@ class ScrollingLabel extends St.ScrollView {
         this.direction = direction;
         this.pendingTimeouts = [];
         this.adjustment = null;
+        this._isCleanedUp = false;
         this.box = new St.BoxLayout({
             xExpand: true,
             yExpand: true,
@@ -190,9 +191,11 @@ class ScrollingLabel extends St.ScrollView {
 
         if (!scrollViewProperlyAllocated || !labelProperlyAllocated || !boxProperlyAllocated) {
             GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
-                if (isActorProperlyAllocated(this) &&
+                if (
+                    isActorProperlyAllocated(this) &&
                     isActorProperlyAllocated(this.label) &&
-                    isActorProperlyAllocated(this.box)) {
+                    isActorProperlyAllocated(this.box)
+                ) {
                     this.reallyDoInitScrolling();
                     return GLib.SOURCE_REMOVE;
                 }
@@ -231,13 +234,23 @@ class ScrollingLabel extends St.ScrollView {
 
         // Check if the actor is on the stage before creating animations
         const onStage = this.get_stage() !== null;
-        if (!onStage || !this.mapped || !this.label.mapped || !isActorProperlyAllocated(this) || !isActorProperlyAllocated(this.label)) {
+        if (
+            !onStage ||
+            !this.mapped ||
+            !this.label.mapped ||
+            !isActorProperlyAllocated(this) ||
+            !isActorProperlyAllocated(this.label)
+        ) {
             // Retry after a small delay if not properly allocated
             const timeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
                 const nowOnStage = this.get_stage() !== null;
-                if (nowOnStage && this.mapped && this.label.mapped &&
+                if (
+                    nowOnStage &&
+                    this.mapped &&
+                    this.label.mapped &&
                     isActorProperlyAllocated(this) &&
-                    isActorProperlyAllocated(this.label)) {
+                    isActorProperlyAllocated(this.label)
+                ) {
                     this.removePendingTimeout(timeoutId);
                     this.createScrollTransition(adjustment, origText);
                     return GLib.SOURCE_REMOVE;
@@ -258,7 +271,12 @@ class ScrollingLabel extends St.ScrollView {
         }
 
         // Disconnect the adjustment signal first
-        adjustment.disconnect(this.onAdjustmentChangedId);
+        try {
+            adjustment.disconnect(this.onAdjustmentChangedId);
+        } catch (e) {
+            // Signal already disconnected, ignore
+        }
+        this.onAdjustmentChangedId = null; // Clear the ID after disconnecting
 
         // Defer all modifications to avoid triggering relayout during allocation
         GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
@@ -331,7 +349,7 @@ class ScrollingLabel extends St.ScrollView {
             if (this.label && this.labelWidth > 0) {
                 // Get the allocation box to determine the actual width safely
                 const labelAlloc = this.label.get_allocation_box();
-                const labelWidth = labelAlloc ? (labelAlloc.x2 - labelAlloc.x1) : 0;
+                const labelWidth = labelAlloc ? labelAlloc.x2 - labelAlloc.x1 : 0;
 
                 // Only proceed if we have a valid label width
                 if (labelWidth > 0) {
@@ -353,7 +371,12 @@ class ScrollingLabel extends St.ScrollView {
 
             // Disconnect the signal after we've initialized
             if (this.label && this.onShowChangedId) {
-                this.label.disconnect(this.onShowChangedId);
+                try {
+                    this.label.disconnect(this.onShowChangedId);
+                } catch (e) {
+                    // Signal already disconnected, ignore
+                }
+                this.onShowChangedId = null; // Clear the ID after disconnecting
             }
 
             return GLib.SOURCE_REMOVE;
@@ -385,53 +408,75 @@ class ScrollingLabel extends St.ScrollView {
      * @returns {void}
      */
     cleanup() {
-        // Disconnect signals - check if widgets still exist and haven't been destroyed
-        if (this.label && this.onShowChangedId) {
-            try {
-                // Check if the label is still valid before disconnecting
-                if (!this.label.toString().includes('disposed')) {
-                    this.label.disconnect(this.onShowChangedId);
-                }
-            } catch (e) {
-                // Label already destroyed, ignore
-            }
-            this.onShowChangedId = null;
+        // Prevent double cleanup
+        if (this._isCleanedUp) {
+            return;
         }
+        this._isCleanedUp = true;
 
-        if (this.adjustment && this.onAdjustmentChangedId) {
-            try {
-                this.adjustment.disconnect(this.onAdjustmentChangedId);
-            } catch (e) {
-                // Adjustment already destroyed, ignore
-            }
-            this.onAdjustmentChangedId = null;
-        }
-
-        // Stop and remove transition
-        if (this.transition) {
-            try {
-                this.transition.stop();
-                if (this.adjustment) {
-                    this.adjustment.remove_transition("scroll");
-                }
-            } catch (e) {
-                // Transition or adjustment already destroyed, ignore
-            }
-            this.transition = null;
-        }
-
-        // Clear all pending timeouts
+        // Clear all pending timeouts first (these are safe to clear)
         for (const timeoutId of this.pendingTimeouts) {
             try {
                 GLib.source_remove(timeoutId);
             } catch (e) {
-                // Timeout already removed, ignore
+                // Timeout already removed, silently ignore
             }
         }
         this.pendingTimeouts = [];
 
-        // Clear references
-        this.adjustment = null;
+        // Stop transition (safe operation)
+        if (this.transition) {
+            try {
+                this.transition.stop();
+            } catch (e) {
+                // Transition already stopped, silently ignore
+            }
+            this.transition = null;
+        }
+
+        // Disconnect signals - these may fail if widgets are already disposed
+        // CRITICAL: Do NOT access this.label or this.adjustment at all, even to check if they exist!
+        // Just accessing a disposed GObject throws an error in GJS
+        if (this.onShowChangedId) {
+            const signalId = this.onShowChangedId;
+            const label = this.label; // Capture reference before clearing
+            this.onShowChangedId = null; // Clear it first to prevent re-entry
+            this.label = null; // Clear reference immediately
+
+            // Try to disconnect without checking if label exists
+            try {
+                label.disconnect(signalId);
+            } catch (e) {
+                // Silently ignore - widget is disposed
+            }
+        }
+
+        if (this.onAdjustmentChangedId) {
+            const signalId = this.onAdjustmentChangedId;
+            const adjustment = this.adjustment; // Capture reference before clearing
+            this.onAdjustmentChangedId = null; // Clear it first to prevent re-entry
+            this.adjustment = null; // Clear reference immediately
+
+            try {
+                adjustment.disconnect(signalId);
+            } catch (e) {
+                // Silently ignore - adjustment is disposed
+            }
+        }
+
+        // Try to remove transition from adjustment (if not already cleared)
+        if (this.adjustment) {
+            try {
+                this.adjustment.remove_transition("scroll");
+            } catch (e) {
+                // Silently ignore
+            }
+            this.adjustment = null;
+        }
+
+        // Clear any remaining references
+        this.label = null;
+        this.box = null;
     }
 }
 
