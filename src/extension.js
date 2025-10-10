@@ -617,10 +617,20 @@ export default class MediaControls extends Extension {
                 }
             }
         }
-        debugLog("Chosen player:", chosenPlayer?.busName);
+
+        // Check if the chosen player has actually changed
+        const currentBusName = this.panelBtn?.playerProxy?.busName;
+        const chosenBusName = chosenPlayer?.busName;
+
         if (chosenPlayer == null) {
-            this.removePanelButton();
+            if (currentBusName != null) {
+                debugLog("Chosen player: none");
+                this.removePanelButton();
+            }
         } else {
+            if (currentBusName !== chosenBusName) {
+                debugLog("Chosen player:", chosenPlayer.busName);
+            }
             if (this.panelBtn == null) {
                 this.addPanelButton(chosenPlayer.busName);
             } else {
