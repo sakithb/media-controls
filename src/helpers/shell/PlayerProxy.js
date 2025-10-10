@@ -67,6 +67,25 @@ export default class PlayerProxy {
         this.isPinned = false;
         this.isInvalid = true;
         this.changeListeners = new Map();
+        this._cachedProperties = new Map();
+    }
+
+    /**
+     * @private
+     * @param {any} val1
+     * @param {any} val2
+     * @returns {boolean}
+     */
+    _areValuesEqual(val1, val2) {
+        if (val1 === val2) {
+            return true;
+        }
+
+        if (typeof val1 !== "object" || val1 === null || typeof val2 !== "object" || val2 === null) {
+            return false;
+        }
+
+        return JSON.stringify(val1) === JSON.stringify(val2);
     }
 
     /**
@@ -88,12 +107,25 @@ export default class PlayerProxy {
         this.mprisProxy = proxies[0];
         this.mprisPlayerProxy = proxies[1];
         this.propertiesProxy = proxies[2];
+
+        const allProperties = await this.propertiesProxy.GetAllAsync(MPRIS_PLAYER_IFACE_NAME).catch(handleError);
+        if (allProperties != null) {
+            for (const [property, value] of Object.entries(allProperties[0])) {
+                this._cachedProperties.set(property, value.recursiveUnpack());
+            }
+        }
+
         this.propertiesProxy.connectSignal("PropertiesChanged", (proxy, senderName, [, changedProperties]) => {
             for (const [property, value] of Object.entries(changedProperties)) {
-                this.callOnChangedListeners(
-                    /** @type {KeysOf<PlayerProxyProperties>} */ (property),
-                    value.recursiveUnpack(),
-                );
+                const unpackedValue = value.recursiveUnpack();
+                const cachedValue = this._cachedProperties.get(property);
+
+                const hasChanged = !this._areValuesEqual(unpackedValue, cachedValue);
+
+                if (hasChanged) {
+                    this._cachedProperties.set(property, unpackedValue);
+                    this.callOnChangedListeners(/** @type {KeysOf<PlayerProxyProperties>} */ (property), unpackedValue);
+                }
             }
         });
         this.onChanged("Metadata", this.validatePlayer.bind(this));
