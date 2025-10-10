@@ -580,7 +580,7 @@ export default class PlayerProxy {
      * @returns {void}
      */
     onDestroy() {
-        if (this.pollSourceId != null) {
+        if (this.pollSourceId != null && this.pollSourceId > 0) {
             GLib.source_remove(this.pollSourceId);
             this.pollSourceId = null;
         }
