@@ -216,6 +216,7 @@ class PanelButton extends PanelMenu.Button {
     updateProxy(playerProxy) {
         if (this.isSamePlayer(playerProxy) === false) {
             debugLog(`Updating proxy to ${playerProxy.busName}`);
+            this.removeProxyListeners();
             this.playerProxy = playerProxy;
             this.updateWidgets(WidgetFlags.ALL);
             this.addProxyListeners();
@@ -891,7 +892,6 @@ class PanelButton extends PanelMenu.Button {
      * @returns {void}
      */
     addProxyListeners() {
-        this.removeProxyListeners();
         this.addProxyListener("Metadata", () => {
             this.updateWidgets(
                 WidgetFlags.PANEL_LABEL | WidgetFlags.MENU_IMAGE | WidgetFlags.MENU_LABELS | WidgetFlags.MENU_SLIDER,
