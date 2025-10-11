@@ -151,13 +151,22 @@ export default class PlayerProxy {
                         this.mprisPlayerProxy.set_cached_property("Position", positionVariant[0]);
                         this.mprisPlayerProxy.set_cached_property("Metadata", metadataVariant[0]);
                         this.callOnChangedListeners("Metadata", unpackedMetadata);
-                        GLib.source_remove(this.pollSourceId);
+                        if (this.pollSourceId != null && this.pollSourceId > 0) {
+                            GLib.source_remove(this.pollSourceId);
+                            this.pollSourceId = null;
+                        }
                     } else if (count <= 0) {
-                        GLib.source_remove(this.pollSourceId);
+                        if (this.pollSourceId != null && this.pollSourceId > 0) {
+                            GLib.source_remove(this.pollSourceId);
+                            this.pollSourceId = null;
+                        }
                     }
                 })
                 .catch(() => {
-                    GLib.source_remove(this.pollSourceId);
+                    if (this.pollSourceId != null && this.pollSourceId > 0) {
+                        GLib.source_remove(this.pollSourceId);
+                        this.pollSourceId = null;
+                    }
                 });
             return GLib.SOURCE_CONTINUE;
         });
@@ -577,8 +586,9 @@ export default class PlayerProxy {
      * @returns {void}
      */
     onDestroy() {
-        if (this.pollSourceId != null) {
+        if (this.pollSourceId != null && this.pollSourceId > 0) {
             GLib.source_remove(this.pollSourceId);
+            this.pollSourceId = null;
         }
     }
 }
