@@ -448,8 +448,8 @@ class PanelButton extends PanelMenu.Button {
         }
         if (this.menuPlayers.get_parent() == null) {
             this.menuBox.add_child(this.menuPlayers);
+            debugLog("Added menu players");
         }
-        debugLog("Added menu players");
     }
 
     /**
@@ -518,8 +518,8 @@ class PanelButton extends PanelMenu.Button {
         }
         if (this.menuImage.get_parent() == null) {
             this.menuBox.insert_child_above(this.menuImage, this.menuPlayers);
+            debugLog("Added menu image");
         }
-        debugLog("Added menu image");
     }
 
     /**
@@ -561,8 +561,8 @@ class PanelButton extends PanelMenu.Button {
         this.menuLabels.add_child(this.menuLabelSubtitle);
         if (this.menuLabels.get_parent() == null) {
             this.menuBox.add_child(this.menuLabels);
+            debugLog("Added menu labels");
         }
-        debugLog("Added menu labels");
     }
 
     /**
@@ -592,8 +592,8 @@ class PanelButton extends PanelMenu.Button {
         }
         if (this.menuSlider.get_parent() == null) {
             this.menuBox.insert_child_above(this.menuSlider, this.menuLabels);
+            debugLog("Added menu slider");
         }
-        debugLog("Added menu slider");
     }
 
     /**
@@ -654,8 +654,8 @@ class PanelButton extends PanelMenu.Button {
         }
         if (this.menuControls.get_parent() == null) {
             this.menuBox.add_child(this.menuControls);
+            debugLog("Added menu controls");
         }
-        debugLog("Added menu controls");
     }
 
     /**
@@ -704,9 +704,9 @@ class PanelButton extends PanelMenu.Button {
             this.buttonBox.replace_child(this.buttonIcon, icon);
         } else {
             this.buttonBox.insert_child_at_index(icon, index);
+            debugLog("Added icon");
         }
         this.buttonIcon = icon;
-        debugLog("Added icon");
     }
 
     /**
@@ -726,9 +726,9 @@ class PanelButton extends PanelMenu.Button {
             this.buttonBox.replace_child(this.buttonLabel, label);
         } else {
             this.buttonBox.insert_child_at_index(label, index);
+            debugLog("Added label");
         }
         this.buttonLabel = label;
-        debugLog("Added label");
     }
 
     /**
@@ -809,8 +809,8 @@ class PanelButton extends PanelMenu.Button {
         }
         if (this.buttonControls.get_parent() == null) {
             this.buttonBox.insert_child_at_index(this.buttonControls, index);
+            debugLog("Added controls");
         }
-        debugLog("Added controls");
     }
 
     /**
