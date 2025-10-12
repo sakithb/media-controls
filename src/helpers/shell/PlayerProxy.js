@@ -47,6 +47,11 @@ export default class PlayerProxy {
      * @type {number}
      */
     pollSourceId;
+    /**
+     * @private
+     * @type {Map<KeysOf<PlayerProxyProperties>, any>}
+     */
+    lastPropertyValues;
 
     /**
      * @public
@@ -67,6 +72,7 @@ export default class PlayerProxy {
         this.isPinned = false;
         this.isInvalid = true;
         this.changeListeners = new Map();
+        this.lastPropertyValues = new Map();
     }
 
     /**
@@ -199,6 +205,22 @@ export default class PlayerProxy {
      * @returns {void}
      */
     callOnChangedListeners(property, value) {
+        // Check if the value has actually changed
+        const lastValue = this.lastPropertyValues.get(property);
+        if (lastValue !== undefined) {
+            // For objects and arrays, do a deep comparison
+            if (typeof value === "object" && value !== null) {
+                if (JSON.stringify(lastValue) === JSON.stringify(value)) {
+                    return; // Value hasn't changed, skip calling listeners
+                }
+            } else if (lastValue === value) {
+                return; // Value hasn't changed, skip calling listeners
+            }
+        }
+
+        // Store the new value
+        this.lastPropertyValues.set(property, value);
+
         const listeners = this.changeListeners.get(property);
         if (listeners == null) {
             return;
