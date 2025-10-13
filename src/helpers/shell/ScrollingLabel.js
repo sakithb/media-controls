@@ -90,6 +90,9 @@ class ScrollingLabel extends St.ScrollView {
         this.initPaused = initPaused;
         this.labelWidth = width;
         this.direction = direction;
+        this.onShowChangedId = null;
+        this.onAdjustmentChangedId = null;
+        this.onMappedId = null;
         this.box = new St.BoxLayout({
             xExpand: true,
             yExpand: true,
@@ -123,12 +126,55 @@ class ScrollingLabel extends St.ScrollView {
     }
 
     /**
+     * @public
+     * @returns {void}
+     */
+    destroy() {
+        // Stop and remove any active transitions before destroying
+        if (this.transition) {
+            const adjustment = this.get_hadjustment();
+            if (adjustment) {
+                adjustment.remove_transition("scroll");
+            }
+            this.transition = null;
+        }
+
+        // Disconnect any pending signal handlers
+        if (this.onAdjustmentChangedId != null) {
+            const adjustment = this.get_hadjustment();
+            if (adjustment) {
+                adjustment.disconnect(this.onAdjustmentChangedId);
+            }
+            this.onAdjustmentChangedId = null;
+        }
+
+        if (this.onShowChangedId != null && this.label) {
+            this.label.disconnect(this.onShowChangedId);
+            this.onShowChangedId = null;
+        }
+
+        if (this.onMappedId != null && this.label) {
+            this.label.disconnect(this.onMappedId);
+            this.onMappedId = null;
+        }
+
+        super.destroy();
+    }
+
+    /**
      * @private
      * @returns {void}
      */
     initScrolling() {
         const adjustment = this.get_hadjustment();
         const origText = this.label.text + "     ";
+
+        // Clean up any existing handler first
+        if (this.onAdjustmentChangedId != null) {
+            adjustment.disconnect(this.onAdjustmentChangedId);
+            this.onAdjustmentChangedId = null;
+        }
+
         this.onAdjustmentChangedId = adjustment.connect(
             "changed",
             this.onAdjustmentChanged.bind(this, adjustment, origText),
@@ -147,6 +193,35 @@ class ScrollingLabel extends St.ScrollView {
         if (adjustment.upper <= adjustment.pageSize) {
             return;
         }
+
+        // Check if we're on stage before creating animation
+        if (!this.is_mapped() || this.get_stage() == null) {
+            // Wait until we're on stage before creating the animation
+            const mappedId = this.connect("notify::mapped", () => {
+                if (this.is_mapped() && this.get_stage() != null) {
+                    this.disconnect(mappedId);
+                    this.createScrollAnimation(adjustment, origText);
+                }
+            });
+            return;
+        }
+
+        this.createScrollAnimation(adjustment, origText);
+    }
+
+    /**
+     * @private
+     * @param {St.Adjustment} adjustment
+     * @param {string} origText
+     * @returns {void}
+     */
+    createScrollAnimation(adjustment, origText) {
+        // Remove any existing transition first
+        if (this.transition) {
+            adjustment.remove_transition("scroll");
+            this.transition = null;
+        }
+
         const initial = new GObject.Value();
         initial.init(GObject.TYPE_INT);
         initial.set_int(adjustment.value);
@@ -170,7 +245,13 @@ class ScrollingLabel extends St.ScrollView {
         });
         this.label.text = `${origText} ${origText}`;
         adjustment.add_transition("scroll", this.transition);
-        adjustment.disconnect(this.onAdjustmentChangedId);
+
+        // Disconnect the adjustment changed handler if it's still connected
+        if (this.onAdjustmentChangedId != null) {
+            adjustment.disconnect(this.onAdjustmentChangedId);
+            this.onAdjustmentChangedId = null;
+        }
+
         if (this.initPaused) {
             this.transition.pause();
         }
@@ -184,6 +265,38 @@ class ScrollingLabel extends St.ScrollView {
         if (this.label.visible === false) {
             return;
         }
+
+        // Check if widget is actually on stage before accessing width
+        if (!this.label.is_mapped() || this.label.get_stage() == null) {
+            // Defer the operation until the widget is actually on stage
+            this.onMappedId = this.label.connect("notify::mapped", () => {
+                if (this.label.is_mapped() && this.label.get_stage() != null) {
+                    this.processLabelWidth();
+                    if (this.onShowChangedId != null) {
+                        this.label.disconnect(this.onShowChangedId);
+                        this.onShowChangedId = null;
+                    }
+                    if (this.onMappedId != null) {
+                        this.label.disconnect(this.onMappedId);
+                        this.onMappedId = null;
+                    }
+                }
+            });
+            return;
+        }
+
+        this.processLabelWidth();
+        if (this.onShowChangedId != null) {
+            this.label.disconnect(this.onShowChangedId);
+            this.onShowChangedId = null;
+        }
+    }
+
+    /**
+     * @private
+     * @returns {void}
+     */
+    processLabelWidth() {
         const isLabelWider = this.label.width > this.labelWidth && this.labelWidth > 0;
         if (isLabelWider && this.isScrolling) {
             this.initScrolling();
@@ -195,7 +308,6 @@ class ScrollingLabel extends St.ScrollView {
         } else if (isLabelWider) {
             this.box.width = Math.min(this.label.width, this.labelWidth);
         }
-        this.label.disconnect(this.onShowChangedId);
     }
 
     /**
