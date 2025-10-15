@@ -130,6 +130,8 @@ class MenuSlider extends St.BoxLayout {
         this.transition.pause();
         this.slider.add_transition("progress", this.transition);
 
+        // Use regular destroy signal connection instead of vfunc_destroy
+        this.connect("destroy", this.onDestroy.bind(this));
         this.setDisabled(true);
     }
 
@@ -245,15 +247,20 @@ class MenuSlider extends St.BoxLayout {
      * @private
      * @returns {void}
      */
-    vfunc_destroy() {
+    onDestroy() {
         // Disconnect all signals connected with this as owner
-        this.slider.disconnectObject(this);
-        this.transition.disconnectObject(this);
+        if (this.slider && typeof this.slider.disconnectObject === "function") {
+            this.slider.disconnectObject(this);
+        }
+
+        if (this.transition && typeof this.transition.disconnectObject === "function") {
+            this.transition.disconnectObject(this);
+        }
 
         // Clean up resources
-        this.slider.remove_transition("progress");
-
-        super.vfunc_destroy();
+        if (this.slider && typeof this.slider.remove_transition === "function") {
+            this.slider.remove_transition("progress");
+        }
     }
 }
 const GMenuSlider = GObject.registerClass(
