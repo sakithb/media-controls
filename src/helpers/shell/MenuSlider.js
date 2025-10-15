@@ -69,26 +69,34 @@ class MenuSlider extends St.BoxLayout {
             xExpand: true,
             xAlign: Clutter.ActorAlign.END,
         });
-        this.slider.connect("drag-begin", () => {
-            if (this.transition.is_playing() && this.disabled === false) {
-                this.transition.pause();
-                this.dragPaused = true;
-            }
-            return Clutter.EVENT_PROPAGATE;
-        });
-        this.slider.connect("drag-end", () => {
-            const ms = this.slider.value * this.transition.duration;
-            this.emit("seeked", Math.floor(ms * 1000));
-            if (this.dragPaused && this.get_stage() != null) {
-                this.transition.advance(ms);
-                this.transition.start();
-                this.dragPaused = false;
-            }
-            return Clutter.EVENT_PROPAGATE;
-        });
-        this.slider.connect("scroll-event", () => {
-            return Clutter.EVENT_STOP;
-        });
+
+        this.slider.connectObject(
+            "drag-begin",
+            () => {
+                if (this.transition.is_playing() && this.disabled === false) {
+                    this.transition.pause();
+                    this.dragPaused = true;
+                }
+                return Clutter.EVENT_PROPAGATE;
+            },
+            "drag-end",
+            () => {
+                const ms = this.slider.value * this.transition.duration;
+                this.emit("seeked", Math.floor(ms * 1000));
+                if (this.dragPaused && this.get_stage() != null) {
+                    this.transition.advance(ms);
+                    this.transition.start();
+                    this.dragPaused = false;
+                }
+                return Clutter.EVENT_PROPAGATE;
+            },
+            "scroll-event",
+            () => {
+                return Clutter.EVENT_STOP;
+            },
+            this,
+        );
+
         const initial = new GObject.Value();
         initial.init(GObject.TYPE_INT);
         initial.set_int(0);
@@ -105,9 +113,15 @@ class MenuSlider extends St.BoxLayout {
                 final: final,
             }),
         });
-        this.transition.connect("marker-reached", (_, name) => {
-            this.elapsedLabel.text = name;
-        });
+
+        this.transition.connectObject(
+            "marker-reached",
+            (_, name) => {
+                this.elapsedLabel.text = name;
+            },
+            this,
+        );
+
         this.textBox.add_child(this.elapsedLabel);
         this.textBox.add_child(this.durationLabel);
         this.add_child(this.textBox);
@@ -115,6 +129,8 @@ class MenuSlider extends St.BoxLayout {
         // Pause transition before adding to prevent auto-start
         this.transition.pause();
         this.slider.add_transition("progress", this.transition);
+
+        // Use regular destroy signal connection instead of vfunc_destroy
         this.connect("destroy", this.onDestroy.bind(this));
         this.setDisabled(true);
     }
@@ -226,14 +242,25 @@ class MenuSlider extends St.BoxLayout {
             this.transition.add_marker_at_time(elapsedText, ms / this.rate);
         }
     }
+
     /**
      * @private
      * @returns {void}
      */
     onDestroy() {
-        this.slider.remove_transition("progress");
-        this.slider.destroy();
-        this.textBox.destroy();
+        // Disconnect all signals connected with this as owner
+        if (this.slider && typeof this.slider.disconnectObject === "function") {
+            this.slider.disconnectObject(this);
+        }
+
+        if (this.transition && typeof this.transition.disconnectObject === "function") {
+            this.transition.disconnectObject(this);
+        }
+
+        // Clean up resources
+        if (this.slider && typeof this.slider.remove_transition === "function") {
+            this.slider.remove_transition("progress");
+        }
     }
 }
 const GMenuSlider = GObject.registerClass(
