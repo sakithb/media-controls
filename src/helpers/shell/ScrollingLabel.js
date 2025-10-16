@@ -29,12 +29,12 @@ class ScrollingLabel extends St.ScrollView {
     box;
     /**
      * @private
-     * @type {number}
+     * @type {number | null}
      */
     onAdjustmentChangedId;
     /**
      * @private
-     * @type {number}
+     * @type {number | null}
      */
     onShowChangedId;
 
@@ -68,6 +68,11 @@ class ScrollingLabel extends St.ScrollView {
      * @type {Clutter.PropertyTransition}
      */
     transition;
+    /**
+     * @private
+     * @type {string}
+     */
+    originalText;
 
     /**
      * @param {ScrollingLabelParams} params
@@ -90,6 +95,9 @@ class ScrollingLabel extends St.ScrollView {
         this.initPaused = initPaused;
         this.labelWidth = width;
         this.direction = direction;
+        this.originalText = text;
+        this.onAdjustmentChangedId = null;
+        this.onShowChangedId = null;
         this.box = new St.BoxLayout({
             xExpand: true,
             yExpand: true,
@@ -120,6 +128,45 @@ class ScrollingLabel extends St.ScrollView {
     resumeScrolling() {
         this.transition?.start();
         this.initPaused = false;
+    }
+
+    /**
+     * @public
+     * @param {string} newText
+     * @returns {void}
+     */
+    updateText(newText) {
+        if (this.originalText === newText) {
+            return; // No change needed
+        }
+
+        // Update the original text reference
+        this.originalText = newText;
+
+        // Stop current scrolling animation and reset state
+        if (this.transition) {
+            const adjustment = this.get_hadjustment();
+            adjustment.remove_transition("scroll");
+            this.transition = null;
+        }
+
+        // Disconnect adjustment listener if it exists
+        if (this.onAdjustmentChangedId != null) {
+            const adjustment = this.get_hadjustment();
+            adjustment.disconnect(this.onAdjustmentChangedId);
+            this.onAdjustmentChangedId = null;
+        }
+
+        // Update text and reset ellipsize mode
+        this.label.text = newText;
+        this.label.clutterText.ellipsize = Pango.EllipsizeMode.END;
+
+        // Force a layout update to get correct dimensions
+        this.label.queue_relayout();
+
+        // Always trigger resize logic after text change, regardless of visibility
+        // This ensures the component resizes properly when text changes
+        this.onShowChanged();
     }
 
     /**
@@ -171,6 +218,7 @@ class ScrollingLabel extends St.ScrollView {
         this.label.text = `${origText} ${origText}`;
         adjustment.add_transition("scroll", this.transition);
         adjustment.disconnect(this.onAdjustmentChangedId);
+        this.onAdjustmentChangedId = null;
         if (this.initPaused) {
             this.transition.pause();
         }
@@ -194,8 +242,17 @@ class ScrollingLabel extends St.ScrollView {
             this.label.xExpand = true;
         } else if (isLabelWider) {
             this.box.width = Math.min(this.label.width, this.labelWidth);
+        } else if (!this.isFixedWidth) {
+            // Reset box width when text becomes shorter to allow proper resizing
+            this.box.width = -1; // Let it auto-size
         }
-        this.label.disconnect(this.onShowChangedId);
+
+        // Only disconnect if the signal was connected from the show event
+        // Don't disconnect when called manually from updateText
+        if (this.onShowChangedId != null) {
+            this.label.disconnect(this.onShowChangedId);
+            this.onShowChangedId = null;
+        }
     }
 
     /**

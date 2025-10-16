@@ -614,6 +614,11 @@ export default class MediaControls extends Extension {
                 } else if (this.panelBtn?.isSamePlayer(playerProxy)) {
                     chosenPlayer = playerProxy;
                 }
+            } else {
+                // Both are playing - prefer the currently displayed player if it's one of them
+                if (this.panelBtn?.isSamePlayer(playerProxy)) {
+                    chosenPlayer = playerProxy;
+                }
             }
         }
 

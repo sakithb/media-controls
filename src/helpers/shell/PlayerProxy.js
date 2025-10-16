@@ -552,7 +552,8 @@ export default class PlayerProxy {
             id = 0;
             this.changeListeners.set(property, [callback]);
         } else {
-            id = listeners.push(callback);
+            id = listeners.length;
+            listeners.push(callback);
         }
         return id;
     }
