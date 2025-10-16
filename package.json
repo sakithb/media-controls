@@ -1,7 +1,28 @@
 {
   "type": "module",
   "scripts": {
-    "format": "prettier --write ."
+    "format": "prettier --write .",
+    "clean": "rm -rf dist",
+    "prebuild": "pnpm run clean && mkdir -p dist/temp dist/builds && rm -rf dist/temp/*",
+    "build": "pnpm run prebuild && pnpm run copy-sources && pnpm run compile-resources && pnpm run pack-extension",
+    "build:release": "pnpm run prebuild && pnpm run copy-sources && pnpm run strip-debug && pnpm run compile-resources && pnpm run pack-extension",
+    "copy-sources": "cp -r $(find src -mindepth 1 -maxdepth 1 -not -name 'assets') dist/temp/.",
+    "compile-resources": "glib-compile-resources assets/org.gnome.shell.extensions.mediacontrols.gresource.xml --target=dist/temp/org.gnome.shell.extensions.mediacontrols.gresource --sourcedir=assets",
+    "strip-debug": "sed 's/const DEBUG = true;/const DEBUG = false;/g' ./dist/temp/utils/common.js > ./dist/temp/utils/common.js.tmp && mv ./dist/temp/utils/common.js.tmp ./dist/temp/utils/common.js",
+    "pack-extension": "cd dist/temp && gnome-extensions pack -f -o ../builds/ --schema=\"$PWD/../../assets/org.gnome.shell.extensions.mediacontrols.gschema.xml\" --podir=\"$PWD/../../assets/locale\" --extra-source=helpers --extra-source=types --extra-source=org.gnome.shell.extensions.mediacontrols.gresource --extra-source=utils .",
+    "install": "gnome-extensions install --force ./dist/builds/mediacontrols@cliffniff.github.com.shell-extension.zip",
+    "uninstall": "gnome-extensions uninstall mediacontrols@cliffniff.github.com",
+    "enable": "gnome-extensions enable mediacontrols@cliffniff.github.com",
+    "disable": "gnome-extensions disable mediacontrols@cliffniff.github.com",
+    "prefs": "gnome-extensions prefs mediacontrols@cliffniff.github.com",
+    "watch": "dconf watch /org/gnome/shell/extensions/mediacontrols/",
+    "debug": "pnpm run build && pnpm run install && pnpm run enable",
+    "reload": "pnpm run build && pnpm run install && pnpm run reload-shell",
+    "reload-shell": "if [ \"$XDG_SESSION_TYPE\" = \"x11\" ]; then pkill -HUP gnome-shell; else echo 'Reloading Wayland session is not supported yet.'; fi",
+    "translations:extract": "touch assets/locale/mediacontrols@cliffniff.github.com.pot && find . -type f -iname '*.ui' -o -iname '*.js' -not -path './node_modules/*' | xargs xgettext --from-code=UTF-8 --add-comments --join-existing --keyword=_ --keyword=C_:1c,2 --language=Javascript --output=assets/locale/mediacontrols@cliffniff.github.com.pot",
+    "translations:merge": "for pofile in assets/locale/*.po; do echo \"Updating: $pofile\"; msgmerge -U \"$pofile\" \"assets/locale/mediacontrols@cliffniff.github.com.pot\"; done && rm -f assets/locale/*.po~",
+    "translations": "pnpm run translations:extract && pnpm run translations:merge && echo 'Translations updated'",
+    "reinstall": "pnpm run disable && pnpm run uninstall && pnpm run build && pnpm run install"
   },
   "devDependencies": {
     "@girs/adw-1": "1.9.0-4.0.0-beta.38",
