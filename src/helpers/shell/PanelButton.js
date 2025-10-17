@@ -362,6 +362,9 @@ class PanelButton extends PanelMenu.Button {
             });
             const pinClickAction = new Clutter.ClickGesture();
             pinClickAction.set_n_clicks_required(1);
+            if (pinClickAction.set_recognize_on_press) {
+                pinClickAction.set_recognize_on_press(true);
+            }
             pinClickAction.connect("recognize", () => {
                 if (this.playerProxy.isPlayerPinned()) {
                     this.playerProxy.unpinPlayer();
@@ -433,6 +436,9 @@ class PanelButton extends PanelMenu.Button {
                     icon.add_style_class_name("popup-menu-player-icons-icon-active");
                 } else {
                     const clickAction = new Clutter.ClickGesture();
+                    if (clickAction.set_recognize_on_press) {
+                        clickAction.set_recognize_on_press(true);
+                    }
                     clickAction.connect("recognize", () => {
                         this.updateProxy(player);
                         return Clutter.EVENT_STOP;
@@ -682,6 +688,9 @@ class PanelButton extends PanelMenu.Button {
         });
         const clickGesture = new Clutter.ClickGesture();
         clickGesture.set_n_clicks_required(1)
+        if (clickGesture.set_recognize_on_press) {
+            clickGesture.set_recognize_on_press(true);
+        }
         clickGesture.connect("recognize", () => {
             onClick();
             return Clutter.EVENT_STOP;
@@ -846,6 +855,9 @@ class PanelButton extends PanelMenu.Button {
         });
         const clickAction = new Clutter.ClickGesture();
         clickAction.set_n_clicks_required(1);
+        if (clickAction.set_recognize_on_press) {
+            clickAction.set_recognize_on_press(true);
+        }
         clickAction.connect("recognize", () => {
             onClick();
             return Clutter.EVENT_STOP;
