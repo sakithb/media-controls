@@ -687,7 +687,7 @@ class PanelButton extends PanelMenu.Button {
             ...options.menuProps.options,
         });
         const clickGesture = new Clutter.ClickGesture();
-        clickGesture.set_n_clicks_required(1)
+        clickGesture.set_n_clicks_required(1);
         if (clickGesture.set_recognize_on_press) {
             clickGesture.set_recognize_on_press(true);
         }
