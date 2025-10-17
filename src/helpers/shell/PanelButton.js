@@ -360,7 +360,12 @@ class PanelButton extends PanelMenu.Button {
                 xExpand: true,
                 reactive: true,
             });
-            this.menuPlayersTextBoxPin.connect("button-press-event", () => {
+            const pinClickAction = new Clutter.ClickGesture();
+            pinClickAction.set_n_clicks_required(1);
+            if (pinClickAction.set_recognize_on_press) {
+                pinClickAction.set_recognize_on_press(true);
+            }
+            pinClickAction.connect("recognize", () => {
                 if (this.playerProxy.isPlayerPinned()) {
                     this.playerProxy.unpinPlayer();
                 } else {
@@ -368,6 +373,7 @@ class PanelButton extends PanelMenu.Button {
                 }
                 return Clutter.EVENT_STOP;
             });
+            this.menuPlayersTextBoxPin.add_action(pinClickAction);
         }
         const players = this.extension.getPlayers();
         if (players.length > 1 && this.menuPlayerIcons == null) {
@@ -429,10 +435,15 @@ class PanelButton extends PanelMenu.Button {
                 if (isSamePlayer) {
                     icon.add_style_class_name("popup-menu-player-icons-icon-active");
                 } else {
-                    icon.connect("button-press-event", () => {
+                    const clickAction = new Clutter.ClickGesture();
+                    if (clickAction.set_recognize_on_press) {
+                        clickAction.set_recognize_on_press(true);
+                    }
+                    clickAction.connect("recognize", () => {
                         this.updateProxy(player);
                         return Clutter.EVENT_STOP;
                     });
+                    icon.add_action(clickAction);
                 }
                 this.menuPlayerIcons.add_child(icon);
             }
@@ -675,10 +686,16 @@ class PanelButton extends PanelMenu.Button {
             reactive,
             ...options.menuProps.options,
         });
-        icon.connect("button-press-event", () => {
+        const clickGesture = new Clutter.ClickGesture();
+        clickGesture.set_n_clicks_required(1);
+        if (clickGesture.set_recognize_on_press) {
+            clickGesture.set_recognize_on_press(true);
+        }
+        clickGesture.connect("recognize", () => {
             onClick();
             return Clutter.EVENT_STOP;
         });
+        icon.add_action(clickGesture);
         const oldIcon = find_child_by_name(this.menuControls, options.name);
         if (oldIcon?.get_parent() === this.menuControls) {
             this.menuControls.replace_child(oldIcon, icon);
@@ -738,6 +755,7 @@ class PanelButton extends PanelMenu.Button {
      * @returns {void}
      */
     addButtonControls(index, flags) {
+        debugLog("addButtonControls called");
         if (this.buttonControls == null) {
             this.buttonControls = new St.BoxLayout({
                 name: "controls-box",
@@ -821,6 +839,13 @@ class PanelButton extends PanelMenu.Button {
      * @returns {void}
      */
     addButtonControlIcon(options, onClick, reactive) {
+        debugLog(options);
+
+        if (options.panelProps === undefined) {
+            log(`Media Controls: panelProps is undefined for ${options.name}`);
+            return;
+        }
+
         const icon = new St.Icon({
             name: options.name,
             iconName: options.iconName,
@@ -828,14 +853,21 @@ class PanelButton extends PanelMenu.Button {
             opacity: reactive ? 255 : 160,
             reactive,
         });
-        icon.connect("button-press-event", () => {
+        const clickAction = new Clutter.ClickGesture();
+        clickAction.set_n_clicks_required(1);
+        if (clickAction.set_recognize_on_press) {
+            clickAction.set_recognize_on_press(true);
+        }
+        clickAction.connect("recognize", () => {
             onClick();
             return Clutter.EVENT_STOP;
         });
+        icon.add_action(clickAction);
         const oldIcon = find_child_by_name(this.buttonControls, options.name);
         if (oldIcon != null) {
             this.buttonControls.replace_child(oldIcon, icon);
         } else {
+            debugLog(options);
             this.buttonControls.insert_child_at_index(icon, options.panelProps.index);
         }
     }
