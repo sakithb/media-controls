@@ -42,13 +42,53 @@ Install from source
 
 ---
 
+## Development
+
+This project uses pnpm for package management and script execution. Make sure you have pnpm installed.
+
+### Available Scripts
+
+**Building:**
+- `pnpm build` - Build the extension
+- `pnpm build:release` - Build release version (strips debug code)
+- `pnpm clean` - Clean build directory
+
+**Development:**
+- `pnpm debug` - Build, install, and enable extension for debugging
+- `pnpm reload` - Build, install, and reload extension (X11 only)
+- `pnpm reinstall` - Disable, uninstall, build, and install (common dev workflow)
+
+**Extension Management:**
+- `pnpm run install` - Install the extension
+- `pnpm run uninstall` - Uninstall the extension
+- `pnpm run enable` - Enable the extension
+- `pnpm run disable` - Disable the extension
+- `pnpm run prefs` - Open extension preferences
+
+**Development Tools:**
+- `pnpm watch` - Watch for setting changes
+- `pnpm translations` - Update translation files
+- `pnpm format` - Format code with Prettier
+
+### Quick Start for Contributors
+
+1. Clone the repository
+2. Install dependencies: `pnpm install`
+3. Build and install: `pnpm reinstall`
+4. Enable the extension: `pnpm run enable`
+5. Open preferences to test: `pnpm run prefs`
+
+For active development, use `pnpm reload` (X11) or `pnpm debug` (Wayland) to test changes.
+
+---
+
 ## Get involved
 
 Any type of contribution is appreciated! If you have any suggestions for new features feel free to open a new issue.
 
 If you are interested in translating, download the [po file](https://github.com/sakithb/media-controls/blob/main/assets/locale/mediacontrols%40cliffniff.github.com.pot) and translate it. Then open a pull request with the translated file. You can use [Gtranslator](https://flathub.org/apps/org.gnome.Gtranslator) or [Poedit](https://flathub.org/apps/net.poedit.Poedit) to translate.
 
-If you are interested in contributing code. There are no specific guidelines for contributing. Just make sure you follow the coding style of the project. To update the translation files run `./mediacontrols.sh translations` in the extensions directory after your changes are done. This will update the files in the locale folder.
+If you are interested in contributing code. There are no specific guidelines for contributing. Just make sure you follow the coding style of the project. To update the translation files run `pnpm run translations` in the extensions directory after your changes are done. This will update the files in the locale folder.
 
 <a href="https://github.com/sakithb/media-controls/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=sakithb/media-controls" />
