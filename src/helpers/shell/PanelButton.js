@@ -1031,11 +1031,16 @@ class PanelButton extends PanelMenu.Button {
                 this.doMouseAction(this.extension.mouseActionDouble);
                 return Clutter.EVENT_STOP;
             }
-            this.doubleTapSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
+            if (this.extension.mouseActionDouble !== MouseActions.NONE) {
+                this.doubleTapSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
+                    this.doubleTapSourceId = null;
+                    this.doMouseAction(action);
+                    return GLib.SOURCE_REMOVE;
+                });
+            } else {
                 this.doubleTapSourceId = null;
-                this.doMouseAction(this.extension.mouseActionLeft);
-                return GLib.SOURCE_REMOVE;
-            });
+                this.doMouseAction(action);
+            }
             return Clutter.EVENT_STOP;
         });
 
@@ -1056,11 +1061,16 @@ class PanelButton extends PanelMenu.Button {
                     this.doMouseAction(this.extension.mouseActionDouble);
                     return Clutter.EVENT_STOP;
                 }
-                this.doubleTapSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
+                if (this.extension.mouseActionDouble !== MouseActions.NONE) {
+                    this.doubleTapSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
+                        this.doubleTapSourceId = null;
+                        this.doMouseAction(this.extension.mouseActionLeft);
+                        return GLib.SOURCE_REMOVE;
+                    });
+                } else {
                     this.doubleTapSourceId = null;
                     this.doMouseAction(this.extension.mouseActionLeft);
-                    return GLib.SOURCE_REMOVE;
-                });
+                }
             }
             return Clutter.EVENT_STOP;
         });
