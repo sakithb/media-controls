@@ -139,26 +139,50 @@ export default class PlayerProxy {
         const timeout = 5000;
         const interval = 250;
         let count = Math.ceil(timeout / interval);
+
         this.pollSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, interval, () => {
             count--;
+
+            // If source was already removed by a previous Promise handler, stop polling
+            if (this.pollSourceId == null) {
+                return GLib.SOURCE_REMOVE;
+            }
+
             const positionPromise = this.propertiesProxy.GetAsync(MPRIS_PLAYER_IFACE_NAME, "Position");
             const metadataPromise = this.propertiesProxy.GetAsync(MPRIS_PLAYER_IFACE_NAME, "Metadata");
             Promise.all([positionPromise, metadataPromise])
                 .then(([positionVariant, metadataVariant]) => {
+                    // Check again if source was removed by another handler
+                    if (this.pollSourceId == null) {
+                        return;
+                    }
+
                     const unpackedPosition = positionVariant[0].recursiveUnpack();
                     const unpackedMetadata = metadataVariant[0].recursiveUnpack();
                     if (unpackedPosition > 0 && unpackedMetadata["mpris:length"] > 0) {
                         this.mprisPlayerProxy.set_cached_property("Position", positionVariant[0]);
                         this.mprisPlayerProxy.set_cached_property("Metadata", metadataVariant[0]);
                         this.callOnChangedListeners("Metadata", unpackedMetadata);
+                        // Remove the source and clear the ID
                         GLib.source_remove(this.pollSourceId);
-                    } else if (count <= 0) {
-                        GLib.source_remove(this.pollSourceId);
+                        this.pollSourceId = null;
                     }
                 })
                 .catch(() => {
+                    // Check again if source was removed by another handler
+                    if (this.pollSourceId == null) {
+                        return;
+                    }
+                    // Remove the source and clear the ID on error
                     GLib.source_remove(this.pollSourceId);
+                    this.pollSourceId = null;
                 });
+
+            // Check count and remove source if timeout reached
+            if (count <= 0) {
+                this.pollSourceId = null;
+                return GLib.SOURCE_REMOVE;
+            }
             return GLib.SOURCE_CONTINUE;
         });
     }
