@@ -55,25 +55,48 @@ function find_child_by_name(parent, name) {
  * @param {() => void} handler
  */
 function add_tap_or_click_handler(actor, handler) {
+    // Ensure the actor can receive events so our handlers/tap actions run and
+    // can stop propagation before the parent PanelMenu toggles.
+    actor.reactive = true;
     try {
         if (typeof Clutter.TapAction === 'function') {
             const tapAction = new Clutter.TapAction();
             tapAction.connect('tap', handler);
             actor.add_action(tapAction);
+            // Connect a release-event that only stops propagation. The tap
+            // action will call the handler; this prevents double-calling while
+            // ensuring the parent won't see the release and open the menu.
+            try {
+                const pressId = actor.connect('button-press-event', () => Clutter.EVENT_STOP);
+                const releaseId = actor.connect('button-release-event', () => Clutter.EVENT_STOP);
+                // store ids on the TapAction object so callers can clean up if needed
+                tapAction._pressHandlerId = pressId;
+                tapAction._releaseHandlerId = releaseId;
+            } catch (e) {
+                // ignore if connect fails
+            }
             return tapAction;
         }
     } catch (e) {
         // fall back below
     }
-    // Fallback: make actor react to button press events
-    actor.reactive = true;
-    const id = actor.connect('button-release-event', (actor, event) => {
+
+    // Fallback: attach a release-event handler that calls the handler and
+    // stops propagation so clicking icons triggers their action without
+    // opening the parent menu.
+    // Also attach a press-event that stops propagation so the parent
+    // doesn't see the press and open the menu. On release we run the
+    // handler and stop propagation as well.
+    const pressId = actor.connect('button-press-event', () => Clutter.EVENT_STOP);
+    const releaseId = actor.connect('button-release-event', (actor, event) => {
         try {
             handler();
         } catch (__) {}
         return Clutter.EVENT_STOP;
     });
-    return { fallbackId: id };
+    // If TapAction wasn't available, return the fallback id so callers can
+    // optionally disconnect it later.
+    return { fallbackPressId: pressId, fallbackReleaseId: releaseId };
 }
 
 /** @extends PanelMenu.Button */
