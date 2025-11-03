@@ -92,7 +92,7 @@ export default class PlayerProxy {
             for (const [property, value] of Object.entries(changedProperties)) {
                 this.callOnChangedListeners(
                     /** @type {KeysOf<PlayerProxyProperties>} */ (property),
-                    value.recursiveUnpack(),
+                    /** @type {any} */ (value.recursiveUnpack()),
                 );
             }
         });
@@ -159,9 +159,11 @@ export default class PlayerProxy {
 
                     const unpackedPosition = positionVariant[0].recursiveUnpack();
                     const unpackedMetadata = metadataVariant[0].recursiveUnpack();
+                    // @ts-expect-error Type checking for dynamic properties at runtime
                     if (unpackedPosition > 0 && unpackedMetadata["mpris:length"] > 0) {
                         this.mprisPlayerProxy.set_cached_property("Position", positionVariant[0]);
                         this.mprisPlayerProxy.set_cached_property("Metadata", metadataVariant[0]);
+                        // @ts-expect-error Type assertion for unpacked metadata
                         this.callOnChangedListeners("Metadata", unpackedMetadata);
                         // Remove the source and clear the ID
                         GLib.source_remove(this.pollSourceId);

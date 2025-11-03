@@ -5,6 +5,7 @@
   "url": "https://github.com/cliffniff/media-controls",
   "settings-schema": "org.gnome.shell.extensions.mediacontrols",
   "gettext-domain": "mediacontrols@cliffniff.github.com",
-  "version-name": "2.3.0",
+  "version": 231,
+  "version-name": "2.3.1",
   "shell-version": ["48", "49"]
 }

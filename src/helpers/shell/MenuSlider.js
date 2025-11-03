@@ -70,6 +70,7 @@ class MenuSlider extends St.BoxLayout {
             xAlign: Clutter.ActorAlign.END,
         });
 
+        // @ts-expect-error connectObject is available at runtime but not in type definitions
         this.slider.connectObject(
             "drag-begin",
             () => {
@@ -114,6 +115,7 @@ class MenuSlider extends St.BoxLayout {
             }),
         });
 
+        // @ts-expect-error connectObject is available at runtime but not in type definitions
         this.transition.connectObject(
             "marker-reached",
             (_, name) => {
@@ -249,11 +251,15 @@ class MenuSlider extends St.BoxLayout {
      */
     onDestroy() {
         // Disconnect all signals connected with this as owner
+        // @ts-expect-error disconnectObject is available at runtime but not in type definitions
         if (this.slider && typeof this.slider.disconnectObject === "function") {
+            // @ts-expect-error disconnectObject is available at runtime but not in type definitions
             this.slider.disconnectObject(this);
         }
 
+        // @ts-expect-error disconnectObject is available at runtime but not in type definitions
         if (this.transition && typeof this.transition.disconnectObject === "function") {
+            // @ts-expect-error disconnectObject is available at runtime but not in type definitions
             this.transition.disconnectObject(this);
         }
 

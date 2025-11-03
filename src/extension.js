@@ -474,15 +474,6 @@ export default class MediaControls extends Extension {
         const mprisInterface = mprisNodeInfo.lookup_interface(MPRIS_IFACE_NAME);
         const mprisPlayerInterface = mprisNodeInfo.lookup_interface(MPRIS_PLAYER_IFACE_NAME);
         const propertiesInterface = mprisNodeInfo.lookup_interface(DBUS_PROPERTIES_IFACE_NAME);
-        // @ts-expect-error
-        const mprisInterfaceString = new GLib.String("");
-        mprisInterface.generate_xml(4, mprisInterfaceString);
-        // @ts-expect-error
-        const mprisPlayerInterfaceString = new GLib.String("");
-        mprisPlayerInterface.generate_xml(4, mprisPlayerInterfaceString);
-        // @ts-expect-error
-        const propertiesInterfaceString = new GLib.String("");
-        propertiesInterface.generate_xml(4, propertiesInterfaceString);
         this.mprisIfaceInfo = mprisInterface;
         this.mprisPlayerIfaceInfo = mprisPlayerInterface;
         this.propertiesIfaceInfo = propertiesInterface;
@@ -618,6 +609,7 @@ export default class MediaControls extends Extension {
         }
 
         // Check if the chosen player has actually changed
+        // @ts-expect-error Accessing private property for comparison
         const currentBusName = this.panelBtn?.playerProxy?.busName;
         const chosenBusName = chosenPlayer?.busName;
 
@@ -659,27 +651,75 @@ export default class MediaControls extends Extension {
      * @returns {void}
      */
     updateMediaNotificationVisiblity(shouldReset = false) {
+        const mediaSource = this.getCalendarMediaSource();
+        if (mediaSource == null) {
+            // Log an error if we can't find the media source, as this is the part that breaks
+            if (!shouldReset && this.hideMediaNotification) {
+                errorLog("Could not find calendar media source. Hiding notifications will fail.");
+            }
+            return;
+        }
+
         if (this.mediaSectionAddFunc && (shouldReset || this.hideMediaNotification === false)) {
             Mpris.MprisSource.prototype._addPlayer = this.mediaSectionAddFunc;
             this.mediaSectionAddFunc = null;
-            // @ts-expect-error
-            Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._onProxyReady();
-        } else {
+            mediaSource._onProxyReady?.();
+            return;
+        }
+
+        if (this.mediaSectionAddFunc == null && this.hideMediaNotification) {
             this.mediaSectionAddFunc = Mpris.MprisSource.prototype._addPlayer;
             Mpris.MprisSource.prototype._addPlayer = function () {};
-            // @ts-expect-error
-            if (Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._players != null) {
-                // @ts-expect-error
-                for (const player of Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._players.values()) {
-                    // @ts-expect-error
-                    Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._onNameOwnerChanged(
-                        null,
-                        null,
-                        [player._busName, player._busName, ""],
-                    );
+
+            const players = mediaSource._players;
+            if (players != null) {
+                for (const player of players.values()) {
+                    // @ts-expect-error Private property access required for cleanup
+                    mediaSource._onNameOwnerChanged?.(null, null, [player._busName, player._busName, ""]);
                 }
             }
         }
+    }
+
+    /**
+     * @private
+     * @returns {Mpris.MprisSource | null}
+     */
+    getCalendarMediaSource() {
+        // --- THIS IS THE UPDATED FUNCTION ---
+        // This function is the most likely to break between GNOME versions.
+        // The path to the media player display in the calendar menu can change.
+        const dateMenu = Main.panel?.statusArea?.dateMenu;
+        if (!dateMenu) {
+            return null;
+        }
+
+        // This is the property that holds the message list.
+        // It's private, so it could be renamed.
+        const messageList = dateMenu._messageList;
+        if (!messageList) {
+            return null;
+        }
+
+        // In GNOME 48 and older, the media source was inside a '_messageView'.
+        // We check this path first for compatibility.
+        const messageView = messageList._messageView;
+        if (messageView?._mediaSource) {
+            return messageView._mediaSource;
+        }
+
+        // In newer versions, GNOME might simplify this structure.
+        // This checks for a potential future path where the media source
+        // is directly on the message list.
+        // @ts-expect-error Accessing private property for future GNOME version compatibility
+        if (messageList._mediaSource) {
+            // @ts-expect-error Accessing private property for future GNOME version compatibility
+            return messageList._mediaSource;
+        }
+
+        // If neither path works, the structure has changed in GNOME 49
+        // in a way this code doesn't anticipate.
+        return null;
     }
 
     /**
