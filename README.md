@@ -1,5 +1,3 @@
-> ⚠️ MAINTAINERS NEEDED! See #222
-
 ## What does this extension do?
 
 Show controls and information of the currently playing media in the panel.
