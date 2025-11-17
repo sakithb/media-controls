@@ -151,7 +151,7 @@ class PanelButton extends PanelMenu.Button {
 
     /**
      * @private
-     * @type {number}
+     * @type {number | null}
      */
     doubleTapSourceId;
     /**
@@ -169,6 +169,7 @@ class PanelButton extends PanelMenu.Button {
         this.playerProxy = playerProxy;
         this.extension = extension;
         this.changeListenerIds = new Map();
+        this.doubleTapSourceId = null;
         this.updateWidgets(WidgetFlags.ALL);
         this.addProxyListeners();
         this.initActions();
@@ -179,33 +180,13 @@ class PanelButton extends PanelMenu.Button {
 
     /**
      * Override vfunc_event to handle button clicks before parent class
-     * @param {Clutter.Event} event
+     * @param {Clutter.Event} _event
      * @returns {boolean}
      */
-    vfunc_event(event) {
-        if (event.type() === Clutter.EventType.BUTTON_PRESS) {
-            const button = event.get_button();
-
-            // Determine which action will be triggered
-            let action;
-            if (button === Clutter.BUTTON_PRIMARY) {
-                action = this.extension.mouseActionLeft;
-            } else if (button === Clutter.BUTTON_MIDDLE) {
-                action = this.extension.mouseActionMiddle;
-            } else if (button === Clutter.BUTTON_SECONDARY) {
-                action = this.extension.mouseActionRight;
-            }
-
-            // For middle and right clicks with custom actions, handle immediately
-            if (button === Clutter.BUTTON_MIDDLE || button === Clutter.BUTTON_SECONDARY) {
-                if (action !== MouseActions.SHOW_POPUP_MENU && action !== MouseActions.NONE) {
-                    this.doMouseAction(action);
-                    return Clutter.EVENT_STOP;
-                }
-            }
-        }
-
-        return super.vfunc_event(event);
+    vfunc_event(_event) {
+        // Do not call super.vfunc_event() because it will handle the event
+        // and possibly open the menu
+        return Clutter.EVENT_PROPAGATE;
     }
 
     /**
@@ -1009,82 +990,69 @@ class PanelButton extends PanelMenu.Button {
      * @returns {void}
      */
     initActions() {
-        this.connect("button-press-event", (_, event) => {
+        this.connect("button-press-event", (_, /** @type {Clutter.Event} */ event) => {
             const button = event.get_button();
 
-            // Middle and right clicks are handled in vfunc_event, only handle left click here
-            if (button !== Clutter.BUTTON_PRIMARY) {
-                return Clutter.EVENT_PROPAGATE;
-            }
-
-            const action = this.extension.mouseActionLeft;
-
-            // If action is SHOW_POPUP_MENU or NONE, let the default behavior handle it
-            if (action === MouseActions.SHOW_POPUP_MENU || action === MouseActions.NONE) {
-                return Clutter.EVENT_PROPAGATE;
-            }
-
-            // Left click uses double-tap detection
-            if (this.doubleTapSourceId != null) {
-                GLib.source_remove(this.doubleTapSourceId);
-                this.doubleTapSourceId = null;
-                this.doMouseAction(this.extension.mouseActionDouble);
+            if (button === Clutter.BUTTON_PRIMARY) {
+                this.handleLeftClick();
                 return Clutter.EVENT_STOP;
             }
-            if (this.extension.mouseActionDouble !== MouseActions.NONE) {
-                this.doubleTapSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
-                    this.doubleTapSourceId = null;
-                    this.doMouseAction(action);
-                    return GLib.SOURCE_REMOVE;
-                });
-            } else {
-                this.doubleTapSourceId = null;
-                this.doMouseAction(action);
+
+            let action;
+            if (button === Clutter.BUTTON_MIDDLE) {
+                action = this.extension.mouseActionMiddle;
+            } else if (button === Clutter.BUTTON_SECONDARY) {
+                action = this.extension.mouseActionRight;
             }
+
+            if (action === MouseActions.NONE) {
+                return Clutter.EVENT_PROPAGATE;
+            }
+
+            this.doMouseAction(action);
             return Clutter.EVENT_STOP;
         });
 
-        this.connect("touch-event", (_, event) => {
+        this.connect("touch-event", (_, /** @type {Clutter.Event} */ event) => {
             const eventType = event.type();
             if (eventType === Clutter.EventType.TOUCH_BEGIN) {
-                // If left action is SHOW_POPUP_MENU or NONE, let default behavior handle it
-                if (
-                    this.extension.mouseActionLeft === MouseActions.SHOW_POPUP_MENU ||
-                    this.extension.mouseActionLeft === MouseActions.NONE
-                ) {
-                    return Clutter.EVENT_PROPAGATE;
-                }
-
-                if (this.doubleTapSourceId != null) {
-                    GLib.source_remove(this.doubleTapSourceId);
-                    this.doubleTapSourceId = null;
-                    this.doMouseAction(this.extension.mouseActionDouble);
-                    return Clutter.EVENT_STOP;
-                }
-                if (this.extension.mouseActionDouble !== MouseActions.NONE) {
-                    this.doubleTapSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
-                        this.doubleTapSourceId = null;
-                        this.doMouseAction(this.extension.mouseActionLeft);
-                        return GLib.SOURCE_REMOVE;
-                    });
-                } else {
-                    this.doubleTapSourceId = null;
-                    this.doMouseAction(this.extension.mouseActionLeft);
-                }
+                this.handleLeftClick();
+                return Clutter.EVENT_STOP;
             }
-            return Clutter.EVENT_STOP;
+
+            return Clutter.EVENT_PROPAGATE;
         });
 
-        this.connect("scroll-event", (_, event) => {
+        this.connect("scroll-event", (_, /** @type {Clutter.Event} */ event) => {
             const direction = event.get_scroll_direction();
             if (direction === Clutter.ScrollDirection.UP) {
                 this.doMouseAction(this.extension.mouseActionScrollUp);
-            }
-            if (direction === Clutter.ScrollDirection.DOWN) {
+            } else if (direction === Clutter.ScrollDirection.DOWN) {
                 this.doMouseAction(this.extension.mouseActionScrollDown);
             }
             return Clutter.EVENT_STOP;
         });
+    }
+
+    handleLeftClick() {
+        // Left click uses double-tap detection, but only if there is a
+        // double click action set by the user
+        if (this.extension.mouseActionDouble === MouseActions.NONE) {
+            this.doMouseAction(this.extension.mouseActionLeft);
+            return;
+        }
+
+        if (this.doubleTapSourceId === null) {
+            this.doubleTapSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 250, () => {
+                this.doubleTapSourceId = null;
+                this.doMouseAction(this.extension.mouseActionLeft);
+                return GLib.SOURCE_REMOVE;
+            });
+        } else {
+            GLib.source_remove(this.doubleTapSourceId);
+            this.doubleTapSourceId = null;
+            this.doMouseAction(this.extension.mouseActionDouble);
+        }
     }
 
     /**
