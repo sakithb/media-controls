@@ -1,0 +1,404 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-06-30 18:44+0200\n"
+"PO-Revision-Date: 2025-11-20 13:19+0200\n"
+"Last-Translator: Omer I.S. <omeritzicschwartz@gmail.com>\n"
+"Language-Team: \n"
+"Language: he\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: Poedit 3.8\n"
+
+#: assets/ui/app-chooser.ui:6
+msgid "Select app to blacklist"
+msgstr "הוספת יישום לרשימת ההתעלמות"
+
+#: assets/ui/app-chooser.ui:19 src/prefs.js:232 dist/temp/prefs.js:232
+msgid "Cancel"
+msgstr "ביטול"
+
+#: assets/ui/app-chooser.ui:24
+msgid "Select"
+msgstr "בחירה"
+
+#: assets/ui/blacklisted-players.ui:6
+msgid "Blacklist players"
+msgstr "נגנים ברשימת ההתעלמות"
+
+#: assets/ui/blacklisted-players.ui:7
+msgid "Blacklisted players will be ignored by the extension."
+msgstr "ההרחבה תתעלם מנגנים שנוספו לרשימת ההתעלמות."
+
+#: assets/ui/blacklisted-players.ui:17
+msgid "Add"
+msgstr "הוספה"
+
+#: assets/ui/element-list.ui:6
+msgid "Elements"
+msgstr "אלמנטים"
+
+#: assets/ui/element-list.ui:15 assets/ui/prefs.ui:160
+msgid "Player icon"
+msgstr "סמל נגן"
+
+#: assets/ui/element-list.ui:26 assets/ui/label-list.ui:6
+msgid "Label"
+msgstr "תווית"
+
+#: assets/ui/element-list.ui:37 assets/ui/prefs.ui:119
+msgid "Player controls"
+msgstr "פקדי נגן"
+
+#: assets/ui/label-list.ui:18
+msgid "Add item"
+msgstr "הוספת פריט"
+
+#: assets/ui/label-list.ui:25
+msgid "Add custom text"
+msgstr "הוספת טקסט מותאם אישית"
+
+#: assets/ui/prefs.ui:6
+msgid "General"
+msgstr "כללי"
+
+#: assets/ui/prefs.ui:10
+msgid "Common"
+msgstr "הגדרות כלליות"
+
+#: assets/ui/prefs.ui:13
+msgid "Labels"
+msgstr "תוויות"
+
+#: assets/ui/prefs.ui:14
+msgid "Customize the labels in the panel and the popup menu"
+msgstr "להתאים אישית את התוויות בלוח ובתפריט הנפתח"
+
+#: assets/ui/prefs.ui:18
+msgid "Width"
+msgstr "רוחב"
+
+#: assets/ui/prefs.ui:19
+msgid "0 to take all available space"
+msgstr "הגדרה בתור 0 תגרום לניצול כל השטח הפנוי בלוח"
+
+#: assets/ui/prefs.ui:32
+msgid "Fixed width"
+msgstr "רוחב קבוע"
+
+#: assets/ui/prefs.ui:33
+msgid "Use the specified width even when they are smaller than the width"
+msgstr "להשתמש ברוחב שצוין גם כאשר לרצועה נחוץ פחות רוחב"
+
+#: assets/ui/prefs.ui:38
+msgid "Scroll labels"
+msgstr "גלילת תוויות"
+
+#: assets/ui/prefs.ui:39
+msgid "Scroll the labels when they are wider than the width"
+msgstr "לגלול את התוויות כאשר הן רחבות יותר מאשר הרוחב שצוין"
+
+#: assets/ui/prefs.ui:46
+msgid "Hide the media notification"
+msgstr "הסתרת ההתרעה על ניגון מדיה"
+
+#: assets/ui/prefs.ui:47
+msgid "Hide the media notifications in the notification list"
+msgstr "הסתרת ההתרעות על ניגון מדיה מרשימת ההתרעות"
+
+#: assets/ui/prefs.ui:52
+#, fuzzy
+msgid "Show the track slider"
+msgstr "הצגת כפתור לניגון הרצועה הבאה"
+
+#: assets/ui/prefs.ui:53
+#, fuzzy
+msgid "Show the track slider in popup"
+msgstr "הצגת כפתור לניגון הרצועה הקודמת"
+
+#: assets/ui/prefs.ui:60
+msgid "Information"
+msgstr "מידע"
+
+#: assets/ui/prefs.ui:63
+msgid "Homepage"
+msgstr "עמוד הבית"
+
+#: assets/ui/prefs.ui:77
+msgid "Release notes"
+msgstr "הערות שחרור גרסה"
+
+#: assets/ui/prefs.ui:91 assets/ui/prefs.ui:95
+msgid "Report an issue"
+msgstr "דיווח על בעיה"
+
+#: assets/ui/prefs.ui:108
+msgid "Panel"
+msgstr "לוח"
+
+#: assets/ui/prefs.ui:114
+msgid "Show label"
+msgstr "הצגת תווית"
+
+#: assets/ui/prefs.ui:123
+msgid "Show player controls"
+msgstr "הצגת פקדי נג"
+
+#: assets/ui/prefs.ui:128
+msgid "Show play/pause button"
+msgstr "הצגת כפתור נגינה/השהיה"
+
+#: assets/ui/prefs.ui:134
+msgid "Show next track button"
+msgstr "הצגת כפתור לניגון הרצועה הבאה"
+
+#: assets/ui/prefs.ui:140
+msgid "Show previous track button"
+msgstr "הצגת כפתור לניגון הרצועה הקודמת"
+
+#: assets/ui/prefs.ui:146
+#, fuzzy
+msgid "Show seek forward button"
+msgstr "הצגת כפתור לניגון הרצועה הקודמת"
+
+#: assets/ui/prefs.ui:152
+#, fuzzy
+msgid "Show seek back button"
+msgstr "הצגת כפתור לניגון הרצועה הבאה"
+
+#: assets/ui/prefs.ui:164
+msgid "Show player icon"
+msgstr "הצגת סמל נגן"
+
+#: assets/ui/prefs.ui:169
+msgid "Colored player icon"
+msgstr "סמל נגן צבעוני"
+
+#: assets/ui/prefs.ui:179
+msgid "Positions"
+msgstr "מיקומים"
+
+#: assets/ui/prefs.ui:183
+msgid "Extension"
+msgstr "הרחבה"
+
+#: assets/ui/prefs.ui:186
+msgid "Position"
+msgstr "מיקום"
+
+#: assets/ui/prefs.ui:187
+msgid "Position of the extension in the panel"
+msgstr "מיקום ההרחבה בלוח"
+
+#: assets/ui/prefs.ui:191
+msgid "Left"
+msgstr "ימין"
+
+#: assets/ui/prefs.ui:192
+msgid "Center"
+msgstr "מרכז"
+
+#: assets/ui/prefs.ui:193
+msgid "Right"
+msgstr "שמאל"
+
+#: assets/ui/prefs.ui:201
+msgid "Index"
+msgstr "אינדקס"
+
+#: assets/ui/prefs.ui:202
+msgid "Index of the extension"
+msgstr "אינדקס ההרחבה"
+
+#: assets/ui/prefs.ui:223
+msgid "Shortcuts"
+msgstr "קיצורי מקשים"
+
+#: assets/ui/prefs.ui:229 assets/ui/prefs.ui:373
+msgid "Show popup menu"
+msgstr "הצגת התפריט הנפתח"
+
+#: assets/ui/prefs.ui:230
+msgid "Shortcut to toggle the popup menu"
+msgstr "קיצור להצגת/הסתרת התפריט הנפתח"
+
+#: assets/ui/prefs.ui:234 assets/ui/prefs.ui:324
+msgid "Set shortcut"
+msgstr "הגדרת קיצור מקשים"
+
+#: assets/ui/prefs.ui:245
+msgid "Mouse actions"
+msgstr "פעולות עכבר"
+
+#: assets/ui/prefs.ui:248
+msgid "Left click / Tap"
+msgstr "לחיצה שמאלית או הקשה"
+
+#: assets/ui/prefs.ui:254
+msgid "Middle click"
+msgstr "לחיצה אמצעית"
+
+#: assets/ui/prefs.ui:260
+msgid "Right click"
+msgstr "לחיצה ימנית"
+
+#: assets/ui/prefs.ui:266
+msgid "Double click / Double tap"
+msgstr "לחיצה שמאלית / הקשה"
+
+#: assets/ui/prefs.ui:272
+msgid "Scroll up / Swipe right"
+msgstr "גלילה למעלה / החלקה ימינה"
+
+#: assets/ui/prefs.ui:278
+msgid "Scroll down / Swipe left"
+msgstr "גלילה למטה / החלקה שמאלה"
+
+#: assets/ui/prefs.ui:286
+msgid "Other"
+msgstr "שונות"
+
+#: assets/ui/prefs.ui:290
+msgid "Cache"
+msgstr "מטמון"
+
+#: assets/ui/prefs.ui:291
+msgid ""
+"This extension cache album art to improve performance. You can clear the "
+"cache here."
+msgstr ""
+"הרחבה זו אוגרת את עטיפות האלבומים במטמון לטובת שיפור הביצועים. כאן אפשר "
+"לנקות את המטמון."
+
+#: assets/ui/prefs.ui:294
+msgid "Cache album art"
+msgstr "ניקוי מטמון עטיפות האלבומים"
+
+#: assets/ui/prefs.ui:299 src/prefs.js:233 dist/temp/prefs.js:233
+msgid "Clear cache"
+msgstr "ניקוי המטמון"
+
+#: assets/ui/prefs.ui:309
+msgid "Clear"
+msgstr "ניקוי"
+
+#: assets/ui/prefs.ui:341
+msgid ""
+"<small>Press escape to cancel.\n"
+"Press enter to set the shortcut.\n"
+"Press backspace to reset.</small>"
+msgstr ""
+"<small>יש ללחוץ על מקש Esc לביטול.\r\n"
+"יש ללחוץ על Enter בשביל לאשר את קביעת קיצור המקשים.\r\n"
+"יש ללחוץ על מקש המחיקה (Backspace) בשביל לאפס.</small>"
+
+#: assets/ui/prefs.ui:350
+msgid "Press shortcut"
+msgstr "נא ללחוץ על קיצור מקשים"
+
+#: assets/ui/prefs.ui:363
+msgid "None"
+msgstr "ללא"
+
+#: assets/ui/prefs.ui:364
+msgid "Play/Pause"
+msgstr "נגינה/השהיה"
+
+#: assets/ui/prefs.ui:365
+msgid "Play"
+msgstr "נגינה"
+
+#: assets/ui/prefs.ui:366
+msgid "Pause"
+msgstr "השהיה"
+
+#: assets/ui/prefs.ui:367
+msgid "Next track"
+msgstr "הרצועה הבאה"
+
+#: assets/ui/prefs.ui:368
+msgid "Previous track"
+msgstr "הרצועה הקודמת"
+
+#: assets/ui/prefs.ui:369
+msgid "Volume up"
+msgstr "הגברת עוצמת הקול"
+
+#: assets/ui/prefs.ui:370
+msgid "Volume down"
+msgstr "הנמכת עוצמת הקול"
+
+#: assets/ui/prefs.ui:371
+msgid "Toggle loop"
+msgstr "הפעלת/כיבוי ניגון בלולאה"
+
+#: assets/ui/prefs.ui:372
+msgid "Toggle shuffle"
+msgstr "הפעלת/כיבוי ניגון בסדר אקראי"
+
+#: assets/ui/prefs.ui:374
+msgid "Raise player"
+msgstr "הגבהת הנגן"
+
+#: assets/ui/prefs.ui:375
+msgid "Quit player"
+msgstr "יציאה מהנגן"
+
+#: assets/ui/prefs.ui:376
+msgid "Open preferences"
+msgstr "פתיחת ההעדפות"
+
+#: src/prefs.js:231 dist/temp/prefs.js:231
+msgid "Are you sure you want to clear the cache?"
+msgstr "לנקות את המטמון?"
+
+#: src/prefs.js:238 src/prefs.js:245 dist/temp/prefs.js:238
+#: dist/temp/prefs.js:245
+#, javascript-format
+msgid "Cache size: %s"
+msgstr "גודל מטמון: %s"
+
+#: src/prefs.js:342 dist/temp/prefs.js:342
+msgid "Cache cleared successfully!"
+msgstr "המטמון נוקה בהצלחה!"
+
+#: src/prefs.js:344 dist/temp/prefs.js:344
+msgid "Failed to clear cache!"
+msgstr "ניקוי המטמון נכשל!"
+
+#: src/helpers/shell/PanelButton.js:361
+#: dist/temp/helpers/shell/PanelButton.js:361
+msgid "Unknown player"
+msgstr "נגן לא ידוע"
+
+#: src/helpers/shell/PanelButton.js:510 src/helpers/shell/PanelButton.js:825
+#: dist/temp/helpers/shell/PanelButton.js:510
+#: dist/temp/helpers/shell/PanelButton.js:825
+msgid "Unknown artist"
+msgstr "אומן לא ידוע"
+
+#: src/helpers/shell/PanelButton.js:827
+#: dist/temp/helpers/shell/PanelButton.js:827
+msgid "Unknown album"
+msgstr "אלבום לא ידוע"
+
+#: src/helpers/prefs/BlacklistedPlayers.js:72
+#: dist/temp/helpers/prefs/BlacklistedPlayers.js:72
+msgid ""
+"<span size='x-large' weight='bold' color='#ccc'>No players are blacklisted</"
+"span>"
+msgstr ""
+"<span size='x-large' weight='bold' color='#ccc'>אין נגנים ברשימת ההתעלמות</"
+"span>"
+
+#: src/helpers/prefs/LabelList.js:121 dist/temp/helpers/prefs/LabelList.js:121
+msgid "Custom text"
+msgstr "טקסט מותאם אישית"
