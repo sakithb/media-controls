@@ -90,6 +90,7 @@ export default class PlayerProxy {
         this.propertiesProxy = proxies[2];
         this.propertiesProxy.connectSignal("PropertiesChanged", (proxy, senderName, [, changedProperties]) => {
             for (const [property, value] of Object.entries(changedProperties)) {
+                this.mprisPlayerProxy.set_cached_property(property, value);
                 this.callOnChangedListeners(
                     /** @type {KeysOf<PlayerProxyProperties>} */ (property),
                     value.recursiveUnpack(),
