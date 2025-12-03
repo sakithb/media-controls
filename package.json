@@ -2,29 +2,28 @@
   "type": "module",
   "scripts": {
     "format": "prettier --write .",
+    "debug": "dbus-run-session gnome-shell --devkit --wayland",
 
-    "clean": "rm -rf dist",
-    "dirs": "mkdir -p dist/temp dist/builds",
-    "copy": "rsync -a --exclude='assets' src/ dist/temp/",
-    "resources": "glib-compile-resources assets/org.gnome.shell.extensions.mediacontrols.gresource.xml --target=dist/temp/org.gnome.shell.extensions.mediacontrols.gresource --sourcedir=assets",
-    "prepare": "pnpm clean && pnpm dirs && pnpm copy && pnpm resources",
-    "strip": "sed -i 's/const DEBUG = true;/const DEBUG = false;/' dist/temp/utils/common.js",
-    "pack": "cd dist/temp && gnome-extensions pack -f -o ../builds/ --schema='../../assets/org.gnome.shell.extensions.mediacontrols.gschema.xml' --podir='../../assets/locale' --extra-source=helpers --extra-source=types --extra-source=org.gnome.shell.extensions.mediacontrols.gresource --extra-source=utils .",
+    "build:clean": "rm -rf dist",
+    "build:dirs": "mkdir -p dist/temp dist/builds",
+    "build:copy": "rsync -a --exclude='assets' src/ dist/temp/",
+    "build:resources": "glib-compile-resources assets/org.gnome.shell.extensions.mediacontrols.gresource.xml --target=dist/temp/org.gnome.shell.extensions.mediacontrols.gresource --sourcedir=assets",
+    "build:prepare": "pnpm run clean && pnpm run dirs && pnpm run copy && pnpm run resources",
+    "build:strip": "sed -i 's/const DEBUG = true;/const DEBUG = false;/' dist/temp/utils/common.js",
+    "build:pack": "cd dist/temp && gnome-extensions pack -f -o ../builds/ --schema='../../assets/org.gnome.shell.extensions.mediacontrols.gschema.xml' --podir='../../assets/locale' --extra-source=helpers --extra-source=types --extra-source=org.gnome.shell.extensions.mediacontrols.gresource --extra-source=utils .",
 
-    "build": "pnpm prepare && pnpm pack",
-    "release": "pnpm prepare && pnpm strip && pnpm pack",
+    "build": "pnpm run prepare && pnpm run pack",
+    "release": "pnpm run prepare && pnpm run strip && pnpm run pack",
 
-    "install": "gnome-extensions install --force dist/builds/mediacontrols@cliffniff.github.com.shell-extension.zip",
-    "uninstall": "gnome-extensions uninstall mediacontrols@cliffniff.github.com",
-    "enable": "gnome-extensions enable mediacontrols@cliffniff.github.com",
-    "disable": "gnome-extensions disable mediacontrols@cliffniff.github.com",
-    "prefs": "gnome-extensions prefs mediacontrols@cliffniff.github.com",
-
-    "debug": "MUTTER_DEBUG_DUMMY_MODE_SPECS=1366x768 dbus-run-session -- gnome-shell --unsafe-mode --nested --wayland --no-x11",
+    "ext:install": "gnome-extensions install --force dist/builds/mediacontrols@cliffniff.github.com.shell-extension.zip",
+    "ext:uninstall": "gnome-extensions uninstall mediacontrols@cliffniff.github.com",
+    "ext:enable": "gnome-extensions enable mediacontrols@cliffniff.github.com",
+    "ext:disable": "gnome-extensions disable mediacontrols@cliffniff.github.com",
+    "ext:prefs": "gnome-extensions prefs mediacontrols@cliffniff.github.com",
 
     "translations:extract": "xgettext --from-code=UTF-8 --add-comments --join-existing --keyword=_ --keyword=C_:1c,2 --language=Javascript --output=assets/locale/mediacontrols@cliffniff.github.com.pot $(find . -type f \\( -name '*.ui' -o -name '*.js' \\) -not -path './node_modules/*')",
     "translations:merge": "for po in assets/locale/*.po; do msgmerge -U \"$po\" assets/locale/mediacontrols@cliffniff.github.com.pot; done && rm -f assets/locale/*.po~",
-    "translations": "pnpm translations:extract && pnpm translations:merge"
+    "translations": "pnpm run translations:extract && pnpm run translations:merge"
   },
   "devDependencies": {
     "@girs/adw-1": "1.9.0-4.0.0-beta.38",

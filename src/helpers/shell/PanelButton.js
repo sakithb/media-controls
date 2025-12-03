@@ -602,8 +602,8 @@ class PanelButton extends PanelMenu.Button {
                 this.playerProxy.loopStatus === LoopStatus.NONE
                     ? ControlIconOptions.LOOP_NONE
                     : this.playerProxy.loopStatus === LoopStatus.TRACK
-                      ? ControlIconOptions.LOOP_TRACK
-                      : ControlIconOptions.LOOP_PLAYLIST,
+                        ? ControlIconOptions.LOOP_TRACK
+                        : ControlIconOptions.LOOP_PLAYLIST,
                 this.playerProxy.loopStatus != null,
                 this.playerProxy.toggleLoop.bind(this.playerProxy),
             );
@@ -823,7 +823,7 @@ class PanelButton extends PanelMenu.Button {
         debugLog(options);
 
         if (options.panelProps === undefined) {
-            log(`Media Controls: panelProps is undefined for ${options.name}`);
+            debugLog(`Media Controls: panelProps is undefined for ${options.name}`);
             return;
         }
 
