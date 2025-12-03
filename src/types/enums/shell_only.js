@@ -60,7 +60,7 @@ export const ControlIconOptions = {
         },
     },
     PLAY: {
-        name: "playpause",
+        name: "playpausestop",
         iconName: "media-playback-start-symbolic",
         menuProps: {
             index: 2,
@@ -74,8 +74,22 @@ export const ControlIconOptions = {
         },
     },
     PAUSE: {
-        name: "playpause",
+        name: "playpausestop",
         iconName: "media-playback-pause-symbolic",
+        menuProps: {
+            index: 2,
+            options: {
+                xExpand: false,
+                xAlign: Clutter.ActorAlign.CENTER,
+            },
+        },
+        panelProps: {
+            index: 2,
+        },
+    },
+    STOP: {
+        name: "playpausestop",
+        iconName: "media-playback-stop-symbolic",
         menuProps: {
             index: 2,
             options: {

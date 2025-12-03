@@ -623,11 +623,19 @@ class PanelButton extends PanelMenu.Button {
                     this.playerProxy.play.bind(this.playerProxy),
                 );
             } else {
-                this.addMenuControlIcon(
-                    ControlIconOptions.PAUSE,
-                    this.playerProxy.canPause && this.playerProxy.canControl,
-                    this.playerProxy.pause.bind(this.playerProxy),
-                );
+                if (this.playerProxy.canControl && !this.playerProxy.canPause) {
+                    this.addMenuControlIcon(
+                        ControlIconOptions.STOP,
+                        this.playerProxy.canControl,
+                        this.playerProxy.stop.bind(this.playerProxy),
+                    );
+                } else {
+                    this.addMenuControlIcon(
+                        ControlIconOptions.PAUSE,
+                        this.playerProxy.canPause && this.playerProxy.canControl,
+                        this.playerProxy.pause.bind(this.playerProxy),
+                    );
+                }
             }
         }
         if (flags & WidgetFlags.MENU_CONTROLS_NEXT) {
@@ -774,11 +782,19 @@ class PanelButton extends PanelMenu.Button {
                         this.playerProxy.canPlay && this.playerProxy.canControl,
                     );
                 } else {
-                    this.addButtonControlIcon(
-                        ControlIconOptions.PAUSE,
-                        this.playerProxy.pause.bind(this.playerProxy),
-                        this.playerProxy.canPause && this.playerProxy.canControl,
-                    );
+                    if (this.playerProxy.canControl && !this.playerProxy.canPause) {
+                        this.addButtonControlIcon(
+                            ControlIconOptions.STOP,
+                            this.playerProxy.stop.bind(this.playerProxy),
+                            this.playerProxy.canControl,
+                        );
+                    } else {
+                        this.addButtonControlIcon(
+                            ControlIconOptions.PAUSE,
+                            this.playerProxy.pause.bind(this.playerProxy),
+                            this.playerProxy.canPause && this.playerProxy.canControl,
+                        );
+                    }
                 }
             } else {
                 this.removeButtonControlIcon(ControlIconOptions.PLAY);
