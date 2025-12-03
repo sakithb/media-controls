@@ -48,25 +48,18 @@ This project uses pnpm for package management and script execution. Make sure yo
 
 **Building:**
 - `pnpm build` - Build the extension
-- `pnpm build:release` - Build release version (strips debug code)
-- `pnpm clean` - Clean build directory
+- `pnpm release` - Build release version (strips debug code)
 
 **Development:**
-- `pnpm debug` - Build, install, and enable extension for debugging
-- `pnpm reload` - Build, install, and reload extension (X11 only)
-- `pnpm reinstall` - Disable, uninstall, build, and install (common dev workflow)
+- `pnpm debug` - Run a nested gnome session for debugging
+- `pnpm translations` - Update translation files
 
 **Extension Management:**
-- `pnpm run install` - Install the extension
-- `pnpm run uninstall` - Uninstall the extension
-- `pnpm run enable` - Enable the extension
-- `pnpm run disable` - Disable the extension
-- `pnpm run prefs` - Open extension preferences
-
-**Development Tools:**
-- `pnpm watch` - Watch for setting changes
-- `pnpm translations` - Update translation files
-- `pnpm format` - Format code with Prettier
+- `pnpm run ext:install` - Install the extension
+- `pnpm run ext:uninstall` - Uninstall the extension
+- `pnpm run ext:enable` - Enable the extension
+- `pnpm run ext:disable` - Disable the extension
+- `pnpm run ext:prefs` - Open extension preferences
 
 ### Quick Start for Contributors
 

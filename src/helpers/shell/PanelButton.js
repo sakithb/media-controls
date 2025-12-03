@@ -481,7 +481,7 @@ class PanelButton extends PanelMenu.Button {
                 }
             }
         }
-        const width = this.extension.labelWidth > 0 ? this.getMenuItemWidth() : this.menuLabels.width;
+        const width = this.getMenuItemWidth();
         if (stream != null) {
             /** @type {Promise<GdkPixbuf.Pixbuf>} */
             const pixbufPromise = /** @type {any} */ (GdkPixbuf.Pixbuf.new_from_stream_async(stream, null));
@@ -530,7 +530,7 @@ class PanelButton extends PanelMenu.Button {
         if (this.menuLabelSubtitle != null) {
             this.menuLabels.remove_child(this.menuLabelSubtitle);
         }
-        const width = this.extension.labelWidth > 0 ? this.getMenuItemWidth() : 0;
+        const width = this.getMenuItemWidth();
         this.menuLabelTitle = new ScrollingLabel({
             text: this.playerProxy.metadata["xesam:title"],
             isScrolling: this.extension.scrollLabels,

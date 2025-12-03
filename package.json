@@ -8,12 +8,12 @@
     "build:dirs": "mkdir -p dist/temp dist/builds",
     "build:copy": "rsync -a --exclude='assets' src/ dist/temp/",
     "build:resources": "glib-compile-resources assets/org.gnome.shell.extensions.mediacontrols.gresource.xml --target=dist/temp/org.gnome.shell.extensions.mediacontrols.gresource --sourcedir=assets",
-    "build:prepare": "pnpm run clean && pnpm run dirs && pnpm run copy && pnpm run resources",
+    "build:prepare": "pnpm run build:clean && pnpm run build:dirs && pnpm run build:copy && pnpm run build:resources",
     "build:strip": "sed -i 's/const DEBUG = true;/const DEBUG = false;/' dist/temp/utils/common.js",
     "build:pack": "cd dist/temp && gnome-extensions pack -f -o ../builds/ --schema='../../assets/org.gnome.shell.extensions.mediacontrols.gschema.xml' --podir='../../assets/locale' --extra-source=helpers --extra-source=types --extra-source=org.gnome.shell.extensions.mediacontrols.gresource --extra-source=utils .",
 
-    "build": "pnpm run prepare && pnpm run pack",
-    "release": "pnpm run prepare && pnpm run strip && pnpm run pack",
+    "build": "pnpm run build:prepare && pnpm run build:pack",
+    "release": "pnpm run build:prepare && pnpm run build:strip && pnpm run build:pack",
 
     "ext:install": "gnome-extensions install --force dist/builds/mediacontrols@cliffniff.github.com.shell-extension.zip",
     "ext:uninstall": "gnome-extensions uninstall mediacontrols@cliffniff.github.com",
