@@ -39,6 +39,20 @@
                 <property name="subtitle" translatable="yes">Scroll the labels when they are wider than the width</property>
               </object>
             </child>
+            <child>
+              <object class="AdwSpinRow" id="sr-general-scroll-speed">
+                <property name="title" translatable="yes">Scroll speed</property>
+                <property name="subtitle" translatable="yes">Higher values scroll faster</property>
+                <property name="adjustment">
+                  <object class="GtkAdjustment">
+                    <property name="lower">1</property>
+                    <property name="upper">10</property>
+                    <property name="step-increment">1</property>
+                    <property name="value">4</property>
+                  </object>
+                </property>
+              </object>
+            </child>
           </object>
         </child>
         <child>

@@ -536,6 +536,7 @@ class PanelButton extends PanelMenu.Button {
             isScrolling: this.extension.scrollLabels,
             initPaused: this.playerProxy.playbackStatus !== PlaybackStatus.PLAYING,
             width,
+            scrollSpeed: this.extension.scrollSpeed,
         });
         const artistText = this.playerProxy.metadata["xesam:artist"]?.join(", ") || _("Unknown artist");
         const albumText = this.playerProxy.metadata["xesam:album"] || "";
@@ -545,6 +546,7 @@ class PanelButton extends PanelMenu.Button {
             initPaused: this.playerProxy.playbackStatus !== PlaybackStatus.PLAYING,
             direction: Clutter.TimelineDirection.BACKWARD,
             width,
+            scrollSpeed: this.extension.scrollSpeed,
         });
         this.menuLabelTitle.label.add_style_class_name("popup-menu-label-title");
         this.menuLabelTitle.box.xAlign = Clutter.ActorAlign.CENTER;
@@ -727,6 +729,7 @@ class PanelButton extends PanelMenu.Button {
             isFixedWidth: this.extension.isFixedLabelWidth,
             isScrolling: this.extension.scrollLabels,
             initPaused: this.playerProxy.playbackStatus !== PlaybackStatus.PLAYING,
+            scrollSpeed: this.extension.scrollSpeed,
         });
         if (this.buttonLabel?.get_parent() === this.buttonBox) {
             this.buttonBox.replace_child(this.buttonLabel, label);

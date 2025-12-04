@@ -4,7 +4,6 @@ import Pango from "gi://Pango";
 import St from "gi://St";
 import { debugLog } from "../../utils/common.js";
 
-const SCROLL_ANIMATION_SPEED = 0.04;
 
 /**
  * @typedef {Object} ScrollingLabelParams
@@ -14,6 +13,7 @@ const SCROLL_ANIMATION_SPEED = 0.04;
  * @property {boolean} [isFixedWidth]
  * @property {boolean} isScrolling
  * @property {boolean} initPaused
+ * @property {number} [scrollSpeed]
  */
 
 /** @extends St.ScrollView */
@@ -69,6 +69,11 @@ class ScrollingLabel extends St.ScrollView {
      * @type {Clutter.PropertyTransition}
      */
     transition;
+    /**
+     * @private
+     * @type {number}
+     */
+    scrollSpeed;
 
     /**
      * @param {ScrollingLabelParams} params
@@ -82,7 +87,7 @@ class ScrollingLabel extends St.ScrollView {
             direction: Clutter.TimelineDirection.FORWARD,
             isFixedWidth: true,
         };
-        const { text, width, direction, isFixedWidth, isScrolling, initPaused } = {
+        const { text, width, direction, isFixedWidth, isScrolling, initPaused, scrollSpeed } = {
             ...defaultParams,
             ...params,
         };
@@ -94,6 +99,7 @@ class ScrollingLabel extends St.ScrollView {
         this.onShowChangedId = null;
         this.onAdjustmentChangedId = null;
         this.onMappedId = null;
+        this.scrollSpeed = scrollSpeed / 100;
         this.box = new St.BoxLayout({
             xExpand: true,
             yExpand: true,
@@ -229,7 +235,7 @@ class ScrollingLabel extends St.ScrollView {
         const final = new GObject.Value();
         final.init(GObject.TYPE_INT);
         final.set_int(adjustment.upper);
-        const duration = adjustment.upper / SCROLL_ANIMATION_SPEED;
+        const duration = adjustment.upper / this.scrollSpeed;
         const pspec = adjustment.find_property("value");
         const interval = new Clutter.Interval({
             valueType: pspec.value_type,

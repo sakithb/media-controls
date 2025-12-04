@@ -31,6 +31,9 @@
     <key name="scroll-labels" type="b">
       <default>true</default>
     </key>
+    <key name="scroll-speed" type="u">
+      <default>4</default>
+    </key>
     <key name="hide-media-notification" type="b">
       <default>true</default>
     </key>

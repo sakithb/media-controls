@@ -51,6 +51,12 @@ export default class MediaControls extends Extension {
 
     /**
      * @public
+     * @type {number}
+     */
+    scrollSpeed;
+
+    /**
+     * @public
      * @type {boolean}
      */
     hideMediaNotification;
@@ -310,6 +316,7 @@ export default class MediaControls extends Extension {
         this.labelWidth = this.settings.get_uint("label-width");
         this.isFixedLabelWidth = this.settings.get_boolean("fixed-label-width");
         this.scrollLabels = this.settings.get_boolean("scroll-labels");
+        this.scrollSpeed = this.settings.get_double("scroll-speed");
         this.hideMediaNotification = this.settings.get_boolean("hide-media-notification");
         this.showTrackSlider = this.settings.get_boolean("show-track-slider");
         this.showLabel = this.settings.get_boolean("show-label");
@@ -343,6 +350,10 @@ export default class MediaControls extends Extension {
         });
         this.settings.connect("changed::scroll-labels", () => {
             this.scrollLabels = this.settings.get_boolean("scroll-labels");
+            this.panelBtn?.updateWidgets(WidgetFlags.PANEL_LABEL | WidgetFlags.MENU_LABELS);
+        });
+        this.settings.connect("changed::scroll-speed", () => {
+            this.scrollSpeed = this.settings.get_double("scroll-speed");
             this.panelBtn?.updateWidgets(WidgetFlags.PANEL_LABEL | WidgetFlags.MENU_LABELS);
         });
         this.settings.connect("changed::hide-media-notification", () => {
@@ -716,6 +727,7 @@ export default class MediaControls extends Extension {
         this.labelWidth = null;
         this.hideMediaNotification = null;
         this.scrollLabels = null;
+        this.scrollSpeed = null;
         this.showLabel = null;
         this.showPlayerIcon = null;
         this.showControlIcons = null;

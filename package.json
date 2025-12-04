@@ -2,11 +2,11 @@
   "type": "module",
   "scripts": {
     "format": "prettier --write .",
-    "debug": "G_MESSAGES_DEBUG=all SHELL_DEBUG=all dbus-run-session gnome-shell --devkit --wayland",
+    "debug": "SHELL_DEBUG=all dbus-run-session gnome-shell --devkit --wayland --no-x11",
 
     "build:clean": "rm -rf dist",
     "build:dirs": "mkdir -p dist/temp dist/builds",
-    "build:copy": "rsync -a --exclude='assets' src/ dist/temp/",
+    "build:copy": "cp -r src/* dist/temp/",
     "build:resources": "glib-compile-resources assets/org.gnome.shell.extensions.mediacontrols.gresource.xml --target=dist/temp/org.gnome.shell.extensions.mediacontrols.gresource --sourcedir=assets",
     "build:pack": "cd dist/temp && gnome-extensions pack -f -o ../builds/ --schema='../../assets/org.gnome.shell.extensions.mediacontrols.gschema.xml' --podir='../../assets/locale' --extra-source=helpers --extra-source=types --extra-source=org.gnome.shell.extensions.mediacontrols.gresource --extra-source=utils .",
 
