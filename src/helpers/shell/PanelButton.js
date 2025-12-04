@@ -898,7 +898,7 @@ class PanelButton extends PanelMenu.Button {
                 labelTextElements.push(labelElement);
             }
         }
-        return labelTextElements.join(" ");
+        return labelTextElements.join(" ").replace(/[\r\n]+/g, " ");
     }
 
     /**
