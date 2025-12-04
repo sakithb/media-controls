@@ -1,4 +1,18 @@
-const DEBUG = true;
+/**
+ * @param {...unknown} [args]
+ * @returns {void}
+ */
+export const debugLog = (...args) => {
+    console.debug("[Media Controls]", ...args);
+};
+
+/**
+ * @param {...unknown} [args]
+ * @returns {void}
+ */
+export const errorLog = (...args) => {
+    console.error("[Media Controls]", ...args);
+};
 
 /**
  * @template T
@@ -18,33 +32,6 @@ export const enumValueByIndex = (enumObject, index) => {
  */
 export const enumKeyByValue = (enumObject, value) => {
     return Object.keys(enumObject).find((key) => enumObject[key] === value);
-};
-
-/**
- * @param {...unknown} [args]
- * @returns {void}
- */
-export const debugLog = (...args) => {
-    if (DEBUG) {
-        console.log("[Media Controls]", ...args);
-    }
-};
-
-/**
- * @param {...unknown} [args]
- * @returns {void}
- */
-export const errorLog = (...args) => {
-    console.error("[Media Controls]", "Error:", ...args);
-};
-
-/**
- * @param {unknown} error
- * @returns {null}
- */
-export const handleError = (error) => {
-    errorLog(error);
-    return null;
 };
 
 /**

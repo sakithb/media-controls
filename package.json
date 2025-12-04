@@ -2,24 +2,22 @@
   "type": "module",
   "scripts": {
     "format": "prettier --write .",
-    "debug": "dbus-run-session gnome-shell --devkit --wayland",
+    "debug": "G_MESSAGES_DEBUG=all SHELL_DEBUG=all dbus-run-session gnome-shell --devkit --wayland",
 
     "build:clean": "rm -rf dist",
     "build:dirs": "mkdir -p dist/temp dist/builds",
     "build:copy": "rsync -a --exclude='assets' src/ dist/temp/",
     "build:resources": "glib-compile-resources assets/org.gnome.shell.extensions.mediacontrols.gresource.xml --target=dist/temp/org.gnome.shell.extensions.mediacontrols.gresource --sourcedir=assets",
-    "build:prepare": "pnpm run build:clean && pnpm run build:dirs && pnpm run build:copy && pnpm run build:resources",
-    "build:strip": "sed -i 's/const DEBUG = true;/const DEBUG = false;/' dist/temp/utils/common.js",
     "build:pack": "cd dist/temp && gnome-extensions pack -f -o ../builds/ --schema='../../assets/org.gnome.shell.extensions.mediacontrols.gschema.xml' --podir='../../assets/locale' --extra-source=helpers --extra-source=types --extra-source=org.gnome.shell.extensions.mediacontrols.gresource --extra-source=utils .",
 
-    "build": "pnpm run build:prepare && pnpm run build:pack",
-    "release": "pnpm run build:prepare && pnpm run build:strip && pnpm run build:pack",
+    "build": "pnpm run build:clean && pnpm run build:dirs && pnpm run build:copy && pnpm run build:resources && pnpm run build:pack",
 
     "ext:install": "gnome-extensions install --force dist/builds/mediacontrols@cliffniff.github.com.shell-extension.zip",
     "ext:uninstall": "gnome-extensions uninstall mediacontrols@cliffniff.github.com",
     "ext:enable": "gnome-extensions enable mediacontrols@cliffniff.github.com",
     "ext:disable": "gnome-extensions disable mediacontrols@cliffniff.github.com",
     "ext:prefs": "gnome-extensions prefs mediacontrols@cliffniff.github.com",
+    "ext:upload": "gnome-extensions upload --accept-tos --user sakithb dist/builds/mediacontrols@cliffniff.github.com.shell-extension.zip",
 
     "translations:extract": "xgettext --from-code=UTF-8 --add-comments --join-existing --keyword=_ --keyword=C_:1c,2 --language=Javascript --output=assets/locale/mediacontrols@cliffniff.github.com.pot $(find . -type f \\( -name '*.ui' -o -name '*.js' \\) -not -path './node_modules/*')",
     "translations:merge": "for po in assets/locale/*.po; do msgmerge -U \"$po\" assets/locale/mediacontrols@cliffniff.github.com.pot; done && rm -f assets/locale/*.po~",

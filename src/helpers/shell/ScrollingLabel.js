@@ -2,6 +2,7 @@ import Clutter from "gi://Clutter";
 import GObject from "gi://GObject";
 import Pango from "gi://Pango";
 import St from "gi://St";
+import { debugLog } from "../../utils/common.js";
 
 const SCROLL_ANIMATION_SPEED = 0.04;
 
@@ -297,6 +298,7 @@ class ScrollingLabel extends St.ScrollView {
      * @returns {void}
      */
     processLabelWidth() {
+        debugLog(this.label.width, this.labelWidth)
         const isLabelWider = this.label.width > this.labelWidth && this.labelWidth > 0;
         if (isLabelWider && this.isScrolling) {
             this.initScrolling();

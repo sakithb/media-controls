@@ -2,7 +2,7 @@
 /** @import { MprisInterface, MprisPlayerInterface, PropertiesInterface, PlayerProxyProperties, MprisPlayerInterfaceMetadata, MprisPlayerInterfaceMetadataUnpacked } from '../../types/dbus.js' */
 /** @import { KeysOf } from '../../types/misc.js' */
 import { MPRIS_PLAYER_IFACE_NAME, MPRIS_OBJECT_PATH, LoopStatus } from "../../types/enums/common.js";
-import { errorLog, handleError } from "../../utils/common.js";
+import { errorLog } from "../../utils/common.js";
 import { createDbusProxy } from "../../utils/shell_only.js";
 
 import GLib from "gi://GLib";
@@ -77,10 +77,10 @@ export default class PlayerProxy {
      * @returns {Promise<boolean>}
      */
     async initPlayer(mprisIface, mprisPlayerIface, propertiesIface) {
-        const mprisProxy = createDbusProxy(mprisIface, this.busName, MPRIS_OBJECT_PATH).catch(handleError);
-        const mprisPlayerProxy = createDbusProxy(mprisPlayerIface, this.busName, MPRIS_OBJECT_PATH).catch(handleError);
-        const propertiesProxy = createDbusProxy(propertiesIface, this.busName, MPRIS_OBJECT_PATH).catch(handleError);
-        const proxies = await Promise.all([mprisProxy, mprisPlayerProxy, propertiesProxy]).catch(handleError);
+        const mprisProxy = createDbusProxy(mprisIface, this.busName, MPRIS_OBJECT_PATH).catch(errorLog);
+        const mprisPlayerProxy = createDbusProxy(mprisPlayerIface, this.busName, MPRIS_OBJECT_PATH).catch(errorLog);
+        const propertiesProxy = createDbusProxy(propertiesIface, this.busName, MPRIS_OBJECT_PATH).catch(errorLog);
+        const proxies = await Promise.all([mprisProxy, mprisPlayerProxy, propertiesProxy]).catch(errorLog);
         if (proxies == null) {
             errorLog("Failed to create proxies");
             return false;
@@ -445,7 +445,7 @@ export default class PlayerProxy {
      * @returns {Promise<void>}
      */
     async next() {
-        await this.mprisPlayerProxy.NextAsync().catch(handleError);
+        await this.mprisPlayerProxy.NextAsync().catch(errorLog);
     }
 
     /**
@@ -453,7 +453,7 @@ export default class PlayerProxy {
      * @returns {Promise<void>}
      */
     async previous() {
-        await this.mprisPlayerProxy.PreviousAsync().catch(handleError);
+        await this.mprisPlayerProxy.PreviousAsync().catch(errorLog);
     }
 
     /**
@@ -461,7 +461,7 @@ export default class PlayerProxy {
      * @returns {Promise<void>}
      */
     async pause() {
-        await this.mprisPlayerProxy.PauseAsync().catch(handleError);
+        await this.mprisPlayerProxy.PauseAsync().catch(errorLog);
     }
 
     /**
@@ -469,7 +469,7 @@ export default class PlayerProxy {
      * @returns {Promise<void>}
      */
     async playPause() {
-        await this.mprisPlayerProxy.PlayPauseAsync().catch(handleError);
+        await this.mprisPlayerProxy.PlayPauseAsync().catch(errorLog);
     }
 
     /**
@@ -477,7 +477,7 @@ export default class PlayerProxy {
      * @returns {Promise<void>}
      */
     async stop() {
-        await this.mprisPlayerProxy.StopAsync().catch(handleError);
+        await this.mprisPlayerProxy.StopAsync().catch(errorLog);
     }
 
     /**
@@ -485,7 +485,7 @@ export default class PlayerProxy {
      * @returns {Promise<void>}
      */
     async play() {
-        await this.mprisPlayerProxy.PlayAsync().catch(handleError);
+        await this.mprisPlayerProxy.PlayAsync().catch(errorLog);
     }
 
     /**
@@ -494,7 +494,7 @@ export default class PlayerProxy {
      * @returns {Promise<void>}
      */
     async seek(offset) {
-        await this.mprisPlayerProxy.SeekAsync(offset).catch(handleError);
+        await this.mprisPlayerProxy.SeekAsync(offset).catch(errorLog);
     }
 
     /**
@@ -504,7 +504,7 @@ export default class PlayerProxy {
      * @returns {Promise<void>}
      */
     async setPosition(trackId, position) {
-        await this.mprisPlayerProxy.SetPositionAsync(trackId, position).catch(handleError);
+        await this.mprisPlayerProxy.SetPositionAsync(trackId, position).catch(errorLog);
     }
 
     /**
@@ -513,7 +513,7 @@ export default class PlayerProxy {
      * @returns {Promise<void>}
      */
     async openUri(uri) {
-        await this.mprisPlayerProxy.OpenUriAsync(uri).catch(handleError);
+        await this.mprisPlayerProxy.OpenUriAsync(uri).catch(errorLog);
     }
 
     /**
@@ -521,7 +521,7 @@ export default class PlayerProxy {
      * @returns {Promise<void>}
      */
     async raise() {
-        await this.mprisProxy.RaiseAsync().catch(handleError);
+        await this.mprisProxy.RaiseAsync().catch(errorLog);
     }
 
     /**
@@ -529,7 +529,7 @@ export default class PlayerProxy {
      * @returns {Promise<void>}
      */
     async quit() {
-        await this.mprisProxy.QuitAsync().catch(handleError);
+        await this.mprisProxy.QuitAsync().catch(errorLog);
     }
 
     /**

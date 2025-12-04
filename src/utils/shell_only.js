@@ -4,7 +4,7 @@ import GLib from "gi://GLib";
 import Soup from "gi://Soup";
 import Shell from "gi://Shell";
 import Gio from "gi://Gio";
-import { errorLog, handleError } from "./common.js";
+import { errorLog } from "./common.js";
 
 Gio._promisify(Gio.DBusProxy, "new", "new_finish");
 Gio._promisify(Gio.File.prototype, "replace_contents_bytes_async", "replace_contents_finish");
@@ -12,6 +12,7 @@ Gio._promisify(Gio.File.prototype, "read_async", "read_finish");
 Gio._promisify(Soup.Session.prototype, "send_and_read_async", "send_and_read_finish");
 
 // TODO: sort this out
+
 /**
  * @param {string} id
  * @param {string} entry
@@ -106,7 +107,7 @@ export const getImage = async (url) => {
     }
     const file = Gio.File.new_for_path(path);
     if (file.query_exists(null)) {
-        const stream = await file.read_async(null, null).catch(handleError);
+        const stream = await file.read_async(null, null).catch(errorLog);
         if (stream == null) {
             errorLog(`Failed to load image from cache: ${encodedUrl}`);
             return null;
@@ -123,7 +124,7 @@ export const getImage = async (url) => {
             if (file.query_exists(null) === false) {
                 return null;
             }
-            const stream = await file.read_async(null, null).catch(handleError);
+            const stream = await file.read_async(null, null).catch(errorLog);
             if (stream == null) {
                 errorLog(`Failed to load local image: ${encodedUrl}`);
                 return null;
@@ -132,19 +133,19 @@ export const getImage = async (url) => {
         } else if (scheme === "http" || scheme === "https") {
             const session = new Soup.Session();
             const message = new Soup.Message({ method: "GET", uri });
-            const bytes = await session.send_and_read_async(message, null, null).catch(handleError);
+            const bytes = await session.send_and_read_async(message, null, null).catch(errorLog);
             if (bytes == null) {
                 errorLog(`Failed to load image: ${url}`);
                 return null;
             }
             // @ts-expect-error Types are wrong
             const resultPromise = file.replace_contents_bytes_async(bytes, null, false, Gio.FileCreateFlags.NONE, null);
-            const result = await resultPromise.catch(handleError);
+            const result = await resultPromise.catch(errorLog);
             if (result?.[0] === false) {
                 errorLog(`Failed to cache image: ${url}`);
                 return null;
             }
-            const stream = await file.read_async(null, null).catch(handleError);
+            const stream = await file.read_async(null, null).catch(errorLog);
             if (stream == null) {
                 errorLog(`Failed to load cached image: ${url}`);
                 return null;

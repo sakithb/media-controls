@@ -18,7 +18,7 @@ import { gettext as _ } from "resource:///org/gnome/shell/extensions/extension.j
 
 import ScrollingLabel from "./ScrollingLabel.js";
 import MenuSlider from "./MenuSlider.js";
-import { debugLog, handleError } from "../../utils/common.js";
+import { debugLog, errorLog } from "../../utils/common.js";
 import { getAppByIdAndEntry, getImage } from "../../utils/shell_only.js";
 import { ControlIconOptions } from "../../types/enums/shell_only.js";
 import {
@@ -275,14 +275,14 @@ class PanelButton extends PanelMenu.Button {
             this.addMenuPlayers();
         }
         if (flags & WidgetFlags.MENU_IMAGE) {
-            this.addMenuImage().catch(handleError);
+            this.addMenuImage().catch(errorLog);
         }
         if (flags & WidgetFlags.MENU_LABELS) {
             this.addMenuLabels();
         }
         if (flags & WidgetFlags.MENU_SLIDER) {
             if (this.extension.showTrackSlider) {
-                this.addMenuSlider().catch(handleError);
+                this.addMenuSlider().catch(errorLog);
             } else if (this.menuSlider != null) {
                 this.menuBox.remove_child(this.menuSlider);
                 this.menuSlider = null;
@@ -469,7 +469,7 @@ class PanelButton extends PanelMenu.Button {
                         null,
                         null,
                     )
-                    .catch(handleError);
+                    .catch(errorLog);
                 if (info != null) {
                     const path = info.get_attribute_byte_string(Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH);
                     if (path == null) {
@@ -485,7 +485,7 @@ class PanelButton extends PanelMenu.Button {
         if (stream != null) {
             /** @type {Promise<GdkPixbuf.Pixbuf>} */
             const pixbufPromise = /** @type {any} */ (GdkPixbuf.Pixbuf.new_from_stream_async(stream, null));
-            const pixbuf = await pixbufPromise.catch(handleError);
+            const pixbuf = await pixbufPromise.catch(errorLog);
             if (pixbuf != null) {
                 const aspectRatio = pixbuf.width / pixbuf.height;
                 const height = width / aspectRatio;
@@ -562,7 +562,7 @@ class PanelButton extends PanelMenu.Button {
      * @returns {Promise<void>}
      */
     async addMenuSlider() {
-        const position = await this.playerProxy.position.catch(handleError);
+        const position = await this.playerProxy.position.catch(errorLog);
         const length = this.playerProxy.metadata["mpris:length"];
         const rate = this.playerProxy.rate;
         if (this.menuSlider == null) {
@@ -744,7 +744,6 @@ class PanelButton extends PanelMenu.Button {
      * @returns {void}
      */
     addButtonControls(index, flags) {
-        debugLog("addButtonControls called");
         if (this.buttonControls == null) {
             this.buttonControls = new St.BoxLayout({
                 name: "controls-box",
@@ -836,8 +835,6 @@ class PanelButton extends PanelMenu.Button {
      * @returns {void}
      */
     addButtonControlIcon(options, onClick, reactive) {
-        debugLog(options);
-
         if (options.panelProps === undefined) {
             debugLog(`Media Controls: panelProps is undefined for ${options.name}`);
             return;
@@ -864,7 +861,6 @@ class PanelButton extends PanelMenu.Button {
         if (oldIcon != null) {
             this.buttonControls.replace_child(oldIcon, icon);
         } else {
-            debugLog(options);
             this.buttonControls.insert_child_at_index(icon, options.panelProps.index);
         }
     }

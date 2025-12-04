@@ -12,7 +12,7 @@ import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
 
 import PanelButton from "./helpers/shell/PanelButton.js";
 import PlayerProxy from "./helpers/shell/PlayerProxy.js";
-import { debugLog, enumValueByIndex, errorLog, handleError } from "./utils/common.js";
+import { debugLog, enumValueByIndex, errorLog } from "./utils/common.js";
 import { getAppInfoByIdAndEntry, createDbusProxy } from "./utils/shell_only.js";
 import {
     PlaybackStatus,
@@ -254,7 +254,7 @@ export default class MediaControls extends Extension {
     enable() {
         this.playerProxies = new Map();
         this.initSettings();
-        this.initProxies().catch(handleError);
+        this.initProxies().catch(errorLog);
         this.updateMediaNotificationVisiblity();
         Main.wm.addKeybinding(
             "mediacontrols-show-popup-menu",
@@ -457,7 +457,7 @@ export default class MediaControls extends Extension {
         );
         const mprisResult = mprisXmlFile.load_contents_async(null);
         const watchResult = watchXmlFile.load_contents_async(null);
-        const readResults = await Promise.all([mprisResult, watchResult]).catch(handleError);
+        const readResults = await Promise.all([mprisResult, watchResult]).catch(errorLog);
         if (readResults == null) {
             errorLog("Failed to read xml files");
             return;
@@ -486,7 +486,7 @@ export default class MediaControls extends Extension {
         this.mprisIfaceInfo = mprisInterface;
         this.mprisPlayerIfaceInfo = mprisPlayerInterface;
         this.propertiesIfaceInfo = propertiesInterface;
-        const initWatchSuccess = await this.initWatchProxy().catch(handleError);
+        const initWatchSuccess = await this.initWatchProxy().catch(errorLog);
         if (initWatchSuccess === false) {
             errorLog("Failed to init watch proxy");
             return;
@@ -500,7 +500,7 @@ export default class MediaControls extends Extension {
      */
     async initWatchProxy() {
         this.watchProxy = await createDbusProxy(this.watchIfaceInfo, DBUS_IFACE_NAME, DBUS_OBJECT_PATH).catch(
-            handleError,
+            errorLog,
         );
         if (this.watchProxy == null) {
             return false;
@@ -523,7 +523,7 @@ export default class MediaControls extends Extension {
      * @returns {Promise<void>}
      */
     async addRunningPlayers() {
-        const namesResult = await this.watchProxy.ListNamesAsync().catch(handleError);
+        const namesResult = await this.watchProxy.ListNamesAsync().catch(errorLog);
         if (namesResult == null) {
             errorLog("Failed to get bus names");
             return;
@@ -535,7 +535,7 @@ export default class MediaControls extends Extension {
             if (this.playerProxies.has(busName)) continue;
             promises.push(this.addPlayer(busName));
         }
-        await Promise.all(promises).catch(handleError);
+        await Promise.all(promises).catch(errorLog);
     }
 
     /**
@@ -549,7 +549,7 @@ export default class MediaControls extends Extension {
             const playerProxy = new PlayerProxy(busName);
             const initSuccess = await playerProxy
                 .initPlayer(this.mprisIfaceInfo, this.mprisPlayerIfaceInfo, this.propertiesIfaceInfo)
-                .catch(handleError);
+                .catch(errorLog);
             if (initSuccess == null || initSuccess === false) {
                 errorLog("Failed to init player:", busName);
                 return;
