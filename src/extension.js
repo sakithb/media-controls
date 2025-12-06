@@ -316,7 +316,7 @@ export default class MediaControls extends Extension {
         this.labelWidth = this.settings.get_uint("label-width");
         this.isFixedLabelWidth = this.settings.get_boolean("fixed-label-width");
         this.scrollLabels = this.settings.get_boolean("scroll-labels");
-        this.scrollSpeed = this.settings.get_double("scroll-speed");
+        this.scrollSpeed = this.settings.get_uint("scroll-speed");
         this.hideMediaNotification = this.settings.get_boolean("hide-media-notification");
         this.showTrackSlider = this.settings.get_boolean("show-track-slider");
         this.showLabel = this.settings.get_boolean("show-label");
