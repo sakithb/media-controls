@@ -353,7 +353,7 @@ export default class MediaControls extends Extension {
             this.panelBtn?.updateWidgets(WidgetFlags.PANEL_LABEL | WidgetFlags.MENU_LABELS);
         });
         this.settings.connect("changed::scroll-speed", () => {
-            this.scrollSpeed = this.settings.get_double("scroll-speed");
+            this.scrollSpeed = this.settings.get_uint("scroll-speed");
             this.panelBtn?.updateWidgets(WidgetFlags.PANEL_LABEL | WidgetFlags.MENU_LABELS);
         });
         this.settings.connect("changed::hide-media-notification", () => {
