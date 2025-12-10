@@ -16,7 +16,7 @@ jobs:
       - name: Install System Dependencies
         run: |
           apt-get update
-          apt-get install -y gnome-shell gettext zip unzip git nodejs npm curl
+          apt-get install -y gnome-shell gettext zip unzip git nodejs npm curl libglib2.0-dev
 
       - name: Checkout code
         uses: actions/checkout@v4
