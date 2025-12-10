@@ -245,6 +245,7 @@ class PanelButton extends PanelMenu.Button {
                     this.addButtonIcon(i);
                 } else if (this.buttonIcon != null) {
                     this.buttonBox.remove_child(this.buttonIcon);
+                    this.buttonIcon.destroy();
                     this.buttonIcon = null;
                 }
             }
@@ -256,6 +257,7 @@ class PanelButton extends PanelMenu.Button {
                     this.addButtonLabel(i);
                 } else if (this.buttonLabel != null) {
                     this.buttonBox.remove_child(this.buttonLabel);
+                    this.buttonLabel.destroy();
                     this.buttonLabel = null;
                 }
             }
@@ -267,6 +269,7 @@ class PanelButton extends PanelMenu.Button {
                     this.addButtonControls(i, flags);
                 } else if (this.buttonControls != null) {
                     this.buttonBox.remove_child(this.buttonControls);
+                    this.buttonControls.destroy();
                     this.buttonControls = null;
                 }
             }
@@ -285,6 +288,7 @@ class PanelButton extends PanelMenu.Button {
                 this.addMenuSlider().catch(errorLog);
             } else if (this.menuSlider != null) {
                 this.menuBox.remove_child(this.menuSlider);
+                this.menuSlider.destroy();
                 this.menuSlider = null;
             }
         }
@@ -364,6 +368,7 @@ class PanelButton extends PanelMenu.Button {
         } else if (players.length === 1 && this.menuPlayerIcons != null) {
             this.menuPlayerIcons.get_children().forEach((child) => child.destroy());
             this.menuPlayers.remove_child(this.menuPlayerIcons);
+            this.menuPlayerIcons.destroy();
             this.menuPlayerIcons = null;
         } else if (this.menuPlayerIcons != null) {
             this.menuPlayerIcons.get_children().forEach((child) => child.destroy());
@@ -526,9 +531,11 @@ class PanelButton extends PanelMenu.Button {
         }
         if (this.menuLabelTitle != null) {
             this.menuLabels.remove_child(this.menuLabelTitle);
+            this.menuLabelTitle.destroy();
         }
         if (this.menuLabelSubtitle != null) {
             this.menuLabels.remove_child(this.menuLabelSubtitle);
+            this.menuLabelSubtitle.destroy();
         }
         const width = this.getMenuItemWidth();
         this.menuLabelTitle = new ScrollingLabel({
@@ -877,6 +884,7 @@ class PanelButton extends PanelMenu.Button {
         const icon = find_child_by_name(this.buttonControls, options.name);
         if (icon != null) {
             this.buttonControls.remove_child(icon);
+            icon.destroy();
         }
     }
 
