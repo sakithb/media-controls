@@ -33,26 +33,6 @@
                 <property name="subtitle" translatable="yes">Use the specified width even when they are smaller than the width</property>
               </object>
             </child>
-            <child>
-              <object class="AdwSwitchRow" id="sr-general-scroll-labels">
-                <property name="title" translatable="yes">Scroll labels</property>
-                <property name="subtitle" translatable="yes">Scroll the labels when they are wider than the width</property>
-              </object>
-            </child>
-            <child>
-              <object class="AdwSpinRow" id="sr-general-scroll-speed">
-                <property name="title" translatable="yes">Scroll speed</property>
-                <property name="subtitle" translatable="yes">Higher values scroll faster</property>
-                <property name="adjustment">
-                  <object class="GtkAdjustment">
-                    <property name="lower">1</property>
-                    <property name="upper">10</property>
-                    <property name="step-increment">1</property>
-                    <property name="value">4</property>
-                  </object>
-                </property>
-              </object>
-            </child>
           </object>
         </child>
         <child>
@@ -61,10 +41,36 @@
             <property name="subtitle" translatable="yes">Hide the media notifications in the notification list</property>
           </object>
         </child>
+      </object>
+    </child>
+    <child>
+      <object class="AdwPreferencesGroup">
+        <property name="title" translatable="yes">Animations</property>
+        <property name="description" translatable="yes">Animations can cause high CPU usage</property>
+        <child>
+          <object class="AdwSwitchRow" id="sr-general-scroll-labels">
+            <property name="title" translatable="yes">Scroll labels</property>
+            <property name="subtitle" translatable="yes">Scroll the labels when they are wider than the width</property>
+          </object>
+        </child>
+        <child>
+          <object class="AdwSpinRow" id="sr-general-scroll-speed">
+            <property name="title" translatable="yes">Scroll speed</property>
+            <property name="subtitle" translatable="yes">Higher values scroll faster</property>
+            <property name="adjustment">
+              <object class="GtkAdjustment">
+                <property name="lower">1</property>
+                <property name="upper">10</property>
+                <property name="step-increment">1</property>
+                <property name="value">4</property>
+              </object>
+            </property>
+          </object>
+        </child>
         <child>
           <object class="AdwSwitchRow" id="sr-general-show-track-slider">
-            <property name="title" translatable="yes">Show the track slider</property>
-            <property name="subtitle" translatable="yes">Show the track slider in popup</property>
+            <property name="title" translatable="yes">Enable slider</property>
+            <property name="subtitle" translatable="yes">Show the slider in popup</property>
           </object>
         </child>
       </object>
