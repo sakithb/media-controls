@@ -8,6 +8,7 @@ jobs:
   upload:
     name: Build and Upload
     runs-on: ubuntu-latest
+    if: github.event.release.prerelease == false
     container:
       image: ubuntu:25.10
 
