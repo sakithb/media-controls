@@ -4,16 +4,19 @@ on:
   release:
     types: [created]
 
+permissions:
+  contents: write
+
 jobs:
   upload:
-    name: Build and Upload
+    name: Build and upload
     runs-on: ubuntu-latest
     if: github.event.release.prerelease == false
     container:
       image: ubuntu:25.10
 
     steps:
-      - name: Install System Dependencies
+      - name: Install dependencies
         run: |
           apt-get update
           apt-get install -y gnome-shell gettext zip unzip git nodejs npm curl libglib2.0-dev
@@ -27,8 +30,13 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build Extension
+      - name: Build extension
         run: pnpm run build
+
+      - name: Attach zip to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/builds/*.zip
 
       - name: Upload to EGO
         env:
