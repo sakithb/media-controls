@@ -1,0 +1,37 @@
+name: Publish to EGO
+
+on:
+  release:
+    types: [created]
+
+jobs:
+  upload:
+    name: Build and Upload
+    runs-on: ubuntu-latest
+    container:
+      image: ubuntu:25.10
+
+    steps:
+      - name: Install System Dependencies
+        run: |
+          apt-get update
+          apt-get install -y gnome-shell gettext zip unzip git nodejs npm curl
+
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install PNPM
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build Extension
+        run: pnpm run build
+
+      - name: Upload to EGO
+        env:
+          EGO_PASSWORD: ${{ secrets.EGO_PASSWORD }}
+          EGO_ARGS: --password-file -
+        run: |
+          printf "%s" "$EGO_PASSWORD" | pnpm run ext:upload

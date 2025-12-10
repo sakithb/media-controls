@@ -29,7 +29,7 @@
       <default>false</default>
     </key>
     <key name="scroll-labels" type="b">
-      <default>true</default>
+      <default>false</default>
     </key>
     <key name="scroll-speed" type="u">
       <default>4</default>
@@ -38,7 +38,7 @@
       <default>true</default>
     </key>
     <key name="show-track-slider" type="b">
-      <default>true</default>
+      <default>false</default>
     </key>
     <key name="show-label" type="b">
       <default>true</default>
