@@ -345,20 +345,33 @@ class PanelButton extends PanelMenu.Button {
                 xExpand: true,
                 reactive: true,
             });
-            const pinClickAction = new Clutter.ClickGesture();
-            pinClickAction.set_n_clicks_required(1);
-            if (pinClickAction.set_recognize_on_press) {
-                pinClickAction.set_recognize_on_press(true);
-            }
-            pinClickAction.connect("recognize", () => {
-                if (this.playerProxy.isPlayerPinned()) {
-                    this.playerProxy.unpinPlayer();
-                } else {
-                    this.playerProxy.pinPlayer();
+
+            if (typeof Clutter.ClickGesture !== "undefined") {
+                const pinClickAction = new Clutter.ClickGesture();
+                pinClickAction.set_n_clicks_required(1);
+                if (pinClickAction.set_recognize_on_press) {
+                    pinClickAction.set_recognize_on_press(true);
                 }
-                return Clutter.EVENT_STOP;
-            });
-            this.menuPlayersTextBoxPin.add_action(pinClickAction);
+                pinClickAction.connect("recognize", () => {
+                    if (this.playerProxy.isPlayerPinned()) {
+                        this.playerProxy.unpinPlayer();
+                    } else {
+                        this.playerProxy.pinPlayer();
+                    }
+                    return Clutter.EVENT_STOP;
+                });
+                this.menuPlayersTextBoxPin.add_action(pinClickAction);
+            } else {
+                const pinClickAction = new Clutter.ClickAction();
+                pinClickAction.connect("clicked", () => {
+                    if (this.playerProxy.isPlayerPinned()) {
+                        this.playerProxy.unpinPlayer();
+                    } else {
+                        this.playerProxy.pinPlayer();
+                    }
+                });
+                this.menuPlayersTextBoxPin.add_action(pinClickAction);
+            }
         }
         const players = this.extension.getPlayers();
         if (players.length > 1 && this.menuPlayerIcons == null) {
@@ -421,15 +434,23 @@ class PanelButton extends PanelMenu.Button {
                 if (isSamePlayer) {
                     icon.add_style_class_name("popup-menu-player-icons-icon-active");
                 } else {
-                    const clickAction = new Clutter.ClickGesture();
-                    if (clickAction.set_recognize_on_press) {
-                        clickAction.set_recognize_on_press(true);
+                    if (typeof Clutter.ClickGesture !== "undefined") {
+                        const clickAction = new Clutter.ClickGesture();
+                        if (clickAction.set_recognize_on_press) {
+                            clickAction.set_recognize_on_press(true);
+                        }
+                        clickAction.connect("recognize", () => {
+                            this.updateProxy(player);
+                            return Clutter.EVENT_STOP;
+                        });
+                        icon.add_action(clickAction);
+                    } else {
+                        const clickAction = new Clutter.ClickAction();
+                        clickAction.connect("clicked", () => {
+                            this.updateProxy(player);
+                        });
+                        icon.add_action(clickAction);
                     }
-                    clickAction.connect("recognize", () => {
-                        this.updateProxy(player);
-                        return Clutter.EVENT_STOP;
-                    });
-                    icon.add_action(clickAction);
                 }
                 this.menuPlayerIcons.add_child(icon);
             }
@@ -684,16 +705,26 @@ class PanelButton extends PanelMenu.Button {
             reactive,
             ...options.menuProps.options,
         });
-        const clickGesture = new Clutter.ClickGesture();
-        clickGesture.set_n_clicks_required(1);
-        if (clickGesture.set_recognize_on_press) {
-            clickGesture.set_recognize_on_press(true);
+
+        if (typeof Clutter.ClickGesture !== "undefined") {
+            const clickGesture = new Clutter.ClickGesture();
+            clickGesture.set_n_clicks_required(1);
+            if (clickGesture.set_recognize_on_press) {
+                clickGesture.set_recognize_on_press(true);
+            }
+            clickGesture.connect("recognize", () => {
+                onClick();
+                return Clutter.EVENT_STOP;
+            });
+            icon.add_action(clickGesture);
+        } else {
+            const clickAction = new Clutter.ClickAction();
+            clickAction.connect("clicked", () => {
+                onClick();
+            });
+            icon.add_action(clickAction);
         }
-        clickGesture.connect("recognize", () => {
-            onClick();
-            return Clutter.EVENT_STOP;
-        });
-        icon.add_action(clickGesture);
+
         const oldIcon = find_child_by_name(this.menuControls, options.name);
         if (oldIcon?.get_parent() === this.menuControls) {
             this.menuControls.replace_child(oldIcon, icon);
@@ -857,16 +888,26 @@ class PanelButton extends PanelMenu.Button {
             opacity: reactive ? 255 : 160,
             reactive,
         });
-        const clickAction = new Clutter.ClickGesture();
-        clickAction.set_n_clicks_required(1);
-        if (clickAction.set_recognize_on_press) {
-            clickAction.set_recognize_on_press(true);
+
+        if (typeof Clutter.ClickGesture !== "undefined") {
+            const clickAction = new Clutter.ClickGesture();
+            clickAction.set_n_clicks_required(1);
+            if (clickAction.set_recognize_on_press) {
+                clickAction.set_recognize_on_press(true);
+            }
+            clickAction.connect("recognize", () => {
+                onClick();
+                return Clutter.EVENT_STOP;
+            });
+            icon.add_action(clickAction);
+        } else {
+            const clickAction = new Clutter.ClickAction();
+            clickAction.connect("clicked", () => {
+                onClick();
+            });
+            icon.add_action(clickAction);
         }
-        clickAction.connect("recognize", () => {
-            onClick();
-            return Clutter.EVENT_STOP;
-        });
-        icon.add_action(clickAction);
+
         const oldIcon = find_child_by_name(this.buttonControls, options.name);
         if (oldIcon != null) {
             this.buttonControls.replace_child(oldIcon, icon);

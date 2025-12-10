@@ -6,5 +6,5 @@
   "settings-schema": "org.gnome.shell.extensions.mediacontrols",
   "gettext-domain": "mediacontrols@cliffniff.github.com",
   "version-name": "2.4.0",
-  "shell-version": ["48", "49"]
+  "shell-version": ["46", "47", "48", "49"]
 }
