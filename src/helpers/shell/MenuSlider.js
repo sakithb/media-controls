@@ -55,7 +55,7 @@ class MenuSlider extends St.BoxLayout {
      *
      */
     constructor() {
-        super({ orientation: Clutter.Orientation.VERTICAL });
+        super({ vertical: true });
         this.rate = 1.0;
         this.slider = new Slider.Slider(0);
         this.textBox = new St.BoxLayout();

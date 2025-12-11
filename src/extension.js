@@ -670,20 +670,19 @@ export default class MediaControls extends Extension {
      * @returns {void}
      */
     updateMediaNotificationVisiblity(shouldReset = false) {
+        const MprisSource = Mpris.MprisSource ?? Mpris.MediaSection;
+        const mediaSource = Main.panel.statusArea.dateMenu._messageList._messageView?._mediaSource ?? Main.panel.statusArea.dateMenu._messageList._mediaSection;
+
         if (this.mediaSectionAddFunc && (shouldReset || this.hideMediaNotification === false)) {
-            Mpris.MprisSource.prototype._addPlayer = this.mediaSectionAddFunc;
+            MprisSource.prototype._addPlayer = this.mediaSectionAddFunc;
             this.mediaSectionAddFunc = null;
-            // @ts-expect-error
-            Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._onProxyReady();
+            mediaSource._onProxyReady();
         } else {
-            this.mediaSectionAddFunc = Mpris.MprisSource.prototype._addPlayer;
-            Mpris.MprisSource.prototype._addPlayer = function () {};
-            // @ts-expect-error
-            if (Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._players != null) {
-                // @ts-expect-error
-                for (const player of Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._players.values()) {
-                    // @ts-expect-error
-                    Main.panel.statusArea.dateMenu._messageList._messageView._mediaSource._onNameOwnerChanged(
+            this.mediaSectionAddFunc = MprisSource.prototype._addPlayer;
+            MprisSource.prototype._addPlayer = function() { };
+            if (mediaSource._players != null) {
+                for (const player of mediaSource._players.values()) {
+                    mediaSource._onNameOwnerChanged(
                         null,
                         null,
                         [player._busName, player._busName, ""],
