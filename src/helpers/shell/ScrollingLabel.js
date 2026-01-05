@@ -4,7 +4,6 @@ import Pango from "gi://Pango";
 import St from "gi://St";
 import { debugLog } from "../../utils/common.js";
 
-
 /**
  * @typedef {Object} ScrollingLabelParams
  * @property {string} text
@@ -304,7 +303,7 @@ class ScrollingLabel extends St.ScrollView {
      * @returns {void}
      */
     processLabelWidth() {
-        debugLog(this.label.width, this.labelWidth)
+        debugLog(this.label.width, this.labelWidth);
         const isLabelWider = this.label.width > this.labelWidth && this.labelWidth > 0;
         if (isLabelWider && this.isScrolling) {
             this.initScrolling();
