@@ -2,6 +2,7 @@ import Clutter from "gi://Clutter";
 import GObject from "gi://GObject";
 import Pango from "gi://Pango";
 import St from "gi://St";
+import GLib from "gi://GLib"
 import { debugLog } from "../../utils/common.js";
 
 /**
@@ -85,11 +86,14 @@ class ScrollingLabel extends St.ScrollView {
         const defaultParams = {
             direction: Clutter.TimelineDirection.FORWARD,
             isFixedWidth: true,
+            scrollPauseTime: 2000,
         };
-        const { text, width, direction, isFixedWidth, isScrolling, initPaused, scrollSpeed } = {
+        const { text, width, direction, isFixedWidth, isScrolling, initPaused, scrollSpeed, scrollPauseTime } = {
             ...defaultParams,
             ...params,
         };
+        this._lastText = null;
+        this.scrollPauseTime = scrollPauseTime
         this.isScrolling = isScrolling;
         this.isFixedWidth = isFixedWidth;
         this.initPaused = initPaused;
@@ -172,6 +176,14 @@ class ScrollingLabel extends St.ScrollView {
      * @returns {void}
      */
     initScrolling() {
+        // This prevents the animation from restarting when the player sends an update.
+        if (this._lastText === this.label.text) {
+            return;
+        }
+        
+        // Save it for next time
+        this._lastText = this.label.text;
+
         const adjustment = this.get_hadjustment();
         const origText = this.label.text + "     ";
 
@@ -227,6 +239,10 @@ class ScrollingLabel extends St.ScrollView {
             adjustment.remove_transition("scroll");
             this.transition = null;
         }
+        if (this.pauseTimerId != null) {
+            GLib.source_remove(this.pauseTimerId);
+            this.pauseTimerId = null;
+        }
 
         const initial = new GObject.Value();
         initial.init(GObject.TYPE_INT);
@@ -245,12 +261,11 @@ class ScrollingLabel extends St.ScrollView {
             propertyName: "value",
             progressMode: Clutter.AnimationMode.LINEAR,
             direction: this.direction,
-            repeatCount: -1,
+            repeatCount: 0,
             duration,
             interval,
         });
         this.label.text = `${origText} ${origText}`;
-        adjustment.add_transition("scroll", this.transition);
 
         // Disconnect the adjustment changed handler if it's still connected
         if (this.onAdjustmentChangedId != null) {
@@ -258,9 +273,30 @@ class ScrollingLabel extends St.ScrollView {
             this.onAdjustmentChangedId = null;
         }
 
-        if (this.initPaused) {
-            this.transition.pause();
-        }
+        this.transition.connect("completed", () => {
+            this.transition.rewind(); // Snap back to start
+            
+            // Wait
+            this.pauseTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this.scrollPauseTime, () => {
+                this.pauseTimerId = null;
+                if (!this.initPaused) {
+                    this.transition.start();
+                }
+                return GLib.SOURCE_REMOVE;
+            });
+        });
+
+        // Start logic
+        this.pauseTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this.scrollPauseTime, () => {
+            this.pauseTimerId = null;
+            
+            adjustment.add_transition("scroll", this.transition);
+
+            if (this.initPaused) {
+                this.transition.pause();
+            }
+            return GLib.SOURCE_REMOVE;
+        });
     }
 
     /**
