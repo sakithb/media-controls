@@ -510,9 +510,7 @@ export default class MediaControls extends Extension {
      * @returns {Promise<boolean>}
      */
     async initWatchProxy() {
-        this.watchProxy = await createDbusProxy(this.watchIfaceInfo, DBUS_IFACE_NAME, DBUS_OBJECT_PATH).catch(
-            errorLog,
-        );
+        this.watchProxy = await createDbusProxy(this.watchIfaceInfo, DBUS_IFACE_NAME, DBUS_OBJECT_PATH).catch(errorLog);
         if (this.watchProxy == null) {
             return false;
         }
@@ -671,7 +669,9 @@ export default class MediaControls extends Extension {
      */
     updateMediaNotificationVisiblity(shouldReset = false) {
         const MprisSource = Mpris.MprisSource ?? Mpris.MediaSection;
-        const mediaSource = Main.panel.statusArea.dateMenu._messageList._messageView?._mediaSource ?? Main.panel.statusArea.dateMenu._messageList._mediaSection;
+        const mediaSource =
+            Main.panel.statusArea.dateMenu._messageList._messageView?._mediaSource ??
+            Main.panel.statusArea.dateMenu._messageList._mediaSection;
 
         if (this.mediaSectionAddFunc && (shouldReset || this.hideMediaNotification === false)) {
             MprisSource.prototype._addPlayer = this.mediaSectionAddFunc;
@@ -679,14 +679,10 @@ export default class MediaControls extends Extension {
             mediaSource._onProxyReady();
         } else {
             this.mediaSectionAddFunc = MprisSource.prototype._addPlayer;
-            MprisSource.prototype._addPlayer = function() { };
+            MprisSource.prototype._addPlayer = function () {};
             if (mediaSource._players != null) {
                 for (const player of mediaSource._players.values()) {
-                    mediaSource._onNameOwnerChanged(
-                        null,
-                        null,
-                        [player._busName, player._busName, ""],
-                    );
+                    mediaSource._onNameOwnerChanged(null, null, [player._busName, player._busName, ""]);
                 }
             }
         }

@@ -311,7 +311,7 @@ class PanelButton extends PanelMenu.Button {
     addMenuPlayers() {
         if (this.menuPlayers == null) {
             this.menuPlayers = new St.BoxLayout({
-                vertical: true
+                vertical: true,
             });
         }
         if (this.menuPlayersTextBox == null) {
@@ -517,8 +517,7 @@ class PanelButton extends PanelMenu.Button {
                 const height = width / aspectRatio;
                 const format = pixbuf.hasAlpha ? Cogl.PixelFormat.RGBA_8888 : Cogl.PixelFormat.RGB_888;
                 const image = /** @type {St.ImageContent} */ (St.ImageContent.new_with_preferred_size(width, height));
-                const context = global.stage.context.get_backend().get_cogl_context();
-                image.set_bytes(context, pixbuf.pixelBytes, format, pixbuf.width, pixbuf.height, pixbuf.rowstride);
+                image.set_bytes(pixbuf.pixelBytes, format, pixbuf.width, pixbuf.height, pixbuf.rowstride);
                 this.menuImage.iconSize = -1;
                 this.menuImage.gicon = null;
                 this.menuImage.width = width;
@@ -547,7 +546,7 @@ class PanelButton extends PanelMenu.Button {
     addMenuLabels() {
         if (this.menuLabels == null) {
             this.menuLabels = new St.BoxLayout({
-                vertical: true
+                vertical: true,
             });
         }
         if (this.menuLabelTitle != null) {
@@ -632,8 +631,8 @@ class PanelButton extends PanelMenu.Button {
                 this.playerProxy.loopStatus === LoopStatus.NONE
                     ? ControlIconOptions.LOOP_NONE
                     : this.playerProxy.loopStatus === LoopStatus.TRACK
-                        ? ControlIconOptions.LOOP_TRACK
-                        : ControlIconOptions.LOOP_PLAYLIST,
+                      ? ControlIconOptions.LOOP_TRACK
+                      : ControlIconOptions.LOOP_PLAYLIST,
                 this.playerProxy.loopStatus != null,
                 this.playerProxy.toggleLoop.bind(this.playerProxy),
             );
