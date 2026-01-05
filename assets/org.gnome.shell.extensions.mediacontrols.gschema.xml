@@ -35,7 +35,7 @@
       <default>4</default>
     </key>
     <key name="scroll-pause-time" type="u">
-      <default>2</default>
+      <default>0</default>
     </key>
     <key name="hide-media-notification" type="b">
       <default>true</default>
