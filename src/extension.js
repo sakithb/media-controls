@@ -13,7 +13,7 @@ import { Extension } from "resource:///org/gnome/shell/extensions/extension.js";
 import PanelButton from "./helpers/shell/PanelButton.js";
 import PlayerProxy from "./helpers/shell/PlayerProxy.js";
 import { debugLog, enumValueByIndex, errorLog } from "./utils/common.js";
-import { getAppInfoByIdAndEntry, createDbusProxy } from "./utils/shell_only.js";
+import { getAppInfoByIdAndEntry, getAppByIdAndEntry, createDbusProxy } from "./utils/shell_only.js";
 import {
     PlaybackStatus,
     WidgetFlags,
@@ -650,18 +650,45 @@ export default class MediaControls extends Extension {
     }
 
     /**
+     * Checks if a player is in the user's blacklist.
+     * Uses multiple lookup strategies to handle inconsistencies between MPRIS identities
+     * and system desktop entries, especially for sandboxed apps (Snap/Flatpak).
+     *
      * @private
-     * @param {string} id
-     * @param {string} entry
-     * @returns {boolean}
+     * @param {string} id - The MPRIS Identity (e.g., "Spotify")
+     * @param {string} entry - The Desktop Entry name (e.g., "spotify")
+     * @returns {boolean} - True if the player is blacklisted
      */
     isPlayerBlacklisted(id, entry) {
-        const app = getAppInfoByIdAndEntry(id, entry);
+        // Standard AppInfo lookup (fastest)
+        let app = getAppInfoByIdAndEntry(id, entry);
+
+        // Shell AppSystem lookup
+        // Necessary for finding running apps that standard AppInfo misses (e.g., Snaps)
         if (app == null) {
-            return false;
+            app = getAppByIdAndEntry(id, entry);
         }
-        const appId = app.get_id();
-        return this.blacklistedPlayers.includes(appId);
+
+        // Check if the resolved App ID matches the blacklist
+        if (app != null) {
+            const appId = app.get_id();
+            if (this.blacklistedPlayers.includes(appId)) {
+                return true;
+            }
+        }
+
+        // Raw string fallback
+        const checkRaw = (name) => {
+            return (
+                name && (this.blacklistedPlayers.includes(name) || this.blacklistedPlayers.includes(`${name}.desktop`))
+            );
+        };
+
+        if (checkRaw(entry) || checkRaw(id)) {
+            return true;
+        }
+
+        return false;
     }
 
     /**
