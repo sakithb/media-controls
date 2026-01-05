@@ -263,6 +263,7 @@ export default class MediaControlsPreferences extends ExtensionPreferences {
         this.bindSetting("fixed-label-width", "sr-general-label-fixed", "active");
         this.bindSetting("scroll-labels", "sr-general-scroll-labels", "active");
         this.bindSetting("scroll-speed", "sr-general-scroll-speed", "value");
+        this.bindSetting("scroll-pause-time", "sr-general-scroll-pause-time", "value");
         this.bindSetting("hide-media-notification", "sr-general-hide-media-notification", "active");
         this.bindSetting("show-track-slider", "sr-general-show-track-slider", "active");
         this.bindSetting("show-label", "sr-panel-show-label", "active");

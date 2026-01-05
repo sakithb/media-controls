@@ -14,6 +14,7 @@ import { debugLog } from "../../utils/common.js";
  * @property {boolean} isScrolling
  * @property {boolean} initPaused
  * @property {number} [scrollSpeed]
+ * @property {number} [scrollPauseTime]
  */
 
 /** @extends St.ScrollView */
@@ -122,25 +123,23 @@ class ScrollingLabel extends St.ScrollView {
      * @param {string} text
      */
     set text(text) {
-        // 1. GUARD CLAUSE (Ignore duplicates)
+        // Guard Clause (Ignore duplicates)
         if (this._lastText === text) {
             return;
         }
 
-        // 2. NEW SONG RESET (The Fix)
-        // If the song changed, we MUST reset the scroll position to 0.
-        // Otherwise, the new song starts playing from where the old one left off.
+        // New Song Reset
         const adjustment = this.get_hadjustment();
         if (adjustment) {
-            adjustment.set_value(0); // Snap back to start!
-            adjustment.remove_transition("scroll"); // Stop the old movement immediately
+            adjustment.set_value(0);
+            adjustment.remove_transition("scroll");
         }
 
-        // 3. Update State
+        // Update state
         this._lastText = text;
         this.label.text = text;
         
-        // 4. Restart Logic
+        // Restart
         this.processLabelWidth(); 
     }
 

@@ -68,6 +68,20 @@
           </object>
         </child>
         <child>
+          <object class="AdwSpinRow" id="sr-general-scroll-pause-time">
+            <property name="title" translatable="yes">Scroll pause time (s)</property>
+            <property name="subtitle" translatable="yes">Time to wait before scrolling starts or restarts</property>
+            <property name="adjustment">
+              <object class="GtkAdjustment">
+                <property name="lower">0</property>
+                <property name="upper">10</property>
+                <property name="step-increment">1</property>
+                <property name="value">2</property>
+              </object>
+            </property>
+          </object>
+        </child>
+        <child>
           <object class="AdwSwitchRow" id="sr-general-show-track-slider">
             <property name="title" translatable="yes">Enable slider</property>
             <property name="subtitle" translatable="yes">Show the slider in popup</property>
