@@ -760,14 +760,23 @@ class PanelButton extends PanelMenu.Button {
      * @returns {void}
      */
     addButtonLabel(index) {
+        const text = this.getButtonLabelText();
+
+        // Reuse existing label
+        if (this.buttonLabel != null) {
+            this.buttonLabel.text = text;
+            return;
+        }
+
         const label = new ScrollingLabel({
-            text: this.getButtonLabelText(),
+            text, 
             width: this.extension.labelWidth,
             isFixedWidth: this.extension.isFixedLabelWidth,
             isScrolling: this.extension.scrollLabels,
             initPaused: this.playerProxy.playbackStatus !== PlaybackStatus.PLAYING,
             scrollSpeed: this.extension.scrollSpeed,
         });
+
         if (this.buttonLabel?.get_parent() === this.buttonBox) {
             this.buttonBox.replace_child(this.buttonLabel, label);
         } else {

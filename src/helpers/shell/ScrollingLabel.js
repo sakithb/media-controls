@@ -119,6 +119,41 @@ class ScrollingLabel extends St.ScrollView {
 
     /**
      * @public
+     * @param {string} text
+     */
+    set text(text) {
+        // 1. GUARD CLAUSE (Ignore duplicates)
+        if (this._lastText === text) {
+            return;
+        }
+
+        // 2. NEW SONG RESET (The Fix)
+        // If the song changed, we MUST reset the scroll position to 0.
+        // Otherwise, the new song starts playing from where the old one left off.
+        const adjustment = this.get_hadjustment();
+        if (adjustment) {
+            adjustment.set_value(0); // Snap back to start!
+            adjustment.remove_transition("scroll"); // Stop the old movement immediately
+        }
+
+        // 3. Update State
+        this._lastText = text;
+        this.label.text = text;
+        
+        // 4. Restart Logic
+        this.processLabelWidth(); 
+    }
+
+    /**
+     * @public
+     * @returns {string}
+     */
+    get text() {
+        return this.label.text;
+    }
+
+    /**
+     * @public
      * @returns {void}
      */
     pauseScrolling() {
@@ -167,7 +202,12 @@ class ScrollingLabel extends St.ScrollView {
             this.label.disconnect(this.onMappedId);
             this.onMappedId = null;
         }
-
+        
+        if (this.pauseTimerId != null) {
+            GLib.source_remove(this.pauseTimerId);
+            this.pauseTimerId = null;
+        }
+        
         super.destroy();
     }
 
@@ -176,14 +216,6 @@ class ScrollingLabel extends St.ScrollView {
      * @returns {void}
      */
     initScrolling() {
-        // This prevents the animation from restarting when the player sends an update.
-        if (this._lastText === this.label.text) {
-            return;
-        }
-        
-        // Save it for next time
-        this._lastText = this.label.text;
-
         const adjustment = this.get_hadjustment();
         const origText = this.label.text + "     ";
 
