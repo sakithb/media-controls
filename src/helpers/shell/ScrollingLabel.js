@@ -120,39 +120,6 @@ class ScrollingLabel extends St.ScrollView {
 
     /**
      * @public
-     * @param {string} text
-     */
-    set text(text) {
-        // Guard Clause (Ignore duplicates)
-        if (this._lastText === text) {
-            return;
-        }
-
-        // New Song Reset
-        const adjustment = this.get_hadjustment();
-        if (adjustment) {
-            adjustment.set_value(0);
-            adjustment.remove_transition("scroll");
-        }
-
-        // Update state
-        this._lastText = text;
-        this.label.text = text;
-        
-        // Restart
-        this.processLabelWidth(); 
-    }
-
-    /**
-     * @public
-     * @returns {string}
-     */
-    get text() {
-        return this.label.text;
-    }
-
-    /**
-     * @public
      * @returns {void}
      */
     pauseScrolling() {
@@ -305,27 +272,18 @@ class ScrollingLabel extends St.ScrollView {
         }
 
         this.transition.connect("completed", () => {
-            this.transition.rewind(); // Snap back to start
-            
-            // Wait
+            this.transition.rewind();
             this.pauseTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this.scrollPauseTime, () => {
                 this.pauseTimerId = null;
-                if (!this.initPaused) {
-                    this.transition.start();
-                }
+                if (!this.initPaused) this.transition.start();
                 return GLib.SOURCE_REMOVE;
             });
         });
 
-        // Start logic
         this.pauseTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this.scrollPauseTime, () => {
             this.pauseTimerId = null;
-            
             adjustment.add_transition("scroll", this.transition);
-
-            if (this.initPaused) {
-                this.transition.pause();
-            }
+            if (this.initPaused) this.transition.pause();
             return GLib.SOURCE_REMOVE;
         });
     }

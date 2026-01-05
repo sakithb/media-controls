@@ -760,16 +760,8 @@ class PanelButton extends PanelMenu.Button {
      * @returns {void}
      */
     addButtonLabel(index) {
-        const text = this.getButtonLabelText();
-
-        // Reuse existing label
-        if (this.buttonLabel != null) {
-            this.buttonLabel.text = text;
-            return;
-        }
-
         const label = new ScrollingLabel({
-            text, 
+            text: this.getButtonLabelText(),
             width: this.extension.labelWidth,
             isFixedWidth: this.extension.isFixedLabelWidth,
             isScrolling: this.extension.scrollLabels,
@@ -777,7 +769,6 @@ class PanelButton extends PanelMenu.Button {
             scrollSpeed: this.extension.scrollSpeed,
             scrollPauseTime: this.extension.scrollPauseTime,
         });
-
         if (this.buttonLabel?.get_parent() === this.buttonBox) {
             this.buttonBox.replace_child(this.buttonLabel, label);
         } else {

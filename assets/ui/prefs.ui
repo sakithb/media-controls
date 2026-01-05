@@ -69,8 +69,8 @@
         </child>
         <child>
           <object class="AdwSpinRow" id="sr-general-scroll-pause-time">
-            <property name="title" translatable="yes">Scroll pause time (s)</property>
-            <property name="subtitle" translatable="yes">Time to wait before scrolling starts or restarts</property>
+            <property name="title" translatable="yes">Scroll pause time</property>
+            <property name="subtitle" translatable="yes">Time to wait before scrolling starts or restarts (in seconds)</property>
             <property name="adjustment">
               <object class="GtkAdjustment">
                 <property name="lower">0</property>
