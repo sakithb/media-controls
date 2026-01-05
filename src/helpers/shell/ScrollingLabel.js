@@ -93,8 +93,7 @@ class ScrollingLabel extends St.ScrollView {
             ...defaultParams,
             ...params,
         };
-        this._lastText = null;
-        this.scrollPauseTime = scrollPauseTime
+        this.scrollPauseTime = scrollPauseTime;
         this.isScrolling = isScrolling;
         this.isFixedWidth = isFixedWidth;
         this.initPaused = initPaused;
@@ -103,6 +102,7 @@ class ScrollingLabel extends St.ScrollView {
         this.onShowChangedId = null;
         this.onAdjustmentChangedId = null;
         this.onMappedId = null;
+        this.pauseTimerId = null;
         this.scrollSpeed = scrollSpeed / 100;
         this.box = new St.BoxLayout({
             xExpand: true,
