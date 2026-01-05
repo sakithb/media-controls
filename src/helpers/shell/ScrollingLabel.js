@@ -87,7 +87,7 @@ class ScrollingLabel extends St.ScrollView {
         const defaultParams = {
             direction: Clutter.TimelineDirection.FORWARD,
             isFixedWidth: true,
-            scrollPauseTime: 2000,
+            scrollPauseTime: 0,
         };
         const { text, width, direction, isFixedWidth, isScrolling, initPaused, scrollSpeed, scrollPauseTime } = {
             ...defaultParams,
