@@ -520,7 +520,7 @@ class PanelButton extends PanelMenu.Button {
                 const image = /** @type {St.ImageContent} */ (St.ImageContent.new_with_preferred_size(width, height));
                 
                 const [major] = Config.PACKAGE_VERSION.split('.');
-                if (parseInt(major) >= 48) {
+                if (parseInt(major, 10) >= 48) {
                     const context = global.stage.context.get_backend().get_cogl_context();
                     image.set_bytes(context, pixbuf.pixelBytes, format, pixbuf.width, pixbuf.height, pixbuf.rowstride);
                 } else {
