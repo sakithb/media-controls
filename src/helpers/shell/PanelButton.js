@@ -776,6 +776,7 @@ class PanelButton extends PanelMenu.Button {
             isScrolling: this.extension.scrollLabels,
             initPaused: this.playerProxy.playbackStatus !== PlaybackStatus.PLAYING,
             scrollSpeed: this.extension.scrollSpeed,
+            scrollPauseTime: this.extension.scrollPauseTime,
         });
         if (this.buttonLabel?.get_parent() === this.buttonBox) {
             this.buttonBox.replace_child(this.buttonLabel, label);
