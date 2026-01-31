@@ -516,23 +516,17 @@ class PanelButton extends PanelMenu.Button {
             if (pixbuf != null) {
                 const aspectRatio = pixbuf.width / pixbuf.height;
                 const height = width / aspectRatio;
-                const format = pixbuf.hasAlpha ? Cogl.PixelFormat.RGBA_8888 : Cogl.PixelFormat.RGB_888;
-                const image = /** @type {St.ImageContent} */ (St.ImageContent.new_with_preferred_size(width, height));
-                
-                const [major] = Config.PACKAGE_VERSION.split('.');
-                if (parseInt(major, 10) >= 48) {
-                    const context = global.stage.context.get_backend().get_cogl_context();
-                    image.set_bytes(context, pixbuf.pixelBytes, format, pixbuf.width, pixbuf.height, pixbuf.rowstride);
-                } else {
-                    image.set_bytes(pixbuf.pixelBytes, format, pixbuf.width, pixbuf.height, pixbuf.rowstride);
+                const [success, buffer] = pixbuf.save_to_bufferv("png", [], []);
+                if (success) {
+                    const bytes = GLib.Bytes.new(buffer);
+                    const icon = Gio.BytesIcon.new(bytes);
+                    this.menuImage.content = null;
+                    this.menuImage.gicon = icon;
+                    this.menuImage.iconSize = width;
+                    this.menuImage.width = width;
+                    this.menuImage.height = height;
+                    artSet = true;
                 }
-
-                this.menuImage.iconSize = -1;
-                this.menuImage.gicon = null;
-                this.menuImage.width = width;
-                this.menuImage.height = height;
-                this.menuImage.content = image;
-                artSet = true;
             }
         }
         if (artSet === false) {
