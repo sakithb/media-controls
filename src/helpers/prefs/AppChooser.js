@@ -2,70 +2,71 @@ import Adw from "gi://Adw";
 import Gio from "gi://Gio";
 import Gtk from "gi://Gtk";
 
-class AppChooser extends Adw.Window {
-    /**
-     * @private
-     * @type {Gtk.ListBox}
-     */
-    listBox;
-    /**
-     * @private
-     * @type {Gtk.Button}
-     */
-    selectBtn;
-    /**
-     * @private
-     * @type {Gtk.Button}
-     */
-    cancelBtn;
-
-    /**
-     * @param {{}} [params={}]
-     */
+export default class AppChooser extends Adw.Window {
     constructor(params = {}) {
         super(params);
-        // @ts-expect-error Typescript doesn't know about the internal children
+        // Map children from template
         this.listBox = this._list_box;
-        // @ts-expect-error Typescript doesn't know about the internal children
         this.selectBtn = this._select_btn;
-        // @ts-expect-error Typescript doesn't know about the internal children
         this.cancelBtn = this._cancel_btn;
-        const apps = Gio.AppInfo.get_all()
-            .filter((app) => app.should_show())
-            .sort((a, b) => {
-                const nameA = a.get_display_name().toLowerCase();
-                const nameB = b.get_display_name().toLowerCase();
-                return nameA.localeCompare(nameB);
-            });
-        for (const app of apps) {
-            if (app.should_show() === false) continue;
-            const row = new Adw.ActionRow();
-            row.title = app.get_display_name();
-            row.subtitle = app.get_id();
-            row.subtitleLines = 1;
-            const icon = new Gtk.Image({ gicon: app.get_icon() });
-            row.add_prefix(icon);
-            this.listBox.append(row);
-        }
-        this.cancelBtn.connect("clicked", () => {
-            this.close();
-        });
+
+        this._populateApps();
+        
+        this.cancelBtn.connect("clicked", () => this.close());
     }
 
-    /**
-     * @public
-     * @returns {Promise<string>}
-     */
+    _populateApps() {
+        const appSystem = Gio.AppInfo.get_all();
+        const apps = appSystem
+            .filter(app => app.should_show())
+            .sort((a, b) => a.get_display_name().toLowerCase().localeCompare(b.get_display_name().toLowerCase()));
+
+        for (const app of apps) {
+            this.listBox.append(this._createAppRow(app));
+        }
+    }
+
+    _createAppRow(app) {
+        const row = new Adw.ActionRow({
+            title: app.get_display_name(),
+            subtitle: app.get_id(),
+            subtitleLines: 1,
+            activatable: true
+        });
+
+        const icon = new Gtk.Image({
+            gicon: app.get_icon(),
+            pixel_size: 32
+        });
+        row.add_prefix(icon);
+
+        // Store ID
+        // @ts-expect-error
+        row._appId = app.get_id();
+
+        return row;
+    }
+
     showChooser() {
         return new Promise((resolve) => {
             const signalId = this.selectBtn.connect("clicked", () => {
-                this.close();
                 this.selectBtn.disconnect(signalId);
-                const row = /** @type {Adw.ActionRow} */ (this.listBox.get_selected_row());
-                resolve(row.subtitle);
+                // @ts-expect-error
+                const row = this.listBox.get_selected_row();
+                this.close();
+                resolve(row ? row._appId : null);
             });
+
+            const closeId = this.connect("close-request", () => {
+                this.disconnect(closeId);
+                if (this.selectBtn.signal_handler_is_connected(signalId)) {
+                    this.selectBtn.disconnect(signalId);
+                }
+                resolve(null);
+                return false;
+            });
+
             this.present();
         });
     }
 }
-export default AppChooser;

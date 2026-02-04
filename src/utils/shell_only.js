@@ -1,19 +1,69 @@
-// Utils only used in the extension. Do not import this file in the preferences window because Shell is not available there.
+// Utils only used in the extension. Do not import this file in the preferences window.
 
 import GLib from "gi://GLib";
 import Soup from "gi://Soup";
 import Shell from "gi://Shell";
 import Gio from "gi://Gio";
+import Clutter from "gi://Clutter";
+import GdkPixbuf from "gi://GdkPixbuf";
 import { errorLog } from "./common.js";
 
+// --- PROMISIFY METHODS ---
 Gio._promisify(Gio.DBusProxy, "new", "new_finish");
 Gio._promisify(Gio.File.prototype, "replace_contents_bytes_async", "replace_contents_finish");
 Gio._promisify(Gio.File.prototype, "read_async", "read_finish");
+Gio._promisify(Gio.File.prototype, "query_info_async", "query_info_finish");
 Gio._promisify(Soup.Session.prototype, "send_and_read_async", "send_and_read_finish");
 
-// TODO: sort this out
+/**
+ * MANUAL WRAPPER: Loads Pixbuf safely
+ */
+const loadPixbuf = (stream) => {
+    return new Promise((resolve) => {
+        try {
+            GdkPixbuf.Pixbuf.new_from_stream_async(stream, null, (_, res) => {
+                try {
+                    resolve(GdkPixbuf.Pixbuf.new_from_stream_finish(res));
+                } catch (e) {
+                    resolve(null);
+                }
+            });
+        } catch (e) {
+            resolve(null);
+        }
+    });
+};
 
 /**
+ * Extracts the dominant color (AMBILIGHT LOGIC)
+ */
+export const getDominantColor = async (stream) => {
+    try {
+        if (!stream) return null;
+
+        let fullPixbuf = await loadPixbuf(stream);
+        if (!fullPixbuf) return null;
+
+        // Scale to 1x1 to get average color
+        let scaled = fullPixbuf.scale_simple(1, 1, GdkPixbuf.InterpType.TILES);
+        fullPixbuf = null; // Cleanup
+
+        if (!scaled) return null;
+
+        const pixels = scaled.get_pixels();
+        if (!pixels || pixels.length < 3) return null;
+
+        const [r, g, b] = pixels;
+        return `rgb(${r}, ${g}, ${b})`;
+
+    } catch (e) {
+        return null;
+    }
+};
+
+/**
+ * Get App Info (GAppInfo) by identity or desktop entry
+ * Used for Blacklist checking
  * @param {string} id
  * @param {string} entry
  * @returns {Gio.AppInfo | null}
@@ -21,11 +71,13 @@ Gio._promisify(Soup.Session.prototype, "send_and_read_async", "send_and_read_fin
 export const getAppInfoByIdAndEntry = (id, entry) => {
     const apps = Gio.AppInfo.get_all();
     for (const app of apps) {
+        const id_no_ext = app.get_id().replace(".desktop", "");
         if (
-            app.get_display_name() === entry ||
             app.get_id() === id ||
+            app.get_display_name() === entry ||
             app.get_name() === entry ||
-            app.get_name() === id
+            id_no_ext === id ||
+            id_no_ext === entry
         ) {
             return app;
         }
@@ -34,6 +86,8 @@ export const getAppInfoByIdAndEntry = (id, entry) => {
 };
 
 /**
+ * Get Running App (Shell.App) by identity or desktop entry
+ * Used for Icon and Name display
  * @param {string} id
  * @param {string} entry
  * @returns {Shell.App | null}
@@ -41,51 +95,28 @@ export const getAppInfoByIdAndEntry = (id, entry) => {
 export const getAppByIdAndEntry = (id, entry) => {
     const appSystem = Shell.AppSystem.get_default();
     const runningApps = appSystem.get_running();
-    const idResults = Shell.AppSystem.search(id ?? "");
-    const entryResults = Shell.AppSystem.search(entry ?? "");
 
-    // Try to find in running apps first
-    if (entryResults?.length > 0) {
-        const app = runningApps.find((app) => entryResults[0].includes(app.get_id()));
-        if (app != null) {
-            return app;
-        }
-    }
-    if (idResults?.length > 0) {
-        const app = runningApps.find((app) => idResults[0].includes(app.get_id()));
-        if (app != null) {
-            return app;
-        }
-    }
+    // 1. Try fuzzy match on running apps first
+    const idResults = id ? Shell.AppSystem.search(id) : [];
+    const entryResults = entry ? Shell.AppSystem.search(entry) : [];
 
-    // If not found in running apps, try to lookup by desktop file ID
-    if (entry) {
-        // Try with .desktop extension
-        let app = appSystem.lookup_app(`${entry}.desktop`);
-        if (app != null) {
-            return app;
+    const findRunning = (results) => {
+        if (results?.length > 0) {
+            return runningApps.find((app) => results[0].includes(app.get_id()));
         }
-        // Try without extension in case it already has it
-        app = appSystem.lookup_app(entry);
-        if (app != null) {
-            return app;
-        }
-    }
+        return null;
+    };
 
-    if (id) {
-        // Try with .desktop extension
-        let app = appSystem.lookup_app(`${id}.desktop`);
-        if (app != null) {
-            return app;
-        }
-        // Try without extension
-        app = appSystem.lookup_app(id);
-        if (app != null) {
-            return app;
-        }
-    }
+    let app = findRunning(entryResults) || findRunning(idResults);
+    if (app) return app;
 
-    return null;
+    // 2. Try exact lookup
+    const lookup = (name) => {
+        if (!name) return null;
+        return appSystem.lookup_app(`${name}.desktop`) || appSystem.lookup_app(name);
+    };
+
+    return lookup(entry) || lookup(id) || null;
 };
 
 /**
@@ -93,69 +124,49 @@ export const getAppByIdAndEntry = (id, entry) => {
  * @returns {Promise<Gio.InputStream>}
  */
 export const getImage = async (url) => {
-    if (url == null || url == "") {
-        return null;
-    }
+    if (!url) return null;
+
     const encoder = new TextEncoder();
-    const urlBytes = encoder.encode(url);
-    const encodedUrl = GLib.base64_encode(urlBytes);
-    const path = GLib.build_filenamev([GLib.get_user_cache_dir(), "mediacontrols@cliffniff.github.com", encodedUrl]);
-    const exitCode = GLib.mkdir_with_parents(GLib.path_get_dirname(path), 493);
-    if (exitCode === -1) {
-        errorLog(`Failed to create cache directory: ${path}`);
+    const encodedUrl = GLib.base64_encode(encoder.encode(url));
+    const cacheDir = GLib.build_filenamev([GLib.get_user_cache_dir(), "mediacontrols@cliffniff.github.com"]);
+    const filePath = GLib.build_filenamev([cacheDir, encodedUrl]);
+    
+    // Ensure dir exists
+    if (GLib.mkdir_with_parents(cacheDir, 0o755) === -1) {
         return null;
     }
-    const file = Gio.File.new_for_path(path);
+
+    const file = Gio.File.new_for_path(filePath);
+    
+    // 1. Check Cache
     if (file.query_exists(null)) {
-        const stream = await file.read_async(null, null).catch(errorLog);
-        if (stream == null) {
-            errorLog(`Failed to load image from cache: ${encodedUrl}`);
-            return null;
-        }
-        return stream;
-    } else {
-        const uri = GLib.Uri.parse(url, GLib.UriFlags.NONE);
-        if (uri == null) {
-            return null;
-        }
-        const scheme = uri.get_scheme();
-        if (scheme === "file") {
-            const file = Gio.File.new_for_uri(uri.to_string());
-            if (file.query_exists(null) === false) {
-                return null;
-            }
-            const stream = await file.read_async(null, null).catch(errorLog);
-            if (stream == null) {
-                errorLog(`Failed to load local image: ${encodedUrl}`);
-                return null;
-            }
-            return stream;
-        } else if (scheme === "http" || scheme === "https") {
-            const session = new Soup.Session();
-            const message = new Soup.Message({ method: "GET", uri });
-            const bytes = await session.send_and_read_async(message, null, null).catch(errorLog);
-            if (bytes == null) {
-                errorLog(`Failed to load image: ${url}`);
-                return null;
-            }
-            // @ts-expect-error Types are wrong
-            const resultPromise = file.replace_contents_bytes_async(bytes, null, false, Gio.FileCreateFlags.NONE, null);
-            const result = await resultPromise.catch(errorLog);
-            if (result?.[0] === false) {
-                errorLog(`Failed to cache image: ${url}`);
-                return null;
-            }
-            const stream = await file.read_async(null, null).catch(errorLog);
-            if (stream == null) {
-                errorLog(`Failed to load cached image: ${url}`);
-                return null;
-            }
-            return stream;
-        } else {
-            errorLog(`Invalid scheme: ${scheme}`);
-            return null;
+        return await file.read_async(null, null).catch(() => null);
+    }
+
+    // 2. Handle Schemes
+    const uri = GLib.Uri.parse(url, GLib.UriFlags.NONE);
+    if (!uri) return null;
+    
+    const scheme = uri.get_scheme();
+
+    if (scheme === "file") {
+        const localFile = Gio.File.new_for_uri(url);
+        if (!localFile.query_exists(null)) return null;
+        return await localFile.read_async(null, null).catch(() => null);
+    } 
+    
+    if (scheme === "http" || scheme === "https") {
+        const session = new Soup.Session();
+        const msg = new Soup.Message({ method: "GET", uri });
+        const bytes = await session.send_and_read_async(msg, null, null).catch(() => null);
+
+        if (bytes) {
+            file.replace_contents_bytes_async(bytes, null, false, Gio.FileCreateFlags.NONE, null).catch(() => {});
+            return Gio.MemoryInputStream.new_from_bytes(bytes);
         }
     }
+
+    return null;
 };
 
 /**
@@ -166,8 +177,7 @@ export const getImage = async (url) => {
  * @returns {Promise<T>}
  */
 export const createDbusProxy = async (ifaceInfo, name, object) => {
-    // @ts-expect-error Types have not been promisified yet
-    const proxy = Gio.DBusProxy.new(
+    return await Gio.DBusProxy.new(
         Gio.DBus.session,
         Gio.DBusProxyFlags.NONE,
         ifaceInfo,
@@ -176,5 +186,135 @@ export const createDbusProxy = async (ifaceInfo, name, object) => {
         ifaceInfo.name,
         null,
     );
-    return proxy;
+};
+
+// --- CONTROL ICONS ---
+export const ControlIconOptions = {
+    LOOP_NONE: {
+        name: "loop",
+        iconName: "media-playlist-repeat-symbolic",
+        menuProps: {
+            index: 0,
+            options: {
+                xExpand: false,
+                xAlign: Clutter.ActorAlign.START,
+                opacity: 160,
+            },
+        },
+    },
+    LOOP_TRACK: {
+        name: "loop",
+        iconName: "media-playlist-repeat-song-symbolic",
+        menuProps: {
+            index: 0,
+            options: {
+                xExpand: false,
+                xAlign: Clutter.ActorAlign.START,
+            },
+        },
+    },
+    LOOP_PLAYLIST: {
+        name: "loop",
+        iconName: "media-playlist-repeat-symbolic",
+        menuProps: {
+            index: 0,
+            options: {
+                xExpand: false,
+                xAlign: Clutter.ActorAlign.START,
+            },
+        },
+    },
+    PREVIOUS: {
+        name: "previous",
+        iconName: "media-skip-backward-symbolic",
+        menuProps: {
+            index: 1,
+            options: {
+                xExpand: true,
+                xAlign: Clutter.ActorAlign.END,
+            },
+        },
+        panelProps: { index: 1 },
+    },
+    PLAY: {
+        name: "playpausestop",
+        iconName: "media-playback-start-symbolic",
+        menuProps: {
+            index: 2,
+            options: {
+                xExpand: false,
+                xAlign: Clutter.ActorAlign.CENTER,
+            },
+        },
+        panelProps: { index: 2 },
+    },
+    PAUSE: {
+        name: "playpausestop",
+        iconName: "media-playback-pause-symbolic",
+        menuProps: {
+            index: 2,
+            options: {
+                xExpand: false,
+                xAlign: Clutter.ActorAlign.CENTER,
+            },
+        },
+        panelProps: { index: 2 },
+    },
+    STOP: {
+        name: "playpausestop",
+        iconName: "media-playback-stop-symbolic",
+        menuProps: {
+            index: 2,
+            options: {
+                xExpand: false,
+                xAlign: Clutter.ActorAlign.CENTER,
+            },
+        },
+        panelProps: { index: 2 },
+    },
+    NEXT: {
+        name: "next",
+        iconName: "media-skip-forward-symbolic",
+        menuProps: {
+            index: 3,
+            options: {
+                xExpand: true,
+                xAlign: Clutter.ActorAlign.START,
+            },
+        },
+        panelProps: { index: 3 },
+    },
+    SHUFFLE_ON: {
+        name: "shuffle",
+        iconName: "media-playlist-shuffle-symbolic",
+        menuProps: {
+            index: 4,
+            options: {
+                xExpand: false,
+                xAlign: Clutter.ActorAlign.END,
+            },
+        },
+    },
+    SHUFFLE_OFF: {
+        name: "shuffle",
+        iconName: "media-playlist-consecutive-symbolic",
+        menuProps: {
+            index: 4,
+            options: {
+                xExpand: false,
+                xAlign: Clutter.ActorAlign.END,
+            },
+        },
+    },
+    // Panel Only
+    SEEK_BACKWARD: {
+        name: "seekbackward",
+        iconName: "media-seek-backward-symbolic",
+        panelProps: { index: 0 },
+    },
+    SEEK_FORWARD: {
+        name: "seekforward",
+        iconName: "media-seek-forward-symbolic",
+        panelProps: { index: 4 },
+    },
 };

@@ -35,19 +35,33 @@ export const enumKeyByValue = (enumObject, value) => {
 };
 
 /**
- * @param {number} ms
+ * Formats Seconds into HH:MM:SS or MM:SS
+ * @param {number} secondsInput
  * @returns {string}
  */
-export const msToHHMMSS = (ms) => {
-    const seconds = Math.floor(ms / 1000);
-    const minutes = Math.floor(ms / 60000);
-    const hours = Math.floor(ms / 3600000);
-    const secondsString = String(seconds % 60).padStart(2, "0");
-    const minutesString = String(minutes % 60).padStart(2, "0");
-    const hoursString = String(hours).padStart(2, "0");
-    if (hours > 0) {
-        return `${hoursString}:${minutesString}:${secondsString}`;
-    } else {
-        return `${minutesString}:${secondsString}`;
+export const formatTime = (secondsInput) => {
+    // Handle invalid inputs
+    if (typeof secondsInput !== "number" || isNaN(secondsInput) || secondsInput < 0) {
+        return "00:00";
     }
+
+    const totalSeconds = Math.floor(secondsInput);
+    const hours = Math.floor(totalSeconds / 3600);
+    const minutes = Math.floor((totalSeconds % 3600) / 60);
+    const seconds = totalSeconds % 60;
+
+    const secondsStr = String(seconds).padStart(2, "0");
+    const minutesStr = String(minutes).padStart(2, "0");
+
+    if (hours > 0) {
+        const hoursStr = String(hours).padStart(2, "0");
+        return `${hoursStr}:${minutesStr}:${secondsStr}`;
+    }
+
+    return `${minutesStr}:${secondsStr}`;
+};
+
+// Deprecated alias just in case other files use it, but redirects to formatTime logic
+export const msToHHMMSS = (ms) => {
+    return formatTime(ms / 1000); 
 };

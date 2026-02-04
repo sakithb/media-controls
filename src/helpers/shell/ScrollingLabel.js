@@ -2,7 +2,6 @@ import Clutter from "gi://Clutter";
 import GObject from "gi://GObject";
 import Pango from "gi://Pango";
 import St from "gi://St";
-import GLib from "gi://GLib"
 import { debugLog } from "../../utils/common.js";
 
 /**
@@ -14,67 +13,18 @@ import { debugLog } from "../../utils/common.js";
  * @property {boolean} isScrolling
  * @property {boolean} initPaused
  * @property {number} [scrollSpeed]
- * @property {number} [scrollPauseTime]
  */
 
 /** @extends St.ScrollView */
 class ScrollingLabel extends St.ScrollView {
-    /**
-     * @public
-     * @type {St.Label}
-     */
-    label;
-    /**
-     * @public
-     * @type {St.BoxLayout}
-     */
-    box;
-    /**
-     * @private
-     * @type {number}
-     */
-    onAdjustmentChangedId;
-    /**
-     * @private
-     * @type {number}
-     */
-    onShowChangedId;
-
-    /**
-     * @private
-     * @type {boolean}
-     */
-    isScrolling;
-    /**
-     * @private
-     * @type {boolean}
-     */
-    isFixedWidth;
-    /**
-     * @private
-     * @type {boolean}
-     */
-    initPaused;
-    /**
-     * @private
-     * @type {number}
-     */
-    labelWidth;
-    /**
-     * @private
-     * @type {Clutter.TimelineDirection}
-     */
-    direction;
-    /**
-     * @private
-     * @type {Clutter.PropertyTransition}
-     */
-    transition;
-    /**
-     * @private
-     * @type {number}
-     */
-    scrollSpeed;
+    static {
+        GObject.registerClass(
+            {
+                GTypeName: "ScrollingLabel",
+            },
+            this
+        );
+    }
 
     /**
      * @param {ScrollingLabelParams} params
@@ -84,295 +34,255 @@ class ScrollingLabel extends St.ScrollView {
             hscrollbarPolicy: St.PolicyType.NEVER,
             vscrollbarPolicy: St.PolicyType.NEVER,
         });
+
         const defaultParams = {
             direction: Clutter.TimelineDirection.FORWARD,
             isFixedWidth: true,
-            scrollPauseTime: 0,
+            scrollSpeed: 100, // Default fallback
+            text: "", // Defensive fallback for undefined text
         };
-        const { text, width, direction, isFixedWidth, isScrolling, initPaused, scrollSpeed, scrollPauseTime } = {
-            ...defaultParams,
-            ...params,
-        };
-        this.scrollPauseTime = scrollPauseTime;
-        this.isScrolling = isScrolling;
-        this.isFixedWidth = isFixedWidth;
-        this.initPaused = initPaused;
-        this.labelWidth = width;
-        this.direction = direction;
-        this.onShowChangedId = null;
-        this.onAdjustmentChangedId = null;
-        this.onMappedId = null;
-        this.pauseTimerId = null;
-        this.scrollSpeed = scrollSpeed / 100;
+
+        const config = { ...defaultParams, ...params };
+        
+        // Ensure text is always a string
+        if (typeof config.text !== 'string') {
+            config.text = String(config.text || "");
+        }
+
+        // State
+        this.isScrolling = config.isScrolling;
+        this.isFixedWidth = config.isFixedWidth;
+        this.initPaused = config.initPaused;
+        this.labelWidth = config.width;
+        this.direction = config.direction;
+        this.scrollSpeed = config.scrollSpeed / 100;
+        this.transition = null;
+        this._signals = []; // generic signal tracker
+
+        // UI Setup
         this.box = new St.BoxLayout({
             xExpand: true,
             yExpand: true,
         });
+
         this.label = new St.Label({
-            text,
+            text: config.text,
             yAlign: Clutter.ActorAlign.CENTER,
             xAlign: Clutter.ActorAlign.START,
         });
-        this.onShowChangedId = this.label.connect("show", this.onShowChanged.bind(this));
+
         this.box.add_child(this.label);
         this.add_child(this.box);
+
+        // Lifecycle Events
+        this._connectSignal(this.label, "notify::visible", this._onVisibilityChanged.bind(this));
+        this._connectSignal(this, "destroy", this.onDestroy.bind(this));
+
+        // Initial Layout Check
+        if (this.label.visible) {
+            this._onVisibilityChanged();
+        }
     }
 
-    /**
-     * @public
-     * @returns {void}
-     */
+    /* --- PUBLIC API --- */
+
     pauseScrolling() {
-        this.transition?.pause();
         this.initPaused = true;
-    }
-
-    /**
-     * @public
-     * @returns {void}
-     */
-    resumeScrolling() {
-        this.transition?.start();
-        this.initPaused = false;
-    }
-
-    /**
-     * @public
-     * @returns {void}
-     */
-    destroy() {
-        // Stop and remove any active transitions before destroying
         if (this.transition) {
-            const adjustment = this.get_hadjustment();
-            if (adjustment) {
-                adjustment.remove_transition("scroll");
-            }
-            this.transition = null;
+            this.transition.pause();
         }
-
-        // Disconnect any pending signal handlers
-        if (this.onAdjustmentChangedId != null) {
-            const adjustment = this.get_hadjustment();
-            if (adjustment) {
-                adjustment.disconnect(this.onAdjustmentChangedId);
-            }
-            this.onAdjustmentChangedId = null;
-        }
-
-        if (this.onShowChangedId != null && this.label) {
-            this.label.disconnect(this.onShowChangedId);
-            this.onShowChangedId = null;
-        }
-
-        if (this.onMappedId != null && this.label) {
-            this.label.disconnect(this.onMappedId);
-            this.onMappedId = null;
-        }
-        
-        if (this.pauseTimerId != null) {
-            GLib.source_remove(this.pauseTimerId);
-            this.pauseTimerId = null;
-        }
-        
-        super.destroy();
     }
 
-    /**
-     * @private
-     * @returns {void}
-     */
-    initScrolling() {
-        const adjustment = this.get_hadjustment();
-        const origText = this.label.text + "     ";
-
-        // Clean up any existing handler first
-        if (this.onAdjustmentChangedId != null) {
-            adjustment.disconnect(this.onAdjustmentChangedId);
-            this.onAdjustmentChangedId = null;
+    resumeScrolling() {
+        this.initPaused = false;
+        if (this.transition) {
+            this.transition.start();
         }
+    }
 
-        this.onAdjustmentChangedId = adjustment.connect(
-            "changed",
-            this.onAdjustmentChanged.bind(this, adjustment, origText),
-        );
+    /* --- CLUTTER VFUNCS --- */
+
+    /**
+     * Optimization: Only animate when actually mapped on screen
+     */
+    vfunc_map() {
+        super.vfunc_map();
+        if (this.transition && !this.initPaused) {
+            this.transition.start();
+        }
+    }
+
+    vfunc_unmap() {
+        super.vfunc_unmap();
+        if (this.transition) {
+            this.transition.pause();
+        }
+    }
+
+    vfunc_scroll_event() {
+        return Clutter.EVENT_PROPAGATE;
+    }
+
+    /* --- ANIMATION LOGIC --- */
+
+    _initScrolling() {
+        const adjustment = this.get_hadjustment();
+        if (!adjustment) return;
+
+        // Disconnect previous adjustment listener if exists
+        this._disconnectSignal("adjustment-changed");
+
+        // Add padding to text for smooth loop
+        const origText = this.label.text + "     ";
         this.label.text = `${origText} `;
         this.label.clutterText.ellipsize = Pango.EllipsizeMode.NONE;
+
+        // Listen for layout changes to start animation
+        const id = adjustment.connect("changed", () => {
+            this._onAdjustmentChanged(adjustment, origText);
+        });
+        
+        // Store with a specific key to allow easy replacement
+        this._signals.push({ obj: adjustment, id, key: "adjustment-changed" });
     }
 
-    /**
-     * @private
-     * @param {St.Adjustment} adjustment
-     * @param {string} origText
-     * @returns {void}
-     */
-    onAdjustmentChanged(adjustment, origText) {
-        if (adjustment.upper <= adjustment.pageSize) {
-            return;
-        }
+    _onAdjustmentChanged(adjustment, origText) {
+        if (adjustment.upper <= adjustment.pageSize) return;
 
-        // Check if we're on stage before creating animation
+        // Ensure we are on stage before creating animation
         if (!this.is_mapped() || this.get_stage() == null) {
-            // Wait until we're on stage before creating the animation
-            const mappedId = this.connect("notify::mapped", () => {
-                if (this.is_mapped() && this.get_stage() != null) {
-                    this.disconnect(mappedId);
-                    this.createScrollAnimation(adjustment, origText);
+            // One-time connection to wait for map
+            const mapId = this.connect("notify::mapped", () => {
+                this.disconnect(mapId);
+                if (this.is_mapped()) {
+                    this._createScrollAnimation(adjustment, origText);
                 }
             });
             return;
         }
 
-        this.createScrollAnimation(adjustment, origText);
+        this._createScrollAnimation(adjustment, origText);
     }
 
-    /**
-     * @private
-     * @param {St.Adjustment} adjustment
-     * @param {string} origText
-     * @returns {void}
-     */
-    createScrollAnimation(adjustment, origText) {
-        // Remove any existing transition first
+    _createScrollAnimation(adjustment, origText) {
+        // Cleanup existing transition
         if (this.transition) {
             adjustment.remove_transition("scroll");
             this.transition = null;
         }
-        if (this.pauseTimerId != null) {
-            GLib.source_remove(this.pauseTimerId);
-            this.pauseTimerId = null;
-        }
 
-        const initial = new GObject.Value();
-        initial.init(GObject.TYPE_INT);
-        initial.set_int(adjustment.value);
-        const final = new GObject.Value();
-        final.init(GObject.TYPE_INT);
-        final.set_int(adjustment.upper);
-        const duration = (adjustment.upper - adjustment.value) / this.scrollSpeed;
-        const pspec = adjustment.find_property("value");
-        const interval = new Clutter.Interval({
-            valueType: pspec.value_type,
-            initial,
-            final,
-        });
+        // Stop listening to adjustment changes (setup complete)
+        this._disconnectSignal("adjustment-changed");
+
+        // Prepare Transition
+        const duration = adjustment.upper / this.scrollSpeed;
+        
         this.transition = new Clutter.PropertyTransition({
             propertyName: "value",
             progressMode: Clutter.AnimationMode.LINEAR,
             direction: this.direction,
-            repeatCount: 0,
+            repeatCount: -1,
             duration,
-            interval,
         });
+
+        // Set Interval
+        const interval = new Clutter.Interval({
+            valueType: GObject.TYPE_INT,
+            initial: adjustment.value,
+            final: adjustment.upper,
+        });
+        this.transition.set_interval(interval);
+
+        // Update text for seamless loop
         this.label.text = `${origText} ${origText}`;
-
-        // Disconnect the adjustment changed handler if it's still connected
-        if (this.onAdjustmentChangedId != null) {
-            adjustment.disconnect(this.onAdjustmentChangedId);
-            this.onAdjustmentChangedId = null;
-        }
-
-        this.transition.connect("completed", () => {
-            this.transition.rewind(); // Snap back to 0
-            
-            if (this.scrollPauseTime > 0) {
-                this.pauseTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this.scrollPauseTime, () => {
-                    this.pauseTimerId = null;
-                    if (!this.initPaused) {
-                        this.transition.start();
-                    }
-                    return GLib.SOURCE_REMOVE;
-                });
-            } else {
-                if (!this.initPaused) {
-                    this.transition.start();
-                }
-            }
-        });
-
-        if (this.scrollPauseTime > 0) {
-            this.pauseTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this.scrollPauseTime, () => {
-                this.pauseTimerId = null;
-                adjustment.add_transition("scroll", this.transition);
-                if (this.initPaused) {
-                    this.transition.pause();
-                }
-                return GLib.SOURCE_REMOVE;
-            });
-        } else {
-            adjustment.add_transition("scroll", this.transition);
-            if (this.initPaused) {
-                this.transition.pause();
-            }
+        
+        // Start
+        adjustment.add_transition("scroll", this.transition);
+        
+        if (this.initPaused || !this.is_mapped()) {
+            this.transition.pause();
         }
     }
 
-    /**
-     * @private
-     * @returns {void}
-     */
-    onShowChanged() {
-        if (this.label.visible === false) {
-            return;
-        }
+    /* --- EVENT HANDLERS --- */
 
-        // Check if widget is actually on stage before accessing width
-        if (!this.label.is_mapped() || this.label.get_stage() == null) {
-            // Defer the operation until the widget is actually on stage
-            this.onMappedId = this.label.connect("notify::mapped", () => {
-                if (this.label.is_mapped() && this.label.get_stage() != null) {
-                    this.processLabelWidth();
-                    if (this.onShowChangedId != null) {
-                        this.label.disconnect(this.onShowChangedId);
-                        this.onShowChangedId = null;
-                    }
-                    if (this.onMappedId != null) {
-                        this.label.disconnect(this.onMappedId);
-                        this.onMappedId = null;
-                    }
+    _onVisibilityChanged() {
+        if (!this.label.visible) return;
+
+        // Defer width calculation until mapped to stage
+        if (!this.label.is_mapped() || !this.label.get_stage()) {
+            const mapSignalId = this.label.connect("notify::mapped", () => {
+                if (this.label.is_mapped()) {
+                    this.label.disconnect(mapSignalId);
+                    this._processLabelWidth();
                 }
             });
             return;
         }
 
-        this.processLabelWidth();
-        if (this.onShowChangedId != null) {
-            this.label.disconnect(this.onShowChangedId);
-            this.onShowChangedId = null;
-        }
+        this._processLabelWidth();
     }
 
-    /**
-     * @private
-     * @returns {void}
-     */
-    processLabelWidth() {
-        debugLog(this.label.width, this.labelWidth);
-        const isLabelWider = this.label.width > this.labelWidth && this.labelWidth > 0;
+    _processLabelWidth() {
+        if (!this.label.is_mapped()) return;
+
+        // Compare natural width vs allocated/configured width
+        const natWidth = this.label.get_preferred_width(-1)[1];
+        const isLabelWider = natWidth > this.labelWidth && this.labelWidth > 0;
+
         if (isLabelWider && this.isScrolling) {
-            this.initScrolling();
+            this._initScrolling();
         }
+
         if (this.isFixedWidth && this.labelWidth > 0) {
             this.box.width = this.labelWidth;
             this.label.xAlign = Clutter.ActorAlign.CENTER;
             this.label.xExpand = true;
         } else if (isLabelWider) {
-            this.box.width = Math.min(this.label.width, this.labelWidth);
+            this.box.width = Math.min(natWidth, this.labelWidth);
         }
     }
 
+    /* --- UTILS & CLEANUP --- */
+
     /**
-     * @returns {boolean}
+     * Helper to track signals for auto-cleanup
      */
-    vfunc_scroll_event() {
-        return Clutter.EVENT_PROPAGATE;
+    _connectSignal(obj, name, cb) {
+        const id = obj.connect(name, cb);
+        this._signals.push({ obj, id, key: null });
+    }
+
+    /**
+     * Disconnect specific signal by key or generic cleanup
+     */
+    _disconnectSignal(key) {
+        const index = this._signals.findIndex(s => s.key === key);
+        if (index !== -1) {
+            const s = this._signals[index];
+            s.obj.disconnect(s.id);
+            this._signals.splice(index, 1);
+        }
+    }
+
+    onDestroy() {
+        // Remove Animation
+        if (this.transition) {
+            const adjustment = this.get_hadjustment();
+            if (adjustment) adjustment.remove_transition("scroll");
+            this.transition = null;
+        }
+
+        // Disconnect all tracked signals
+        this._signals.forEach(s => {
+            try {
+                s.obj.disconnect(s.id);
+            } catch (e) {
+                // Ignore if object already destroyed
+            }
+        });
+        this._signals = [];
     }
 }
 
-const GScrollingLabel = GObject.registerClass(
-    {
-        GTypeName: "ScrollingLabel",
-    },
-    ScrollingLabel,
-);
-
-export default GScrollingLabel;
+export default ScrollingLabel;

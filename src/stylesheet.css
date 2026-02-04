@@ -1,3 +1,6 @@
+/* stylesheet.css */
+
+/* --- General Utility --- */
 .colored-icon {
     -st-icon-style: requested;
 }
@@ -14,87 +17,138 @@
     padding: 0;
 }
 
+/* --- Panel Button --- */
 .panel-button {
-    padding-left: 6px;
-    padding-right: 6px;
+    padding: 0 6px;
 }
 
 .panel-button-box > * {
-    padding-left: 6px;
-    padding-right: 6px;
+    padding: 0 6px;
 }
 
-.panel-button-box > *:last-child:not(.controls-box) {
-    padding-left: 6px;
-    padding-right: 6px;
-}
-
+/* Remove padding for the controls box container itself */
 .panel-controls-box {
-    padding-left: 0px;
-    padding-right: 0px;
+    padding: 0;
 }
 
+/* Add padding to the children of the controls box */
 .panel-controls-box > * {
-    padding-left: 6px;
-    padding-right: 6px;
+    padding: 0 6px;
 }
 
+/* --- Popup Menu --- */
 .popup-menu-container {
-    padding: 12px;
+    padding: 0;
+    margin: 0;
+    background-color: transparent;
+    box-shadow: none;
 }
 
 .popup-menu-box {
-    border-width: 0px;
+    margin: 0;
+    padding: 16px;
+    border-radius: 12px;
+    border: none;
 }
 
 .popup-menu-box > * {
-    margin-top: 6px;
-    margin-bottom: 6px;
+    margin: 6px 0;
 }
 
+/* --- Player Icons (Top Row) --- */
 .popup-menu-player-icons {
     margin-top: 6px;
-    border-radius: 6px;
 }
 
 .popup-menu-player-icons-icon {
+    background-color: rgba(0, 0, 0, 0.3);
+    border-radius: 99px;
+    margin: 2px;
     padding: 6px;
-    background-color: rgba(0, 0, 0, 0.125);
-    transition-property: background-color;
-    transition-duration: 200ms;
+}
+
+.popup-menu-player-icons-icon-middle {
+    border-radius: 0 !important;
+}
+
+/* Optional: Ensure first and last maintain their styling */
+.popup-menu-player-icons-icon-first {
+    border-radius: 8px 0 0 8px !important;
 }
 
 .popup-menu-player-icons-icon-last {
-    border-radius: 0px 6px 6px 0px;
-}
-
-.popup-menu-player-icons-icon-first {
-    border-radius: 6px 0px 0px 6px;
+    border-radius: 0 8px 8px 0 !important;
 }
 
 .popup-menu-player-icons-icon:hover {
-    background-color: rgba(160, 160, 160, 0.25);
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 .popup-menu-player-icons-icon-active {
     background-color: rgba(160, 160, 160, 0.25);
 }
 
+.popup-menu-header-box {
+    spacing: 4px;
+}
+
 .popup-menu-player-label {
-    font-size: small;
-    margin-right: 6px;
-    margin-left: 6px;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0,0,0, 0.5);
+    font-size: 1.15em;
+    font-weight: 800;
+    margin: 0;
 }
 
+.popup-menu-icon {
+    icon-size: 1.5em;
+}
+
+/* --- Labels --- */
 .popup-menu-label-title {
-    font-size: large;
+    color: white;
+    text-shadow: 0 1px 1px rgba(0,0,0, 0.6);
+    font-size: 1.4em;
+    font-weight: 500;
 }
 
+/* --- Playback Controls --- */
 .popup-menu-control-icon {
-    padding: 6px;
+    padding: 4px;
+    margin: 0 2px;
     border-radius: 99px;
+    icon-size: 20px;
 }
 
 .popup-menu-control-icon:hover {
-    background-color: rgba(160, 160, 160, 0.25);
+    background-color: rgba(255, 255, 255, 0.25);
+}
+
+.popup-menu-control-icon:active {
+    background-color: rgba(255, 255, 255, 0.15);
+}
+
+/* --- Slider / Time Labels (For MenuSlider.js) --- */
+.popup-menu-label-time {
+    color: white;
+    text-shadow: 0 1px 1px rgba(0,0,0, 0.6);
+    font-size: 1.02em;
+    font-weight: 500;
+    opacity: 0.8;
+}
+
+.slider-fallback-container {
+    background-color: rgba(255,255,255,0.1);
+    border-radius: 99px;
+    margin: 10px 0;
+}
+
+.slider-fallback-bar {
+    background-color: #5e81ac;
+    border-radius: 5px;
+}
+
+.slider-fallback-progress {
+    background-color: #5e81ac;
+    border-radius: 99px;
 }

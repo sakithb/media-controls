@@ -1,64 +1,17 @@
-/** @import { PlaybackStatus } from '../../types/enums/common.js' */
-/** @import { MprisInterface, MprisPlayerInterface, PropertiesInterface, PlayerProxyProperties, MprisPlayerInterfaceMetadata, MprisPlayerInterfaceMetadataUnpacked } from '../../types/dbus.js' */
+/** @import { PlaybackStatus } from '../../types/enums/common1.js' */
 /** @import { KeysOf } from '../../types/misc.js' */
-import { MPRIS_PLAYER_IFACE_NAME, MPRIS_OBJECT_PATH, LoopStatus } from "../../types/enums/common.js";
+/** @import { PlayerProxyProperties } from '../../types/dbus.js' */
+
+import GLib from "gi://GLib";
+import { 
+    MPRIS_PLAYER_IFACE_NAME, 
+    MPRIS_OBJECT_PATH, 
+    LoopStatus 
+} from "../../types/enums/common.js";
 import { errorLog } from "../../utils/common.js";
 import { createDbusProxy } from "../../utils/shell_only.js";
 
-import GLib from "gi://GLib";
-
-/** @import Gio from 'gi://Gio' */
-
-/**
- * @typedef {Map<
- *     KeysOf<PlayerProxyProperties>,
- *     ((value: PlayerProxyProperties[KeysOf<PlayerProxyProperties>]) => void)[]
- * >} PlayerProxyChangeListeners
- */
-
 export default class PlayerProxy {
-    /**
-     * @private
-     * @type {boolean}
-     */
-    isPinned;
-    /**
-     * @private
-     * @type {MprisInterface}
-     */
-    mprisProxy;
-    /**
-     * @private
-     * @type {MprisPlayerInterface}
-     */
-    mprisPlayerProxy;
-    /**
-     * @private
-     * @type {PropertiesInterface}
-     */
-    propertiesProxy;
-    /**
-     * @private
-     * @type {PlayerProxyChangeListeners}
-     */
-    changeListeners;
-    /**
-     * @private
-     * @type {number}
-     */
-    pollSourceId;
-
-    /**
-     * @public
-     * @type {string}
-     */
-    busName;
-    /**
-     * @public
-     * @type {boolean}
-     */
-    isInvalid;
-
     /**
      * @param {string} busName
      */
@@ -66,61 +19,74 @@ export default class PlayerProxy {
         this.busName = busName;
         this.isPinned = false;
         this.isInvalid = true;
+        
+        // State
+        this.mprisProxy = null;
+        this.mprisPlayerProxy = null;
+        this.propertiesProxy = null;
+        
+        // Listener System: Map<Property, Map<Id, Callback>>
         this.changeListeners = new Map();
+        this._nextListenerId = 0;
+        
+        this.pollSourceId = null;
     }
 
     /**
      * @public
-     * @param {Gio.DBusInterfaceInfo} mprisIface
-     * @param {Gio.DBusInterfaceInfo} mprisPlayerIface
-     * @param {Gio.DBusInterfaceInfo} propertiesIface
      * @returns {Promise<boolean>}
      */
     async initPlayer(mprisIface, mprisPlayerIface, propertiesIface) {
-        const mprisProxy = createDbusProxy(mprisIface, this.busName, MPRIS_OBJECT_PATH).catch(errorLog);
-        const mprisPlayerProxy = createDbusProxy(mprisPlayerIface, this.busName, MPRIS_OBJECT_PATH).catch(errorLog);
-        const propertiesProxy = createDbusProxy(propertiesIface, this.busName, MPRIS_OBJECT_PATH).catch(errorLog);
-        const proxies = await Promise.all([mprisProxy, mprisPlayerProxy, propertiesProxy]).catch(errorLog);
-        if (proxies == null) {
-            errorLog("Failed to create proxies");
+        try {
+            const [mpris, player, props] = await Promise.all([
+                createDbusProxy(mprisIface, this.busName, MPRIS_OBJECT_PATH),
+                createDbusProxy(mprisPlayerIface, this.busName, MPRIS_OBJECT_PATH),
+                createDbusProxy(propertiesIface, this.busName, MPRIS_OBJECT_PATH)
+            ]);
+
+            this.mprisProxy = mpris;
+            this.mprisPlayerProxy = player;
+            this.propertiesProxy = props;
+
+            // Signal Handler: Updates cache and notifies listeners
+            this.propertiesProxy.connectSignal("PropertiesChanged", (proxy, sender, [, changedProps]) => {
+                const changes = changedProps; 
+                for (const prop in changes) {
+                    const value = changes[prop];
+                    this.mprisPlayerProxy.set_cached_property(prop, value);
+                    this._notifyListeners(prop, value.recursiveUnpack());
+                }
+            });
+
+            // Validation listeners
+            this.onChanged("Metadata", () => this.validatePlayer());
+            this.onChanged("Identity", () => this.validatePlayer());
+            this.onChanged("DesktopEntry", () => this.validatePlayer());
+
+            this.validatePlayer();
+            this._startInitializationPoller();
+            
+            return true;
+        } catch (e) {
+            errorLog(`Failed to init player ${this.busName}`, e);
             return false;
         }
-        this.mprisProxy = proxies[0];
-        this.mprisPlayerProxy = proxies[1];
-        this.propertiesProxy = proxies[2];
-        this.propertiesProxy.connectSignal("PropertiesChanged", (proxy, senderName, [, changedProperties]) => {
-            for (const [property, value] of Object.entries(changedProperties)) {
-                this.mprisPlayerProxy.set_cached_property(property, value);
-                this.callOnChangedListeners(
-                    /** @type {KeysOf<PlayerProxyProperties>} */ (property),
-                    value.recursiveUnpack(),
-                );
-            }
-        });
-        this.onChanged("Metadata", this.validatePlayer.bind(this));
-        this.onChanged("Identity", this.validatePlayer.bind(this));
-        this.onChanged("DesktopEntry", this.validatePlayer.bind(this));
-        this.validatePlayer();
-        this.pollTillInitialized();
-        return true;
     }
 
     /**
      * @public
-     * @returns {void}
      */
     pinPlayer() {
         this.isPinned = true;
-        this.callOnChangedListeners("IsPinned", this.isPinned);
+        this._notifyListeners("IsPinned", true);
     }
 
     /**
      * @public
-     * @returns {void}
      */
     unpinPlayer() {
         this.isPinned = false;
-        this.callOnChangedListeners("IsPinned", this.isPinned);
+        this._notifyListeners("IsPinned", false);
     }
 
     /**
@@ -132,478 +98,215 @@ export default class PlayerProxy {
     }
 
     /**
-     * Some players don't set the initial position and metadata immediately on startup
+     * Polls the player until valid metadata/position is available.
+     * Some players (like Spotify) are empty immediately after startup.
      * @private
-     * @returns {void}
      */
-    pollTillInitialized() {
-        const timeout = 5000;
-        const interval = 250;
-        let count = Math.ceil(timeout / interval);
+    _startInitializationPoller() {
+        const TIMEOUT_MS = 5000;
+        const INTERVAL_MS = 250;
+        let attemptsLeft = Math.ceil(TIMEOUT_MS / INTERVAL_MS);
 
-        this.pollSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, interval, () => {
-            count--;
+        if (this.pollSourceId) {
+            GLib.source_remove(this.pollSourceId);
+        }
 
-            // If source was already removed by a previous Promise handler, stop polling
-            if (this.pollSourceId == null) {
-                return GLib.SOURCE_REMOVE;
-            }
+        this.pollSourceId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, INTERVAL_MS, () => {
+            attemptsLeft--;
 
-            const positionPromise = this.propertiesProxy.GetAsync(MPRIS_PLAYER_IFACE_NAME, "Position");
-            const metadataPromise = this.propertiesProxy.GetAsync(MPRIS_PLAYER_IFACE_NAME, "Metadata");
-            Promise.all([positionPromise, metadataPromise])
-                .then(([positionVariant, metadataVariant]) => {
-                    // Check again if source was removed by another handler
-                    if (this.pollSourceId == null) {
-                        return;
-                    }
-
-                    const unpackedPosition = positionVariant[0].recursiveUnpack();
-                    const unpackedMetadata = metadataVariant[0].recursiveUnpack();
-                    if (unpackedPosition > 0 && unpackedMetadata["mpris:length"] > 0) {
-                        this.mprisPlayerProxy.set_cached_property("Position", positionVariant[0]);
-                        this.mprisPlayerProxy.set_cached_property("Metadata", metadataVariant[0]);
-                        this.callOnChangedListeners("Metadata", unpackedMetadata);
-                        // Remove the source and clear the ID
-                        GLib.source_remove(this.pollSourceId);
-                        this.pollSourceId = null;
-                    }
-                })
-                .catch(() => {
-                    // Check again if source was removed by another handler
-                    if (this.pollSourceId == null) {
-                        return;
-                    }
-                    // Remove the source and clear the ID on error
-                    GLib.source_remove(this.pollSourceId);
-                    this.pollSourceId = null;
-                });
-
-            // Check count and remove source if timeout reached
-            if (count <= 0) {
+            if (!this.propertiesProxy || attemptsLeft <= 0) {
                 this.pollSourceId = null;
                 return GLib.SOURCE_REMOVE;
             }
+
+            Promise.all([
+                this.propertiesProxy.GetAsync(MPRIS_PLAYER_IFACE_NAME, "Position").catch(() => null),
+                this.propertiesProxy.GetAsync(MPRIS_PLAYER_IFACE_NAME, "Metadata").catch(() => null)
+            ]).then(([posVar, metaVar]) => {
+                if (!posVar || !metaVar) return;
+
+                const pos = posVar[0].recursiveUnpack();
+                const meta = metaVar[0].recursiveUnpack();
+
+                // Success condition: We have data
+                if (pos > 0 && meta["mpris:length"] > 0) {
+                    this.mprisPlayerProxy.set_cached_property("Position", posVar[0]);
+                    this.mprisPlayerProxy.set_cached_property("Metadata", metaVar[0]);
+                    this._notifyListeners("Metadata", meta);
+                    
+                    // Stop polling
+                    if (this.pollSourceId) {
+                        GLib.source_remove(this.pollSourceId);
+                        this.pollSourceId = null;
+                    }
+                }
+            });
+
             return GLib.SOURCE_CONTINUE;
         });
     }
 
     /**
      * @private
-     * @returns {void}
      */
     validatePlayer() {
-        const isValidName = this.mprisProxy.Identity || this.mprisProxy.DesktopEntry;
-        const isValidMetadata = this.metadata && this.metadata["xesam:title"];
-        this.isInvalid = !isValidName || !isValidMetadata;
-        this.callOnChangedListeners("IsInvalid", this.isInvalid);
+        const hasName = this.mprisProxy.Identity || this.mprisProxy.DesktopEntry;
+        const hasTitle = this.metadata && this.metadata["xesam:title"];
+        
+        const isInvalid = !hasName || !hasTitle;
+        
+        if (this.isInvalid !== isInvalid) {
+            this.isInvalid = isInvalid;
+            this._notifyListeners("IsInvalid", this.isInvalid);
+        }
     }
 
     /**
      * @private
-     * @param {MprisPlayerInterfaceMetadata} metadata
-     * @returns {MprisPlayerInterfaceMetadataUnpacked | null}
      */
     unpackMetadata(metadata) {
-        if (metadata == null) {
-            return null;
+        if (!metadata) return null;
+        const unpacked = {};
+        for (const [key, val] of Object.entries(metadata)) {
+            unpacked[key] = val.recursiveUnpack();
         }
-
-        const unpackedMetadata = {};
-        for (const [key, value] of Object.entries(metadata)) {
-            unpackedMetadata[key] = value.recursiveUnpack();
-        }
-        return /** @type {MprisPlayerInterfaceMetadataUnpacked} */ (unpackedMetadata);
+        return unpacked;
     }
 
-    /**
-     * @private
-     * @template {KeysOf<PlayerProxyProperties>} T
-     * @param {T} property
-     * @param {PlayerProxyProperties[T]} value
-     * @returns {void}
-     */
-    callOnChangedListeners(property, value) {
-        const listeners = this.changeListeners.get(property);
-        if (listeners == null) {
-            return;
-        }
-        for (const listener of listeners) {
-            try {
-                listener(value);
-            } catch (error) {
-                errorLog(`Failed to call listener for property ${property}:`, error);
-            }
-        }
-    }
-
-    /**
-     * @returns {PlaybackStatus}
-     */
-    get playbackStatus() {
-        return this.mprisPlayerProxy.PlaybackStatus;
-    }
-
-    /**
-     * @returns {LoopStatus}
-     */
-    get loopStatus() {
-        return this.mprisPlayerProxy.LoopStatus;
-    }
-
-    /**
-     * @returns {number}
-     */
-    get rate() {
-        return this.mprisPlayerProxy.Rate;
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    get shuffle() {
-        return this.mprisPlayerProxy.Shuffle;
-    }
-
-    /**
-     * @returns {MprisPlayerInterfaceMetadataUnpacked}
-     */
-    get metadata() {
-        return this.unpackMetadata(this.mprisPlayerProxy.Metadata);
-    }
-
-    /**
-     * @returns {number}
-     */
-    get volume() {
-        return this.mprisPlayerProxy.Volume;
-    }
-
-    /**
-     * @returns {Promise<number>}
-     */
-    get position() {
-        return this.propertiesProxy
-            .GetAsync(MPRIS_PLAYER_IFACE_NAME, "Position")
-            .then((result) => {
-                return result[0].get_int64();
-            })
-            .catch(() => {
-                return null;
-            });
-    }
-
-    /**
-     * @returns {number}
-     */
-    get minimumRate() {
-        return this.mprisPlayerProxy.MinimumRate;
-    }
-
-    /**
-     * @returns {number}
-     */
-    get maximumRate() {
-        return this.mprisPlayerProxy.MaximumRate;
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    get canGoNext() {
-        return this.mprisPlayerProxy.CanGoNext;
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    get canGoPrevious() {
-        return this.mprisPlayerProxy.CanGoPrevious;
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    get canPlay() {
-        return this.mprisPlayerProxy.CanPlay;
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    get canPause() {
-        return this.mprisPlayerProxy.CanPause;
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    get canSeek() {
-        return this.mprisPlayerProxy.CanSeek;
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    get canControl() {
-        return this.mprisPlayerProxy.CanControl;
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    get canQuit() {
-        return this.mprisProxy.CanQuit;
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    get canRaise() {
-        return this.mprisProxy.CanRaise;
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    get canSetFullscreen() {
-        return this.mprisProxy.CanSetFullscreen;
-    }
-
-    /**
-     * @returns {string}
-     */
-    get desktopEntry() {
-        return this.mprisProxy.DesktopEntry;
-    }
-
-    /**
-     * @returns {boolean}
-     */
-    get hasTrackList() {
-        return this.mprisProxy.HasTrackList;
-    }
-
-    /**
-     * @returns {string}
-     */
-    get identity() {
-        return this.mprisProxy.Identity;
-    }
-
-    /**
-     * @returns {string[]}
-     */
-    get supportedMimeTypes() {
-        return this.mprisProxy.SupportedMimeTypes;
-    }
-
-    /**
-     * @returns {string[]}
-     */
-    get supportedUriSchemes() {
-        return this.mprisProxy.SupportedUriSchemes;
-    }
-
-    /**
-     * @param {LoopStatus} loopStatus
-     */
-    set loopStatus(loopStatus) {
-        this.mprisPlayerProxy.LoopStatus = loopStatus;
-    }
-
-    /**
-     * @param {number} rate
-     */
-    set rate(rate) {
-        this.mprisPlayerProxy.Rate = rate;
-    }
-
-    /**
-     * @param {boolean} shuffle
-     */
-    set shuffle(shuffle) {
-        this.mprisPlayerProxy.Shuffle = shuffle;
-    }
-
-    /**
-     * @param {number} volume
-     */
-    set volume(volume) {
-        this.mprisPlayerProxy.Volume = volume;
-    }
-
-    /**
-     * @param {boolean} fullscreen
-     */
-    set fullscreen(fullscreen) {
-        this.mprisProxy.Fullscreen = fullscreen;
-    }
+    /* --- EVENT SYSTEM --- */
 
     /**
      * @public
-     * @returns {Promise<void>}
-     */
-    async next() {
-        await this.mprisPlayerProxy.NextAsync().catch(errorLog);
-    }
-
-    /**
-     * @public
-     * @returns {Promise<void>}
-     */
-    async previous() {
-        await this.mprisPlayerProxy.PreviousAsync().catch(errorLog);
-    }
-
-    /**
-     * @public
-     * @returns {Promise<void>}
-     */
-    async pause() {
-        await this.mprisPlayerProxy.PauseAsync().catch(errorLog);
-    }
-
-    /**
-     * @public
-     * @returns {Promise<void>}
-     */
-    async playPause() {
-        await this.mprisPlayerProxy.PlayPauseAsync().catch(errorLog);
-    }
-
-    /**
-     * @public
-     * @returns {Promise<void>}
-     */
-    async stop() {
-        await this.mprisPlayerProxy.StopAsync().catch(errorLog);
-    }
-
-    /**
-     * @public
-     * @returns {Promise<void>}
-     */
-    async play() {
-        await this.mprisPlayerProxy.PlayAsync().catch(errorLog);
-    }
-
-    /**
-     * @public
-     * @param {number} offset
-     * @returns {Promise<void>}
-     */
-    async seek(offset) {
-        await this.mprisPlayerProxy.SeekAsync(offset).catch(errorLog);
-    }
-
-    /**
-     * @public
-     * @param {string} trackId
-     * @param {number} position
-     * @returns {Promise<void>}
-     */
-    async setPosition(trackId, position) {
-        await this.mprisPlayerProxy.SetPositionAsync(trackId, position).catch(errorLog);
-    }
-
-    /**
-     * @public
-     * @param {string} uri
-     * @returns {Promise<void>}
-     */
-    async openUri(uri) {
-        await this.mprisPlayerProxy.OpenUriAsync(uri).catch(errorLog);
-    }
-
-    /**
-     * @public
-     * @returns {Promise<void>}
-     */
-    async raise() {
-        await this.mprisProxy.RaiseAsync().catch(errorLog);
-    }
-
-    /**
-     * @public
-     * @returns {Promise<void>}
-     */
-    async quit() {
-        await this.mprisProxy.QuitAsync().catch(errorLog);
-    }
-
-    /**
-     * @public
-     * @returns {void}
-     */
-    toggleLoop() {
-        const loopStatuses = Object.values(LoopStatus);
-        const currentIndex = loopStatuses.findIndex((loop) => loop === this.loopStatus);
-        const nextIndex = (currentIndex + 1 + loopStatuses.length) % loopStatuses.length;
-        this.loopStatus = loopStatuses[nextIndex];
-    }
-
-    /**
-     * @public
-     * @returns {void}
-     */
-    toggleShuffle() {
-        this.shuffle = !this.shuffle;
-    }
-
-    /**
-     * @public
-     * @param {(position: number) => void} callback
-     * @returns {any}
-     */
-    onSeeked(callback) {
-        const signalId = this.mprisPlayerProxy.connectSignal("Seeked", () => {
-            this.position.then(callback);
-        });
-        return this.mprisPlayerProxy.disconnectSignal.bind(this.mprisPlayerProxy, signalId);
-    }
-
-    /**
-     * @public
-     * @template {KeysOf<PlayerProxyProperties>} T
-     * @param {T} property
-     * @param {(value: PlayerProxyProperties[T]) => void} callback
-     * @returns {number}
+     * @param {string} property
+     * @param {Function} callback
+     * @returns {number} Listener ID (for removal)
      */
     onChanged(property, callback) {
-        const listeners = this.changeListeners.get(property);
-        let id;
-        if (listeners == null) {
-            id = 0;
-            this.changeListeners.set(property, [callback]);
-        } else {
-            id = listeners.push(callback);
+        if (!this.changeListeners.has(property)) {
+            this.changeListeners.set(property, new Map());
         }
+        
+        const id = this._nextListenerId++;
+        this.changeListeners.get(property).set(id, callback);
         return id;
     }
 
     /**
      * @public
-     * @template {KeysOf<PlayerProxyProperties>} T
-     * @param {T} property
+     * @param {string} property
      * @param {number} id
-     * @returns {void}
      */
     removeListener(property, id) {
         const listeners = this.changeListeners.get(property);
-        if (listeners == null) {
-            return;
+        if (listeners) {
+            listeners.delete(id);
+            if (listeners.size === 0) {
+                this.changeListeners.delete(property);
+            }
         }
-        listeners.splice(id, 1);
     }
 
     /**
-     * @public
-     * @returns {void}
+     * @private
      */
+    _notifyListeners(property, value) {
+        const listeners = this.changeListeners.get(property);
+        if (!listeners) return;
+
+        for (const callback of listeners.values()) {
+            try {
+                callback(value);
+            } catch (e) {
+                errorLog(`Error in listener for ${property}:`, e);
+            }
+        }
+    }
+
+    /* --- GETTERS / SETTERS --- */
+
+    get playbackStatus() { return this.mprisPlayerProxy.PlaybackStatus; }
+    get loopStatus() { return this.mprisPlayerProxy.LoopStatus; }
+    get rate() { return this.mprisPlayerProxy.Rate; }
+    get shuffle() { return this.mprisPlayerProxy.Shuffle; }
+    get volume() { return this.mprisPlayerProxy.Volume; }
+    get metadata() { return this.unpackMetadata(this.mprisPlayerProxy.Metadata); }
+    
+    // Async Getters
+    get position() {
+        return this.propertiesProxy
+            .GetAsync(MPRIS_PLAYER_IFACE_NAME, "Position")
+            .then(res => res[0].get_int64())
+            .catch(() => null);
+    }
+
+    // Caps
+    get minimumRate() { return this.mprisPlayerProxy.MinimumRate; }
+    get maximumRate() { return this.mprisPlayerProxy.MaximumRate; }
+    get canGoNext() { return this.mprisPlayerProxy.CanGoNext; }
+    get canGoPrevious() { return this.mprisPlayerProxy.CanGoPrevious; }
+    get canPlay() { return this.mprisPlayerProxy.CanPlay; }
+    get canPause() { return this.mprisPlayerProxy.CanPause; }
+    get canSeek() { return this.mprisPlayerProxy.CanSeek; }
+    get canControl() { return this.mprisPlayerProxy.CanControl; }
+    
+    get canQuit() { return this.mprisProxy.CanQuit; }
+    get canRaise() { return this.mprisProxy.CanRaise; }
+    get canSetFullscreen() { return this.mprisProxy.CanSetFullscreen; }
+    
+    get desktopEntry() { return this.mprisProxy.DesktopEntry; }
+    get hasTrackList() { return this.mprisProxy.HasTrackList; }
+    get identity() { return this.mprisProxy.Identity; }
+    get supportedMimeTypes() { return this.mprisProxy.SupportedMimeTypes; }
+    get supportedUriSchemes() { return this.mprisProxy.SupportedUriSchemes; }
+
+    // Setters
+    set loopStatus(v) { this.mprisPlayerProxy.LoopStatus = v; }
+    set rate(v) { this.mprisPlayerProxy.Rate = v; }
+    set shuffle(v) { this.mprisPlayerProxy.Shuffle = v; }
+    set volume(v) { this.mprisPlayerProxy.Volume = v; }
+    set fullscreen(v) { this.mprisProxy.Fullscreen = v; }
+
+    /* --- ACTIONS --- */
+
+    async next() { await this.mprisPlayerProxy.NextAsync().catch(errorLog); }
+    async previous() { await this.mprisPlayerProxy.PreviousAsync().catch(errorLog); }
+    async pause() { await this.mprisPlayerProxy.PauseAsync().catch(errorLog); }
+    async playPause() { await this.mprisPlayerProxy.PlayPauseAsync().catch(errorLog); }
+    async stop() { await this.mprisPlayerProxy.StopAsync().catch(errorLog); }
+    async play() { await this.mprisPlayerProxy.PlayAsync().catch(errorLog); }
+    async seek(offset) { await this.mprisPlayerProxy.SeekAsync(offset).catch(errorLog); }
+    async setPosition(trackId, position) { await this.mprisPlayerProxy.SetPositionAsync(trackId, position).catch(errorLog); }
+    async openUri(uri) { await this.mprisPlayerProxy.OpenUriAsync(uri).catch(errorLog); }
+    
+    async raise() { await this.mprisProxy.RaiseAsync().catch(errorLog); }
+    async quit() { await this.mprisProxy.QuitAsync().catch(errorLog); }
+
+    toggleLoop() {
+        const statuses = Object.values(LoopStatus);
+        const currentIdx = statuses.indexOf(this.loopStatus);
+        const nextIdx = (currentIdx + 1) % statuses.length;
+        this.loopStatus = statuses[nextIdx];
+    }
+
+    toggleShuffle() {
+        this.shuffle = !this.shuffle;
+    }
+
+    /**
+     * Special wrapper for 'Seeked' signal
+     */
+    onSeeked(callback) {
+        const signalId = this.mprisPlayerProxy.connectSignal("Seeked", () => {
+            this.position.then(callback);
+        });
+        return () => this.mprisPlayerProxy.disconnectSignal(signalId);
+    }
+
     onDestroy() {
         if (this.pollSourceId != null) {
             GLib.source_remove(this.pollSourceId);
+            this.pollSourceId = null;
         }
+        this.changeListeners.clear();
     }
 }
