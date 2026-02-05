@@ -24,7 +24,9 @@ import {
     LoopStatus,
     PlaybackStatus,
     WidgetFlags,
-} from "../../types/enums/common.js";
+} from "../../types/enums/common1.js";
+import { LyricsClient } from "../../utils/LyricsClient.js";
+import { LyricsWidget } from "../../utils/LyricsWidget.js";
 
 Gio._promisify(GdkPixbuf.Pixbuf, "new_from_stream_async", "new_from_stream_finish");
 Gio._promisify(Gio.File.prototype, "query_info_async", "query_info_finish");
@@ -50,12 +52,10 @@ class PanelButton extends PanelMenu.Button {
         this.extension = extension;
         this.changeListenerIds = new Map();
         this.doubleTapSourceId = null;
-        
-        this._lastTrackId = null; 
 
         // Initialize UI
         this.updateWidgets(WidgetFlags.ALL);
-        
+
         // Listeners
         this.addProxyListeners();
         this.initActions();
@@ -63,6 +63,13 @@ class PanelButton extends PanelMenu.Button {
         // @ts-expect-error
         this.menu.box.add_style_class_name("popup-menu-container");
         this.connect("destroy", this.onDestroy.bind(this));
+
+        // Lyrics
+        this.lyricsClient = new LyricsClient();
+        this.isLyricsMode = false; // Toggle state
+        this._currentLyricsTrackId = null;
+        this._currentLyricsData = null;
+        this._currentLyricsState = null; // 'lyrics' | 'empty'
     }
 
     /**
@@ -158,10 +165,10 @@ class PanelButton extends PanelMenu.Button {
 
     addMenuPlayers() {
         if (!this.menuPlayers) this.menuPlayers = new St.BoxLayout({ vertical: true });
-        
+
         // Header (Icon + Name + Pin)
         if (!this.menuPlayersTextBox) {
-            this.menuPlayersTextBox = new St.BoxLayout({ 
+            this.menuPlayersTextBox = new St.BoxLayout({
                 marginBottom: 6,
                 style_class: "popup-menu-header-box" // Helper class for alignment
             });
@@ -191,7 +198,7 @@ class PanelButton extends PanelMenu.Button {
             });
         }
 
-        // Icons List (Logic remains same, just ensuring correct state)
+        // Icons List
         const players = this.extension.getPlayers();
         if (players.length > 1 && !this.menuPlayerIcons) {
             this.menuPlayerIcons = new St.BoxLayout({ styleClass: "popup-menu-player-icons" });
@@ -250,35 +257,105 @@ class PanelButton extends PanelMenu.Button {
 
         if (hasMultiple) {
             this.menuPlayersTextBoxIcon.gicon = null;
-            // When multiple, show Pin on right, Label on left/center
             this.menuPlayersTextBox.insert_child_at_index(this.menuPlayersTextBoxPin, 1);
-            this.menuPlayersTextBox.xAlign = Clutter.ActorAlign.FILL; 
+            this.menuPlayersTextBox.xAlign = Clutter.ActorAlign.FILL;
             this.menuPlayersTextBoxLabel.xExpand = true;
             this.menuPlayersTextBoxLabel.xAlign = Clutter.ActorAlign.START;
         } else {
             this.menuPlayersTextBoxIcon.gicon = appIcon;
-            // When single, Show Icon + Name centered together
             this.menuPlayersTextBox.insert_child_at_index(this.menuPlayersTextBoxIcon, 0);
-            this.menuPlayersTextBox.xAlign = Clutter.ActorAlign.CENTER; // Center the whole group
+            this.menuPlayersTextBox.xAlign = Clutter.ActorAlign.CENTER; 
             this.menuPlayersTextBoxLabel.xExpand = false;
             this.menuPlayersTextBoxLabel.xAlign = Clutter.ActorAlign.CENTER;
         }
     }
 
     async addMenuImage() {
-        if (!this.menuImage) {
-            this.menuImage = new St.Icon({
-                xExpand: true,
-                yExpand: false,
-                xAlign: Clutter.ActorAlign.CENTER,
-                styleClass: "popup-menu-icon-art" 
+        if (!this.artStack) {
+            this.artStack = new St.Widget({
+                layout_manager: new Clutter.BinLayout(),
+                x_expand: true,
+                y_expand: true,
+                reactive: true,
+                track_hover: true,
             });
+
+            this._bindClick(this.artStack, () => this._toggleLyricsView());
+
+            // Album Art
+            this.menuImage = new St.Icon({
+                x_expand: true,
+                y_expand: true,
+                x_align: Clutter.ActorAlign.CENTER,
+                style_class: "popup-menu-icon-art",
+                reactive: false
+            });
+
+            // Lyrics Widget
+            this.lyricsWidget = new LyricsWidget(270, 270);
+            this.lyricsWidget.visible = false;
+            this.lyricsWidget.reactive = false;
+
+            // --- Hover Overlay Label ---
+            this.lyricsOverlayLabel = new St.Label({
+                text: "Show Lyrics",
+                style_class: "lyrics-overlay-label",
+                opacity: 0,
+                x_align: Clutter.ActorAlign.CENTER,
+                y_align: Clutter.ActorAlign.CENTER,
+                reactive: false
+            });
+
+            this._overlayTimeoutId = null;
+
+            const resetOverlayTimer = () => {
+                if (this._overlayTimeoutId) GLib.source_remove(this._overlayTimeoutId);
+
+                this.lyricsOverlayLabel.ease({
+                    opacity: 100,
+                    duration: 200,
+                    mode: Clutter.AnimationMode.EASE_OUT_QUAD
+                });
+
+                this._overlayTimeoutId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 1500, () => {
+                    this.lyricsOverlayLabel.ease({
+                        opacity: 0,
+                        duration: 1000,
+                        mode: Clutter.AnimationMode.EASE_IN_QUAD
+                    });
+                    this._overlayTimeoutId = null;
+                    return GLib.SOURCE_REMOVE;
+                });
+            };
+
+            this.artStack.connect("motion-event", () => {
+                if (this.artStack.hover) resetOverlayTimer();
+                return Clutter.EVENT_PROPAGATE;
+            });
+
+            this.artStack.connect("notify::hover", () => {
+                if (this.artStack.hover) {
+                    this.lyricsOverlayLabel.text = this.isLyricsMode ? "Hide Lyrics" : "Show Lyrics";
+                    resetOverlayTimer();
+                } else {
+                    if (this._overlayTimeoutId) {
+                        GLib.source_remove(this._overlayTimeoutId);
+                        this._overlayTimeoutId = null;
+                    }
+                    this.lyricsOverlayLabel.opacity = 0;
+                }
+            });
+
+            this.artStack.add_child(this.menuImage);
+            this.artStack.add_child(this.lyricsWidget);
+            this.artStack.add_child(this.lyricsOverlayLabel);
         }
 
+
+        // --- Metadata Fetching---
         let artUrl = this.playerProxy.metadata["mpris:artUrl"];
         let stream = await getImage(artUrl);
 
-        // Fallback for local files
         if (!stream && this.playerProxy.metadata["xesam:url"]) {
             try {
                 const trackUri = GLib.uri_parse(this.playerProxy.metadata["xesam:url"], GLib.UriFlags.NONE);
@@ -304,18 +381,16 @@ class PanelButton extends PanelMenu.Button {
             }
         }
 
-        // --- SIZE CALCULATION (Hardcoded Logic) ---
-        // 1. Try to get menu width
+        // --- SIZE CALCULATION ---
         let width = this._getMenuItemWidth();
-        
-        // 2. Fallback: If width is invalid or 0 (common if menu isn't open yet), use a FIXED size.
-        // This acts as the "Hardcoded Size" ensuring Browser users always see a proper box.
         if (!width || width < 100) {
-            width = 270; // Standard medium size
+            width = 270;
         }
+        const height = width;
 
-        // 3. Force Height = Width (Square 1:1)
-        const height = width; 
+        // Update Lyrics Widget Size
+        this.lyricsWidget.set_width(width);
+        this.lyricsWidget.set_height(height);
 
         let artSet = false;
 
@@ -323,19 +398,16 @@ class PanelButton extends PanelMenu.Button {
             try {
                 const pixbuf = await GdkPixbuf.Pixbuf.new_from_stream_async(stream, null);
                 if (pixbuf) {
-                    // Force-scale image to our Hardcoded Square Dimensions
                     const scaledPixbuf = pixbuf.scale_simple(width, height, GdkPixbuf.InterpType.BILINEAR);
-                    
                     const [success, buffer] = scaledPixbuf.save_to_bufferv("png", [], []);
                     if (success) {
                         this.menuImage.content = null;
                         this.menuImage.gicon = Gio.BytesIcon.new(GLib.Bytes.new(buffer));
-                        
-                        // Disable auto-sizing and force our dimensions
-                        this.menuImage.icon_size = -1; 
+
+                        this.menuImage.icon_size = -1;
                         this.menuImage.set_size(width, height);
                         this.menuImage.set_style(`width: ${width}px; height: ${height}px; icon-size: ${width}px;`);
-                        
+
                         artSet = true;
                     }
                 }
@@ -345,21 +417,18 @@ class PanelButton extends PanelMenu.Button {
         }
 
         if (!artSet) {
-            // Fallback Icon (Square)
             this.menuImage.content = null;
             this.menuImage.gicon = Gio.ThemedIcon.new("audio-x-generic-symbolic");
-            
+
             const iconSize = width / 2;
             this.menuImage.icon_size = iconSize;
-            this.menuImage.set_size(width, width); 
+            this.menuImage.set_size(width, width);
             this.menuImage.set_style(null);
-            
             this.menuBox.set_style(null);
         } else {
-            // Ambilight Background
             const colorStream = await getImage(artUrl);
             const baseColor = await getDominantColor(colorStream);
-            
+
             if (baseColor) {
                 const rgb = baseColor.replace("rgb(", "").replace(")", "");
                 const startColor = `rgba(${rgb}, 0.95)`;
@@ -374,9 +443,10 @@ class PanelButton extends PanelMenu.Button {
             }
         }
 
-        if (!this.menuImage.get_parent()) {
-            this.menuBox.insert_child_above(this.menuImage, this.menuPlayers);
-            debugLog("Added menu image");
+        // --- Add Stack to MenuBox ---
+        if (!this.artStack.get_parent()) {
+            this.menuBox.insert_child_above(this.artStack, this.menuPlayers);
+            debugLog("Added menu image stack");
         }
     }
 
@@ -410,7 +480,7 @@ class PanelButton extends PanelMenu.Button {
             scrollSpeed: this.extension.scrollSpeed,
         });
 
-        // CSS classes
+        // Use CSS classes
         this.menuLabelTitle.label.add_style_class_name("popup-menu-label-title");
         this.menuLabelSubtitle.label.add_style_class_name("popup-menu-label-title"); // Reusing title style, or define new one
         this.menuLabelSubtitle.label.style = "font-size: 1.05em; opacity: 0.8;"; // Minor inline override allowed for specificity, or move to CSS
@@ -458,8 +528,6 @@ class PanelButton extends PanelMenu.Button {
 
         const p = this.playerProxy;
         const canCtrl = p.canControl;
-
-        // Helper to determine active status
         const isPlaying = p.playbackStatus === PlaybackStatus.PLAYING;
 
         if (flags & WidgetFlags.MENU_CONTROLS_LOOP) {
@@ -672,6 +740,128 @@ class PanelButton extends PanelMenu.Button {
         }
     }
 
+
+    /* --- LYRICS --- */
+    _toggleLyricsView() {
+        this.isLyricsMode = !this.isLyricsMode;
+
+        if (this.lyricsOverlayLabel) {
+            this.lyricsOverlayLabel.text = this.isLyricsMode ? "Hide Lyrics" : "Show Lyrics";
+        }
+        const duration = 500;
+
+        if (this.isLyricsMode) {
+            this.lyricsWidget.opacity = 0;
+            this.lyricsWidget.show();
+
+            this.menuImage.ease({
+                opacity: 0,
+                duration,
+                mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+                onComplete: () => this.menuImage.hide()
+            });
+
+            this.lyricsWidget.ease({
+                opacity: 255,
+                duration,
+                mode: Clutter.AnimationMode.EASE_OUT_QUAD
+            });
+
+            this._manageLyricsTimer(true);
+            this._fetchLyricsIfNeeded();
+        } else {
+            this.menuImage.opacity = 0;
+            this.menuImage.show();
+
+            this.lyricsWidget.ease({
+                opacity: 0,
+                duration,
+                mode: Clutter.AnimationMode.EASE_OUT_QUAD,
+                onComplete: () => this.lyricsWidget.hide()
+            });
+
+            this.menuImage.ease({
+                opacity: 255,
+                duration,
+                mode: Clutter.AnimationMode.EASE_OUT_QUAD
+            });
+
+            this._manageLyricsTimer(false);
+        }
+    }
+
+    _manageLyricsTimer(shouldRun) {
+        if (shouldRun) {
+            if (this._lyricsTimer) return;
+
+            this._lyricsTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
+                if (!this.isLyricsMode || !this.playerProxy) {
+                    this._lyricsTimer = null;
+                    return GLib.SOURCE_REMOVE;
+                }
+
+                if (this.playerProxy.playbackStatus === PlaybackStatus.PLAYING) {
+                    this.playerProxy.position.then(pos => {
+                        // MPRIS returns microseconds, convert to Milliseconds
+                        if (pos != null && this.lyricsWidget) {
+                            this.lyricsWidget.updatePosition(pos / 1000);
+                        }
+                    }).catch(() => { });
+                }
+                return GLib.SOURCE_CONTINUE;
+            });
+        } else {
+            if (this._lyricsTimer) {
+                GLib.source_remove(this._lyricsTimer);
+                this._lyricsTimer = null;
+            }
+        }
+    }
+
+    async _fetchLyricsIfNeeded() {
+        const title = this.playerProxy.metadata["xesam:title"];
+        const artist = this.playerProxy.metadata["xesam:artist"]?.join(", ");
+        const album = this.playerProxy.metadata["xesam:album"];
+        const length = this.playerProxy.metadata["mpris:length"] / 1000000;
+
+        const trackId = title + artist;
+
+        /* ---------- SAME SONG CACHE HIT ---------- */
+        if (this._currentLyricsTrackId === trackId) {
+            if (this._currentLyricsState === 'lyrics') {
+                this.lyricsWidget.setLyrics(this._currentLyricsData);
+            } else if (this._currentLyricsState === 'empty') {
+                this.lyricsWidget.showEmpty();
+            }
+            return;
+        }
+
+        /* ---------- NEW SONG ---------- */
+        this._currentLyricsTrackId = trackId;
+        this._currentLyricsData = null;
+        this._currentLyricsState = null;
+
+        this.lyricsWidget.showLoading();
+
+        const lyrics = await this.lyricsClient.getLyrics(
+            title,
+            artist,
+            album,
+            length
+        );
+
+        if (lyrics && lyrics.length > 0) {
+            this._currentLyricsData = lyrics;
+            this._currentLyricsState = 'lyrics';
+            this.lyricsWidget.setLyrics(lyrics);
+        } else {
+            this._currentLyricsData = null;
+            this._currentLyricsState = 'empty';
+            this.lyricsWidget.showEmpty();
+        }
+    }
+
+
     /* --- HELPERS --- */
 
     _bindClick(actor, callback) {
@@ -735,32 +925,112 @@ class PanelButton extends PanelMenu.Button {
     addProxyListeners() {
         // Mapping properties to widget updates
         const map = {
-            "Metadata": WidgetFlags.PANEL_LABEL | WidgetFlags.MENU_IMAGE | WidgetFlags.MENU_LABELS | WidgetFlags.MENU_SLIDER,
-            "PlaybackStatus": WidgetFlags.PANEL_CONTROLS_PLAYPAUSE | WidgetFlags.MENU_CONTROLS_PLAYPAUSE,
-            "CanPlay": WidgetFlags.PANEL_CONTROLS_PLAYPAUSE | WidgetFlags.MENU_CONTROLS_PLAYPAUSE,
-            "CanPause": WidgetFlags.PANEL_CONTROLS_PLAYPAUSE | WidgetFlags.MENU_CONTROLS_PLAYPAUSE,
-            "CanSeek": WidgetFlags.PANEL_CONTROLS_SEEK_FORWARD | WidgetFlags.PANEL_CONTROLS_SEEK_BACKWARD,
-            "CanGoNext": WidgetFlags.PANEL_CONTROLS_NEXT | WidgetFlags.MENU_CONTROLS_NEXT,
-            "CanGoPrevious": WidgetFlags.PANEL_CONTROLS_PREVIOUS | WidgetFlags.MENU_CONTROLS_PREV,
-            "CanControl": WidgetFlags.PANEL_CONTROLS | WidgetFlags.MENU_CONTROLS,
-            "Shuffle": WidgetFlags.MENU_CONTROLS_SHUFFLE,
-            "LoopStatus": WidgetFlags.MENU_CONTROLS_LOOP,
-            "IsPinned": WidgetFlags.MENU_PLAYERS
+            "Metadata":
+                WidgetFlags.PANEL_LABEL |
+                WidgetFlags.MENU_IMAGE |
+                WidgetFlags.MENU_LABELS |
+                WidgetFlags.MENU_SLIDER,
+
+            "PlaybackStatus":
+                WidgetFlags.PANEL_CONTROLS_PLAYPAUSE |
+                WidgetFlags.MENU_CONTROLS_PLAYPAUSE,
+
+            "CanPlay":
+                WidgetFlags.PANEL_CONTROLS_PLAYPAUSE |
+                WidgetFlags.MENU_CONTROLS_PLAYPAUSE,
+
+            "CanPause":
+                WidgetFlags.PANEL_CONTROLS_PLAYPAUSE |
+                WidgetFlags.MENU_CONTROLS_PLAYPAUSE,
+
+            "CanSeek":
+                WidgetFlags.PANEL_CONTROLS_SEEK_FORWARD |
+                WidgetFlags.PANEL_CONTROLS_SEEK_BACKWARD,
+
+            "CanGoNext":
+                WidgetFlags.PANEL_CONTROLS_NEXT |
+                WidgetFlags.MENU_CONTROLS_NEXT,
+
+            "CanGoPrevious":
+                WidgetFlags.PANEL_CONTROLS_PREVIOUS |
+                WidgetFlags.MENU_CONTROLS_PREV,
+
+            "CanControl":
+                WidgetFlags.PANEL_CONTROLS |
+                WidgetFlags.MENU_CONTROLS,
+
+            "Shuffle":
+                WidgetFlags.MENU_CONTROLS_SHUFFLE,
+
+            "LoopStatus":
+                WidgetFlags.MENU_CONTROLS_LOOP,
+
+            "IsPinned":
+                WidgetFlags.MENU_PLAYERS
         };
 
         for (const [evt, flag] of Object.entries(map)) {
             this._addProxyListener(evt, () => {
                 this.updateWidgets(flag);
-                if (evt === "PlaybackStatus") this._toggleAnimations();
+
+                /* ---------- SONG CHANGE HANDLING ---------- */
+                if (evt === "Metadata") {
+                    this._currentLyricsTrackId = null;
+                    this._currentLyricsData = null;
+                    this._currentLyricsState = null;
+
+                    if (this.isLyricsMode) {
+                        this._fetchLyricsIfNeeded();
+                    }
+                }
+
+                /* ---------- PLAY / PAUSE ANIMATIONS ---------- */
+                if (evt === "PlaybackStatus") {
+                    this._toggleAnimations();
+                }
             });
         }
 
-        this._addProxyListener("Rate", () => this.menuSlider?.setRate(this.playerProxy.rate));
-        this.playerProxy.onSeeked((position) => this.menuSlider?.setPosition(position));
+        /* ---------- RATE CHANGE ---------- */
+        this._addProxyListener("Rate", () => {
+            this.menuSlider?.setRate(this.playerProxy.rate);
+        });
+
+        /* ---------- SEEK SYNC ---------- */
+        this.playerProxy.onSeeked((position) => {
+            // Slider update
+            this.menuSlider?.setPosition(position);
+
+            // Lyrics auto-follow (only if visible)
+            if (this.isLyricsMode && this.lyricsWidget) {
+                // µs → ms
+                this.lyricsWidget.updatePosition(position / 1000);
+            }
+        });
     }
+
 
     _toggleAnimations() {
         const isPlaying = this.playerProxy.playbackStatus === PlaybackStatus.PLAYING;
+
+        if (isPlaying) {
+            if (!this._lyricsTimer) {
+                this._lyricsTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
+                    if (this.isLyricsMode && this.playerProxy) {
+                        this.playerProxy.position.then(pos => {
+                            this.lyricsWidget.updatePosition(pos / 1000);
+                        }).catch(() => { });
+                    }
+                    return GLib.SOURCE_CONTINUE;
+                });
+            }
+        } else {
+            if (this._lyricsTimer) {
+                GLib.source_remove(this._lyricsTimer);
+                this._lyricsTimer = null;
+            }
+        }
+
         const method = isPlaying ? 'resume' : 'pause';
 
         this.buttonLabel?.[`${method}Scrolling`]?.();
@@ -870,6 +1140,10 @@ class PanelButton extends PanelMenu.Button {
         this._destroyChild("buttonControls");
         this._destroyChild("buttonBox");
         this._destroyChild("menuBox");
+        this._currentLyricsTrackId = null;
+        this._currentLyricsData = null;
+        this._currentLyricsState = null;
+
 
         if (this.doubleTapSourceId != null) {
             GLib.source_remove(this.doubleTapSourceId);

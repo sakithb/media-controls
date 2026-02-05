@@ -89,19 +89,19 @@
 }
 
 .popup-menu-header-box {
-    spacing: 4px;
+    spacing: 4px; /* Adds nice gap between Icon and Text */
 }
 
 .popup-menu-player-label {
     color: white;
     text-shadow: 0 1px 2px rgba(0,0,0, 0.5);
-    font-size: 1.15em;
-    font-weight: 800;
-    margin: 0;
+    font-size: 1.15em; /* Bigger header text */
+    font-weight: 800;  /* Bold */
+    margin: 0;         /* Margin handled by box spacing now */
 }
 
 .popup-menu-icon {
-    icon-size: 1.5em;
+    icon-size: 1.5em; /* Slightly larger icon to match text */
 }
 
 /* --- Labels --- */
@@ -151,4 +151,30 @@
 .slider-fallback-progress {
     background-color: #5e81ac;
     border-radius: 99px;
+}
+
+/* PIN ICON */
+.popup-menu-icon-pin {
+    icon-size: 1.2em;
+    padding: 6px;
+    margin: 0 4px;
+    border-radius: 99px;
+    transition-duration: 200ms;
+}
+
+
+.popup-menu-icon-pin.pinned {
+    color: #ff1100; /* Accent color for pinned state (Redish/Pink) */
+    background-color: rgba(177, 73, 73, 0.15);
+    box-shadow: inset 0 0 0 1px rgba(51, 12, 12, 0.5);
+}
+
+
+/* Lyrics Hover Overlay */
+.lyrics-overlay-label {
+    background-color: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-weight: bold;
 }
