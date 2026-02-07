@@ -96,9 +96,8 @@ export const getImage = async (url) => {
     if (url == null || url == "") {
         return null;
     }
-    const encoder = new TextEncoder();
-    const urlBytes = encoder.encode(url);
-    const encodedUrl = GLib.base64_encode(urlBytes);
+    // Use SHA1 for cache key instead of base64 to avoid filename length limits
+    const encodedUrl = GLib.compute_checksum_for_string(GLib.ChecksumType.SHA1, url, -1);
     const path = GLib.build_filenamev([GLib.get_user_cache_dir(), "mediacontrols@cliffniff.github.com", encodedUrl]);
     const exitCode = GLib.mkdir_with_parents(GLib.path_get_dirname(path), 493);
     if (exitCode === -1) {
@@ -129,6 +128,30 @@ export const getImage = async (url) => {
                 errorLog(`Failed to load local image: ${encodedUrl}`);
                 return null;
             }
+            return stream;
+        } else if (scheme === "data") {
+            const parts = url.split(',');
+            if (parts.length < 2) {
+                return null;
+            }
+            const meta = parts[0];
+            const data = parts[1];
+            let bytes = null;
+            if (meta.includes('base64')) {
+                const decoded = GLib.base64_decode(data);
+                bytes = GLib.Bytes.new(decoded);
+            } else {
+                const decoded = decodeURIComponent(data);
+                bytes = GLib.Bytes.new(decoded);
+            }
+            // @ts-expect-error Types are wrong
+            const resultPromise = file.replace_contents_bytes_async(bytes, null, false, Gio.FileCreateFlags.NONE, null);
+            const result = await resultPromise.catch(errorLog);
+            if (result?.[0] === false) {
+                errorLog(`Failed to cache image from data URI`);
+                return null;
+            }
+            const stream = await file.read_async(null, null).catch(errorLog);
             return stream;
         } else if (scheme === "http" || scheme === "https") {
             const session = new Soup.Session();
