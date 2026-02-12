@@ -102,7 +102,8 @@ class ScrollingLabel extends St.ScrollView {
         this.onShowChangedId = null;
         this.onAdjustmentChangedId = null;
         this.onMappedId = null;
-        this.pauseTimerId = null;
+        this.initialPauseTimerId = null;
+        this.cyclePauseTimerId = null;
         this.scrollSpeed = scrollSpeed / 100;
         this.box = new St.BoxLayout({
             xExpand: true,
@@ -169,9 +170,14 @@ class ScrollingLabel extends St.ScrollView {
             this.onMappedId = null;
         }
         
-        if (this.pauseTimerId != null) {
-            GLib.source_remove(this.pauseTimerId);
-            this.pauseTimerId = null;
+        if (this.initialPauseTimerId != null) {
+            GLib.source_remove(this.initialPauseTimerId);
+            this.initialPauseTimerId = null;
+        }
+
+        if (this.cyclePauseTimerId != null) {
+            GLib.source_remove(this.cyclePauseTimerId);
+            this.cyclePauseTimerId = null;
         }
         
         super.destroy();
@@ -237,9 +243,13 @@ class ScrollingLabel extends St.ScrollView {
             adjustment.remove_transition("scroll");
             this.transition = null;
         }
-        if (this.pauseTimerId != null) {
-            GLib.source_remove(this.pauseTimerId);
-            this.pauseTimerId = null;
+        if (this.initialPauseTimerId != null) {
+            GLib.source_remove(this.initialPauseTimerId);
+            this.initialPauseTimerId = null;
+        }
+        if (this.cyclePauseTimerId != null) {
+            GLib.source_remove(this.cyclePauseTimerId);
+            this.cyclePauseTimerId = null;
         }
 
         const initial = new GObject.Value();
@@ -275,8 +285,11 @@ class ScrollingLabel extends St.ScrollView {
             this.transition.rewind(); // Snap back to 0
             
             if (this.scrollPauseTime > 0) {
-                this.pauseTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this.scrollPauseTime, () => {
-                    this.pauseTimerId = null;
+                if (this.cyclePauseTimerId != null) {
+                    GLib.source_remove(this.cyclePauseTimerId);
+                }
+                this.cyclePauseTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this.scrollPauseTime, () => {
+                    this.cyclePauseTimerId = null;
                     if (!this.initPaused) {
                         this.transition.start();
                     }
@@ -290,8 +303,8 @@ class ScrollingLabel extends St.ScrollView {
         });
 
         if (this.scrollPauseTime > 0) {
-            this.pauseTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this.scrollPauseTime, () => {
-                this.pauseTimerId = null;
+            this.initialPauseTimerId = GLib.timeout_add(GLib.PRIORITY_DEFAULT, this.scrollPauseTime, () => {
+                this.initialPauseTimerId = null;
                 adjustment.add_transition("scroll", this.transition);
                 if (this.initPaused) {
                     this.transition.pause();
