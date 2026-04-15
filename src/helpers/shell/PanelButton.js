@@ -610,7 +610,10 @@ class PanelButton extends PanelMenu.Button {
      * @returns {Promise<void>}
      */
     async addMenuSlider() {
-        const position = await this.playerProxy.position.catch(errorLog);
+        const position = await this.playerProxy?.position.catch(errorLog);
+        if (!this.#isValidProxy()) {
+            return;
+        }
         const length = this.playerProxy.metadata["mpris:length"];
         const rate = this.playerProxy.rate;
         if (this.menuSlider == null) {
