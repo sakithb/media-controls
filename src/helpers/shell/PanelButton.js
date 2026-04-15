@@ -472,6 +472,19 @@ class PanelButton extends PanelMenu.Button {
     }
 
     /**
+     * Check whether this.playerProxy is still valid to dereference.
+     * The proxy can become null or be swapped during awaits (e.g. when a
+     * player disappears or the panel switches to another one). Callers that
+     * access this.playerProxy after an await MUST gate on this helper.
+     *
+     * @private
+     * @returns {boolean}
+     */
+    #isValidProxy() {
+        return this.playerProxy != null && this.playerProxy.isInvalid !== true;
+    }
+
+    /**
      * @private
      * @returns {Promise<void>}
      */
