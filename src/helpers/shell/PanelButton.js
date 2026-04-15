@@ -498,6 +498,9 @@ class PanelButton extends PanelMenu.Button {
         }
         let artSet = false;
         let stream = await getImage(this.playerProxy.metadata["mpris:artUrl"]);
+        if (!this.#isValidProxy()) {
+            return;
+        }
         if (stream == null && this.playerProxy.metadata["xesam:url"] != null) {
             const trackUri = GLib.uri_parse(this.playerProxy.metadata["xesam:url"], GLib.UriFlags.NONE);
             if (trackUri != null && trackUri.get_scheme() === "file") {
