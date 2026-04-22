@@ -562,7 +562,7 @@ class PanelButton extends PanelMenu.Button {
         }
         const width = this.getMenuItemWidth();
         this.menuLabelTitle = new ScrollingLabel({
-            text: this.playerProxy.metadata["xesam:title"],
+            text: this.playerProxy.metadata["xesam:title"] || "",
             isScrolling: this.extension.scrollLabels,
             initPaused: this.playerProxy.playbackStatus !== PlaybackStatus.PLAYING,
             width,
@@ -940,7 +940,7 @@ class PanelButton extends PanelMenu.Button {
         const labelTextElements = [];
         for (const labelElement of this.extension.labelsOrder) {
             if (LabelTypes[labelElement] === LabelTypes.TITLE) {
-                labelTextElements.push(this.playerProxy.metadata["xesam:title"]);
+                labelTextElements.push(this.playerProxy.metadata["xesam:title"] || "");
             } else if (LabelTypes[labelElement] === LabelTypes.ARTIST) {
                 labelTextElements.push(this.playerProxy.metadata["xesam:artist"]?.join(", ") || _("Unknown artist"));
             } else if (LabelTypes[labelElement] === LabelTypes.ALBUM) {

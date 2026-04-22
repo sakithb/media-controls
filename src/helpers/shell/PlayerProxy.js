@@ -1,7 +1,7 @@
 /** @import { PlaybackStatus } from '../../types/enums/common.js' */
 /** @import { MprisInterface, MprisPlayerInterface, PropertiesInterface, PlayerProxyProperties, MprisPlayerInterfaceMetadata, MprisPlayerInterfaceMetadataUnpacked } from '../../types/dbus.js' */
 /** @import { KeysOf } from '../../types/misc.js' */
-import { MPRIS_PLAYER_IFACE_NAME, MPRIS_OBJECT_PATH, LoopStatus } from "../../types/enums/common.js";
+import { MPRIS_PLAYER_IFACE_NAME, MPRIS_OBJECT_PATH, LoopStatus, PlaybackStatus } from "../../types/enums/common.js";
 import { errorLog } from "../../utils/common.js";
 import { createDbusProxy } from "../../utils/shell_only.js";
 
@@ -100,6 +100,7 @@ export default class PlayerProxy {
         this.onChanged("Metadata", this.validatePlayer.bind(this));
         this.onChanged("Identity", this.validatePlayer.bind(this));
         this.onChanged("DesktopEntry", this.validatePlayer.bind(this));
+        this.onChanged("PlaybackStatus", this.validatePlayer.bind(this));
         this.validatePlayer();
         this.pollTillInitialized();
         return true;
@@ -194,8 +195,12 @@ export default class PlayerProxy {
      */
     validatePlayer() {
         const isValidName = this.mprisProxy.Identity || this.mprisProxy.DesktopEntry;
-        const isValidMetadata = this.metadata && this.metadata["xesam:title"];
-        this.isInvalid = !isValidName || !isValidMetadata;
+        const hasTitle = this.metadata && this.metadata["xesam:title"];
+        // Some browser-MPRIS sources transiently publish empty metadata between tracks
+        // while still reporting PlaybackStatus === Playing; keep those valid so the panel
+        // doesn't switch away to a paused player and fail to recover.
+        const isPlaying = this.playbackStatus === PlaybackStatus.PLAYING;
+        this.isInvalid = !isValidName || (!hasTitle && !isPlaying);
         this.callOnChangedListeners("IsInvalid", this.isInvalid);
     }
 
