@@ -472,6 +472,19 @@ class PanelButton extends PanelMenu.Button {
     }
 
     /**
+     * Check whether this.playerProxy is still valid to dereference.
+     * The proxy can become null or be swapped during awaits (e.g. when a
+     * player disappears or the panel switches to another one). Callers that
+     * access this.playerProxy after an await MUST gate on this helper.
+     *
+     * @private
+     * @returns {boolean}
+     */
+    #isValidProxy() {
+        return this.playerProxy != null && this.playerProxy.isInvalid !== true;
+    }
+
+    /**
      * @private
      * @returns {Promise<void>}
      */
@@ -485,6 +498,9 @@ class PanelButton extends PanelMenu.Button {
         }
         let artSet = false;
         let stream = await getImage(this.playerProxy.metadata["mpris:artUrl"]);
+        if (!this.#isValidProxy()) {
+            return;
+        }
         if (stream == null && this.playerProxy.metadata["xesam:url"] != null) {
             const trackUri = GLib.uri_parse(this.playerProxy.metadata["xesam:url"], GLib.UriFlags.NONE);
             if (trackUri != null && trackUri.get_scheme() === "file") {
@@ -594,7 +610,10 @@ class PanelButton extends PanelMenu.Button {
      * @returns {Promise<void>}
      */
     async addMenuSlider() {
-        const position = await this.playerProxy.position.catch(errorLog);
+        const position = await this.playerProxy?.position.catch(errorLog);
+        if (!this.#isValidProxy()) {
+            return;
+        }
         const length = this.playerProxy.metadata["mpris:length"];
         const rate = this.playerProxy.rate;
         if (this.menuSlider == null) {
