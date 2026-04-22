@@ -48,6 +48,75 @@ function find_child_by_name(parent, name) {
     }
 }
 
+/**
+ * Create image content from a pixbuf for use in regular widgets rather than
+ * icon widgets, which assume square icon semantics.
+ *
+ * @param {GdkPixbuf.Pixbuf} pixbuf
+ * @returns {St.ImageContent}
+ */
+function createImageContent(pixbuf) {
+    const rgbaPixbuf = pixbuf.get_has_alpha() ? pixbuf : pixbuf.add_alpha(false, 0, 0, 0);
+    const context = global.stage.context.get_backend().get_cogl_context();
+    const content = new St.ImageContent({
+        preferred_width: rgbaPixbuf.width,
+        preferred_height: rgbaPixbuf.height,
+    });
+
+    content.set_bytes(
+        context,
+        rgbaPixbuf.get_pixels(),
+        Cogl.PixelFormat.RGBA_8888,
+        rgbaPixbuf.width,
+        rgbaPixbuf.height,
+        rgbaPixbuf.rowstride,
+    );
+
+    return content;
+}
+
+/**
+ * Keep artwork within shapes that work well in the popup without distorting it.
+ * Square covers remain square, wide video thumbnails keep their natural layout,
+ * and only extreme aspect ratios are center-cropped into a sensible range.
+ *
+ * @param {GdkPixbuf.Pixbuf} pixbuf
+ * @returns {GdkPixbuf.Pixbuf}
+ */
+function constrainMenuArtworkPixbuf(pixbuf) {
+    const aspectRatio = pixbuf.width / pixbuf.height;
+    const minAspectRatio = 1;
+    const maxAspectRatio = 16 / 9;
+
+    if (aspectRatio > maxAspectRatio) {
+        const croppedWidth = Math.floor(pixbuf.height * maxAspectRatio);
+        const offsetX = Math.floor((pixbuf.width - croppedWidth) / 2);
+        return pixbuf.new_subpixbuf(offsetX, 0, croppedWidth, pixbuf.height);
+    }
+
+    if (aspectRatio < minAspectRatio) {
+        const croppedHeight = pixbuf.width;
+        const offsetY = Math.floor((pixbuf.height - croppedHeight) / 2);
+        return pixbuf.new_subpixbuf(0, offsetY, pixbuf.width, croppedHeight);
+    }
+
+    return pixbuf;
+}
+
+/**
+ * @param {GdkPixbuf.Pixbuf} pixbuf
+ * @param {number} width
+ * @returns {{ width: number, height: number }}
+ */
+function getMenuArtworkSize(pixbuf, width) {
+    const aspectRatio = pixbuf.width / pixbuf.height;
+
+    return {
+        width,
+        height: Math.round(width / aspectRatio),
+    };
+}
+
 /** @extends PanelMenu.Button */
 class PanelButton extends PanelMenu.Button {
     /**
@@ -94,7 +163,7 @@ class PanelButton extends PanelMenu.Button {
     menuPlayers;
     /**
      * @private
-     * @type {St.Icon}
+     * @type {St.Bin}
      */
     menuImage;
     /**
@@ -477,30 +546,35 @@ class PanelButton extends PanelMenu.Button {
      */
     async addMenuImage() {
         if (this.menuImage == null) {
-            this.menuImage = new St.Icon({
+            this.menuImage = new St.Bin({
                 xExpand: false,
                 yExpand: false,
                 xAlign: Clutter.ActorAlign.CENTER,
+                styleClass: "popup-menu-image-bin",
             });
         }
         let artSet = false;
+        /** @type {Gio.Icon | null} */
+        let fallbackGicon = null;
         let stream = await getImage(this.playerProxy.metadata["mpris:artUrl"]);
         if (stream == null && this.playerProxy.metadata["xesam:url"] != null) {
             const trackUri = GLib.uri_parse(this.playerProxy.metadata["xesam:url"], GLib.UriFlags.NONE);
             if (trackUri != null && trackUri.get_scheme() === "file") {
                 const file = Gio.File.new_for_uri(trackUri.to_string());
-                const info = await file
-                    .query_info_async(
-                        `${Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH},${Gio.FILE_ATTRIBUTE_STANDARD_ICON}`,
-                        Gio.FileQueryInfoFlags.NONE,
-                        null,
-                        null,
-                    )
-                    .catch(errorLog);
+                const info = /** @type {Gio.FileInfo | null} */ (
+                    await file
+                        .query_info_async(
+                            `${Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH},${Gio.FILE_ATTRIBUTE_STANDARD_ICON}`,
+                            Gio.FileQueryInfoFlags.NONE,
+                            null,
+                            null,
+                        )
+                        .catch(errorLog)
+                );
                 if (info != null) {
                     const path = info.get_attribute_byte_string(Gio.FILE_ATTRIBUTE_THUMBNAIL_PATH);
                     if (path == null) {
-                        this.menuImage.gicon = info.get_icon();
+                        fallbackGicon = info.get_icon();
                     } else {
                         const thumb = Gio.File.new_for_path(path);
                         stream = await getImage(thumb.get_uri());
@@ -512,29 +586,35 @@ class PanelButton extends PanelMenu.Button {
         if (stream != null) {
             /** @type {Promise<GdkPixbuf.Pixbuf>} */
             const pixbufPromise = /** @type {any} */ (GdkPixbuf.Pixbuf.new_from_stream_async(stream, null));
-            const pixbuf = await pixbufPromise.catch(errorLog);
+            const pixbuf = /** @type {GdkPixbuf.Pixbuf | null} */ (await pixbufPromise.catch(errorLog));
             if (pixbuf != null) {
-                const aspectRatio = pixbuf.width / pixbuf.height;
-                const height = width / aspectRatio;
-                const [success, buffer] = pixbuf.save_to_bufferv("png", [], []);
-                if (success) {
-                    const bytes = GLib.Bytes.new(buffer);
-                    const icon = Gio.BytesIcon.new(bytes);
-                    this.menuImage.content = null;
-                    this.menuImage.gicon = icon;
-                    this.menuImage.iconSize = width;
-                    this.menuImage.width = width;
-                    this.menuImage.height = height;
-                    artSet = true;
-                }
+                const menuArtworkPixbuf = constrainMenuArtworkPixbuf(pixbuf);
+                const { width: artworkWidth, height: artworkHeight } = getMenuArtworkSize(menuArtworkPixbuf, width);
+                const imageWidget = new St.Widget({
+                    content: createImageContent(menuArtworkPixbuf),
+                    xExpand: false,
+                    yExpand: false,
+                    xAlign: Clutter.ActorAlign.CENTER,
+                    styleClass: "popup-menu-image",
+                    width: artworkWidth,
+                    height: artworkHeight,
+                });
+
+                this.menuImage.set_size(artworkWidth, artworkHeight);
+                this.menuImage.set_child(imageWidget);
+                artSet = true;
             }
         }
         if (artSet === false) {
-            this.menuImage.content = null;
-            this.menuImage.gicon = Gio.ThemedIcon.new("audio-x-generic-symbolic");
-            this.menuImage.width = width;
-            this.menuImage.height = width;
-            this.menuImage.iconSize = width;
+            const fallbackIcon = new St.Icon({
+                gicon: fallbackGicon ?? Gio.ThemedIcon.new("audio-x-generic-symbolic"),
+                iconSize: Math.min(width, 96),
+                xAlign: Clutter.ActorAlign.CENTER,
+                yAlign: Clutter.ActorAlign.CENTER,
+            });
+
+            this.menuImage.set_size(width, width);
+            this.menuImage.set_child(fallbackIcon);
         }
         if (this.menuImage.get_parent() == null) {
             this.menuBox.insert_child_above(this.menuImage, this.menuPlayers);
